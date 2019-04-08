@@ -10,4 +10,6 @@ export class BtcAddress {
     unconfirmed_received: number;
     unconfirmed_sent: number;
     unspent_tx_count: number;
+    first_tx: string;
+    last_tx: string;
 }

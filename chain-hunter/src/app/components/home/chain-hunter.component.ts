@@ -25,9 +25,9 @@ export class ChainHunterComponent implements OnInit {
 
         console.log(this.btcAddress);
 
-        this.btcService.getTransaction(this.addyTxn)
-        .subscribe(txn => this.btcTransaction = txn.data);
+        // this.btcService.getTransaction(this.addyTxn)
+        // .subscribe(txn => this.btcTransaction = txn.data);
 
-        console.log(this.btcTransaction);
+        // console.log(this.btcTransaction);
     }
 }

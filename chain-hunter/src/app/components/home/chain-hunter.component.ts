@@ -11,8 +11,8 @@ import { BtcService } from 'src/app/services/btc-svc.service';
 
 export class ChainHunterComponent implements OnInit {
     @Output() addyTxn: string;
-    @Output() btcAddress: BtcAddress;
-    @Output() btcTransaction: BtcTransaction;
+    @Output() btcAddress: BtcAddress = null;
+    @Output() btcTransaction: BtcTransaction = null;
 
     constructor(private btcService: BtcService) {}
 

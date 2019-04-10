@@ -23,7 +23,9 @@ export class BtcService{
         let endpoint: string = "/address/" + address;
         let url: string = this.base + endpoint;
 
-        return this.http.get<BtcBase<BtcAddress>>(url);
+        let result = this.http.get<BtcBase<BtcAddress>>(url);
+    
+        return result;
     }
 
     /**

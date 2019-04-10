@@ -16,4 +16,8 @@ export class BtcResultsComponent implements OnInit{
 
     ngOnInit() {
     }
+
+    isEmptyObject(obj) {
+        return (obj && (Object.keys(obj).length === 0));
+      }
 }

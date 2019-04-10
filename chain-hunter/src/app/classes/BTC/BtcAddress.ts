@@ -3,7 +3,7 @@ export class BtcAddress {
 
     address: string;
     received: number;
-    send: number;
+    sent: number;
     balance: number;
     tx_count: number;
     unconfirmed_tx_count: number;

@@ -6,6 +6,7 @@ import { BtcTransaction } from '../classes/BTC/BtcTransaction';
 import { Injectable } from '@angular/core';
 import { BtcBase } from '../classes/BTC/BtcBase';
 import { BtcPage } from '../classes/BTC/BtcPage';
+import { delay } from 'rxjs/operators';
 
 @Injectable({providedIn: 'root'})
 export class BtcService{
@@ -23,7 +24,8 @@ export class BtcService{
         let endpoint: string = "/address/" + address;
         let url: string = this.base + endpoint;
 
-        let result = this.http.get<BtcBase<BtcAddress>>(url);
+        let result = this.http.get<BtcBase<BtcAddress>>(url)
+        .pipe(delay(1000));
     
         return result;
     }
@@ -37,7 +39,8 @@ export class BtcService{
         let endpoint: string = "/address/" + address +"/tx";
         let url: string = this.base + endpoint;
 
-        return this.http.get<BtcBase<BtcPage<BtcTransaction[]>>>(url);
+        return this.http.get<BtcBase<BtcPage<BtcTransaction[]>>>(url)
+        .pipe(delay(1000));
     }
 
     /**
@@ -49,6 +52,7 @@ export class BtcService{
         let endpoint: string = "/tx/" + transaction + "?verbose=3";
         let url: string = this.base + endpoint;
 
-        return this.http.get<BtcBase<BtcTransaction>>(url);
+        return this.http.get<BtcBase<BtcTransaction>>(url)
+        .pipe(delay(1000));
     }
 }

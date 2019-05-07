@@ -1,8 +1,16 @@
 <h1>Chain Hunter</h1>
 
 <div>
-    <input [(ngModel)]="addyTxn" placeholder="Address/Transaction"/>
-    <button type="button" (click)="chainHunt()">Go!</button>
+    <div class="pull-right">
+        <div></div>
+        <span class="ui-float-label">
+            <input [(ngModel)]="addyTxn" id="addy-txn" type="text" size="50" pInputText> 
+            <label for="addy-txn">Address/Transaction</label>
+        </span>
+    </div>
+    <div class="pull-right">
+        <button pButton type="button" (click)="chainHunt()" label="Go!" class="ui-button-success"></button>
+    </div>
 </div>
 <div>
     <h3>Samples</h3>

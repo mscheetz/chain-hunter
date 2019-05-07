@@ -4,6 +4,8 @@ import { BtcTransaction } from 'src/app/classes/BTC/BtcTransaction';
 import { BtcService } from 'src/app/services/btc-svc.service';
 import { BtcPage } from '../../classes/BTC/BtcPage';
 import { delay } from 'q';
+import {InputTextModule} from 'primeng/inputtext';
+import {ButtonModule} from 'primeng/button';
 
 @Component({
     selector: 'chain-hunter',

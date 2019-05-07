@@ -6,6 +6,8 @@ import { AppComponent } from './app.component';
 import { ChainHunterComponent } from './components/home/chain-hunter.component';
 import { BtcResultsComponent } from './components/btc-results/btc-results.component';
 import { HttpClientModule } from '@angular/common/http';
+import {InputTextModule} from 'primeng/inputtext';
+import {ButtonModule} from 'primeng/button';
 
 @NgModule({
   declarations: [
@@ -17,7 +19,9 @@ import { HttpClientModule } from '@angular/common/http';
     BrowserModule,
     AppRoutingModule,
     FormsModule,
-    HttpClientModule
+    HttpClientModule,
+    InputTextModule,
+    ButtonModule
   ],
   providers: [],
   bootstrap: [AppComponent]

@@ -1,0 +1,20 @@
+<div *ngIf="ethAddress">
+<h3>ETH Address: {{ethAddress.address}}</h3>
+<div>Balance: {{ethAddress.balance}}</div>
+</div>
+<div *ngIf="ethTransactions">
+    <h2>ETH Transactions</h2>
+    <ul>
+        <li *ngFor="let txn of ethTransactions.list">
+          Confirmations: {{txn.confirmations}} Quantity: {{(txn.outputs_value)/100000000}}
+          {{txn.hash}}
+        </li>
+    </ul>
+</div>
+<div *ngIf="ethTransaction">
+<h3>ETH Transaction: {{ethTransaction.transaction}}</h3>
+<div>Confirmations: {{ethTransaction.confirmations}} Quantity: {{(btcTransaction.outputs_value)/100000000}}</div>
+</div>
+<div *ngIf="!ethAddress && !ethTransaction">
+    <h3>No ETH Data found</h3>
+</div>

@@ -7,24 +7,25 @@ import { Injectable } from '@angular/core';
 import { BtcBase } from '../classes/BTC/BtcBase';
 import { BtcPage } from '../classes/BTC/BtcPage';
 import { delay } from 'rxjs/operators';
+import { EthResponse } from '../classes/ETH/EthResponse';
 
 @Injectable({providedIn: 'root'})
 export class EthService{
     constructor(private http: HttpClient) {}
 
     conn: Connections = new Connections();
-    base: string = this.conn.btcBase;
+    base: string = this.conn.ethBase;
 
     /**
-     * Get a BTC address
+     * Get an ETH address
      * 
      * @param address Address to check
      */
-    getAddress(address: string): Observable<BtcBase<BtcAddress>>{
-        let endpoint: string = "/address/" + address;
+    getAddress(address: string): Observable<EthResponse<number>>{
+        let endpoint: string = "?module=account&action=balance&address="+ address +"&tag=latest&apikey=" + this.conn.ethKey;
         let url: string = this.base + endpoint;
 
-        let result = this.http.get<BtcBase<BtcAddress>>(url)
+        let result = this.http.get<EthResponse<number>>(url)
         .pipe(delay(1000));
     
         return result;

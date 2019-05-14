@@ -1,22 +1,18 @@
 export class EthTransaction {
     constructor() {}
 
-    blockNumber: number;
-    timeStamp: number;
-    hash: string;
-    nonce: number;
     blockHash: string;
-    transactionIndex: number;
+    blockNumber: string;
     from: string;
-    to: string;
-    value: number;
-    gas: number;
-    gasPrice: number;
-    isError: boolean;
-    txreceipt_status: string;
+    gas: string;
+    gasPrice: string;
+    hash: string;
     input: string;
-    contractAddress: string;
-    cumulativeGasUsed: number;
-    gasUsed: number;
-    confirmations: number;
+    nonce: string;
+    to: string;
+    transactionIndex: string;
+    value: string;
+    v: string;
+    r: string;
+    s: string;
 }

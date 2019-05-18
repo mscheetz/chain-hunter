@@ -17,9 +17,19 @@
     <div>Btc address: <span>15urYnyeJe3gwbGJ74wcX89Tz7ZtsFDVew</span></div>
     <div>Btc txn: <span>0eab89a271380b09987bcee5258fca91f28df4dadcedf892658b9bc261050d96</span></div>
 
+    <div>Bch address: <span>35hK24tcLEWcgNA4JxpvbkNkoAcDGqQPsP</span></div>
+    <div>Bch txn: <span>001ac94b4ef205519639607694aa461cfbe6094c6dea93023c83468e2597e0ba</span></div>
+
     <div>Eth address: <span>0x3f5CE5FBFe3E9af3971dD833D26bA9b5C936f0bE</span></div>
     <div>Eth txn: <span>0xa5eac3f286fbb68202fe7d547974f36c063d9511ffb500b22eca5038dcdfcc1a</span></div>
+
+    <div>Ltc address: <span>M8T1B2Z97gVdvmfkQcAtYbEepune1tzGua</span></div>
+    <div>Ltc txn: <span>073bef57560358ed3c454555c734c10054f4b434242c5b45d2f0817eb89f2e7a</span></div>
 </div>
 <div>
     <btc-results [btcAddress]="btcAddress" [btcTransaction]="btcTransaction" [btcTransactions]="btcTransactions"></btc-results>
+    <bch-results [bchAddress]="bchAddress" [bchTransaction]="bchTransaction" [bchTransactions]="bchTransactions"></bch-results>
+    <eth-results [ethAddress]="ethAddress" [ethTransaction]="ethTransaction" [ethTransactions]="ethTransactions"></eth-results>
+    <ltc-results [ltcAddress]="ltcAddress" [ltcTransaction]="ltcTransaction"></ltc-results>
+    <h3 *ngIf="this.emptyHanded === true">You come out empty handed</h3>
 </div>

@@ -42,11 +42,11 @@ export class EthService{
      * 
      * @param address Address to check
      */
-    getAddressTransactions(address: string): Observable<EthResponse<EthResponse<EthTransaction[]>>>{
+    getAddressTransactions(address: string): Observable<EthResponse<EthTransaction[]>>{
         let endpoint: string = "module=account&action=txlist&address=" + address + "&startblock=0&endblock=99999999&sort=asc";
         let url: string = this.ethscanBase + endpoint + this.ethscanApiKey;
 
-        return this.http.get<EthResponse<EthResponse<EthTransaction[]>>>(url)
+        return this.http.get<EthResponse<EthTransaction[]>>(url)
         .pipe(delay(1000));
     }
 

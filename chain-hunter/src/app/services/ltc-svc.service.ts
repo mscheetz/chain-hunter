@@ -10,7 +10,7 @@ export class LtcService{
     constructor(private http: HttpClient) {}
 
     conn: Connections = new Connections();
-    base: string = this.conn.chainzBase;
+    base: string = this.conn.chainzBase + "/ltc/api.dws";
     key: string = "&key=" + this.conn.chainzExplorerKey;
 
     /**
@@ -19,9 +19,8 @@ export class LtcService{
      * @param address Address to check
      */
     getAddress(address: string): Observable<number>{
-        let endpoint: string = "/ltc/";
         let params: string = "?q=getbalance&a=" + address;
-        let url: string = this.base + endpoint + params + this.key;
+        let url: string = this.base + params + this.key;
 
         let result = this.http.get<number>(url)
         .pipe(delay(1000));
@@ -35,9 +34,8 @@ export class LtcService{
      * @param address Address to check
      */
     getAddressTransactions(address: string): Observable<LtcTransaction[]>{
-        let endpoint: string = "/ltc/";
         let params: string = "?q=getbalance&a=" + address;
-        let url: string = this.base + endpoint + params + this.key;
+        let url: string = this.base + params + this.key;
 
         return this.http.get<LtcTransaction[]>(url)
         .pipe(delay(1000));
@@ -49,9 +47,8 @@ export class LtcService{
      * @param transaction Transaction to check
      */
     getTransaction(transaction: string): Observable<LtcTransaction>{
-        let endpoint: string = "/ltc/";
         let params: string = "?q=txinfo&t=" + transaction;
-        let url: string = this.base + endpoint + params + this.key;
+        let url: string = this.base + params + this.key;
 
         return this.http.get<LtcTransaction>(url)
         .pipe(delay(1000));

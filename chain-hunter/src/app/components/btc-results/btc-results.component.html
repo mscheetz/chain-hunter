@@ -3,7 +3,7 @@
 <div>Balance: {{btcAddress.balance/100000000}}</div>
 </div>
 <div *ngIf="btcTransactions">
-    <h2>BTC Transactions</h2>
+    <h4>BTC Transactions</h4>
     <ul>
         <li *ngFor="let txn of btcTransactions.list">
           Confirmations: {{txn.confirmations}} Quantity: {{(txn.outputs_value)/100000000}}

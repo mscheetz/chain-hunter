@@ -69,11 +69,15 @@ export class ChainHunterComponent implements OnInit {
             .subscribe(address => {
                 this.btcAddress = address.data
                 this.btcFound = true;
+                this.getBtcTransactions();
+                this.emptyHanded = false;
             });
         this.bchService.getAddress(this.addyTxn)
             .subscribe(address => {
                 this.bchAddress = address.data
                 this.bchFound = true;
+                this.getBchTransactions();
+                this.emptyHanded = false;
             });
         this.ethService.getAddress(this.addyTxn)
             .subscribe(addressResponse => {
@@ -150,5 +154,17 @@ export class ChainHunterComponent implements OnInit {
             && this.ethFound === false && this.ltcFound === false) {
                 this.emptyHanded = true;
             }
+    }
+
+    getBtcTransactions() {
+        this.btcService.getAddressTransactions(this.addyTxn)
+            .subscribe(txns => this.btcTransactions = txns.data);
+    }
+
+    getBchTransactions() {
+        this.bchService.getAddressTransactions(this.addyTxn)
+            .subscribe(txns => {
+                this.bchTransactions = txns.data;
+            });
     }
 }

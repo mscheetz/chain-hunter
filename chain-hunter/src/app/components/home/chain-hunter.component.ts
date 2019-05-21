@@ -67,25 +67,39 @@ export class ChainHunterComponent implements OnInit {
         this.nullOut();
         this.btcService.getAddress(this.addyTxn)
             .subscribe(address => {
-                this.btcAddress = address.data
-                this.btcFound = true;
-                this.getBtcTransactions();
-                this.emptyHanded = false;
+                if(address.err_no === 0 && address.data !== null) {
+                    this.btcAddress = address.data
+                    this.btcFound = true;
+                    this.getBtcTransactions();
+                    this.emptyHanded = false;
+                } else {
+                    this.getBtcTransaction();
+                }
             });
         this.bchService.getAddress(this.addyTxn)
             .subscribe(address => {
-                this.bchAddress = address.data
-                this.bchFound = true;
-                this.getBchTransactions();
-                this.emptyHanded = false;
+                if(address.err_no === 0 && address.data !== null) {
+                    this.bchAddress = address.data
+                    this.bchFound = true;
+                    this.getBchTransactions();
+                    this.emptyHanded = false;
+                } else {
+                    this.getBchTransaction();
+                }
             });
         this.ethService.getAddress(this.addyTxn)
             .subscribe(addressResponse => {
-            if(addressResponse.status === "1" || addressResponse.message === "OK") {
-                this.ethAddress.Address = this.addyTxn;
-                this.ethAddress.Balance = addressResponse.result;
-                this.ethFound = true;
-            }});
+                if(addressResponse.status === "1" || addressResponse.message === "OK") {
+                    this.ethAddress = new EthAddress();
+                    this.ethAddress.Address = this.addyTxn;
+                    this.ethAddress.Balance = addressResponse.result;
+                    this.ethFound = true;
+                    this.getEthTransactions();
+                    this.emptyHanded = false;
+                } else {
+                    this.getEthTransaction();
+                }
+            });
         this.ltcService.getAddress(this.addyTxn)
             .subscribe(balance => {
                 if(balance > 0) {
@@ -93,6 +107,7 @@ export class ChainHunterComponent implements OnInit {
                     this.ltcAddress.address = this.addyTxn;
                     this.ltcAddress.balance = balance;
                     this.ltcFound = true;
+                    this.emptyHanded = false;
                 }
             });
 
@@ -156,15 +171,53 @@ export class ChainHunterComponent implements OnInit {
             }
     }
 
+    getBtcTransaction() {
+        this.btcService.getTransaction(this.addyTxn)
+            .subscribe(txn => {
+                if(txn.err_no === 0) {
+                    this.btcTransaction = txn.data
+                    this.btcFound = true;
+                    this.emptyHanded = false;
+                }
+            });
+    }
+
     getBtcTransactions() {
         this.btcService.getAddressTransactions(this.addyTxn)
             .subscribe(txns => this.btcTransactions = txns.data);
+    }
+
+    getBchTransaction() {
+        this.bchService.getTransaction(this.addyTxn)
+            .subscribe(txn => {
+                if(txn.err_no === 0) {
+                    this.bchTransaction = txn.data
+                    this.bchFound = true;
+                    this.emptyHanded = false;
+                }
+            });
     }
 
     getBchTransactions() {
         this.bchService.getAddressTransactions(this.addyTxn)
             .subscribe(txns => {
                 this.bchTransactions = txns.data;
+            });
+    }
+
+    getEthTransaction() {
+        this.ethService.getTransaction(this.addyTxn)
+            .subscribe(txn => {
+                this.ethTransaction = txn.result
+                this.ethFound = true;
+                this.emptyHanded = false;
+            });
+    }
+
+    getEthTransactions() {
+        this.ethService.getAddressTransactions(this.addyTxn)
+            .subscribe(txns => {
+                this.ethTransactions = txns.result
             });
     }
 }

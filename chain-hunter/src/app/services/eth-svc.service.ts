@@ -20,7 +20,7 @@ export class EthService{
     ethscanBase: string = this.conn.ethscanBase;
     ethscanApiKey: string = "&apikey=" + this.conn.ethscanKey;
     ethplorerBase: string = this.conn.ethplorerBase;
-    ethplorerApiKey: string = "?apiKey=" + this.conn.ethplorerKey;
+    ethplorerApiKey: string = "&apiKey=" + this.conn.ethplorerKey;
 
     /**
      * Get an ETH address

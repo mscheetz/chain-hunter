@@ -1,9 +1,9 @@
 <div *ngIf="ethAddress">
 <h3>ETH Address: {{ethAddress.address}}</h3>
-<div>Balance: {{ethAddress.balance}}</div>
+<div>Balance: {{ethAddress.getBalance()}}</div>
 </div>
 <div *ngIf="ethTransactions">
-    <h2>ETH Transactions</h2>
+    <h4>ETH Transactions</h4>
     <ul>
         <li *ngFor="let txn of ethTransactions.list">
           Confirmations: {{txn.confirmations}} Quantity: {{(txn.outputs_value)/100000000}}

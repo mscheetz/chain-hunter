@@ -10,5 +10,6 @@ export class Connections{
     bchBase: string = "https://bch-chain.api.btc.com/v3";
     chainzBase: string = "http://chainz.cryptoid.info";
     chainzExplorerKey: string = "b1b1502c3852";
+    rvnBase: string = "https://ravencoin.network/api";
     //ethBase: string = "https://mainnet.infura.io/v3/chainhunter";
 }

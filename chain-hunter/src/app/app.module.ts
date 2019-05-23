@@ -6,11 +6,12 @@ import { AppComponent } from './app.component';
 import { ChainHunterComponent } from './components/home/chain-hunter.component';
 import { BtcResultsComponent } from './components/btc-results/btc-results.component';
 import { HttpClientModule } from '@angular/common/http';
-import {InputTextModule} from 'primeng/inputtext';
-import {ButtonModule} from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { ButtonModule } from 'primeng/button';
 import { EthResultsComponent } from './components/eth-results/eth-results.component';
 import { BchResultsComponent } from './components/bch-results/bch-results.component';
 import { LtcResultsComponent } from './components/ltc-results/ltc-results.component';
+import { RvnResultsComponent } from './components/rvn-results/rvn-results.component';
 
 @NgModule({
   declarations: [
@@ -19,7 +20,8 @@ import { LtcResultsComponent } from './components/ltc-results/ltc-results.compon
     BchResultsComponent,
     BtcResultsComponent,
     EthResultsComponent,
-    LtcResultsComponent
+    LtcResultsComponent,
+    RvnResultsComponent
   ],
   imports: [
     BrowserModule,

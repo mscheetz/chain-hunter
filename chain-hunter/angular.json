@@ -24,7 +24,12 @@
             "tsConfig": "src/tsconfig.app.json",
             "assets": [
               "src/favicon.ico",
-              "src/assets"
+              "src/assets",
+              {
+                "glob": "**/*",
+                "input": "./node_modules/cryptocurrency-icons/svg/color/",
+                "output": "./assets/cryptoicons"
+              }
             ],
             "styles": [
               "src/styles.scss",
@@ -92,7 +97,12 @@
             "scripts": [],
             "assets": [
               "src/favicon.ico",
-              "src/assets"
+              "src/assets",
+              {
+                "glob": "**/*",
+                "input": "./node_modules/cryptocurrency-icons/svg/color/",
+                "output": "./assets/cryptoicons"
+              }
             ]
           }
         },

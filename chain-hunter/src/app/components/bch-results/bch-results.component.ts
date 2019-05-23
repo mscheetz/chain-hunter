@@ -14,8 +14,9 @@ export class BchResultsComponent implements OnInit{
     @Input() bchTransaction: BchTransaction;
     @Input() bchTransactions: BchPagedResponse<BchTransaction[]>;
 
-    constructor() {}
+    constructor() {
+    }
 
-    ngOnInit() {
+    ngOnInit() {        
     }
 }

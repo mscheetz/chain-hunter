@@ -1,6 +1,6 @@
 <h1>Chain Hunter</h1>
 
-<div>
+<div *ngIf="notRunning">
     <div class="pull-right">
         <div></div>
         <span class="ui-float-label">
@@ -12,49 +12,40 @@
         <button pButton type="button" (click)="chainHunt()" label="Go!" class="ui-button-success"></button>
     </div>
 </div>
-<div>
-    <h3>Samples</h3>
-    <div>Btc address: <span>15urYnyeJe3gwbGJ74wcX89Tz7ZtsFDVew</span></div>
-    <div>Btc txn: <span>0eab89a271380b09987bcee5258fca91f28df4dadcedf892658b9bc261050d96</span></div>
-
-    <div>Bch address: <span>35hK24tcLEWcgNA4JxpvbkNkoAcDGqQPsP</span></div>
-    <div>Bch txn: <span>001ac94b4ef205519639607694aa461cfbe6094c6dea93023c83468e2597e0ba</span></div>
-
-    <div>Eth address: <span>0x3f5CE5FBFe3E9af3971dD833D26bA9b5C936f0bE</span></div>
-    <div>Eth txn: <span>0xa5eac3f286fbb68202fe7d547974f36c063d9511ffb500b22eca5038dcdfcc1a</span></div>
-
-    <div>Ltc address: <span>M8T1B2Z97gVdvmfkQcAtYbEepune1tzGua</span></div>
-    <div>Ltc txn: <span>073bef57560358ed3c454555c734c10054f4b434242c5b45d2f0817eb89f2e7a</span></div>
-
-    <div>Rvn address: <span>RK6wMGc1tvLNDf4LoW6uoEcdUJVRfKsC7h</span></div>
-    <div>Rvn txn: <span>88b1b2ff55bba09245d9f8099f1b7e9adac2efec13a484e36d860708b627f898</span></div>
+<div *ngIf="!notRunning">
+    <p-progressSpinner></p-progressSpinner>
 </div>
 <div>
-            <!-- <p-graphicImage url="{{item.icon}}"></p-graphicImage> -->
-                
-            <!-- <img [src]="icons[index]" /> -->
-    <!-- <img [src]="bchIcon">
-    <img [src]="btcIcon">
-    <img [src]="ethIcon">
-    <img [src]="ltcIcon">
-    <img [src]="rvnIcon"> -->
-    <btc-results [btcAddress]="btcAddress" [btcTransaction]="btcTransaction" [btcTransactions]="btcTransactions"></btc-results>
-    <bch-results [bchAddress]="bchAddress" [bchTransaction]="bchTransaction" [bchTransactions]="bchTransactions"></bch-results>
-    <eth-results [ethAddress]="ethAddress" [ethTransaction]="ethTransaction" [ethTransactions]="ethTransactions"></eth-results>
-    <ltc-results [ltcAddress]="ltcAddress" [ltcTransaction]="ltcTransaction"></ltc-results>
-    <rvn-results [rvnAddress]="rvnAddress" [rvnTransaction]="rvnTransaction" [rvnTransactions]="rvnTransactions"></rvn-results>
+    <p-tabMenu [model]="items" [activeItem]="activeItem">
+        <ng-template pTemplate="item" let-item let-i="index">
+            <div style="position: relative; text-align: center; min-width: 10em">
+                <img src="assets/cryptoicons/{{item.icon}}" title="{{item.label}}" />
+            </div>
+        </ng-template>
+    </p-tabMenu>
+    <btc-results *ngIf="viewBtc" [btcAddress]="btcAddress" [btcTransaction]="btcTransaction" [btcTransactions]="btcTransactions"></btc-results>
+    <bch-results *ngIf="viewBch" [bchAddress]="bchAddress" [bchTransaction]="bchTransaction" [bchTransactions]="bchTransactions"></bch-results>
+    <eth-results *ngIf="viewEth" [ethAddress]="ethAddress" [ethTransaction]="ethTransaction" [ethTransactions]="ethTransactions"></eth-results>
+    <ltc-results *ngIf="viewLtc" [ltcAddress]="ltcAddress" [ltcTransaction]="ltcTransaction"></ltc-results>
+    <rvn-results *ngIf="viewRvn" [rvnAddress]="rvnAddress" [rvnTransaction]="rvnTransaction" [rvnTransactions]="rvnTransactions"></rvn-results>
+    <xrp-results *ngIf="viewXrp" [xrpAddress]="xrpAddress" [xrpTransaction]="xrpTransaction" [xrpTransactions]="xrpTransactions"></xrp-results>
     <h3 *ngIf="this.emptyHanded === true">You came out empty handed</h3>
     <div>
         Coming soon:
         <div>
             <img src="assets/cryptoicons/color/bnb.svg" />
             <img src="assets/cryptoicons/color/eos.svg" />
+            <img src="assets/cryptoicons/color/iost.svg" />
             <img src="assets/cryptoicons/color/neo.svg" />
             <img src="assets/cryptoicons/color/ont.svg" />
             <img src="assets/cryptoicons/color/trx.svg" />
             <img src="assets/cryptoicons/color/usdt.svg" />
             <img src="assets/cryptoicons/color/xlm.svg" />
-            <img src="assets/cryptoicons/color/xrp.svg" />
         </div>
     </div>
 </div>
+    <p-accordion [activeIndex]="samplesIndex">
+        <p-accordionTab header="Samples">
+            <samples [samplesIndex]="samplesIndex"></samples>
+        </p-accordionTab>
+    </p-accordion>

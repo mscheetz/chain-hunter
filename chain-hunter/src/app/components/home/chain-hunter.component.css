@@ -1,3 +1,7 @@
-.eye-icon {
-    background-image: url('../../../assets/eye.jpg');
+.not-found-bg {
+    background-color: dimgrey;
+}
+
+.found-bg {
+    background-color: ghostwhite;
 }

@@ -1,0 +1,20 @@
+<div *ngIf="xrpAddress">
+<h3>XRP Address: {{xrpAddress.account}}</h3>
+<div>Balance: {{xrpAddress.xrpBalance | number}}</div>
+</div>
+<div *ngIf="xrpTransactions">
+    <h4>XRP Transactions</h4>
+    <ul>
+        <li *ngFor="let txn of xrpTransactions">
+          Date: {{txn.executed_time}} Quantity: {{txn.amount | number}}
+          {{txn.hash}}
+        </li>
+    </ul>
+</div>
+<div *ngIf="xrpTransaction">
+<h3>XRP Transaction: {{xrpTransaction.hash}}</h3>
+<div>Date: {{xrpTransaction.date}} Quantity: {{(xrpTransaction.Amount.value)/1000000}}</div>
+</div>
+<div *ngIf="!xrpAddress && !xrpTransaction">
+    <h3>No XRP Data found</h3>
+</div>

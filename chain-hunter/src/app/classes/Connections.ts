@@ -11,5 +11,6 @@ export class Connections{
     chainzBase: string = "http://chainz.cryptoid.info";
     chainzExplorerKey: string = "b1b1502c3852";
     rvnBase: string = "https://ravencoin.network/api";
+    xrpBase: string = "https://api.xrpscan.com/api";
     //ethBase: string = "https://mainnet.infura.io/v3/chainhunter";
 }

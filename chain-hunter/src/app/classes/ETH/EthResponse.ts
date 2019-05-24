@@ -4,4 +4,5 @@ export class EthResponse<T> {
     status: string;
     message: string;
     result: T;
+    error: object;
 }

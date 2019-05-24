@@ -1,20 +1,22 @@
-<div *ngIf="bchAddress">
-<h3>BCH Address: {{bchAddress.address}}</h3>
-<div>Balance: {{bchAddress.balance/100000000}}</div>
-</div>
-<div *ngIf="bchTransactions">
-    <h4>BCH Transactions</h4>
-    <ul>
-        <li *ngFor="let txn of bchTransactions.list">
-          Confirmations: {{txn.confirmations}} Quantity: {{(txn.outputs_value)/100000000}}
-          {{txn.hash}}
-        </li>
-    </ul>
-</div>
-<div *ngIf="bchTransaction">
-<h3>BCH Transaction: {{bchTransaction.transaction}}</h3>
-<div>Confirmations: {{bchTransaction.confirmations}} Quantity: {{(bchTransaction.outputs_value)/100000000}}</div>
+<div *ngIf="bchAddress || bchTransaction">
+    <div *ngIf="bchAddress">
+    <h3>BCH Address: {{bchAddress.address}}</h3>
+    <div>Balance: {{bchAddress.balance/100000000}}</div>
+    </div>
+    <div *ngIf="bchTransactions">
+        <h4>BCH Transactions</h4>
+        <ul>
+            <li *ngFor="let txn of bchTransactions.list">
+            Confirmations: {{txn.confirmations}} Quantity: {{(txn.outputs_value)/100000000}}
+            {{txn.hash}}
+            </li>
+        </ul>
+    </div>
+    <div *ngIf="bchTransaction">
+    <h3>BCH Transaction: {{bchTransaction.transaction}}</h3>
+    <div>Confirmations: {{bchTransaction.confirmations}} Quantity: {{(bchTransaction.outputs_value)/100000000}}</div>
+    </div>
 </div>
 <div *ngIf="!bchAddress && !bchTransaction">
-    <h3><img src="assets/cryptoicons/bch.svg" /> BCH Data found</h3>
+    <h3>BCH Data found</h3>
 </div>

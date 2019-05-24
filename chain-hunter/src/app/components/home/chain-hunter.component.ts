@@ -18,6 +18,8 @@ import { RvnAddress } from 'src/app/classes/RVN/RvnAddress';
 import { RvnTransaction } from 'src/app/classes/RVN/RvnTransaction';
 import { RvnPaged } from 'src/app/classes/RVN/RvnPaged';
 import { RvnService } from 'src/app/services/rvn-svc.service';
+import { ThrowStmt } from '@angular/compiler';
+import { MenuItem } from 'primeng/api';
 
 @Component({
     selector: 'chain-hunter',
@@ -47,6 +49,13 @@ export class ChainHunterComponent implements OnInit {
     @Output() rvnTransactions: RvnTransaction[] = null;
     rvnFound: boolean = false;
     emptyHanded: boolean = false;
+    btcIcon: string;
+    bchIcon: string;
+    ethIcon: string;
+    ltcIcon: string;
+    rvnIcon: string;
+    items: MenuItem[];
+    icons: string[];
 
     constructor(private btcService: BtcService, 
                 private bchService: BchService,
@@ -55,9 +64,29 @@ export class ChainHunterComponent implements OnInit {
                 private rvnService: RvnService) {}
 
     ngOnInit() {
+        this.nullOut();
+        this.items = [
+            { label: 'btc', icon: this.btcIcon },
+            { label: 'bch', icon: this.bchIcon },
+            { label: 'eth', icon: this.ethIcon },
+            { label: 'ltc', icon: this.ltcIcon },
+            { label: 'rvn', icon: this.rvnIcon }
+        ]
+        this.icons = [
+            this.btcIcon,
+            this.bchIcon,
+            this.ethIcon,
+            this.ltcIcon,
+            this.rvnIcon
+        ]
     }
 
     nullOut(){
+        this.bchFound = false;
+        this.btcFound = false;
+        this.ethFound = false;
+        this.ltcFound = false;
+        this.rvnFound = false;
         this.btcAddress = null;
         this.btcTransaction = null;
         this.btcTransactions = null;
@@ -73,6 +102,7 @@ export class ChainHunterComponent implements OnInit {
         this.rvnTransaction = null;
         this.rvnTransactions = null;
         this.emptyHanded = false;
+        this.calculateIcons();
     }
 
     chainHunt(){
@@ -84,6 +114,7 @@ export class ChainHunterComponent implements OnInit {
                     this.btcFound = true;
                     this.getBtcTransactions();
                     this.emptyHanded = false;
+                    this.calculateIcons();
                 } else {
                     this.getBtcTransaction();
                 }
@@ -95,6 +126,7 @@ export class ChainHunterComponent implements OnInit {
                     this.bchFound = true;
                     this.getBchTransactions();
                     this.emptyHanded = false;
+                    this.calculateIcons();
                 } else {
                     this.getBchTransaction();
                 }
@@ -108,6 +140,7 @@ export class ChainHunterComponent implements OnInit {
                     this.ethFound = true;
                     this.getEthTransactions();
                     this.emptyHanded = false;
+                    this.calculateIcons();
                 } else {
                     this.getEthTransaction();
                 }
@@ -120,6 +153,7 @@ export class ChainHunterComponent implements OnInit {
                     this.ltcAddress.balance = balance;
                     this.ltcFound = true;
                     this.emptyHanded = false;
+                    this.calculateIcons();
                 }
             });
         this.rvnService.getAddress(this.addyTxn)
@@ -129,6 +163,7 @@ export class ChainHunterComponent implements OnInit {
                     this.rvnFound = true;
                     this.getRvnTransactions();
                     this.emptyHanded = false;
+                    this.calculateIcons();
                 } else {
                     this.getRvnTransaction();
                 }
@@ -144,13 +179,16 @@ export class ChainHunterComponent implements OnInit {
                     this.btcTransaction = txn.data
                     this.btcFound = true;
                     this.emptyHanded = false;
+                    this.calculateIcons();
                 }
             });
     }
 
     getBtcTransactions() {
         this.btcService.getAddressTransactions(this.addyTxn)
-            .subscribe(txns => this.btcTransactions = txns.data);
+            .subscribe(txns => {
+                this.btcTransactions = txns.data
+            });
     }
 
     getBchTransaction() {
@@ -160,6 +198,7 @@ export class ChainHunterComponent implements OnInit {
                     this.bchTransaction = txn.data
                     this.bchFound = true;
                     this.emptyHanded = false;
+                    this.calculateIcons();
                 }
             });
     }
@@ -174,9 +213,12 @@ export class ChainHunterComponent implements OnInit {
     getEthTransaction() {
         this.ethService.getTransaction(this.addyTxn)
             .subscribe(txn => {
-                this.ethTransaction = txn.result
-                this.ethFound = true;
-                this.emptyHanded = false;
+                if(!txn.error) {
+                    this.ethTransaction = txn.result
+                    this.ethFound = true;
+                    this.emptyHanded = false;
+                    this.calculateIcons();
+                }
             });
     }
 
@@ -194,6 +236,7 @@ export class ChainHunterComponent implements OnInit {
                     this.rvnTransaction = txn
                     this.rvnFound = true;
                     this.emptyHanded = false;
+                    this.calculateIcons();
                 }
             });
     }
@@ -203,5 +246,20 @@ export class ChainHunterComponent implements OnInit {
             .subscribe(txns => {
                 this.rvnTransactions = txns.txs;
             });
+    }
+
+    calculateIcons() {
+        this.bchIcon = this.getIcon("bch", this.bchFound);
+        this.btcIcon = this.getIcon("btc", this.btcFound);
+        this.ethIcon = this.getIcon("eth", this.ethFound);
+        this.ltcIcon = this.getIcon("ltc", this.ltcFound);
+        this.rvnIcon = this.getIcon("rvn", this.rvnFound);
+    }
+
+    getIcon(symbol: string, exists: boolean): string {
+        let iconBase = "/assets/cryptoicons/";
+        let property = exists ? "color" : "white";
+
+        return iconBase + property + "/" + symbol + ".svg";
     }
 }

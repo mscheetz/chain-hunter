@@ -28,7 +28,12 @@
               {
                 "glob": "**/*",
                 "input": "./node_modules/cryptocurrency-icons/svg/color/",
-                "output": "./assets/cryptoicons"
+                "output": "./assets/cryptoicons/color"
+              },
+              {
+                "glob": "**/*",
+                "input": "./node_modules/cryptocurrency-icons/svg/white/",
+                "output": "./assets/cryptoicons/white"
               }
             ],
             "styles": [
@@ -101,7 +106,12 @@
               {
                 "glob": "**/*",
                 "input": "./node_modules/cryptocurrency-icons/svg/color/",
-                "output": "./assets/cryptoicons"
+                "output": "./assets/cryptoicons/color"
+              },
+              {
+                "glob": "**/*",
+                "input": "./node_modules/cryptocurrency-icons/svg/white/",
+                "output": "./assets/cryptoicons/white"
               }
             ]
           }

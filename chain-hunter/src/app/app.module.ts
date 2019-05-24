@@ -12,6 +12,8 @@ import { EthResultsComponent } from './components/eth-results/eth-results.compon
 import { BchResultsComponent } from './components/bch-results/bch-results.component';
 import { LtcResultsComponent } from './components/ltc-results/ltc-results.component';
 import { RvnResultsComponent } from './components/rvn-results/rvn-results.component';
+import { TabMenuModule } from 'primeng/tabmenu';
+import { TabViewModule } from 'primeng/tabview';
 
 @NgModule({
   declarations: [
@@ -29,7 +31,9 @@ import { RvnResultsComponent } from './components/rvn-results/rvn-results.compon
     FormsModule,
     HttpClientModule,
     InputTextModule,
-    ButtonModule
+    ButtonModule,
+    TabMenuModule,
+    TabViewModule
   ],
   providers: [],
   bootstrap: [AppComponent]

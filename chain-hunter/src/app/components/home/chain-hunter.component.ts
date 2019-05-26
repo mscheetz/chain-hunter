@@ -21,6 +21,10 @@ import { XrpAddress } from 'src/app/classes/XRP/XrpAddress';
 import { XrpTransaction } from 'src/app/classes/XRP/XrpTransaction';
 import { XrpAddressTransaction } from 'src/app/classes/XRP/XrpAddressTransaction';
 import { XrpService } from 'src/app/services/xrp-svc.service';
+import { BnbAddressTransaction } from 'src/app/classes/BNB/BnbAddressTransaction';
+import { BnbTransaction } from 'src/app/classes/BNB/BnbTransaction';
+import { BnbAddress } from 'src/app/classes/BNB/BnbAddress';
+import { BnbService } from 'src/app/services/bnb-svc.service';
 
 @Component({
     selector: 'chain-hunter',
@@ -37,6 +41,13 @@ export class ChainHunterComponent implements OnInit {
     viewBtc: boolean = false;
     btcComplete: boolean = true;
     btcIcon: string;
+    @Output() bnbAddress: BnbAddress = null;
+    @Output() bnbTransaction: BnbTransaction = null;
+    @Output() bnbTransactions: BnbAddressTransaction[] = null;
+    bnbFound: boolean = false;
+    viewBnb: boolean = false;
+    bnbComplete: boolean = true;
+    bnbIcon: string;
     @Output() ethAddress: EthAddress = null;
     @Output() ethTransaction: EthTransaction = null;
     @Output() ethTransactions: EthTransaction[] = null;
@@ -78,6 +89,7 @@ export class ChainHunterComponent implements OnInit {
 
     constructor(private btcService: BtcService, 
                 private bchService: BchService,
+                private bnbService: BnbService,
                 private ethService: EthService,
                 private ltcService: LtcService,
                 private rvnService: RvnService,
@@ -90,6 +102,7 @@ export class ChainHunterComponent implements OnInit {
 
     nullOut(){
         this.bchFound = false;
+        this.bnbFound = false;
         this.btcFound = false;
         this.ethFound = false;
         this.ltcFound = false;
@@ -98,6 +111,9 @@ export class ChainHunterComponent implements OnInit {
         this.btcAddress = null;
         this.btcTransaction = null;
         this.btcTransactions = null;
+        this.bnbAddress = null;
+        this.bnbTransaction = null;
+        this.bnbTransactions = null;
         this.bchAddress = null;
         this.bchTransaction = null;
         this.bchTransactions = null;
@@ -113,7 +129,7 @@ export class ChainHunterComponent implements OnInit {
         this.xrpTransaction = null;
         this.xrpTransactions = null;
         this.emptyHanded = false;
-        this.btcComplete = this.bchComplete = this.ethComplete = this.ltcComplete = this.rvnComplete = this.xrpComplete = false;
+        this.btcComplete = this.bnbComplete = this.bchComplete = this.ethComplete = this.ltcComplete = this.rvnComplete = this.xrpComplete = false;
         this.calculateIcons();
     }
 
@@ -141,6 +157,20 @@ export class ChainHunterComponent implements OnInit {
                 this.getBtcTransaction();
                 console.log("btc address error:" + error);
             });
+        this.bnbService.getAddress(this.addyTxn)
+            .subscribe(address => {
+                this.bnbAddress = address;
+                this.bnbFound = true;
+                this.getBnbTransactions();
+                this.emptyHanded = false;
+                this.bnbComplete = true;
+                this.calculateIcons();
+                console.log("bnb address found");
+            },
+            error => {
+                this.getBnbTransaction();
+                console.log("bnb address error:" + error);
+        });
         this.bchService.getAddress(this.addyTxn)
             .subscribe(address => {
                 if(address.err_no === 0 && address.data !== null) {
@@ -162,7 +192,8 @@ export class ChainHunterComponent implements OnInit {
             });
         this.ethService.getAddress(this.addyTxn)
             .subscribe(addressResponse => {
-                if(addressResponse.status === "1" || addressResponse.message === "OK") {
+                if((addressResponse.status === "1" || addressResponse.message === "OK") 
+                    && addressResponse.result !== "0" ) {
                     this.ethAddress = new EthAddress();
                     this.ethAddress.Address = this.addyTxn;
                     this.ethAddress.Balance = addressResponse.result;
@@ -270,6 +301,30 @@ export class ChainHunterComponent implements OnInit {
             });
     }
 
+    getBnbTransaction() {
+        this.bnbService.getTransaction(this.addyTxn)
+            .subscribe(txn => {
+                this.bnbComplete = true;
+                this.bnbTransaction = txn;
+                this.bnbFound = true;
+                this.emptyHanded = false;
+                console.log("bnb transaction found");
+                this.calculateIcons();
+            },
+            error => {
+                this.bnbComplete = true;
+                this.calculateIcons();
+                console.log("bnb transaction error:" + error);
+            });
+    }
+
+    getBnbTransactions() {
+        this.bnbService.getAddressTransactions(this.addyTxn)
+            .subscribe(txns => {
+                this.bnbTransactions = txns.tx
+            });
+    }
+
     getBchTransaction() {
         this.bchService.getTransaction(this.addyTxn)
             .subscribe(txn => {
@@ -306,6 +361,7 @@ export class ChainHunterComponent implements OnInit {
                     this.ethTransaction = txn.result
                     this.ethFound = true;
                     this.emptyHanded = false;
+                    this.getEthLastBlock();
                     console.log("eth transaction found");
                 } else {
                     console.log("eth transaction not found");
@@ -323,7 +379,20 @@ export class ChainHunterComponent implements OnInit {
         this.ethService.getAddressTransactions(this.addyTxn)
             .subscribe(txns => {
                 this.ethTransactions = txns.result
+                this.getEthLastBlock(true);
             });
+    }
+
+    getEthLastBlock(multi: boolean = false) {
+        this.ethService.getLatestBlock().subscribe(block => {
+            if(multi) {
+                this.ethTransactions.forEach(txn => {
+                    txn.currentBlock = block.result;
+                });
+            } else {
+                this.ethTransaction.currentBlock = block.result;
+            }
+        });
     }
 
     getRvnTransaction() {
@@ -384,6 +453,7 @@ export class ChainHunterComponent implements OnInit {
 
     calculateIcons() {
         this.bchIcon = this.getIcon("bch", this.bchFound);
+        this.bnbIcon = this.getIcon("bnb", this.bnbFound);
         this.btcIcon = this.getIcon("btc", this.btcFound);
         this.ethIcon = this.getIcon("eth", this.ethFound);
         this.ltcIcon = this.getIcon("ltc", this.ltcFound);
@@ -394,8 +464,9 @@ export class ChainHunterComponent implements OnInit {
     }
 
     checkComplete() {
-        if(this.btcComplete && this.bchComplete && this.ethComplete && this.ltcComplete 
-            && this.rvnComplete && this.xrpComplete ){
+        if(this.btcComplete && this.bnbComplete && this.bchComplete 
+            && this.ethComplete && this.ltcComplete && this.rvnComplete 
+            && this.xrpComplete ){
             this.notRunning = true;
         }
     }
@@ -408,6 +479,7 @@ export class ChainHunterComponent implements OnInit {
             { label: 'ltc', icon: this.ltcIcon, command: (event) => { this.showLtc() } },
             { label: 'rvn', icon: this.rvnIcon, command: (event) => { this.showRvn() } },
             { label: 'xrp', icon: this.xrpIcon, command: (event) => { this.showXrp() } },
+            { label: 'bnb', icon: this.bnbIcon, command: (event) => { this.showBnb() } },
         ]        
     }
 
@@ -420,6 +492,7 @@ export class ChainHunterComponent implements OnInit {
 
     hideAll() {
         this.viewBch = false;
+        this.viewBnb = false;
         this.viewBtc = false;
         this.viewEth = false;
         this.viewLtc = false;
@@ -433,6 +506,15 @@ export class ChainHunterComponent implements OnInit {
         } else {
             this.hideAll();
             this.viewBtc = true;
+        }
+    }
+
+    showBnb() {
+        if(this.viewBnb === true) {
+            this.hideAll();
+        } else {
+            this.hideAll();
+            this.viewBnb = true;
         }
     }
 

@@ -19,12 +19,14 @@ import { SamplesComponent } from './components/samples/samples.component';
 import { XrpResultsComponent } from './components/xrp-results/xrp-results.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { BnbResultsComponent } from './components/bnb-results/bnb-results.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     ChainHunterComponent,
     BchResultsComponent,
+    BnbResultsComponent,
     BtcResultsComponent,
     EthResultsComponent,
     LtcResultsComponent,

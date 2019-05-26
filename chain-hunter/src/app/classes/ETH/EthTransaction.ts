@@ -15,4 +15,17 @@ export class EthTransaction {
     v: string;
     r: string;
     s: string;
+    currentBlock: string;
+
+    getQuantity(): number {
+        let intVal = parseInt(this.value);
+        return intVal / 1000000000000000000;
+    }
+
+    getConfirmations(): number {
+        let txnBlock = parseInt(this.blockNumber);
+        let latestBlock = parseInt(this.currentBlock);
+
+        return latestBlock - txnBlock;
+    }
 }

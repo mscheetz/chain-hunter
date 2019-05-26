@@ -6,14 +6,14 @@
     <h4>ETH Transactions</h4>
     <ul>
         <li *ngFor="let txn of ethTransactions.list">
-          Confirmations: {{txn.confirmations}} Quantity: {{(txn.outputs_value)/100000000}}
+          Confirmations: {{txn.confirmations}} Quantity: {{txn.getQuantity()}}
           {{txn.hash}}
         </li>
     </ul>
 </div>
 <div *ngIf="ethTransaction">
-<h3>ETH Transaction: {{ethTransaction.transaction}}</h3>
-<div>Confirmations: {{ethTransaction.confirmations}} Quantity: {{(btcTransaction.outputs_value)/100000000}}</div>
+<h3>ETH Transaction: {{ethTransaction.blockHash}}</h3>
+<div>Confirmations: {{ethTransaction.confirmations}} Quantity: {{ethTransaction.getQuantity()}}</div>
 </div>
 <div *ngIf="!ethAddress && !ethTransaction">
     <h3>No ETH Data found</h3>

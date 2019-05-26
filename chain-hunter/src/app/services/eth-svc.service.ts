@@ -43,7 +43,7 @@ export class EthService{
      * @param address Address to check
      */
     getAddressTransactions(address: string): Observable<EthResponse<EthTransaction[]>>{
-        let endpoint: string = "module=account&action=txlist&address=" + address + "&startblock=0&endblock=99999999&sort=asc";
+        let endpoint: string = "?module=account&action=txlist&address=" + address + "&startblock=0&endblock=99999999&sort=asc";
         let url: string = this.ethscanBase + endpoint + this.ethscanApiKey;
 
         return this.http.get<EthResponse<EthTransaction[]>>(url)
@@ -79,7 +79,7 @@ export class EthService{
      * Get lastest Eth block
      */
     getLatestBlock(): Observable<EthResponse<string>> {
-        let endpoint: string = "module=proxy&action=eth_blockNumber";
+        let endpoint: string = "?module=proxy&action=eth_blockNumber";
         let url: string = this.ethscanBase + endpoint + this.ethscanApiKey;
 
         return this.http.get<EthResponse<string>>(url)

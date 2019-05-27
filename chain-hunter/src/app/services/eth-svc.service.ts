@@ -27,11 +27,11 @@ export class EthService{
      * 
      * @param address Address to check
      */
-    getAddress(address: string): Observable<EthResponse<number>>{
+    getAddress(address: string): Observable<EthResponse<string>>{
         let endpoint: string = "?module=account&action=balance&address="+ address +"&tag=latest";
         let url: string = this.ethscanBase + endpoint + this.ethscanApiKey;
 
-        let result = this.http.get<EthResponse<number>>(url)
+        let result = this.http.get<EthResponse<string>>(url)
         .pipe(delay(1000));
     
         return result;

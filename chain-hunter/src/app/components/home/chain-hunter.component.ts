@@ -389,7 +389,7 @@ export class ChainHunterComponent implements OnInit {
         this.ethService.getTransaction(this.addyTxn)
             .subscribe(txn => {
                 this.ethComplete = true;
-                if(!txn.error) {
+                if(!txn.error && txn.result !== null) {
                     this.ethTransaction = txn.result
                     this.ethFound = true;
                     this.emptyHanded = false;

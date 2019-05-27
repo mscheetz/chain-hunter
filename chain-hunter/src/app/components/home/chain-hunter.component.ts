@@ -25,6 +25,10 @@ import { BnbAddressTransaction } from 'src/app/classes/BNB/BnbAddressTransaction
 import { BnbTransaction } from 'src/app/classes/BNB/BnbTransaction';
 import { BnbAddress } from 'src/app/classes/BNB/BnbAddress';
 import { BnbService } from 'src/app/services/bnb-svc.service';
+import { NeoAddressTxn } from 'src/app/classes/NEO/NeoAddressTxn';
+import { NeoTransaction } from 'src/app/classes/NEO/NeoTransaction';
+import { NeoAddress } from 'src/app/classes/NEO/NeoAddress';
+import { NeoService } from 'src/app/services/neo-svc.service';
 
 @Component({
     selector: 'chain-hunter',
@@ -82,6 +86,13 @@ export class ChainHunterComponent implements OnInit {
     viewXrp: boolean = false;
     xrpIcon: string;
     xrpComplete: boolean = true;
+    @Output() neoAddress: NeoAddress = null;
+    @Output() neoTransaction: NeoTransaction = null;
+    @Output() neoTransactions: NeoAddressTxn[] = null;
+    neoFound: boolean = false;
+    viewNeo: boolean = false;
+    neoIcon: string;
+    neoComplete: boolean = true;
     items: MenuItem[];
     emptyHanded: boolean = false;
     notRunning: boolean = true;
@@ -92,6 +103,7 @@ export class ChainHunterComponent implements OnInit {
                 private bnbService: BnbService,
                 private ethService: EthService,
                 private ltcService: LtcService,
+                private neoService: NeoService,
                 private rvnService: RvnService,
                 private xrpService: XrpService) {}
 
@@ -106,6 +118,7 @@ export class ChainHunterComponent implements OnInit {
         this.btcFound = false;
         this.ethFound = false;
         this.ltcFound = false;
+        this.neoFound = false;
         this.rvnFound = false;
         this.xrpFound = false;
         this.btcAddress = null;
@@ -122,6 +135,9 @@ export class ChainHunterComponent implements OnInit {
         this.ethTransactions = null;
         this.ltcAddress = null;
         this.ltcTransaction = null;
+        this.neoAddress = null;
+        this.neoTransaction = null;
+        this.neoTransactions = null;
         this.rvnAddress = null;
         this.rvnTransaction = null;
         this.rvnTransactions = null;
@@ -129,7 +145,9 @@ export class ChainHunterComponent implements OnInit {
         this.xrpTransaction = null;
         this.xrpTransactions = null;
         this.emptyHanded = false;
-        this.btcComplete = this.bnbComplete = this.bchComplete = this.ethComplete = this.ltcComplete = this.rvnComplete = this.xrpComplete = false;
+        this.btcComplete = this.bnbComplete = this.bchComplete = 
+        this.ethComplete = this.ltcComplete = this.neoComplete = 
+        this.rvnComplete = this.xrpComplete = false;
         this.calculateIcons();
     }
 
@@ -196,7 +214,7 @@ export class ChainHunterComponent implements OnInit {
                     && addressResponse.result !== "0" ) {
                     this.ethAddress = new EthAddress();
                     this.ethAddress.Address = this.addyTxn;
-                    this.ethAddress.Balance = addressResponse.result;
+                    this.ethAddress.Balance = parseInt(addressResponse.result);
                     this.ethFound = true;
                     this.getEthTransactions();
                     this.emptyHanded = false;
@@ -233,6 +251,20 @@ export class ChainHunterComponent implements OnInit {
                 this.calculateIcons();
                 console.log("ltc address error:" + error);
             });
+        this.neoService.getAddress(this.addyTxn)
+            .subscribe(address => {
+                this.neoAddress = address;
+                this.neoFound = true;
+                this.getNeoTransactions();
+                this.emptyHanded = false;
+                this.neoComplete = true;
+                this.calculateIcons();
+                console.log("neo address found");
+            },
+            error => {
+                this.getNeoTransaction();
+                console.log("neo address error:" + error);
+        });
         this.rvnService.getAddress(this.addyTxn)
             .subscribe(addressResponse => {
                 if(addressResponse) {
@@ -395,6 +427,30 @@ export class ChainHunterComponent implements OnInit {
         });
     }
 
+    getNeoTransaction() {
+        this.neoService.getTransaction(this.addyTxn)
+            .subscribe(txn => {
+                this.neoComplete = true;
+                this.neoTransaction = txn;
+                this.neoFound = true;
+                this.emptyHanded = false;
+                console.log("neo transaction found");
+                this.calculateIcons();
+            },
+            error => {
+                this.neoComplete = true;
+                this.calculateIcons();
+                console.log("neo transaction error:" + error);
+            });
+    }
+
+    getNeoTransactions() {
+        this.neoService.getAddressTransactions(this.addyTxn)
+            .subscribe(txns => {
+                this.neoTransactions = txns.entries
+            });
+    }
+
     getRvnTransaction() {
         this.rvnService.getTransaction(this.addyTxn)
             .subscribe(txn => {
@@ -457,6 +513,7 @@ export class ChainHunterComponent implements OnInit {
         this.btcIcon = this.getIcon("btc", this.btcFound);
         this.ethIcon = this.getIcon("eth", this.ethFound);
         this.ltcIcon = this.getIcon("ltc", this.ltcFound);
+        this.neoIcon = this.getIcon("neo", this.neoFound);
         this.rvnIcon = this.getIcon("rvn", this.rvnFound);
         this.xrpIcon = this.getIcon("xrp", this.xrpFound);
         this.updateMenuItems();
@@ -465,8 +522,8 @@ export class ChainHunterComponent implements OnInit {
 
     checkComplete() {
         if(this.btcComplete && this.bnbComplete && this.bchComplete 
-            && this.ethComplete && this.ltcComplete && this.rvnComplete 
-            && this.xrpComplete ){
+            && this.ethComplete && this.ltcComplete && this.neoComplete
+            && this.rvnComplete && this.xrpComplete ){
             this.notRunning = true;
         }
     }
@@ -477,6 +534,7 @@ export class ChainHunterComponent implements OnInit {
             { label: 'bch', icon: this.bchIcon, command: (event) => { this.showBch() } },
             { label: 'eth', icon: this.ethIcon, command: (event) => { this.showEth() } },
             { label: 'ltc', icon: this.ltcIcon, command: (event) => { this.showLtc() } },
+            { label: 'neo', icon: this.neoIcon, command: (event) => { this.showNeo() } },
             { label: 'rvn', icon: this.rvnIcon, command: (event) => { this.showRvn() } },
             { label: 'xrp', icon: this.xrpIcon, command: (event) => { this.showXrp() } },
             { label: 'bnb', icon: this.bnbIcon, command: (event) => { this.showBnb() } },
@@ -496,6 +554,7 @@ export class ChainHunterComponent implements OnInit {
         this.viewBtc = false;
         this.viewEth = false;
         this.viewLtc = false;
+        this.viewNeo = false;
         this.viewRvn = false;
         this.viewXrp = false;
     }
@@ -542,6 +601,15 @@ export class ChainHunterComponent implements OnInit {
         } else {
             this.hideAll();
             this.viewLtc = true;
+        }
+    }
+
+    showNeo() {
+        if(this.viewNeo === true) {
+            this.hideAll();
+        } else {
+            this.hideAll();
+            this.viewNeo = true;
         }
     }
 

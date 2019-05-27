@@ -30,6 +30,7 @@
     <rvn-results *ngIf="viewRvn" [rvnAddress]="rvnAddress" [rvnTransaction]="rvnTransaction" [rvnTransactions]="rvnTransactions"></rvn-results>
     <xrp-results *ngIf="viewXrp" [xrpAddress]="xrpAddress" [xrpTransaction]="xrpTransaction" [xrpTransactions]="xrpTransactions"></xrp-results>
     <bnb-results *ngIf="viewBnb" [bnbAddress]="bnbAddress" [bnbTransaction]="bnbTransaction" [bnbTransactions]="bnbTransactions"></bnb-results>
+    <neo-results *ngIf="viewNeo" [neoAddress]="neoAddress" [neoTransaction]="neoTransaction" [neoTransactions]="neoTransactions"></neo-results>
     <h3 *ngIf="this.emptyHanded === true">You came out empty handed</h3>
     <div>
         Coming soon:
@@ -38,7 +39,6 @@
             <img src="assets/cryptoicons/color/eos.svg" />
             <img src="assets/cryptoicons/color/icx.svg" />
             <img src="assets/cryptoicons/color/iost.svg" />
-            <img src="assets/cryptoicons/color/neo.svg" />
             <img src="assets/cryptoicons/color/ont.svg" />
             <img src="assets/cryptoicons/color/qtum.svg" />
             <img src="assets/cryptoicons/color/trx.svg" />

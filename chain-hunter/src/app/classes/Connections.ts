@@ -12,6 +12,7 @@ export class Connections{
     ethplorerKey: string = "freekey";
     chainzBase: string = "http://chainz.cryptoid.info";
     chainzExplorerKey: string = "b1b1502c3852";
+    neoBase: string = "https://api.neoscan.io/api/main_net";
     rvnBase: string = "https://ravencoin.network/api";
     xrpBase: string = "https://api.xrpscan.com/api";
     //ethBase: string = "https://mainnet.infura.io/v3/chainhunter";

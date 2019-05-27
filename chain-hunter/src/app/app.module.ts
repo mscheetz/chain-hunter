@@ -20,6 +20,7 @@ import { XrpResultsComponent } from './components/xrp-results/xrp-results.compon
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { BnbResultsComponent } from './components/bnb-results/bnb-results.component';
+import { NeoResultsComponent } from './components/neo-results/neo-results.component';
 
 @NgModule({
   declarations: [
@@ -30,6 +31,7 @@ import { BnbResultsComponent } from './components/bnb-results/bnb-results.compon
     BtcResultsComponent,
     EthResultsComponent,
     LtcResultsComponent,
+    NeoResultsComponent,
     RvnResultsComponent,
     XrpResultsComponent,
     SamplesComponent

@@ -1,0 +1,28 @@
+<div *ngIf="neoAddress || neoTransaction">
+    <div *ngIf="neoAddress">
+    <h3>NEO Address: {{neoAddress.address}}</h3>
+    <div>Balances:</div>
+    <ul>
+        <li *ngFor="let asset of neoAddress.balance">
+            Asset: {{asset.asset}}
+            Quantity: {{asset.amount}}
+        </li>
+    </ul>
+    </div>
+    <div *ngIf="neoTransactions">
+        <h4>NEO Transactions</h4>
+        <ul>
+            <li *ngFor="let txn of neoTransactions.list">
+            Quantity: {{txn.amount}}
+            {{txn.txid}}
+            </li>
+        </ul>
+    </div>
+    <div *ngIf="neoTransaction">
+    <h3>NEO Transaction: {{neoTransaction.txid}}</h3>
+    <div>Quantity: {{neoTransaction.vouts[0].value}}</div>
+    </div>
+</div>
+<div *ngIf="!neoAddress && !neoTransaction">
+    <h3>No NEO Data found</h3>
+</div>

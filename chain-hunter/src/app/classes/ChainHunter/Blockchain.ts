@@ -3,6 +3,7 @@ export class Blockchain {
 
     Name: string;
     Symbol: string;
+    Found: boolean;
     Address: Address;
     Transaction: Transaction;
 } 

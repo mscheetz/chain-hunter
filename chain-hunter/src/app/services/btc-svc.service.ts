@@ -16,9 +16,7 @@ export class BtcService{
     base: string = this.conn.btcBase;
 
     get(addyTxn: string): Blockchain {
-        let chain = new Blockchain();
-        chain.Name = 'Bitcoin';
-	chain.Symbol = 'BTC';
+        let chain = new Blockchain('Bitcoin', 'BTC');
 
 	return chain;
     } 

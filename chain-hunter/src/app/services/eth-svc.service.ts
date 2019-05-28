@@ -9,7 +9,7 @@ import { BtcPage } from '../classes/BTC/BtcPage';
 import { delay } from 'rxjs/operators';
 import { EthResponse } from '../classes/ETH/EthResponse';
 import { EthTransaction } from '../classes/ETH/EthTransaction';
-import { EthplorerHeader } from '../classes/ETH/EthPlorerHeader';
+import { EthplorerHeader } from '../classes/ETH/EthplorerHeader';
 import { EthplorerToken } from '../classes/ETH/EthplorerToken';
 
 @Injectable({providedIn: 'root'})

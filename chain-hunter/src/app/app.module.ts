@@ -21,6 +21,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { BnbResultsComponent } from './components/bnb-results/bnb-results.component';
 import { NeoResultsComponent } from './components/neo-results/neo-results.component';
+import { PanelModule } from 'primeng/panel';
 
 @NgModule({
   declarations: [
@@ -47,7 +48,8 @@ import { NeoResultsComponent } from './components/neo-results/neo-results.compon
     TabViewModule,
     AccordionModule,
     BrowserAnimationsModule,
-    ProgressSpinnerModule
+    ProgressSpinnerModule,
+    PanelModule
   ],
   providers: [],
   bootstrap: [AppComponent]

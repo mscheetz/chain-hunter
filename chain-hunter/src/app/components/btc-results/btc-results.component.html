@@ -1,20 +1,23 @@
-<div *ngIf="btcAddress">
+<div *ngIf="btcAddress || btcTransaction">
+<p-panel header="BTC Address" *ngIf="btcAddress">
 <h3>BTC Address: {{btcAddress.address}}</h3>
-<div>Balance: {{btcAddress.balance/100000000}}</div>
-</div>
-<div *ngIf="btcTransactions">
+<div>Balance: {{(btcAddress.balance/100000000) | number}}</div>
+<p-panel header="BTC Address Transactions" [toggleable]="true" [collapsed]="true" *ngIf="btcTransactions">
     <h4>BTC Transactions</h4>
     <ul>
         <li *ngFor="let txn of btcTransactions.list">
-          Confirmations: {{txn.confirmations}} Quantity: {{(txn.outputs_value)/100000000}}
-          {{txn.hash}}
+            Hash: {{txn.hash}} <br>
+            Quantity: {{(txn.outputs_value/100000000) | number}}<br>
+            Confirmations: {{txn.confirmations}}
         </li>
     </ul>
+</p-panel>
+</p-panel>
+<p-panel header="BTC Transaction" *ngIf="btcTransaction">
+    <h3>BTC Transaction: {{btcTransaction.transaction}}</h3>
+    <div>Confirmations: {{btcTransaction.confirmations}} Quantity: {{(btcTransaction.outputs_value)/100000000}}</div>
+</p-panel>
 </div>
-<div *ngIf="btcTransaction">
-<h3>BTC Transaction: {{btcTransaction.transaction}}</h3>
-<div>Confirmations: {{btcTransaction.confirmations}} Quantity: {{(btcTransaction.outputs_value)/100000000}}</div>
-</div>
-<div *ngIf="!btcAddress && !btcTransaction">
+<p-panel showHeader="false" *ngIf="!btcAddress && !btcTransaction">
     <h3>No BTC Data found</h3>
-</div>
+</p-panel>

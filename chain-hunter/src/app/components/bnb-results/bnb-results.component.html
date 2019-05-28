@@ -1,24 +1,30 @@
-<div *ngIf="bnbAddress">
+<p-panel header="BNB Address" *ngIf="bnbAddress">
 <h3>BNB Address: {{bnbAddress.address}}</h3>
-<div>Balance: {{bnbAddress.balance/100000000}}</div>
-</div>
-<div *ngIf="bnbTransactions">
+<div>Balances:</div>
+<ul>
+    <li *ngFor="let asset of bnbAddress.balances">
+        Asset: {{asset.symbol}}<br>
+        Quantity: {{getTotal(asset) | number}}
+    </li>
+</ul>
+<p-panel header="BNB Address Transactions" [toggleable]="true" [collapsed]="true" *ngIf="bnbTransactions">
     <h4>BNB Transactions</h4>
     <ul>
         <li *ngFor="let txn of bnbTransactions.list">
-          Quantity: {{txn.value}}
+          Quantity: {{txn.value | number}}<br>
           Asset: {{txn.txAsset}}
           {{txn.hash}}
         </li>
     </ul>
-</div>
-<div *ngIf="bnbTransaction">
+</p-panel>
+</p-panel>
+<p-panel header="BNB Transaction" *ngIf="bnbTransaction">
 <h3>BNB Transaction: {{bnbTransaction.transaction}}</h3>
 <div>
-    Quantity: {{(bnbTransaction.coins[0].amount)/100000000}}
-    Asset: {{bnbTransaction.coins[0].denom}}
+    Asset: {{bnbTransaction.tx.value.msg[0].value.inputs[0].coins[0].denom}}<br>
+    Quantity: {{(bnbTransaction.tx.value.msg[0].value.inputs[0].coins[0].amount)/100000000 | number}}
 </div>
-</div>
-<div *ngIf="!bnbAddress && !bnbTransaction">
+</p-panel>
+<p-panel showHeader="false" *ngIf="!bnbAddress && !bnbTransaction">
     <h3>No BNB Data found</h3>
-</div>
+</p-panel>

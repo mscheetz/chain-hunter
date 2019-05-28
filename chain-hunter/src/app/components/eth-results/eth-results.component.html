@@ -1,20 +1,24 @@
-<div *ngIf="ethAddress">
-<h3>ETH Address: {{ethAddress.address}}</h3>
-<div>Balance: {{ethAddress.getBalance()}}</div>
-</div>
-<div *ngIf="ethTransactions">
+<p-panel header="ETH Address" *ngIf="ethAddress">
+<h3>ETH Address: {{ethAddress.Address}}</h3>
+<div>Balance: {{ethAddress.getBalance() | number}}</div>
+<p-panel header="ETH Address Transactions" [toggleable]="true" [collapsed]="true" *ngIf="ethTransactions">
     <h4>ETH Transactions</h4>
     <ul>
         <li *ngFor="let txn of ethTransactions.list">
-          Confirmations: {{txn.confirmations}} Quantity: {{txn.getQuantity()}}
-          {{txn.hash}}
+            Hash: {{txn.hash}}<br>
+            Quantity: {{txn.getQuantity() | number}}<br>
+            Confirmations: {{txn.confirmations}}
         </li>
     </ul>
+</p-panel>
+</p-panel>
+<p-panel header="ETH Transaction" *ngIf="ethTransaction">
+<h3>Hash: {{ethTransaction.blockHash}}</h3>
+<div>
+    Quantity: {{ethTransaction.getQuantity() | number}}<br>
+    Confirmations: {{ethTransaction.confirmations}}
 </div>
-<div *ngIf="ethTransaction">
-<h3>ETH Transaction: {{ethTransaction.blockHash}}</h3>
-<div>Confirmations: {{ethTransaction.confirmations}} Quantity: {{ethTransaction.getQuantity()}}</div>
-</div>
-<div *ngIf="!ethAddress && !ethTransaction">
+</p-panel>
+<p-panel showHeader="false" *ngIf="!ethAddress && !ethTransaction">
     <h3>No ETH Data found</h3>
-</div>
+</p-panel>

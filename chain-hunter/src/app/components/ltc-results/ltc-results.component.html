@@ -1,11 +1,14 @@
-<div *ngIf="ltcAddress > 0">
+<p-panel header="LTC Address" *ngIf="ltcAddress > 0">
 <h3>LTC Address: {{ltcAddress.address}}</h3>
 <div>Balance: {{ltcAddress.balance/100000000}}</div>
-</div>
-<div *ngIf="ltcTransaction">
+</p-panel>
+<p-panel header="LTC Transaction" *ngIf="ltcTransaction">
 <h3>LTC Transaction: {{ltcTransaction.transaction}}</h3>
-<div>Confirmations: {{ltcTransaction.confirmations}} Quantity: {{(ltcTransaction.outputs_value)/100000000}}</div>
+<div>
+    Quantity: {{(ltcTransaction.outputs_value)/100000000 | number}}<br>
+    Confirmations: {{ltcTransaction.confirmations}}
 </div>
-<div *ngIf="!ltcAddress && !ltcTransaction">
+</p-panel>
+<p-panel showHeader="false" *ngIf="!ltcAddress && !ltcTransaction">
     <h3>No LTC Data found</h3>
-</div>
+</p-panel>

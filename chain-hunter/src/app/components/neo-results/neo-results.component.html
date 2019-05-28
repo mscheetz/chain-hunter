@@ -1,15 +1,14 @@
-<div *ngIf="neoAddress || neoTransaction">
-    <div *ngIf="neoAddress">
+<p-panel header="NEO Address" *ngIf="neoAddress">
     <h3>NEO Address: {{neoAddress.address}}</h3>
-    <div>Balances:</div>
+    <div>NEO Balance: {{getNeoBalance(neoAddress.balance) | number}}</div>
+    <div>Token Balances:</div>
     <ul>
         <li *ngFor="let asset of neoAddress.balance">
-            Asset: {{asset.asset}}
-            Quantity: {{asset.amount}}
+            Asset: {{asset.asset}}<br>
+            Quantity: {{asset.amount | number}}
         </li>
     </ul>
-    </div>
-    <div *ngIf="neoTransactions">
+    <p-panel header="NEO Address Transactions" [toggleable]="true" [collapsed]="true" *ngIf="neoTransactions">
         <h4>NEO Transactions</h4>
         <ul>
             <li *ngFor="let txn of neoTransactions.list">
@@ -17,12 +16,12 @@
             {{txn.txid}}
             </li>
         </ul>
-    </div>
-    <div *ngIf="neoTransaction">
+    </p-panel>
+</p-panel>
+<p-panel header="NEO Transaction" *ngIf="neoTransaction">
     <h3>NEO Transaction: {{neoTransaction.txid}}</h3>
     <div>Quantity: {{neoTransaction.vouts[0].value}}</div>
-    </div>
-</div>
-<div *ngIf="!neoAddress && !neoTransaction">
+</p-panel>
+<p-panel showHeader="false" *ngIf="!neoAddress && !neoTransaction">
     <h3>No NEO Data found</h3>
-</div>
+</p-panel>

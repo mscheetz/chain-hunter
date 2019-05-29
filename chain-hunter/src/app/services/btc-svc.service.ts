@@ -22,24 +22,8 @@ export class BtcService{
     conn: Connections = new Connections();
     base: string = this.conn.btcBase;
 
-    get(addyTxn: string): Blockchain {
-        let chain = new Blockchain();
-        chain.name = 'Bitcoin';
-        chain.symbol = 'BTC';
 
-        this.onGetAddress(addyTxn);
-        if(this.btcComplete) {
-            this.onGetTransactions(addyTxn);
-        } else {
-            this.onGetTransaction(addyTxn);
-        }
 
-        chain.address = this.addressConvert(this.btcAddress);
-        chain.transaction = this.transactionConvert(this.btcTransaction);
-        chain.found = chain.address || chain.transaction ? true : false;
-        return chain;
-    } 
-    
     addressConvert(btcAddress: BtcAddress): Address {
         let address: Address = null;
 
@@ -80,47 +64,7 @@ export class BtcService{
         return txn;
     }
 
-    onGetAddress(address: string) {
-        this.getAddress(address)
-            .subscribe(response => {
-                if(response.err_no === 0 && response.data !== null) {
-                    this.btcAddress = response.data
-                    this.btcComplete = true;
-                    console.log("btc address found");
-                } else {
-                    console.log("btc address not found");
-                }
-            },
-            error => {
-                console.log("btc address error:" + error);
-            });
-    }
-
-    onGetTransactions(address: string) {
-        this.getAddressTransactions(address)
-            .subscribe(txns => {
-                this.btcTransactions = txns.data.list;
-            });
-    }
-
-    onGetTransaction(hash: string) {
-        this.getTransaction(hash)
-            .subscribe(txn => {
-                this.btcComplete = true;
-                if(txn.err_no === 0) {
-                    this.btcTransaction = txn.data
-                    this.btcComplete = true;
-                    console.log("btc transaction found");
-                } else {
-                    console.log("btc transaction not found");
-                }
-            },
-            error => {
-                this.btcComplete = true;
-                console.log("btc transaction error:" + error);
-            });
-
-    }
+    
 
     /**
      * Get a BTC address

@@ -7,19 +7,117 @@ import { Injectable } from '@angular/core';
 import { BtcBase } from '../classes/BTC/BtcBase';
 import { BtcPage } from '../classes/BTC/BtcPage';
 import { delay } from 'rxjs/operators';
+import { Blockchain } from '../classes/ChainHunter/Blockchain';
+import { Address } from '../classes/ChainHunter/Address';
+import { Transaction } from '../classes/ChainHunter/Transaction';
 
 @Injectable({providedIn: 'root'})
 export class BtcService{
     constructor(private http: HttpClient) {}
 
+    btcAddress: BtcAddress = null;
+    btcTransaction: BtcTransaction = null;
+    btcTransactions: BtcTransaction[] = [];
+    btcComplete = false;
     conn: Connections = new Connections();
     base: string = this.conn.btcBase;
 
-    get(addyTxn: string): Blockchain {
-        let chain = new Blockchain('Bitcoin', 'BTC');
+    async get(addyTxn: string): Promise<Blockchain> {
+        let chain = new Blockchain();
+        chain.Name = 'Bitcoin';
+        chain.Symbol = 'BTC';
+        let address: Address = null;
+        let transaction: Transaction = null;
 
-	return chain;
+        await this.onGetAddress(addyTxn);
+        if(this.btcComplete) {
+            await this.onGetTransactions(addyTxn);
+        } else {
+            await this.onGetTransaction(addyTxn);
+        }
+
+        chain.Address = this.addressConvert();
+        chain.Transaction = this.transactionConvert(this.btcTransaction);
+	    return chain;
     } 
+
+    addressConvert(): Address {
+        let address: Address = null;
+
+        if(this.btcAddress != null) {
+            address = new Address();
+            address.Address = this.btcAddress.address;
+            address.Quantity = this.btcAddress.balance;
+            if(this.btcTransactions != null && this.btcTransactions.length > 0) {
+                let transactions: Transaction[] = [];
+                this.btcTransactions.forEach(txn => {
+                    let transaction = this.transactionConvert(txn);
+                    transactions.push(transaction);
+                });
+                address.Transactions = transactions;
+            }
+        }
+
+        return address;
+    }
+
+    transactionConvert(transaction: BtcTransaction): Transaction {
+        let txn: Transaction = null;
+
+        if(transaction != null) {
+            txn = new Transaction();
+            txn.Hash = transaction.hash;
+            txn.Block = transaction.block_height;
+            txn.Confirmations = transaction.confirmations;
+            txn.Date = new Date(transaction.created_at).toString();
+            txn.From = transaction.inputs[0].prev_addresses[0];
+            txn.To = transaction.outputs[0].addresses[0];
+        }
+
+        return txn;
+    }
+
+    onGetAddress(address: string) {
+        this.getAddress(address)
+            .subscribe(response => {
+                if(response.err_no === 0 && response.data !== null) {
+                    this.btcAddress = response.data
+                    this.btcComplete = true;
+                    console.log("btc address found");
+                } else {
+                    console.log("btc address not found");
+                }
+            },
+            error => {
+                console.log("btc address error:" + error);
+            });
+    }
+
+    onGetTransactions(address: string) {
+        this.getAddressTransactions(address)
+            .subscribe(txns => {
+                this.btcTransactions = txns.data.list;
+            });
+    }
+
+    onGetTransaction(hash: string) {
+        this.getTransaction(hash)
+            .subscribe(txn => {
+                this.btcComplete = true;
+                if(txn.err_no === 0) {
+                    this.btcTransaction = txn.data
+                    this.btcComplete = true;
+                    console.log("btc transaction found");
+                } else {
+                    console.log("btc transaction not found");
+                }
+            },
+            error => {
+                this.btcComplete = true;
+                console.log("btc transaction error:" + error);
+            });
+
+    }
 
     /**
      * Get a BTC address

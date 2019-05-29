@@ -156,6 +156,7 @@ export class ChainHunterComponent implements OnInit {
         this.hideAll();
         this.nullOut();
         this.notRunning = false;
+        this.btcService.get(this.addyTxn).then();
         this.btcService.getAddress(this.addyTxn)
             .subscribe(address => {
                 if(address.err_no === 0 && address.data !== null) {

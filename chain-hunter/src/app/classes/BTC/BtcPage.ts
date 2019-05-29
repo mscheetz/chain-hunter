@@ -6,5 +6,5 @@ export class BtcPage<T> {
     total_count: number;
     page: number;
     pagesize: number;
-    list: T[];
+    list: T;
 }

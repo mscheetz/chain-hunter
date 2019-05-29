@@ -22,43 +22,45 @@ export class BtcService{
     conn: Connections = new Connections();
     base: string = this.conn.btcBase;
 
-    async get(addyTxn: string): Promise<Blockchain> {
+    get(addyTxn: string): Blockchain {
         let chain = new Blockchain();
-        chain.Name = 'Bitcoin';
-        chain.Symbol = 'BTC';
-        let address: Address = null;
-        let transaction: Transaction = null;
+        chain.name = 'Bitcoin';
+        chain.symbol = 'BTC';
 
-        await this.onGetAddress(addyTxn);
+        this.onGetAddress(addyTxn);
         if(this.btcComplete) {
-            await this.onGetTransactions(addyTxn);
+            this.onGetTransactions(addyTxn);
         } else {
-            await this.onGetTransaction(addyTxn);
+            this.onGetTransaction(addyTxn);
         }
 
-        chain.Address = this.addressConvert();
-        chain.Transaction = this.transactionConvert(this.btcTransaction);
-	    return chain;
+        chain.address = this.addressConvert(this.btcAddress);
+        chain.transaction = this.transactionConvert(this.btcTransaction);
+        chain.found = chain.address || chain.transaction ? true : false;
+        return chain;
     } 
-
-    addressConvert(): Address {
+    
+    addressConvert(btcAddress: BtcAddress): Address {
         let address: Address = null;
 
-        if(this.btcAddress != null) {
+        if(btcAddress != null) {
             address = new Address();
-            address.Address = this.btcAddress.address;
-            address.Quantity = this.btcAddress.balance;
-            if(this.btcTransactions != null && this.btcTransactions.length > 0) {
-                let transactions: Transaction[] = [];
-                this.btcTransactions.forEach(txn => {
-                    let transaction = this.transactionConvert(txn);
-                    transactions.push(transaction);
-                });
-                address.Transactions = transactions;
-            }
+            address.address = btcAddress.address;
+            address.quantity = btcAddress.balance/100000000;
         }
 
         return address;
+    }
+
+    transactionsConvert(btcTransactions: BtcTransaction[]): Transaction[]{
+        let transactions: Transaction[] = [];
+        if(this.btcTransactions != null && this.btcTransactions.length > 0) {
+            this.btcTransactions.forEach(txn => {
+                let transaction = this.transactionConvert(txn);
+                transactions.push(transaction);
+            });
+        }
+        return transactions;
     }
 
     transactionConvert(transaction: BtcTransaction): Transaction {
@@ -66,12 +68,13 @@ export class BtcService{
 
         if(transaction != null) {
             txn = new Transaction();
-            txn.Hash = transaction.hash;
-            txn.Block = transaction.block_height;
-            txn.Confirmations = transaction.confirmations;
-            txn.Date = new Date(transaction.created_at).toString();
-            txn.From = transaction.inputs[0].prev_addresses[0];
-            txn.To = transaction.outputs[0].addresses[0];
+            txn.hash = transaction.hash;
+            txn.block = transaction.block_height;
+            txn.quantity = transaction.outputs_value/100000000;
+            txn.confirmations = transaction.confirmations;
+            txn.date = new Date(transaction.created_at).toString();
+            txn.from = transaction.inputs[0].prev_addresses[0];
+            txn.to = transaction.outputs[0].addresses[0];
         }
 
         return txn;

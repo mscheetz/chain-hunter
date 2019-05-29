@@ -4,8 +4,8 @@ import { Asset } from './Asset';
 export class Address {
     constructor() {} 
 
-    Address: string;
-    Quantity: number;
-    Transactions: Transaction[];
-    Tokens: Asset[];
+    address: string;
+    quantity: number;
+    transactions: Transaction[];
+    tokens: Asset[];
 } 

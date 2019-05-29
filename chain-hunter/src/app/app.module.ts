@@ -22,6 +22,7 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { BnbResultsComponent } from './components/bnb-results/bnb-results.component';
 import { NeoResultsComponent } from './components/neo-results/neo-results.component';
 import { PanelModule } from 'primeng/panel';
+import { SearchResultsComponent } from './components/search-results/search-results.component';
 
 @NgModule({
   declarations: [
@@ -35,6 +36,7 @@ import { PanelModule } from 'primeng/panel';
     NeoResultsComponent,
     RvnResultsComponent,
     XrpResultsComponent,
+    SearchResultsComponent,
     SamplesComponent
   ],
   imports: [

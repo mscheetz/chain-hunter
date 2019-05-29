@@ -29,6 +29,7 @@ import { NeoAddressTxn } from 'src/app/classes/NEO/NeoAddressTxn';
 import { NeoTransaction } from 'src/app/classes/NEO/NeoTransaction';
 import { NeoAddress } from 'src/app/classes/NEO/NeoAddress';
 import { NeoService } from 'src/app/services/neo-svc.service';
+import { Blockchain } from 'src/app/classes/ChainHunter/Blockchain';
 
 @Component({
     selector: 'chain-hunter',
@@ -97,6 +98,9 @@ export class ChainHunterComponent implements OnInit {
     emptyHanded: boolean = false;
     notRunning: boolean = true;
     @Output() samplesIndex = null;
+    @Output() blockchain: Blockchain;
+    map: Map<string, Blockchain> = new Map<string, Blockchain>();
+    menuItems: MenuItem[];
 
     constructor(private btcService: BtcService, 
                 private bchService: BchService,
@@ -148,6 +152,7 @@ export class ChainHunterComponent implements OnInit {
         this.btcComplete = this.bnbComplete = this.bchComplete = 
         this.ethComplete = this.ltcComplete = this.neoComplete = 
         this.rvnComplete = this.xrpComplete = false;
+        this.map = new Map<string, Blockchain>();
         this.calculateIcons();
     }
 
@@ -156,26 +161,27 @@ export class ChainHunterComponent implements OnInit {
         this.hideAll();
         this.nullOut();
         this.notRunning = false;
-        this.btcService.get(this.addyTxn).then();
-        this.btcService.getAddress(this.addyTxn)
-            .subscribe(address => {
-                if(address.err_no === 0 && address.data !== null) {
-                    this.btcAddress = address.data
-                    this.btcFound = true;
-                    this.getBtcTransactions();
-                    this.emptyHanded = false;
-                    this.btcComplete = true;
-                    this.calculateIcons();
-                    console.log("btc address found");
-                } else {
-                    console.log("btc address not found");
-                    this.getBtcTransaction();
-                }
-            },
-            error => {
-                this.getBtcTransaction();
-                console.log("btc address error:" + error);
-            });
+        let btcBlockchain = this.btcService.get(this.addyTxn);
+        this.map['BTC'] = btcBlockchain;
+        // this.btcService.getAddress(this.addyTxn)
+        //     .subscribe(address => {
+        //         if(address.err_no === 0 && address.data !== null) {
+        //             this.btcAddress = address.data
+        //             this.btcFound = true;
+        //             this.getBtcTransactions();
+        //             this.emptyHanded = false;
+        //             this.btcComplete = true;
+        //             this.calculateIcons();
+        //             console.log("btc address found");
+        //         } else {
+        //             console.log("btc address not found");
+        //             this.getBtcTransaction();
+        //         }
+        //     },
+        //     error => {
+        //         this.getBtcTransaction();
+        //         console.log("btc address error:" + error);
+        //     });
         this.bnbService.getAddress(this.addyTxn)
             .subscribe(address => {
                 this.bnbAddress = address;
@@ -539,7 +545,27 @@ export class ChainHunterComponent implements OnInit {
             { label: 'rvn', icon: this.rvnIcon, command: (event) => { this.showRvn() } },
             { label: 'xrp', icon: this.xrpIcon, command: (event) => { this.showXrp() } },
             { label: 'bnb', icon: this.bnbIcon, command: (event) => { this.showBnb() } },
-        ]        
+        ]
+        this.menuItems = [];
+        this.map.forEach((value: Blockchain, key: string) => {
+            this.menuItems.push({ 
+                label: value.symbol, 
+                icon: value.getIcon(),
+                command: (event) => { this.showItem(value.symbol) }
+            });
+        });     
+    }
+
+    seeItem: boolean = false;
+
+    showItem(symbol: string) {
+        if(this.seeItem) {
+            this.blockchain = null;
+            this.seeItem = false;
+        } else {
+            this.blockchain = this.map[symbol];
+            this.seeItem = true;
+        }
     }
 
     getIcon(symbol: string, exists: boolean): string {

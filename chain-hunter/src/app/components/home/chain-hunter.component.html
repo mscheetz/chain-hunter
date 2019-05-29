@@ -16,6 +16,16 @@
     <p-progressSpinner></p-progressSpinner>
 </div>
 <div>
+    <p-tabMenu [model]="menuItems" [activeItem]="activeItem">
+        <ng-template pTemplate="item" let-item let-i="index">
+            <div style="position: relative; text-align: center; min-width: 1em">
+                <img src="assets/cryptoicons/{{item.getIcon()}}" title="{{item.label}}" />
+            </div>
+        </ng-template>
+    </p-tabMenu>
+    <search-results *ngIf="seeItem" [blockchain]="blockchain"></search-results>
+</div>
+<div>
     <p-tabMenu [model]="items" [activeItem]="activeItem">
         <ng-template pTemplate="item" let-item let-i="index">
             <div style="position: relative; text-align: center; min-width: 1em">
@@ -48,8 +58,8 @@
         </div>
     </div>
 </div>
-    <p-accordion [activeIndex]="samplesIndex">
-        <p-accordionTab header="Samples">
-            <samples [samplesIndex]="samplesIndex"></samples>
-        </p-accordionTab>
-    </p-accordion>
+<p-accordion [activeIndex]="samplesIndex">
+    <p-accordionTab header="Samples">
+        <samples [samplesIndex]="samplesIndex"></samples>
+    </p-accordionTab>
+</p-accordion>

@@ -1,11 +1,11 @@
 export class Transaction{
     constructor () {}
 
-    Hash: string;
-    From: string;
-    To: string;
-    Quantity: number;
-    Date: string;
-    Confirmations: number;
-    Block: number;
+    hash: string;
+    from: string;
+    to: string;
+    quantity: number;
+    date: string;
+    confirmations: number;
+    block: number;
 } 

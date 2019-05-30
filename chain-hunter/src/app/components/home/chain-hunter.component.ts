@@ -255,24 +255,19 @@ export class ChainHunterComponent implements OnInit {
                 console.log("eth address error:" + error);
             });
         this.ltcService.getAddress(this.addyTxn)
-            .subscribe(balance => {
-                if(balance > 0) {
-                    this.ltcAddress = new LtcAddress();
-                    this.ltcAddress.address = this.addyTxn;
-                    this.ltcAddress.balance = balance;
-                    this.ltcFound = true;
-                    this.emptyHanded = false;
-                    this.ltcComplete = true;
-                    this.calculateIcons();
-                    console.log("ltc address found");   
-                } else {
-                    this.ltcComplete = true;
-                    console.log("ltc address not found");                    
-                }
+            .subscribe(address => {
+                this.ltcAddress = address;
+                this.ltcFound = true;
+                this.emptyHanded = false;
+                this.ltcComplete = true;
+                let ltc = this.getBlockchain("LTC");
+                ltc.address = this.ltcService.addressConvert(address);
+                this.setMap(ltc);
+                this.calculateIcons();
+                console.log("ltc address found");  
             },
             error => {
-                this.ltcComplete = true;
-                this.calculateIcons();
+                this.getLtcTransaction();
                 console.log("ltc address error:" + error);
             });
         this.neoService.getAddress(this.addyTxn)
@@ -535,6 +530,22 @@ export class ChainHunterComponent implements OnInit {
         return false;
     }
 
+    getLtcTransaction() {
+        this.ltcService.getTransaction(this.addyTxn)
+            .subscribe(txn => {
+                this.ltcComplete = true;
+                let ltc = this.getBlockchain("LTC");
+                ltc.transaction = this.ltcService.transactionConvert(txn);
+                this.setMap(ltc);
+                this.calculateIcons();
+            },
+            error => {
+                this.ltcComplete = true;
+                this.calculateIcons();
+                console.log("ltc transaction error:" + error);
+            });
+    }
+
     getNeoTransaction() {
         this.neoService.getTransaction(this.addyTxn)
             .subscribe(txn => {
@@ -662,6 +673,7 @@ export class ChainHunterComponent implements OnInit {
         this.map.set("BTC", this.btcService.getBlockchain());
         this.map.set("BCH", this.bchService.getBlockchain());
         this.map.set("ETH", this.ethService.getBlockchain());
+        this.map.set("LTC", this.ltcService.getBlockchain());
 
         this.map.forEach((value: Blockchain, key: string) => {
             value = this.getMenuIcon(value);

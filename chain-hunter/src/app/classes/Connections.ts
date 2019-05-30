@@ -10,6 +10,7 @@ export class Connections{
     ethscanKey: string = "YYT6FH7R4K7WK729Z2ZPTC2ZNTK48WEKHG";
     ethplorerBase: string = "http://api.ethplorer.io";
     ethplorerKey: string = "freekey";
+    ltcBase: string = "https://insight.litecore.io/api";
     chainzBase: string = "http://chainz.cryptoid.info";
     chainzExplorerKey: string = "b1b1502c3852";
     neoBase: string = "https://api.neoscan.io/api/main_net";

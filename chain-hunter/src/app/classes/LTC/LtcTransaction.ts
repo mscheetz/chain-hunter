@@ -1,17 +1,21 @@
-import { LtcTxnInput } from './LtcTxnInput';
-import { LtcTxnOutput } from './LtcTxnOutput';
+import { LtcIn } from './LtcIn';
+import { LtcOut } from './LtcOut';
 
 export class LtcTransaction {
     constructor() {}
 
-    public hash: string;
-    public block: number;
-    public index: number;
-    public timestamp: number;
-    public confirmations: number;
-    public fees: number;
-    public totl_input: number;
-    public inputs: LtcTxnInput[];
-    public total_output: number;
-    public outputs: LtcTxnOutput[];
+    txid: string;
+    version: number;
+    locktime: number;
+    vin: LtcIn[];
+    vout: LtcOut[];
+    blockhash: string;
+    blockheight: number;
+    confirmations: number;
+    time: number;
+    blocktime: number;
+    valueOut: number;
+    size: number;
+    valueIn: number;
+    fees: number;
 }

@@ -102,6 +102,7 @@ export class ChainHunterComponent implements OnInit {
     @Output() blockchain: Blockchain = null;
     map: Map<string, Blockchain> = new Map<string, Blockchain>();
     menuItems: MenuItem[];
+    selectedChain: string = "";
 
     constructor(private btcService: BtcService, 
                 private bchService: BchService,
@@ -613,12 +614,14 @@ export class ChainHunterComponent implements OnInit {
     seeItem: boolean = false;
 
     showItem(symbol: string) {
-        if(this.seeItem) {
+        if(this.seeItem && this.selectedChain === symbol) {
             this.blockchain = null;
             this.seeItem = false;
+            this.selectedChain = "";
         } else {
             this.blockchain = this.getBlockchain(symbol);
             this.seeItem = true;
+            this.selectedChain = symbol;
         }
     }
 

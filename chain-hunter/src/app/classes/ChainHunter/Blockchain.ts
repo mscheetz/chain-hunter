@@ -9,6 +9,7 @@ export class Blockchain {
     found: boolean;
     address: Address;
     transaction: Transaction;
+    icon: string;
 
     getIcon(): string {
         let iconBase = ""; //"/assets/cryptoicons/";

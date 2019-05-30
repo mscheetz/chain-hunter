@@ -1,24 +1,33 @@
-<p-panel header="{{blockchain.Symbol}} Address" *ngIf="blockchain.Address">
-    <h3>BTC Address: {{blockchain.Address.address}}</h3>
-    <div>Balance: {{blockchain.Address.Quantity | number}}</div>
-    <p-panel header="{{blockchain.Symbol}} Address Transactions" [toggleable]="true" [collapsed]="true" *ngIf="blockchain.Address.Transactions">
-        <h4>{{blockchain.Symbol}} Transactions</h4>
+<div *ngIf="blockchain !== null">
+<p-panel header="{{blockchain.symbol}} Address" *ngIf="blockchain.address">
+    <h3>{{blockchain.symbol}} Address: {{blockchain.address.address}}</h3>
+    <div>Balance: {{blockchain.address.quantity | number}}</div>
+    <p-panel header="{{blockchain.symbol}} Address Transactions" [toggleable]="true" [collapsed]="true" *ngIf="blockchain.address.transactions">
+        <h4>{{blockchain.symbol}} Transactions</h4>
         <ul>
-            <li *ngFor="let txn of blockchain.Address.Transactions">
-                Hash: {{txn.Hash}} <br>
-                Quantity: {{txn.Quantity | number}}<br>
-                Confirmations: {{txn.Confirmations}}
+            <li *ngFor="let txn of blockchain.address.transactions">
+                Hash: {{txn.hash}} <br>
+                Quantity: {{txn.quantity | number}}<br>
+                Confirmations: {{txn.confirmations}}
             </li>
         </ul>
     </p-panel>
 </p-panel>
-<p-panel header="{{blockchain.Symbol}} Transaction" *ngIf="blockchain.Transaction">
-    <h3>{{blockchain.Symbol}} Transaction Hash: {{blockchain.Transaction.Hash}}</h3>
-    <div>Quantity: {{blockchain.Transaction.Quantity | number}}</div>
-    <div>Date: {{blockchain.Transaction.Date}}</div>
-    <div>Block: {{blockchain.Transaction.Block}}</div>
-    <div>Confirmations: {{blockchain.Transaction.Confirmations}}</div>
+<p-panel header="{{blockchain.symbol}} Transaction" *ngIf="blockchain.transaction">
+    <h3>{{blockchain.symbol}} Transaction Hash: {{blockchain.transaction.hash}}</h3>
+    <div>Quantity: {{blockchain.transaction.quantity | number}}</div>
+    <div>Date: {{blockchain.transaction.date}}</div>
+    <div>Block: {{blockchain.transaction.block}}</div>
+    <div>Confirmations: {{blockchain.transaction.confirmations}}</div>
 </p-panel>
-<p-panel showHeader="false" *ngIf="!blockchain.Address && !blockchain.Transaction">
-    <h3>No {{blockchain.Symbol}} Data found</h3>
+</div>
+<div *ngIf="blockchain === null">
+<p-panel showHeader="false" *ngIf="blockchain === null">
+    <h3>Select a blockchain!</h3>
 </p-panel>
+</div>
+<div *ngIf="blockchain !== null && !blockchain.address && !blockchain.transaction">
+<p-panel showHeader="false" *ngIf="blockchain !== null || (!blockchain.address && !blockchain.transaction)">
+    <h3>No {{blockchain.symbol}} Data found</h3>
+</p-panel>
+</div>

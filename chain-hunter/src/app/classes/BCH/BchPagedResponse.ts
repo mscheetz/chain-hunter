@@ -4,5 +4,5 @@ export class BchPagedResponse<T> {
     public total_count: number;
     public page: number;
     public pagesize: number;
-    public list: T[];
+    public list: T;
 }

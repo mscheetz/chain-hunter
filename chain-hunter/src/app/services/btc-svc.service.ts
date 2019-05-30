@@ -10,20 +10,31 @@ import { delay } from 'rxjs/operators';
 import { Blockchain } from '../classes/ChainHunter/Blockchain';
 import { Address } from '../classes/ChainHunter/Address';
 import { Transaction } from '../classes/ChainHunter/Transaction';
+import { copyAnimationEvent } from '@angular/animations/browser/src/render/shared';
+import { DateService } from './date-svc.service';
 
 @Injectable({providedIn: 'root'})
 export class BtcService{
-    constructor(private http: HttpClient) {}
-
-    btcAddress: BtcAddress = null;
-    btcTransaction: BtcTransaction = null;
-    btcTransactions: BtcTransaction[] = [];
-    btcComplete = false;
+    constructor(private http: HttpClient, private dateSvc: DateService) {}
     conn: Connections = new Connections();
     base: string = this.conn.btcBase;
 
+    /**
+     * Get a BTC Blockchain
+     */
+    getBlockchain(): Blockchain {
+        let chain = new Blockchain();
+        chain.name = 'Bitcoin';
+        chain.symbol = 'BTC';
 
+        return chain;
+    }
 
+    /**
+     * Convert BtcAddress to generic Address
+     * 
+     * @param btcAddress BtcAddress object
+     */
     addressConvert(btcAddress: BtcAddress): Address {
         let address: Address = null;
 
@@ -36,10 +47,15 @@ export class BtcService{
         return address;
     }
 
+    /**
+     * Convert BtcTransaction collection to collection of generic Transactions
+     * 
+     * @param btcTransactions BtcTransactions to convert
+     */
     transactionsConvert(btcTransactions: BtcTransaction[]): Transaction[]{
         let transactions: Transaction[] = [];
-        if(this.btcTransactions != null && this.btcTransactions.length > 0) {
-            this.btcTransactions.forEach(txn => {
+        if(btcTransactions != null && btcTransactions.length > 0) {
+            btcTransactions.slice(0, 10).forEach(txn => {
                 let transaction = this.transactionConvert(txn);
                 transactions.push(transaction);
             });
@@ -47,24 +63,27 @@ export class BtcService{
         return transactions;
     }
 
-    transactionConvert(transaction: BtcTransaction): Transaction {
+    /**
+     * Convert a BtcTransaction to a generic Transaction
+     * 
+     * @param btcTransaction BtcTransaction to convert
+     */
+    transactionConvert(btcTransaction: BtcTransaction): Transaction {
         let txn: Transaction = null;
 
-        if(transaction != null) {
+        if(btcTransaction != null) {
             txn = new Transaction();
-            txn.hash = transaction.hash;
-            txn.block = transaction.block_height;
-            txn.quantity = transaction.outputs_value/100000000;
-            txn.confirmations = transaction.confirmations;
-            txn.date = new Date(transaction.created_at).toString();
-            txn.from = transaction.inputs[0].prev_addresses[0];
-            txn.to = transaction.outputs[0].addresses[0];
+            txn.hash = btcTransaction.hash;
+            txn.block = btcTransaction.block_height;
+            txn.quantity = btcTransaction.outputs_value/100000000;
+            txn.confirmations = btcTransaction.confirmations;
+            txn.date = this.dateSvc.unixToUTC(btcTransaction.created_at);
+            txn.from = btcTransaction.inputs[0].prev_addresses[0];
+            txn.to = btcTransaction.outputs[0].addresses[0];
         }
 
         return txn;
     }
-
-    
 
     /**
      * Get a BTC address

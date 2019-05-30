@@ -11,11 +11,11 @@ import { Blockchain } from '../classes/ChainHunter/Blockchain';
 import { Address } from '../classes/ChainHunter/Address';
 import { Transaction } from '../classes/ChainHunter/Transaction';
 import { copyAnimationEvent } from '@angular/animations/browser/src/render/shared';
-import { DateService } from './date-svc.service';
+import { HelperService } from './helper-svc.service';
 
 @Injectable({providedIn: 'root'})
 export class BtcService{
-    constructor(private http: HttpClient, private dateSvc: DateService) {}
+    constructor(private http: HttpClient, private helperSvc: HelperService) {}
     conn: Connections = new Connections();
     base: string = this.conn.btcBase;
 
@@ -77,7 +77,7 @@ export class BtcService{
             txn.block = btcTransaction.block_height;
             txn.quantity = btcTransaction.outputs_value/100000000;
             txn.confirmations = btcTransaction.confirmations;
-            txn.date = this.dateSvc.unixToUTC(btcTransaction.created_at);
+            txn.date = this.helperSvc.unixToUTC(btcTransaction.created_at);
             txn.from = btcTransaction.inputs[0].prev_addresses[0];
             txn.to = btcTransaction.outputs[0].addresses[0];
         }

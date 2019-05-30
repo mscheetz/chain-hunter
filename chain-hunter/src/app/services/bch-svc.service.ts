@@ -10,11 +10,11 @@ import { BchPagedResponse } from '../classes/BCH/BchPagedResponse';
 import { Blockchain } from '../classes/ChainHunter/Blockchain';
 import { Address } from '../classes/ChainHunter/Address';
 import { Transaction } from '../classes/ChainHunter/Transaction';
-import { DateService } from './date-svc.service';
+import { HelperService } from './helper-svc.service';
 
 @Injectable({providedIn: 'root'})
 export class BchService{
-    constructor(private http: HttpClient, private dateSvc: DateService) {}
+    constructor(private http: HttpClient, private helperSvc: HelperService) {}
 
     conn: Connections = new Connections();
     base: string = this.conn.bchBase;
@@ -77,7 +77,7 @@ export class BchService{
             txn.block = bchTransaction.block_height;
             txn.quantity = bchTransaction.outputs_value/100000000;
             txn.confirmations = bchTransaction.confirmations;
-            txn.date = this.dateSvc.unixToUTC(bchTransaction.created_at);
+            txn.date = this.helperSvc.unixToUTC(bchTransaction.created_at);
             txn.from = bchTransaction.inputs[0].prev_addresses[0];
             txn.to = bchTransaction.outputs[0].addresses[0];
         }

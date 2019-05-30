@@ -11,17 +11,19 @@ import { Transaction } from '../classes/ChainHunter/Transaction';
 import { EthAddress } from '../classes/ETH/EthAddress';
 import { Address } from '../classes/ChainHunter/Address';
 import { Blockchain } from '../classes/ChainHunter/Blockchain';
-import { DateService } from './date-svc.service';
+import { HelperService } from './helper-svc.service';
+import { EthBlock } from '../classes/ETH/EthBlock';
+import { Asset } from '../classes/ChainHunter/Asset';
 
 @Injectable({providedIn: 'root'})
 export class EthService{
-    constructor(private http: HttpClient, private dateSvc: DateService) {}
+    constructor(private http: HttpClient, private helperSvc: HelperService) {}
 
     conn: Connections = new Connections();
     ethscanBase: string = this.conn.ethscanBase;
     ethscanApiKey: string = "&apikey=" + this.conn.ethscanKey;
     ethplorerBase: string = this.conn.ethplorerBase;
-    ethplorerApiKey: string = "&apiKey=" + this.conn.ethplorerKey;
+    ethplorerApiKey: string = "?apiKey=" + this.conn.ethplorerKey;
 
     /**
      * Get a ETH Blockchain
@@ -76,13 +78,16 @@ export class EthService{
         let txn: Transaction = null;
 
         if(ethTransaction != null) {
+            let qty = parseInt(ethTransaction.value);
+            let latestBlock = parseInt(ethTransaction.currentBlock);
+            let nonce = parseInt(ethTransaction.timestamp);
+
             txn = new Transaction();
             txn.hash = ethTransaction.hash;
-            txn.block = parseInt(ethTransaction.currentBlock);
-            let qty = parseInt(ethTransaction.value);
+            txn.block = parseInt(ethTransaction.blockNumber);
             txn.quantity = qty / 1000000000000000000;
-            //txn.confirmations = ethTransaction.getConfirmations();
-            txn.date = this.dateSvc.unixToUTC(parseInt(ethTransaction.nonce));
+            txn.confirmations = latestBlock - txn.block;
+            txn.date = this.helperSvc.unixToUTC(nonce);
             txn.from = ethTransaction.from;
             txn.to = ethTransaction.to;
         }
@@ -90,6 +95,22 @@ export class EthService{
         return txn;
     }
     
+    tokenConvert(tokens: EthplorerToken[]): Asset[] {
+        let assets: Asset[] = [];
+
+        tokens.forEach(token => {
+            let asset = new Asset();
+            let quantity = this.helperSvc.exponentialToNumber(token.balance);
+            quantity = quantity.toString();
+            asset.quantity = this.helperSvc.commaBigNumber(quantity);
+            asset.symbol = token.tokenInfo.symbol;
+
+            assets.push(asset);
+        });
+
+        return assets;
+    }
+
     /**
      * Get an ETH address
      * 
@@ -150,8 +171,21 @@ export class EthService{
         let endpoint: string = "?module=proxy&action=eth_blockNumber";
         let url: string = this.ethscanBase + endpoint + this.ethscanApiKey;
 
-        return this.http.get<EthResponse<string>>(url)
-        .pipe(delay(1000));
+        return this.http.get<EthResponse<string>>(url);
+        //.pipe(delay(1000));
+    }
+
+    /**
+     * Get Block information
+     * 
+     * @param block block to find
+     */
+    getBlock(block: string): Observable<EthResponse<EthBlock>> {
+        let endpoint: string = "?module=proxy&action=eth_getBlockByNumber&tag="+ block + "&boolean=true";
+        let url: string = this.ethscanBase + endpoint + this.ethscanApiKey;
+
+        return this.http.get<EthResponse<EthBlock>>(url);
+        //.pipe(delay(1000));
 
     }
 }

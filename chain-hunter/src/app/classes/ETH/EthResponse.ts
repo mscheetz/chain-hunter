@@ -5,4 +5,5 @@ export class EthResponse<T> {
     message: string;
     result: T;
     error: object;
+    jsonrpc: string;
 }

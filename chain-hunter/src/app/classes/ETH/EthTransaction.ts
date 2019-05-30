@@ -16,6 +16,7 @@ export class EthTransaction {
     r: string;
     s: string;
     currentBlock: string;
+    timestamp: string;
 
     getQuantity(): number {
         let intVal = parseInt(this.value);

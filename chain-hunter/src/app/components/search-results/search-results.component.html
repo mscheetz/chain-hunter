@@ -7,8 +7,17 @@
         <ul>
             <li *ngFor="let txn of blockchain.address.transactions">
                 Hash: {{txn.hash}} <br>
-                Quantity: {{txn.quantity | number}}<br>
+                Quantity: {{txn.quantity.toLocaleString()}}<br>
                 Confirmations: {{txn.confirmations}}
+            </li>
+        </ul>
+    </p-panel>
+    <p-panel header="{{blockchain.symbol}} Address Tokens" [toggleable]="true" [collapsed]="true" *ngIf="blockchain.address.tokens">
+        <h4>{{blockchain.symbol}} Tokens</h4>
+        <ul>
+            <li *ngFor="let asset of blockchain.address.tokens">
+                Symbol: {{asset.symbol}} <br>
+                Quantity: {{asset.quantity}}
             </li>
         </ul>
     </p-panel>

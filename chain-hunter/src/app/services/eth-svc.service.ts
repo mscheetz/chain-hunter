@@ -95,6 +95,11 @@ export class EthService{
         return txn;
     }
     
+    /**
+     * Convert ETH token array to Asset array
+     * 
+     * @param tokens EthplorerToken collection to convert
+     */
     tokenConvert(tokens: EthplorerToken[]): Asset[] {
         let assets: Asset[] = [];
 

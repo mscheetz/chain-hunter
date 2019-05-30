@@ -277,6 +277,9 @@ export class ChainHunterComponent implements OnInit {
                 this.getNeoTransactions();
                 this.emptyHanded = false;
                 this.neoComplete = true;
+                let neo = this.getBlockchain("NEO");
+                neo.address = this.neoService.addressConvert(address);
+                this.setMap(neo);
                 this.calculateIcons();
                 console.log("neo address found");
             },
@@ -553,6 +556,9 @@ export class ChainHunterComponent implements OnInit {
                 this.neoTransaction = txn;
                 this.neoFound = true;
                 this.emptyHanded = false;
+                let neo = this.getBlockchain("NEO");
+                neo.transaction = this.neoService.transactionConvert(txn);
+                this.setMap(neo);
                 console.log("neo transaction found");
                 this.calculateIcons();
             },
@@ -674,6 +680,7 @@ export class ChainHunterComponent implements OnInit {
         this.map.set("BCH", this.bchService.getBlockchain());
         this.map.set("ETH", this.ethService.getBlockchain());
         this.map.set("LTC", this.ltcService.getBlockchain());
+        this.map.set("NEO", this.neoService.getBlockchain());
 
         this.map.forEach((value: Blockchain, key: string) => {
             value = this.getMenuIcon(value);

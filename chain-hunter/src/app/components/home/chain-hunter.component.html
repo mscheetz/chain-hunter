@@ -25,23 +25,7 @@
     </p-tabMenu>
     <search-results [blockchain]="blockchain"></search-results>
 </div>
-<div>
-    <p-tabMenu [model]="items" [activeItem]="activeItem">
-        <ng-template pTemplate="item" let-item let-i="index">
-            <div style="position: relative; text-align: center; min-width: 1em">
-                <img src="assets/cryptoicons/{{item.icon}}" title="{{item.label}}" />
-            </div>
-        </ng-template>
-    </p-tabMenu>
-    <btc-results *ngIf="viewBtc" [btcAddress]="btcAddress" [btcTransaction]="btcTransaction" [btcTransactions]="btcTransactions"></btc-results>
-    <bch-results *ngIf="viewBch" [bchAddress]="bchAddress" [bchTransaction]="bchTransaction" [bchTransactions]="bchTransactions"></bch-results>
-    <eth-results *ngIf="viewEth" [ethAddress]="ethAddress" [ethTransaction]="ethTransaction" [ethTransactions]="ethTransactions"></eth-results>
-    <ltc-results *ngIf="viewLtc" [ltcAddress]="ltcAddress" [ltcTransaction]="ltcTransaction"></ltc-results>
-    <rvn-results *ngIf="viewRvn" [rvnAddress]="rvnAddress" [rvnTransaction]="rvnTransaction" [rvnTransactions]="rvnTransactions"></rvn-results>
-    <xrp-results *ngIf="viewXrp" [xrpAddress]="xrpAddress" [xrpTransaction]="xrpTransaction" [xrpTransactions]="xrpTransactions"></xrp-results>
-    <bnb-results *ngIf="viewBnb" [bnbAddress]="bnbAddress" [bnbTransaction]="bnbTransaction" [bnbTransactions]="bnbTransactions"></bnb-results>
-    <neo-results *ngIf="viewNeo" [neoAddress]="neoAddress" [neoTransaction]="neoTransaction" [neoTransactions]="neoTransactions"></neo-results>    
-    <h3 *ngIf="this.emptyHanded === true">You came out empty handed</h3>
+<div>    
     <div>
         Coming soon:
         <div>

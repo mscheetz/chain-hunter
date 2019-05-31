@@ -272,29 +272,37 @@ export class ChainHunterComponent implements OnInit {
             });
         this.neoService.getAddress(this.addyTxn)
             .subscribe(address => {
-                this.neoAddress = address;
-                this.neoFound = true;
-                this.getNeoTransactions();
-                this.emptyHanded = false;
-                this.neoComplete = true;
-                let neo = this.getBlockchain("NEO");
-                neo.address = this.neoService.addressConvert(address);
-                this.setMap(neo);
-                this.calculateIcons();
+                if(address.balance.length > 0) {
+                    this.neoAddress = address;
+                    this.neoFound = true;
+                    this.getNeoTransactions();
+                    this.emptyHanded = false;
+                    this.neoComplete = true;
+                    let neo = this.getBlockchain("NEO");
+                    neo.address = this.neoService.addressConvert(address);
+                    this.setMap(neo);
+                    this.calculateIcons();
                 console.log("neo address found");
+                } else {
+                    console.log("neo address not found");
+                    this.getNeoTransaction();
+                }
             },
             error => {
                 this.getNeoTransaction();
                 console.log("neo address error:" + error);
         });
         this.rvnService.getAddress(this.addyTxn)
-            .subscribe(addressResponse => {
-                if(addressResponse) {
-                    this.rvnAddress = addressResponse;
+            .subscribe(address => {
+                if(address) {
+                    this.rvnAddress = address;
                     this.rvnFound = true;
                     this.getRvnTransactions();
                     this.emptyHanded = false;
                     this.rvnComplete = true;
+                    let rvn = this.getBlockchain("RVN");
+                    rvn.address = this.rvnService.addressConvert(address);
+                    this.setMap(rvn);
                     this.calculateIcons();
                     console.log("rvn address found");
                 } else {
@@ -584,6 +592,9 @@ export class ChainHunterComponent implements OnInit {
                     this.rvnTransaction = txn
                     this.rvnFound = true;
                     this.emptyHanded = false;
+                    let rvn = this.getBlockchain("RVN");
+                    rvn.transaction = this.rvnService.transactionConvert(txn);
+                    this.setMap(rvn);
                     console.log("rvn transaction found");
                 } else {
                     console.log("rvn transaction not found");                    
@@ -681,6 +692,7 @@ export class ChainHunterComponent implements OnInit {
         this.map.set("ETH", this.ethService.getBlockchain());
         this.map.set("LTC", this.ltcService.getBlockchain());
         this.map.set("NEO", this.neoService.getBlockchain());
+        this.map.set("RVN", this.rvnService.getBlockchain());
 
         this.map.forEach((value: Blockchain, key: string) => {
             value = this.getMenuIcon(value);

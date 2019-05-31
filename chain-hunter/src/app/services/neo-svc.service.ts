@@ -101,7 +101,6 @@ export class NeoService{
         let txn: Transaction = null;
 
         if(neoTransaction != null) {
-            let qty = neoTransaction.size;
             let from = "";
             let to = ""
             neoTransaction.vin.forEach(vin => {
@@ -111,10 +110,10 @@ export class NeoService{
                 from += vin.address_hash;
             });
             neoTransaction.vouts.forEach(vout => {
-                if(from !== "") {
-                    from += ", ";
+                if(to !== "") {
+                    to += ", ";
                 } 
-                from += vout.address_hash;
+                to += vout.address_hash;
             });
 
             txn = new Transaction();

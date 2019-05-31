@@ -197,6 +197,9 @@ export class ChainHunterComponent implements OnInit {
                 this.getBnbTransactions();
                 this.emptyHanded = false;
                 this.bnbComplete = true;
+                let bnb = this.getBlockchain("BNB");
+                bnb.address = this.bnbService.addressConvert(address);
+                this.setMap(bnb);
                 this.calculateIcons();
                 console.log("bnb address found");
             },
@@ -379,6 +382,9 @@ export class ChainHunterComponent implements OnInit {
                 this.bnbTransaction = txn;
                 this.bnbFound = true;
                 this.emptyHanded = false;
+                let bnb = this.getBlockchain("BNB");
+                bnb.transaction = this.bnbService.transactionConvert(txn);
+                this.setMap(bnb);
                 console.log("bnb transaction found");
                 this.calculateIcons();
             },
@@ -393,6 +399,9 @@ export class ChainHunterComponent implements OnInit {
         this.bnbService.getAddressTransactions(this.addyTxn)
             .subscribe(txns => {
                 this.bnbTransactions = txns.tx
+                // let bnb = this.getBlockchain("BNB");
+                // bnb.address.transactions = this.bnbService.transactionsConvert(txns.tx);
+                // this.setMap(bnb);
             });
     }
 
@@ -706,6 +715,7 @@ export class ChainHunterComponent implements OnInit {
         this.map.set("NEO", this.neoService.getBlockchain());
         this.map.set("RVN", this.rvnService.getBlockchain());
         this.map.set("XRP", this.xrpService.getBlockchain());
+        this.map.set("BNB", this.bnbService.getBlockchain());
 
         this.map.forEach((value: Blockchain, key: string) => {
             value = this.getMenuIcon(value);

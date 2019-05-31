@@ -6,13 +6,127 @@ import { delay } from 'rxjs/operators';
 import { BnbAddress } from '../classes/BNB/BnbAddress';
 import { BnbAddressTxnResponse } from '../classes/BNB/BnbAddressTxnResponse';
 import { BnbTransaction } from '../classes/BNB/BnbTransaction';
+import { Transaction } from '../classes/ChainHunter/Transaction';
+import { Address } from '../classes/ChainHunter/Address';
+import { Blockchain } from '../classes/ChainHunter/Blockchain';
+import { BnbBalance } from '../classes/BNB/BnbBalance';
+import { Asset } from '../classes/ChainHunter/Asset';
+import { HelperService } from './helper-svc.service';
 
 @Injectable({providedIn: 'root'})
 export class BnbService {
-    constructor(private http: HttpClient) {}
+    constructor(private http: HttpClient, private helperSvc: HelperService) {}
 
     conn: Connections = new Connections();
     base: string = this.conn.bnbBase;
+
+    /**
+     * Get a BNB Blockchain
+     */
+    getBlockchain(): Blockchain {
+        let chain = new Blockchain();
+        chain.name = 'Binance Coin';
+        chain.symbol = 'BNB';
+
+        return chain;
+    }
+
+    /**
+     * Convert BnbAddress to generic Address
+     * 
+     * @param bnbAddress BnbAddress object
+     */
+    addressConvert(bnbAddress: BnbAddress): Address {
+        let address: Address = null;
+
+        if(bnbAddress != null) {
+            let qty = 0;
+            bnbAddress.balances.forEach(balance => {
+                if(balance.symbol === "BNB") {
+                    qty = +balance.free + +balance.frozen + +balance.locked;
+                }
+            })
+
+            address = new Address();
+            address.address = bnbAddress.address;
+            address.quantity = qty;
+            address.tokens = this.tokenConvert(bnbAddress.balances);
+        }
+
+        return address;
+    }
+    
+    /**
+     * Convert BNB token array to Asset array
+     * 
+     * @param tokens BnbBalance collection to convert
+     */
+    tokenConvert(tokens: BnbBalance[]): Asset[] {
+        let assets: Asset[] = [];
+
+        tokens.forEach(token => {
+            let asset = new Asset();
+            let quantity = +token.free + +token.frozen + +token.locked;
+            asset.quantity = this.helperSvc.commaBigNumber(quantity.toString());
+            asset.symbol = token.symbol;
+
+            assets.push(asset);
+        });
+
+        return assets;
+    }
+
+    /**
+     * Convert BnbTransaction collection to collection of generic Transactions
+     * 
+     * @param bnbTransactions BnbTransaction to convert
+     */
+    transactionsConvert(bnbTransactions: BnbTransaction[]): Transaction[]{
+        let transactions: Transaction[] = [];
+        if(bnbTransactions != null && bnbTransactions.length > 0) {
+            bnbTransactions.slice(0, 10).forEach(txn => {
+                let transaction = this.transactionConvert(txn);
+                transactions.push(transaction);
+            });
+        }
+        return transactions;
+    }
+
+    /**
+     * Convert a BnbTransaction to a generic Transaction
+     * 
+     * @param bnbTransaction BnbTransaction to convert
+     */
+    transactionConvert(bnbTransaction: BnbTransaction): Transaction {
+        let txn: Transaction = null;
+
+        if(bnbTransaction != null) {
+            let from = "";
+            let to = ""
+            bnbTransaction.tx.value.inputs.forEach(input => {
+                if(from !== "") {
+                    from += ", ";
+                } 
+                from += input.address;
+            });
+            bnbTransaction.tx.value.outputs.forEach(output => {
+                if(to !== "") {
+                    to += ", ";
+                } 
+                to += output.address;
+            });
+            txn = new Transaction();
+            txn.hash = bnbTransaction.hash;
+            txn.block = parseInt(bnbTransaction.height);
+            txn.quantity = bnbTransaction.tx.value.inputs[0].coins[0].amount;
+            //txn.confirmations = xrpTransaction.confirmations;
+            //txn.date = bnbTransaction.date;
+            txn.from = from;
+            txn.to = to;
+        }
+
+        return txn;
+    }
 
     /**
      * Get a BNB address

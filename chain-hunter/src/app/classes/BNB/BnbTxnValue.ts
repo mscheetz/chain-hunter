@@ -1,5 +1,6 @@
 import { BnbTxnMsg } from './BnbTxnMsg';
 import { BnbSignature } from './BnbSignature';
+import { BnbTxnIO } from './BnbTxnIO';
 
 export class BnbTxnValue {
     constructor() {}
@@ -7,6 +8,8 @@ export class BnbTxnValue {
     data: object;
     memo: string;
     msg: BnbTxnMsg[];
+    inputs: BnbTxnIO[];
+    outputs: BnbTxnIO[];
     signatures: BnbSignature[];
     source: string;
 }

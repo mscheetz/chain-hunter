@@ -1,6 +1,6 @@
 export class XrpTransactionAmount {
     constructor() {}
 
-    public currency: string;
-    public value: number;
+    currency: string;
+    value: number;
 }

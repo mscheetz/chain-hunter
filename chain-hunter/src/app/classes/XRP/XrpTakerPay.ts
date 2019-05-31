@@ -1,7 +1,7 @@
 export class XrpTakerPay {
     constructor() {}
 
-    public currency: string;
-    public issuer: string;
-    public value: number;
+    currency: string;
+    issuer: string;
+    value: number;
 }

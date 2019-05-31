@@ -1,6 +1,6 @@
 export class XrpTakerGet {
     constructor() {}
 
-    public value: number;
-    public currency: string;
+    value: number;
+    currency: string;
 }

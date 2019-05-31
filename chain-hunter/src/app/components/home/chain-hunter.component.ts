@@ -315,13 +315,16 @@ export class ChainHunterComponent implements OnInit {
                 console.log("rvn address error:" + error);
             });
         this.xrpService.getAddress(this.addyTxn)
-            .subscribe(addressResponse => {
-                if(addressResponse) {
-                    this.xrpAddress = addressResponse;
+            .subscribe(address => {
+                if(address) {
+                    this.xrpAddress = address;
                     this.xrpFound = true;
                     this.getXrpTransactions();
                     this.emptyHanded = false;
                     this.xrpComplete = true;
+                    let xrp = this.getBlockchain("XRP");
+                    xrp.address = this.xrpService.addressConvert(address);
+                    this.setMap(xrp);
                     this.calculateIcons();
                     console.log("xrp address found");
                 } else {
@@ -612,6 +615,9 @@ export class ChainHunterComponent implements OnInit {
         this.rvnService.getAddressTransactions(this.addyTxn)
             .subscribe(txns => {
                 this.rvnTransactions = txns.txs;
+                let rvn = this.getBlockchain("RVN");
+                rvn.address.transactions = this.rvnService.transactionsConvert(txns.txs);
+                this.setMap(rvn);
             });
     }
 
@@ -623,6 +629,9 @@ export class ChainHunterComponent implements OnInit {
                     this.xrpTransaction = txn
                     this.xrpFound = true;
                     this.emptyHanded = false;
+                    let xrp = this.getBlockchain("XRP");
+                    xrp.transaction = this.xrpService.transactionConvert(txn);
+                    this.setMap(xrp);
                     console.log("xrp transaction found");  
                 } else {
                     console.log("xrp transaction not found");                    
@@ -640,6 +649,9 @@ export class ChainHunterComponent implements OnInit {
         this.xrpService.getAddressTransactions(this.addyTxn)
             .subscribe(txns => {
                 this.xrpTransactions = txns.payments;
+                // let xrp = this.getBlockchain("XRP");
+                // xrp.address.transactions = this.xrpService.transactionsConvert(txns.payments);
+                // this.setMap(xrp);
             });
     }
 
@@ -693,6 +705,7 @@ export class ChainHunterComponent implements OnInit {
         this.map.set("LTC", this.ltcService.getBlockchain());
         this.map.set("NEO", this.neoService.getBlockchain());
         this.map.set("RVN", this.rvnService.getBlockchain());
+        this.map.set("XRP", this.xrpService.getBlockchain());
 
         this.map.forEach((value: Blockchain, key: string) => {
             value = this.getMenuIcon(value);

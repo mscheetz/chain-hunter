@@ -12,6 +12,9 @@ import { BchPagedResponse } from '../classes/BCH/BchPagedResponse';
 import { XrpAddress } from '../classes/XRP/XrpAddress';
 import { XrpTransaction } from '../classes/XRP/XrpTransaction';
 import { XrpPaymentsResult } from '../classes/XRP/XrpPaymentsResult';
+import { Transaction } from '../classes/ChainHunter/Transaction';
+import { Address } from '../classes/ChainHunter/Address';
+import { Blockchain } from '../classes/ChainHunter/Blockchain';
 
 @Injectable({providedIn: 'root'})
 export class XrpService{
@@ -20,6 +23,72 @@ export class XrpService{
     conn: Connections = new Connections();
     base: string = this.conn.xrpBase;
 
+    /**
+     * Get a XRP Blockchain
+     */
+    getBlockchain(): Blockchain {
+        let chain = new Blockchain();
+        chain.name = 'Ripple';
+        chain.symbol = 'XRP';
+
+        return chain;
+    }
+
+    /**
+     * Convert XrpAddress to generic Address
+     * 
+     * @param xrpAddress XrpAddress object
+     */
+    addressConvert(xrpAddress: XrpAddress): Address {
+        let address: Address = null;
+
+        if(xrpAddress != null) {
+            address = new Address();
+            address.address = xrpAddress.account;
+            address.quantity = parseFloat(xrpAddress.xrpBalance);
+        }
+
+        return address;
+    }
+
+    /**
+     * Convert XrpTransaction collection to collection of generic Transactions
+     * 
+     * @param xrpTransactions XrpTransaction to convert
+     */
+    transactionsConvert(xrpTransactions: XrpTransaction[]): Transaction[]{
+        let transactions: Transaction[] = [];
+        if(xrpTransactions != null && xrpTransactions.length > 0) {
+            xrpTransactions.slice(0, 10).forEach(txn => {
+                let transaction = this.transactionConvert(txn);
+                transactions.push(transaction);
+            });
+        }
+        return transactions;
+    }
+
+    /**
+     * Convert a XrpTransaction to a generic Transaction
+     * 
+     * @param xrpTransaction XrpTransaction to convert
+     */
+    transactionConvert(xrpTransaction: XrpTransaction): Transaction {
+        let txn: Transaction = null;
+
+        if(xrpTransaction != null) {
+            txn = new Transaction();
+            txn.hash = xrpTransaction.hash;
+            txn.block = xrpTransaction.ledger_index;
+            txn.quantity = xrpTransaction.Amount.value;
+            //txn.confirmations = xrpTransaction.confirmations;
+            txn.date = xrpTransaction.date;
+            txn.from = xrpTransaction.Account;
+            txn.to = xrpTransaction.DesinationName;
+        }
+
+        return txn;
+    }
+    
     /**
      * Get a XRP address
      * 

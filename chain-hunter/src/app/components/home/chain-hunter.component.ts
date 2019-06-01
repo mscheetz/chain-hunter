@@ -41,21 +41,18 @@ import { EthBlock } from 'src/app/classes/ETH/EthBlock';
 
 export class ChainHunterComponent implements OnInit {
     @Output() addyTxn: string;
-    @Output() btcAddress: BtcAddress = null;
-    @Output() btcTransaction: BtcTransaction = null;
-    @Output() btcTransactions: BtcPage<BtcTransaction[]> = null;
     btcFound: boolean = false;
     viewBtc: boolean = false;
     btcComplete: boolean = true;
     btcIcon: string;
-    @Output() bnbAddress: BnbAddress = null;
-    @Output() bnbTransaction: BnbTransaction = null;
-    @Output() bnbTransactions: BnbAddressTransaction[] = null;
+    // @Output() bnbAddress: BnbAddress = null;
+    // @Output() bnbTransaction: BnbTransaction = null;
+    // @Output() bnbTransactions: BnbAddressTransaction[] = null;
     bnbFound: boolean = false;
     viewBnb: boolean = false;
     bnbComplete: boolean = true;
     bnbIcon: string;
-    @Output() ethAddress: EthAddress = null;
+    // @Output() ethAddress: EthAddress = null;
     @Output() ethTransaction: EthTransaction = null;
     @Output() ethTransactions: EthTransaction[] = null;
     ethFound: boolean = false;
@@ -65,36 +62,36 @@ export class ChainHunterComponent implements OnInit {
     viewEth: boolean = false;
     ethComplete: boolean = true;
     ethIcon: string;
-    @Output() bchAddress: BchAddress = null;
-    @Output() bchTransaction: BchTransaction = null;
-    @Output() bchTransactions: BchPagedResponse<BchTransaction[]> = null;
+    // @Output() bchAddress: BchAddress = null;
+    // @Output() bchTransaction: BchTransaction = null;
+    // @Output() bchTransactions: BchPagedResponse<BchTransaction[]> = null;
     bchFound: boolean = false;
     viewBch: boolean = false;
     bchIcon: string;
     bchComplete: boolean = true;
-    @Output() ltcAddress: LtcAddress = null;
-    @Output() ltcTransaction: LtcTransaction = null;    
+    // @Output() ltcAddress: LtcAddress = null;
+    // @Output() ltcTransaction: LtcTransaction = null;    
     ltcFound: boolean = false;
     viewLtc: boolean = false;
     ltcComplete: boolean = true;
     ltcIcon: string;
-    @Output() rvnAddress: RvnAddress = null;
-    @Output() rvnTransaction: RvnTransaction = null;
-    @Output() rvnTransactions: RvnTransaction[] = null;
+    // @Output() rvnAddress: RvnAddress = null;
+    // @Output() rvnTransaction: RvnTransaction = null;
+    // @Output() rvnTransactions: RvnTransaction[] = null;
     rvnFound: boolean = false;
     viewRvn: boolean = false;
     rvnComplete: boolean = true;
     rvnIcon: string;
-    @Output() xrpAddress: XrpAddress = null;
-    @Output() xrpTransaction: XrpTransaction = null;
-    @Output() xrpTransactions: XrpAddressTransaction[] = null;
+    // @Output() xrpAddress: XrpAddress = null;
+    // @Output() xrpTransaction: XrpTransaction = null;
+    // @Output() xrpTransactions: XrpAddressTransaction[] = null;
     xrpFound: boolean = false;
     viewXrp: boolean = false;
     xrpIcon: string;
     xrpComplete: boolean = true;
-    @Output() neoAddress: NeoAddress = null;
-    @Output() neoTransaction: NeoTransaction = null;
-    @Output() neoTransactions: NeoAddressTxn[] = null;
+    // @Output() neoAddress: NeoAddress = null;
+    // @Output() neoTransaction: NeoTransaction = null;
+    // @Output() neoTransactions: NeoAddressTxn[] = null;
     neoFound: boolean = false;
     viewNeo: boolean = false;
     neoIcon: string;
@@ -102,6 +99,8 @@ export class ChainHunterComponent implements OnInit {
     items: MenuItem[];
     emptyHanded: boolean = false;
     notRunning: boolean = true;
+    seeItem: boolean = false;
+    activeItem: MenuItem;
     @Output() samplesIndex = null;
     @Output() blockchain: Blockchain = null;
     map: Map<string, Blockchain> = new Map<string, Blockchain>();
@@ -123,38 +122,8 @@ export class ChainHunterComponent implements OnInit {
     }
 
     nullOut(){
-        this.bchFound = false;
-        this.bnbFound = false;
-        this.btcFound = false;
-        this.ethFound = false;
-        this.ltcFound = false;
-        this.neoFound = false;
-        this.rvnFound = false;
-        this.xrpFound = false;
-        this.btcAddress = null;
-        this.btcTransaction = null;
-        this.btcTransactions = null;
-        this.bnbAddress = null;
-        this.bnbTransaction = null;
-        this.bnbTransactions = null;
-        this.bchAddress = null;
-        this.bchTransaction = null;
-        this.bchTransactions = null;
-        this.ethAddress = null;
         this.ethTransaction = null;
         this.ethTransactions = null;
-        this.ltcAddress = null;
-        this.ltcTransaction = null;
-        this.neoAddress = null;
-        this.neoTransaction = null;
-        this.neoTransactions = null;
-        this.rvnAddress = null;
-        this.rvnTransaction = null;
-        this.rvnTransactions = null;
-        this.xrpAddress = null;
-        this.xrpTransaction = null;
-        this.xrpTransactions = null;
-        this.emptyHanded = false;
         this.btcComplete = this.bnbComplete = this.bchComplete = 
         this.ethComplete = this.ltcComplete = this.neoComplete = 
         this.rvnComplete = this.xrpComplete = false;
@@ -171,7 +140,6 @@ export class ChainHunterComponent implements OnInit {
         this.btcService.getAddress(this.addyTxn)
             .subscribe(address => {
                 if(address.err_no === 0 && address.data !== null) {
-                    this.btcAddress = address.data
                     this.btcFound = true;
                     let btc = this.getBlockchain("BTC");
                     btc.address = this.btcService.addressConvert(address.data);
@@ -192,7 +160,6 @@ export class ChainHunterComponent implements OnInit {
             });
         this.bnbService.getAddress(this.addyTxn)
             .subscribe(address => {
-                this.bnbAddress = address;
                 this.bnbFound = true;
                 this.getBnbTransactions();
                 this.emptyHanded = false;
@@ -210,7 +177,6 @@ export class ChainHunterComponent implements OnInit {
         this.bchService.getAddress(this.addyTxn)
             .subscribe(address => {
                 if(address.err_no === 0 && address.data !== null) {
-                    this.bchAddress = address.data
                     this.bchFound = true;
                     let bch = this.getBlockchain("BCH");
                     bch.address = this.bchService.addressConvert(address.data);
@@ -233,17 +199,16 @@ export class ChainHunterComponent implements OnInit {
             .subscribe(addressResponse => {
                 if((addressResponse.status === "1" || addressResponse.message === "OK") 
                     && addressResponse.result !== "0" ) {
-                    this.ethAddress = new EthAddress();
-                    this.ethAddress.Address = this.addyTxn;
-                    this.ethAddress.Balance = parseInt(addressResponse.result);
+                    let ethAddress = new EthAddress();
+                    ethAddress.Address = this.addyTxn;
+                    ethAddress.Balance = parseInt(addressResponse.result);
                     this.ethFound = true;
                     this.ethBlocks = new Map<string, EthBlock>();
                     this.ethLatestBlock = null;
                     let eth = this.getBlockchain("ETH");
-                    eth.address = this.ethService.addressConvert(this.ethAddress);
+                    eth.address = this.ethService.addressConvert(ethAddress);
                     this.setMap(eth);
                     this.getEthTokens();
-                    //this.getEthTransactions();
                     this.emptyHanded = false;
                     this.ethComplete = true;
                     this.calculateIcons();
@@ -259,7 +224,6 @@ export class ChainHunterComponent implements OnInit {
             });
         this.ltcService.getAddress(this.addyTxn)
             .subscribe(address => {
-                this.ltcAddress = address;
                 this.ltcFound = true;
                 this.emptyHanded = false;
                 this.ltcComplete = true;
@@ -276,7 +240,6 @@ export class ChainHunterComponent implements OnInit {
         this.neoService.getAddress(this.addyTxn)
             .subscribe(address => {
                 if(address.balance.length > 0) {
-                    this.neoAddress = address;
                     this.neoFound = true;
                     this.getNeoTransactions();
                     this.emptyHanded = false;
@@ -298,7 +261,6 @@ export class ChainHunterComponent implements OnInit {
         this.rvnService.getAddress(this.addyTxn)
             .subscribe(address => {
                 if(address) {
-                    this.rvnAddress = address;
                     this.rvnFound = true;
                     this.getRvnTransactions();
                     this.emptyHanded = false;
@@ -320,7 +282,6 @@ export class ChainHunterComponent implements OnInit {
         this.xrpService.getAddress(this.addyTxn)
             .subscribe(address => {
                 if(address) {
-                    this.xrpAddress = address;
                     this.xrpFound = true;
                     this.getXrpTransactions();
                     this.emptyHanded = false;
@@ -346,7 +307,6 @@ export class ChainHunterComponent implements OnInit {
             .subscribe(txn => {
                 this.btcComplete = true;
                 if(txn.err_no === 0) {
-                    this.btcTransaction = txn.data
                     let btc = this.getBlockchain("BTC");
                     btc.transaction = this.btcService.transactionConvert(txn.data);
                     this.setMap(btc);
@@ -368,7 +328,6 @@ export class ChainHunterComponent implements OnInit {
     getBtcTransactions() {
         this.btcService.getAddressTransactions(this.addyTxn)
             .subscribe(txns => {
-                this.btcTransactions = txns.data
                 let btc = this.getBlockchain("BTC");
                 btc.address.transactions = this.btcService.transactionsConvert(txns.data.list);
                 this.setMap(btc);
@@ -379,7 +338,6 @@ export class ChainHunterComponent implements OnInit {
         this.bnbService.getTransaction(this.addyTxn)
             .subscribe(txn => {
                 this.bnbComplete = true;
-                this.bnbTransaction = txn;
                 this.bnbFound = true;
                 this.emptyHanded = false;
                 let bnb = this.getBlockchain("BNB");
@@ -398,7 +356,6 @@ export class ChainHunterComponent implements OnInit {
     getBnbTransactions() {
         this.bnbService.getAddressTransactions(this.addyTxn)
             .subscribe(txns => {
-                this.bnbTransactions = txns.tx
                 // let bnb = this.getBlockchain("BNB");
                 // bnb.address.transactions = this.bnbService.transactionsConvert(txns.tx);
                 // this.setMap(bnb);
@@ -410,7 +367,6 @@ export class ChainHunterComponent implements OnInit {
             .subscribe(txn => {
                 this.bchComplete = true;
                 if(txn.err_no === 0) {
-                    this.bchTransaction = txn.data
                     let bch = this.getBlockchain("BCH");
                     bch.transaction = this.bchService.transactionConvert(txn.data);
                     this.setMap(bch);
@@ -432,7 +388,6 @@ export class ChainHunterComponent implements OnInit {
     getBchTransactions() {
         this.bchService.getAddressTransactions(this.addyTxn)
             .subscribe(txns => {
-                this.bchTransactions = txns.data;
                 let bch = this.getBlockchain("BCH");
                 bch.address.transactions = this.bchService.transactionsConvert(txns.data.list);
                 this.setMap(bch);
@@ -451,7 +406,6 @@ export class ChainHunterComponent implements OnInit {
         this.ethService.getTransaction(this.addyTxn)
             .subscribe(txn => {
                 if(!txn.error && txn.result !== null) {
-                    this.ethTransaction = txn.result
                     this.ethFound = true;
                     this.emptyHanded = false;
                     this.ethBlockCount = 1;
@@ -573,7 +527,6 @@ export class ChainHunterComponent implements OnInit {
         this.neoService.getTransaction(this.addyTxn)
             .subscribe(txn => {
                 this.neoComplete = true;
-                this.neoTransaction = txn;
                 this.neoFound = true;
                 this.emptyHanded = false;
                 let neo = this.getBlockchain("NEO");
@@ -592,7 +545,9 @@ export class ChainHunterComponent implements OnInit {
     getNeoTransactions() {
         this.neoService.getAddressTransactions(this.addyTxn)
             .subscribe(txns => {
-                this.neoTransactions = txns.entries
+                let neo = this.getBlockchain("NEO");
+                neo.address.transactions = this.neoService.transactionsConvert(txns.entries);
+                this.setMap(neo);
             });
     }
 
@@ -601,7 +556,6 @@ export class ChainHunterComponent implements OnInit {
             .subscribe(txn => {
                 this.rvnComplete = true;
                 if(txn) {
-                    this.rvnTransaction = txn
                     this.rvnFound = true;
                     this.emptyHanded = false;
                     let rvn = this.getBlockchain("RVN");
@@ -623,7 +577,6 @@ export class ChainHunterComponent implements OnInit {
     getRvnTransactions() {
         this.rvnService.getAddressTransactions(this.addyTxn)
             .subscribe(txns => {
-                this.rvnTransactions = txns.txs;
                 let rvn = this.getBlockchain("RVN");
                 rvn.address.transactions = this.rvnService.transactionsConvert(txns.txs);
                 this.setMap(rvn);
@@ -635,7 +588,6 @@ export class ChainHunterComponent implements OnInit {
             .subscribe(txn => {
                 this.xrpComplete = true;
                 if(txn) {
-                    this.xrpTransaction = txn
                     this.xrpFound = true;
                     this.emptyHanded = false;
                     let xrp = this.getBlockchain("XRP");
@@ -657,22 +609,21 @@ export class ChainHunterComponent implements OnInit {
     getXrpTransactions() {
         this.xrpService.getAddressTransactions(this.addyTxn)
             .subscribe(txns => {
-                this.xrpTransactions = txns.payments;
-                // let xrp = this.getBlockchain("XRP");
-                // xrp.address.transactions = this.xrpService.transactionsConvert(txns.payments);
-                // this.setMap(xrp);
+                let xrp = this.getBlockchain("XRP");
+                xrp.address.transactions = this.xrpService.transactionsConvert(txns.payments);
+                this.setMap(xrp);
             });
     }
 
     calculateIcons() {
-        this.bchIcon = this.getIcon("bch", this.bchFound);
-        this.bnbIcon = this.getIcon("bnb", this.bnbFound);
-        this.btcIcon = this.getIcon("btc", this.btcFound);
-        this.ethIcon = this.getIcon("eth", this.ethFound);
-        this.ltcIcon = this.getIcon("ltc", this.ltcFound);
-        this.neoIcon = this.getIcon("neo", this.neoFound);
-        this.rvnIcon = this.getIcon("rvn", this.rvnFound);
-        this.xrpIcon = this.getIcon("xrp", this.xrpFound);
+        // this.bchIcon = this.getIcon("bch", this.bchFound);
+        // this.bnbIcon = this.getIcon("bnb", this.bnbFound);
+        // this.btcIcon = this.getIcon("btc", this.btcFound);
+        // this.ethIcon = this.getIcon("eth", this.ethFound);
+        // this.ltcIcon = this.getIcon("ltc", this.ltcFound);
+        // this.neoIcon = this.getIcon("neo", this.neoFound);
+        // this.rvnIcon = this.getIcon("rvn", this.rvnFound);
+        // this.xrpIcon = this.getIcon("xrp", this.xrpFound);
         this.updateMenuItems();
         this.checkComplete();
     }
@@ -686,22 +637,22 @@ export class ChainHunterComponent implements OnInit {
     }
 
     updateMenuItems() {
-        this.items = [
-            { label: 'btc', icon: this.btcIcon, styleClass: this.btcFound ? 'found-bg' : 'not-found-bg', command: (event) => { this.showBtc() } },
-            { label: 'bch', icon: this.bchIcon, command: (event) => { this.showBch() } },
-            { label: 'eth', icon: this.ethIcon, command: (event) => { this.showEth() } },
-            { label: 'ltc', icon: this.ltcIcon, command: (event) => { this.showLtc() } },
-            { label: 'neo', icon: this.neoIcon, command: (event) => { this.showNeo() } },
-            { label: 'rvn', icon: this.rvnIcon, command: (event) => { this.showRvn() } },
-            { label: 'xrp', icon: this.xrpIcon, command: (event) => { this.showXrp() } },
-            { label: 'bnb', icon: this.bnbIcon, command: (event) => { this.showBnb() } },
-        ]
+        // this.items = [
+        //     { label: 'btc', icon: this.btcIcon, styleClass: this.btcFound ? 'found-bg' : 'not-found-bg', command: (event) => { this.showBtc() } },
+        //     { label: 'bch', icon: this.bchIcon, command: (event) => { this.showBch() } },
+        //     { label: 'eth', icon: this.ethIcon, command: (event) => { this.showEth() } },
+        //     { label: 'ltc', icon: this.ltcIcon, command: (event) => { this.showLtc() } },
+        //     { label: 'neo', icon: this.neoIcon, command: (event) => { this.showNeo() } },
+        //     { label: 'rvn', icon: this.rvnIcon, command: (event) => { this.showRvn() } },
+        //     { label: 'xrp', icon: this.xrpIcon, command: (event) => { this.showXrp() } },
+        //     { label: 'bnb', icon: this.bnbIcon, command: (event) => { this.showBnb() } },
+        // ]
         this.menuItems = [];
         this.map.forEach((value: Blockchain, key: string) => {
             this.menuItems.push({ 
                 label: value.symbol, 
                 icon: value.icon,
-                command: (event) => { this.showItem(value.symbol) }
+                command: (event) => { this.showItem(value.symbol, event) }
             });
         });
     }
@@ -732,23 +683,16 @@ export class ChainHunterComponent implements OnInit {
         this.map.set(chain.symbol, chain);
     }
 
-    // getMenuIcon(symbol: string): string {
-    //     let chain = this.getBlockChain(symbol);
-
-    //     return chain.getIcon();
-    // }
-
-    seeItem: boolean = false;
-
-    showItem(symbol: string) {
+    showItem(symbol: string, event: any) {
         if(this.seeItem && this.selectedChain === symbol) {
             this.blockchain = null;
             this.seeItem = false;
             this.selectedChain = "";
+            this.activeItem = null;
         } else {
             this.blockchain = this.getBlockchain(symbol);
             this.seeItem = true;
-            this.selectedChain = symbol;
+            this.selectedChain = symbol;            
         }
     }
 

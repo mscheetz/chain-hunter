@@ -12,6 +12,7 @@ import { Transaction } from '../classes/ChainHunter/Transaction';
 import { HelperService } from './helper-svc.service';
 import { NeoAsset } from '../classes/NEO/NeoAsset';
 import { Asset } from '../classes/ChainHunter/Asset';
+import { NeoAddressTxn } from '../classes/NEO/NeoAddressTxn';
 
 @Injectable({providedIn: 'root'})
 export class NeoService{
@@ -77,19 +78,41 @@ export class NeoService{
     }
 
     /**
-     * Convert NeoTransaction collection to collection of generic Transactions
+     * Convert NeoAddressTxn collection to collection of generic Transactions
      * 
-     * @param neoTransactions NeoTransaction to convert
+     * @param neoTransactions NeoAddressTxn to convert
      */
-    transactionsConvert(neoTransactions: NeoTransaction[]): Transaction[]{
+    transactionsConvert(neoTransactions: NeoAddressTxn[]): Transaction[]{
         let transactions: Transaction[] = [];
         if(neoTransactions != null && neoTransactions.length > 0) {
             neoTransactions.slice(0, 10).forEach(txn => {
-                let transaction = this.transactionConvert(txn);
+                let transaction = this.addressTransactionConvert(txn);
                 transactions.push(transaction);
             });
         }
         return transactions;
+    }
+
+    /**
+     * Convert a NeoAddressTxn to a generic Transaction
+     * 
+     * @param neoTransaction NeoAddressTxn to convert
+     */
+    addressTransactionConvert(neoTransaction: NeoAddressTxn): Transaction {
+        let txn: Transaction = null;
+
+        if(neoTransaction != null) {
+            txn = new Transaction();
+            txn.hash = neoTransaction.txid;
+            txn.block = neoTransaction.block_height;
+            txn.quantity = parseInt(neoTransaction.amount);
+            txn.confirmations = neoTransaction.block_height;
+            txn.date = this.helperSvc.unixToUTC(neoTransaction.time);
+            txn.from = neoTransaction.address_from;
+            txn.to = neoTransaction.address_to;
+        }
+
+        return txn;
     }
 
     /**

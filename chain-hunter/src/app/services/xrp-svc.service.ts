@@ -15,6 +15,7 @@ import { XrpPaymentsResult } from '../classes/XRP/XrpPaymentsResult';
 import { Transaction } from '../classes/ChainHunter/Transaction';
 import { Address } from '../classes/ChainHunter/Address';
 import { Blockchain } from '../classes/ChainHunter/Blockchain';
+import { XrpAddressTransaction } from '../classes/XRP/XrpAddressTransaction';
 
 @Injectable({providedIn: 'root'})
 export class XrpService{
@@ -52,19 +53,41 @@ export class XrpService{
     }
 
     /**
-     * Convert XrpTransaction collection to collection of generic Transactions
+     * Convert XrpAddressTransaction collection to collection of generic Transactions
      * 
-     * @param xrpTransactions XrpTransaction to convert
+     * @param xrpTransactions XrpAddressTransaction to convert
      */
-    transactionsConvert(xrpTransactions: XrpTransaction[]): Transaction[]{
+    transactionsConvert(xrpTransactions: XrpAddressTransaction[]): Transaction[]{
         let transactions: Transaction[] = [];
         if(xrpTransactions != null && xrpTransactions.length > 0) {
             xrpTransactions.slice(0, 10).forEach(txn => {
-                let transaction = this.transactionConvert(txn);
+                let transaction = this.addressTransactionConvert(txn);
                 transactions.push(transaction);
             });
         }
         return transactions;
+    }
+
+    /**
+     * Convert a XrpAddressTransaction to a generic Transaction
+     * 
+     * @param xrpTransaction XrpAddressTransaction to convert
+     */
+    addressTransactionConvert(xrpTransaction: XrpAddressTransaction): Transaction {
+        let txn: Transaction = null;
+
+        if(xrpTransaction != null) {
+            txn = new Transaction();
+            txn.hash = xrpTransaction.tx_hash;
+            txn.block = xrpTransaction.ledger_index;
+            txn.quantity = parseInt(xrpTransaction.delivered_amount);
+            //txn.confirmations = xrpTransaction.confirmations;
+            txn.date = xrpTransaction.executed_time;
+            txn.from = xrpTransaction.source;
+            txn.to = xrpTransaction.destination;
+        }
+
+        return txn;
     }
 
     /**

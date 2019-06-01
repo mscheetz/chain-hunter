@@ -1,36 +1,16 @@
 import { OnInit, Component, Output, Input } from '@angular/core';
-import { BtcAddress } from 'src/app/classes/BTC/BtcAddress';
-import { BtcTransaction } from 'src/app/classes/BTC/BtcTransaction';
 import { BtcService } from 'src/app/services/btc-svc.service';
-import { BtcPage } from '../../classes/BTC/BtcPage';
 import { EthService } from 'src/app/services/eth-svc.service';
 import { EthAddress } from 'src/app/classes/ETH/EthAddress';
-import { BchAddress } from 'src/app/classes/BCH/BchAddress';
-import { BchTransaction } from 'src/app/classes/BCH/BchTransaction';
-import { LtcTransaction } from 'src/app/classes/LTC/LtcTransaction';
 import { LtcService } from 'src/app/services/ltc-svc.service';
 import { BchService } from 'src/app/services/bch-svc.service';
-import { BchPagedResponse } from 'src/app/classes/BCH/BchPagedResponse';
 import { EthTransaction } from 'src/app/classes/ETH/EthTransaction';
-import { LtcAddress } from 'src/app/classes/LTC/LtcAddress';
-import { RvnAddress } from 'src/app/classes/RVN/RvnAddress';
-import { RvnTransaction } from 'src/app/classes/RVN/RvnTransaction';
 import { RvnService } from 'src/app/services/rvn-svc.service';
 import { MenuItem } from 'primeng/api';
-import { XrpAddress } from 'src/app/classes/XRP/XrpAddress';
-import { XrpTransaction } from 'src/app/classes/XRP/XrpTransaction';
-import { XrpAddressTransaction } from 'src/app/classes/XRP/XrpAddressTransaction';
 import { XrpService } from 'src/app/services/xrp-svc.service';
-import { BnbAddressTransaction } from 'src/app/classes/BNB/BnbAddressTransaction';
-import { BnbTransaction } from 'src/app/classes/BNB/BnbTransaction';
-import { BnbAddress } from 'src/app/classes/BNB/BnbAddress';
 import { BnbService } from 'src/app/services/bnb-svc.service';
-import { NeoAddressTxn } from 'src/app/classes/NEO/NeoAddressTxn';
-import { NeoTransaction } from 'src/app/classes/NEO/NeoTransaction';
-import { NeoAddress } from 'src/app/classes/NEO/NeoAddress';
 import { NeoService } from 'src/app/services/neo-svc.service';
 import { Blockchain } from 'src/app/classes/ChainHunter/Blockchain';
-import { stringify } from 'querystring';
 import { EthBlock } from 'src/app/classes/ETH/EthBlock';
 
 @Component({
@@ -45,16 +25,12 @@ export class ChainHunterComponent implements OnInit {
     viewBtc: boolean = false;
     btcComplete: boolean = true;
     btcIcon: string;
-    // @Output() bnbAddress: BnbAddress = null;
-    // @Output() bnbTransaction: BnbTransaction = null;
-    // @Output() bnbTransactions: BnbAddressTransaction[] = null;
     bnbFound: boolean = false;
     viewBnb: boolean = false;
     bnbComplete: boolean = true;
     bnbIcon: string;
-    // @Output() ethAddress: EthAddress = null;
-    @Output() ethTransaction: EthTransaction = null;
-    @Output() ethTransactions: EthTransaction[] = null;
+    ethTransaction: EthTransaction = null;
+    ethTransactions: EthTransaction[] = null;
     ethFound: boolean = false;
     ethBlockCount: number = 0;
     ethLatestBlock: string = null;
@@ -62,36 +38,22 @@ export class ChainHunterComponent implements OnInit {
     viewEth: boolean = false;
     ethComplete: boolean = true;
     ethIcon: string;
-    // @Output() bchAddress: BchAddress = null;
-    // @Output() bchTransaction: BchTransaction = null;
-    // @Output() bchTransactions: BchPagedResponse<BchTransaction[]> = null;
     bchFound: boolean = false;
     viewBch: boolean = false;
     bchIcon: string;
-    bchComplete: boolean = true;
-    // @Output() ltcAddress: LtcAddress = null;
-    // @Output() ltcTransaction: LtcTransaction = null;    
+    bchComplete: boolean = true;    
     ltcFound: boolean = false;
     viewLtc: boolean = false;
     ltcComplete: boolean = true;
     ltcIcon: string;
-    // @Output() rvnAddress: RvnAddress = null;
-    // @Output() rvnTransaction: RvnTransaction = null;
-    // @Output() rvnTransactions: RvnTransaction[] = null;
     rvnFound: boolean = false;
     viewRvn: boolean = false;
     rvnComplete: boolean = true;
     rvnIcon: string;
-    // @Output() xrpAddress: XrpAddress = null;
-    // @Output() xrpTransaction: XrpTransaction = null;
-    // @Output() xrpTransactions: XrpAddressTransaction[] = null;
     xrpFound: boolean = false;
     viewXrp: boolean = false;
     xrpIcon: string;
     xrpComplete: boolean = true;
-    // @Output() neoAddress: NeoAddress = null;
-    // @Output() neoTransaction: NeoTransaction = null;
-    // @Output() neoTransactions: NeoAddressTxn[] = null;
     neoFound: boolean = false;
     viewNeo: boolean = false;
     neoIcon: string;
@@ -616,14 +578,6 @@ export class ChainHunterComponent implements OnInit {
     }
 
     calculateIcons() {
-        // this.bchIcon = this.getIcon("bch", this.bchFound);
-        // this.bnbIcon = this.getIcon("bnb", this.bnbFound);
-        // this.btcIcon = this.getIcon("btc", this.btcFound);
-        // this.ethIcon = this.getIcon("eth", this.ethFound);
-        // this.ltcIcon = this.getIcon("ltc", this.ltcFound);
-        // this.neoIcon = this.getIcon("neo", this.neoFound);
-        // this.rvnIcon = this.getIcon("rvn", this.rvnFound);
-        // this.xrpIcon = this.getIcon("xrp", this.xrpFound);
         this.updateMenuItems();
         this.checkComplete();
     }
@@ -637,16 +591,6 @@ export class ChainHunterComponent implements OnInit {
     }
 
     updateMenuItems() {
-        // this.items = [
-        //     { label: 'btc', icon: this.btcIcon, styleClass: this.btcFound ? 'found-bg' : 'not-found-bg', command: (event) => { this.showBtc() } },
-        //     { label: 'bch', icon: this.bchIcon, command: (event) => { this.showBch() } },
-        //     { label: 'eth', icon: this.ethIcon, command: (event) => { this.showEth() } },
-        //     { label: 'ltc', icon: this.ltcIcon, command: (event) => { this.showLtc() } },
-        //     { label: 'neo', icon: this.neoIcon, command: (event) => { this.showNeo() } },
-        //     { label: 'rvn', icon: this.rvnIcon, command: (event) => { this.showRvn() } },
-        //     { label: 'xrp', icon: this.xrpIcon, command: (event) => { this.showXrp() } },
-        //     { label: 'bnb', icon: this.bnbIcon, command: (event) => { this.showBnb() } },
-        // ]
         this.menuItems = [];
         this.map.forEach((value: Blockchain, key: string) => {
             this.menuItems.push({ 

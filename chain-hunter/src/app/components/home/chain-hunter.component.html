@@ -23,7 +23,7 @@
             </div>
         </ng-template>
     </p-tabMenu>
-    <search-results [blockchain]="blockchain"></search-results>
+    <search-results [blockchain]="blockchain" [transactionsComplete]="txnsComplete" (txnsGetter)="getAddressTransactions($event)"></search-results>
 </div>
 <div>    
     <div>

@@ -68,6 +68,8 @@ export class ChainHunterComponent implements OnInit {
     map: Map<string, Blockchain> = new Map<string, Blockchain>();
     menuItems: MenuItem[];
     selectedChain: string = "";
+    txnsComplete: boolean = true;
+    previousSearch: string = "";
 
     constructor(private btcService: BtcService, 
                 private bchService: BchService,
@@ -94,11 +96,16 @@ export class ChainHunterComponent implements OnInit {
     }
 
     chainHunt(){
+        if(this.previousSearch === this.addyTxn || this.addyTxn === "") {
+            return;
+        }
+        this.blockchain = new Blockchain();
         this.samplesIndex = -100;
         this.hideAll();
         this.nullOut();
         this.buildMap();
         this.notRunning = false;
+        this.previousSearch = this.addyTxn;
         this.btcService.getAddress(this.addyTxn)
             .subscribe(address => {
                 if(address.err_no === 0 && address.data !== null) {
@@ -106,7 +113,7 @@ export class ChainHunterComponent implements OnInit {
                     let btc = this.getBlockchain("BTC");
                     btc.address = this.btcService.addressConvert(address.data);
                     this.setMap(btc);
-                    this.getBtcTransactions();
+                    //this.getBtcTransactions();
                     this.emptyHanded = false;
                     this.btcComplete = true;
                     this.calculateIcons();
@@ -123,7 +130,7 @@ export class ChainHunterComponent implements OnInit {
         this.bnbService.getAddress(this.addyTxn)
             .subscribe(address => {
                 this.bnbFound = true;
-                this.getBnbTransactions();
+                //this.getBnbTransactions();
                 this.emptyHanded = false;
                 this.bnbComplete = true;
                 let bnb = this.getBlockchain("BNB");
@@ -143,7 +150,7 @@ export class ChainHunterComponent implements OnInit {
                     let bch = this.getBlockchain("BCH");
                     bch.address = this.bchService.addressConvert(address.data);
                     this.setMap(bch);
-                    this.getBchTransactions();
+                    //this.getBchTransactions();
                     this.emptyHanded = false;
                     this.bchComplete = true;
                     this.calculateIcons();
@@ -203,7 +210,7 @@ export class ChainHunterComponent implements OnInit {
             .subscribe(address => {
                 if(address.balance.length > 0) {
                     this.neoFound = true;
-                    this.getNeoTransactions();
+                    //this.getNeoTransactions();
                     this.emptyHanded = false;
                     this.neoComplete = true;
                     let neo = this.getBlockchain("NEO");
@@ -224,7 +231,7 @@ export class ChainHunterComponent implements OnInit {
             .subscribe(address => {
                 if(address) {
                     this.rvnFound = true;
-                    this.getRvnTransactions();
+                    //this.getRvnTransactions();
                     this.emptyHanded = false;
                     this.rvnComplete = true;
                     let rvn = this.getBlockchain("RVN");
@@ -245,7 +252,7 @@ export class ChainHunterComponent implements OnInit {
             .subscribe(address => {
                 if(address) {
                     this.xrpFound = true;
-                    this.getXrpTransactions();
+                    //this.getXrpTransactions();
                     this.emptyHanded = false;
                     this.xrpComplete = true;
                     let xrp = this.getBlockchain("XRP");
@@ -287,12 +294,34 @@ export class ChainHunterComponent implements OnInit {
             });
     }
 
+    getAddressTransactions(symbol: string): any {
+        if(symbol === "BTC") {
+            return this.getBtcTransactions();
+        } else if (symbol === "BCH") {
+            return this.getBchTransactions();
+        } else if (symbol === "ETH") {
+            return this.getEthTransactions();
+        } else if (symbol === "LTC") {
+            return this.getLtcTransactions();
+        } else if (symbol === "NEO") {
+            return this.getNeoTransactions();
+        } else if (symbol === "RVN") {
+            return this.getRvnTransactions();            
+        } else if (symbol === "XRP") {
+            return this.getXrpTransactions();
+        } else if (symbol === "BNB") {
+            return this.getBnbTransactions();
+        }
+    }
+
     getBtcTransactions() {
+        this.txnsComplete = false;
         this.btcService.getAddressTransactions(this.addyTxn)
             .subscribe(txns => {
                 let btc = this.getBlockchain("BTC");
                 btc.address.transactions = this.btcService.transactionsConvert(txns.data.list);
                 this.setMap(btc);
+                this.txnsComplete = true;
             });
     }
 
@@ -316,11 +345,13 @@ export class ChainHunterComponent implements OnInit {
     }
 
     getBnbTransactions() {
+        this.txnsComplete = false;
         this.bnbService.getAddressTransactions(this.addyTxn)
             .subscribe(txns => {
                 // let bnb = this.getBlockchain("BNB");
                 // bnb.address.transactions = this.bnbService.transactionsConvert(txns.tx);
                 // this.setMap(bnb);
+                this.txnsComplete = true;
             });
     }
 
@@ -348,11 +379,13 @@ export class ChainHunterComponent implements OnInit {
     }
 
     getBchTransactions() {
+        this.txnsComplete = false;
         this.bchService.getAddressTransactions(this.addyTxn)
             .subscribe(txns => {
                 let bch = this.getBlockchain("BCH");
                 bch.address.transactions = this.bchService.transactionsConvert(txns.data.list);
                 this.setMap(bch);
+                this.txnsComplete = true;
             });
     }
 
@@ -389,6 +422,7 @@ export class ChainHunterComponent implements OnInit {
     }
 
     getEthTransactions() {
+        this.txnsComplete = false;
         this.ethService.getAddressTransactions(this.addyTxn)
             .subscribe(txns => {
                 let keepers = txns.result.splice(0, 10);
@@ -402,11 +436,16 @@ export class ChainHunterComponent implements OnInit {
                         this.getEthBlock(txn.blockNumber);
                     }
                 });
+                this.txnsComplete = true;
+                if(this.ethTxnReady()) {
+                    this.buildEthTransactions();
+                }
             });
     }
 
     getEthBlock(block: string) {
-        this.ethService.getBlock(block).subscribe(result => {
+        let intBlock = parseInt(block);
+        this.ethService.getBlock(intBlock).subscribe(result => {
             let blockInfo = result.result;
             this.ethBlocks.set(block, blockInfo);
             this.ethBlockCount--;
@@ -452,9 +491,12 @@ export class ChainHunterComponent implements OnInit {
                 });
             } else {
                 this.ethTransaction.currentBlock = block.result;
-                if(this.ethTxnReady()) {
-                    this.buildEthTransactions();
-                }
+                // if(this.ethTxnReady()) {
+                //     this.buildEthTransactions();
+                // }
+            }
+            if(this.ethTxnReady()) {
+                this.buildEthTransactions();
             }
         });
     }
@@ -485,6 +527,17 @@ export class ChainHunterComponent implements OnInit {
             });
     }
 
+    getLtcTransactions() {
+        this.txnsComplete = false;
+        this.ltcService.getAddressTransactions(this.addyTxn)
+            .subscribe(txns => {
+                let ltc = this.getBlockchain("LTC");
+                ltc.address.transactions = this.ltcService.transactionsConvert(txns.txs);
+                this.setMap(ltc);
+                this.txnsComplete = true;
+            });
+    }
+
     getNeoTransaction() {
         this.neoService.getTransaction(this.addyTxn)
             .subscribe(txn => {
@@ -505,11 +558,13 @@ export class ChainHunterComponent implements OnInit {
     }
 
     getNeoTransactions() {
+        this.txnsComplete = false;
         this.neoService.getAddressTransactions(this.addyTxn)
             .subscribe(txns => {
                 let neo = this.getBlockchain("NEO");
                 neo.address.transactions = this.neoService.transactionsConvert(txns.entries);
                 this.setMap(neo);
+                this.txnsComplete = true;
             });
     }
 
@@ -537,11 +592,13 @@ export class ChainHunterComponent implements OnInit {
     }
 
     getRvnTransactions() {
+        this.txnsComplete = false;
         this.rvnService.getAddressTransactions(this.addyTxn)
             .subscribe(txns => {
                 let rvn = this.getBlockchain("RVN");
                 rvn.address.transactions = this.rvnService.transactionsConvert(txns.txs);
                 this.setMap(rvn);
+                this.txnsComplete = true;
             });
     }
 
@@ -569,11 +626,13 @@ export class ChainHunterComponent implements OnInit {
     }
 
     getXrpTransactions() {
+        this.txnsComplete = false;
         this.xrpService.getAddressTransactions(this.addyTxn)
             .subscribe(txns => {
                 let xrp = this.getBlockchain("XRP");
                 xrp.address.transactions = this.xrpService.transactionsConvert(txns.payments);
                 this.setMap(xrp);
+                this.txnsComplete = true;
             });
     }
 

@@ -1,4 +1,4 @@
-import { OnInit, Input, Component } from '@angular/core';
+import { OnInit, Input, Component, Output, EventEmitter } from '@angular/core';
 import { Blockchain } from 'src/app/classes/ChainHunter/Blockchain';
 
 @Component({
@@ -9,9 +9,20 @@ import { Blockchain } from 'src/app/classes/ChainHunter/Blockchain';
 
 export class SearchResultsComponent implements OnInit{
     @Input() blockchain: Blockchain;
+    @Input() transactionsComplete: boolean;
+    @Output() txnsGetter: EventEmitter<any> = new EventEmitter();
 
     constructor() {}
 
     ngOnInit() {
     }
+
+    onTxnsOpen(e: any) {
+        if(e.index === 0) {
+            if(this.blockchain.address.transactions === null || this.blockchain.address.transactions === undefined) {
+                this.txnsGetter.emit(this.blockchain.symbol);
+            }
+        }
+    }
+
 }

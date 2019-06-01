@@ -2,17 +2,31 @@
 <p-panel header="{{blockchain.symbol}} Address" *ngIf="blockchain.address">
     <h3>{{blockchain.symbol}} Address: {{blockchain.address.address}}</h3>
     <div>Balance: {{blockchain.address.quantity | number}}</div>
-    <p-panel header="{{blockchain.symbol}} Address Transactions" [toggleable]="true" [collapsed]="true" *ngIf="blockchain.address.transactions">
-        <h4>{{blockchain.symbol}} Transactions</h4>
-        <ul>
-            <li *ngFor="let txn of blockchain.address.transactions">
-                Hash: {{txn.hash}} <br>
-                Quantity: {{txn.quantity.toLocaleString()}}<br>
-                Confirmations: {{txn.confirmations}}
-            </li>
-        </ul>
-    </p-panel>
-    <p-panel header="{{blockchain.symbol}} Address Tokens" [toggleable]="true" [collapsed]="true" *ngIf="blockchain.address.tokens">
+    <p-accordion (onOpen)="onTxnsOpen($event)">
+        <p-accordionTab header="{{blockchain.symbol}} Address Transactions">
+            <div *ngIf="!transactionsComplete">Fetching Transactions...</div>
+            <div *ngIf="blockchain.address.transactions.length === 0">No transactions found</div>
+            <ul>
+                <li *ngFor="let txn of blockchain.address.transactions">
+                    Hash: {{txn.hash}} <br>
+                    Date: {{txn.date}} <br>
+                    Quantity: {{txn.quantity.toLocaleString()}}<br>
+                    Confirmations: {{txn.confirmations}}<br>
+                    From: {{txn.from}}<br>
+                    To: {{txn.to}}
+                </li>
+            </ul>
+        </p-accordionTab>
+        <p-accordionTab header="{{blockchain.symbol}} Address Tokens" *ngIf="blockchain.address.tokens">
+                <ul>
+                    <li *ngFor="let asset of blockchain.address.tokens">
+                        Symbol: {{asset.symbol}} <br>
+                        Quantity: {{asset.quantity}}
+                    </li>
+                </ul>            
+        </p-accordionTab>
+    </p-accordion>
+    <!-- <p-panel header="{{blockchain.symbol}} Address Tokens" [toggleable]="true" [collapsed]="true" *ngIf="blockchain.address.tokens">
         <h4>{{blockchain.symbol}} Tokens</h4>
         <ul>
             <li *ngFor="let asset of blockchain.address.tokens">
@@ -20,7 +34,7 @@
                 Quantity: {{asset.quantity}}
             </li>
         </ul>
-    </p-panel>
+    </p-panel> -->
 </p-panel>
 <p-panel header="{{blockchain.symbol}} Transaction" *ngIf="blockchain.transaction">
     <h3>{{blockchain.symbol}} Transaction Hash: {{blockchain.transaction.hash}}</h3>

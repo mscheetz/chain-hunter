@@ -78,13 +78,17 @@ export class LtcService{
                 if(from !== "") {
                     from += ", ";
                 } 
-                from += vin.addr;
+                if(vin.addr) {
+                    from += vin.addr;
+                }
             });
             ltcTransaction.vout.forEach(vout => {
                 if(from !== "") {
                     from += ", ";
                 } 
-                from += vout.scriptPubKey.addresses.join(", ");
+                if(vout.scriptPubKey && vout.scriptPubKey.addresses) {
+                    from += vout.scriptPubKey.addresses.join(", ");
+                }
             });
 
             txn = new Transaction();

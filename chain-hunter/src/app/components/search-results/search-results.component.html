@@ -38,13 +38,20 @@
 </p-panel>
 </div>
 <p-panel showHeader="false">
-    <h3 *ngIf="huntStatus === 0">Enter an Address or Transaction Hash</h3>
+    <div *ngIf="huntStatus === 0">
+        <h3>Enter an Address or Transaction Hash</h3>
+        <span>To search the following blockchains at once!&nbsp;&nbsp;&nbsp;</span>
+        <img class="chain-logo-pad" src="assets/cryptoicons/color/btc.svg" />
+        <img class="chain-logo-pad" src="assets/cryptoicons/color/bch.svg" />
+        <img class="chain-logo-pad" src="assets/cryptoicons/color/eth.svg" />
+        <img class="chain-logo-pad" src="assets/cryptoicons/color/ltc.svg" />
+        <img class="chain-logo-pad" src="assets/cryptoicons/color/neo.svg" />
+        <img class="chain-logo-pad" src="assets/cryptoicons/color/rvn.svg" />
+        <img class="chain-logo-pad" src="assets/cryptoicons/color/xrp.svg" />
+        <img class="chain-logo-pad" src="assets/cryptoicons/color/bnb.svg" />
+    </div>
     <h3 *ngIf="huntStatus === 1">Searching...</h3>
     <h3 *ngIf="huntStatus === 2 && selectedChain === ''">Nothing found</h3>
     <h3 *ngIf="huntStatus === 3 && selectedChain === ''">Select a Blockchain</h3>
     <h3 *ngIf="(huntStatus === 2 || huntStatus === 3) && selectedChain !== '' && blockchain !== null && !blockchain.address && !blockchain.transaction">No {{blockchain.symbol}} Data found</h3>
 </p-panel>
-<!-- <div *ngIf="blockchain !== null && !blockchain.address && !blockchain.transaction">
-<p-panel showHeader="false" *ngIf="blockchain !== null || (!blockchain.address && !blockchain.transaction)">
-</p-panel>
-</div> -->

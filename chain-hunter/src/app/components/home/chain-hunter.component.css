@@ -23,4 +23,11 @@ div {
 }
 
 .float-input {
-    font-family: "Open Sans","Helvetica Neue",sans-serif;}
+    font-family: "Open Sans","Helvetica Neue",sans-serif;
+}
+
+.logo-main {
+    height: 99.438px;
+    width: 400px;
+    margin-bottom: 20px;
+}

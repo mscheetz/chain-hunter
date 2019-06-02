@@ -3,3 +3,7 @@
     display: block;
     overflow: scroll;
 }
+
+.chain-logo-pad {
+    padding: 0 2px 0 2px;
+}

@@ -12,6 +12,7 @@ import { Blockchain } from '../classes/ChainHunter/Blockchain';
 import { BnbBalance } from '../classes/BNB/BnbBalance';
 import { Asset } from '../classes/ChainHunter/Asset';
 import { HelperService } from './helper-svc.service';
+import { BnbAddressTransaction } from '../classes/BNB/BnbAddressTransaction';
 
 @Injectable({providedIn: 'root'})
 export class BnbService {
@@ -19,6 +20,7 @@ export class BnbService {
 
     conn: Connections = new Connections();
     base: string = this.conn.bnbBase;
+    base2: string = this.conn.bnbBase2;
 
     /**
      * Get a BNB Blockchain
@@ -78,19 +80,41 @@ export class BnbService {
     }
 
     /**
-     * Convert BnbTransaction collection to collection of generic Transactions
+     * Convert BnbAddressTransaction collection to collection of generic Transactions
      * 
-     * @param bnbTransactions BnbTransaction to convert
+     * @param bnbTransactions BnbAddressTransaction to convert
      */
-    transactionsConvert(bnbTransactions: BnbTransaction[]): Transaction[]{
+    transactionsConvert(bnbTransactions: BnbAddressTransaction[]): Transaction[]{
         let transactions: Transaction[] = [];
         if(bnbTransactions != null && bnbTransactions.length > 0) {
             bnbTransactions.slice(0, 10).forEach(txn => {
-                let transaction = this.transactionConvert(txn);
+                let transaction = this.addressTransactionConvert(txn);
                 transactions.push(transaction);
             });
         }
         return transactions;
+    }
+
+    /**
+     * Convert a BnbAddressTransaction to a generic Transaction
+     * 
+     * @param bnbTransaction BnbAddressTransaction to convert
+     */
+    addressTransactionConvert(bnbTransaction: BnbAddressTransaction): Transaction {
+        let txn: Transaction = null;
+
+        if(bnbTransaction != null) {
+            txn = new Transaction();
+            txn.hash = bnbTransaction.txHash;
+            txn.block = bnbTransaction.blockHeight;
+            txn.quantity = bnbTransaction.value;
+            txn.confirmations = bnbTransaction.confirmBlocks;
+            txn.date = this.helperSvc.unixToUTC(bnbTransaction.timeStamp);
+            txn.from = bnbTransaction.fromAddr;
+            txn.to = bnbTransaction.toAddr;
+        }
+
+        return txn;
     }
 
     /**
@@ -150,8 +174,8 @@ export class BnbService {
      * @param address Address to check
      */
     getAddressTransactions(address: string): Observable<BnbAddressTxnResponse>{
-        let endpoint: string = "/transactions?address=" + address;
-        let url: string = this.base + endpoint;
+        let endpoint: string = "/txs?page=1&rows=10&address=" + address;
+        let url: string = this.base2 + endpoint;
 
         return this.http.get<BnbAddressTxnResponse>(url)
         .pipe(delay(1000));

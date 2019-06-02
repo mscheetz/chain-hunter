@@ -3,5 +3,7 @@ import { BnbAddressTransaction } from './BnbAddressTransaction';
 export class BnbAddressTxnResponse {
     constructor() {}
 
-    tx: BnbAddressTransaction[];
+    txNums: number;
+    txArray: BnbAddressTransaction[];
+    //tx: BnbAddressTransaction[];
 }

@@ -14,6 +14,7 @@ export class BnbAddressTransaction {
     txAge: number;
     orderId: string;
     code: number;
+    log: string;
     data: object;
     confirmBlocks: number;
     memo: string;

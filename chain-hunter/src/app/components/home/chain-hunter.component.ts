@@ -341,9 +341,9 @@ export class ChainHunterComponent implements OnInit {
         this.txnsComplete = false;
         this.bnbService.getAddressTransactions(this.addyTxn)
             .subscribe(txns => {
-                // let bnb = this.getBlockchain("BNB");
-                // bnb.address.transactions = this.bnbService.transactionsConvert(txns.tx);
-                // this.setMap(bnb);
+                let bnb = this.getBlockchain("BNB");
+                bnb.address.transactions = this.bnbService.transactionsConvert(txns.txArray);
+                this.setMap(bnb);
                 this.txnsComplete = true;
             });
     }
@@ -693,11 +693,4 @@ export class ChainHunterComponent implements OnInit {
 
         return chain;
     }
-
-    // getIcon(symbol: string, exists: boolean): string {
-    //     let iconBase = ""; //"/assets/cryptoicons/";
-    //     let property = exists ? "color" : "white";
-
-    //     return iconBase + property + "/" + symbol + ".svg";
-    // }
 }

@@ -31,3 +31,11 @@ div {
     width: 400px;
     margin-bottom: 20px;
 }
+
+.chain-logo-pad {
+    padding: 0 2px 0 2px;
+}
+
+.coming-soon{
+    margin: 10px 0 10px 0;
+}

@@ -41,14 +41,14 @@
     <div *ngIf="huntStatus === 0">
         <h3>Enter an Address or Transaction Hash</h3>
         <span>To search the following blockchains at once!&nbsp;&nbsp;&nbsp;</span>
-        <img class="chain-logo-pad" src="assets/cryptoicons/color/btc.svg" />
-        <img class="chain-logo-pad" src="assets/cryptoicons/color/bch.svg" />
-        <img class="chain-logo-pad" src="assets/cryptoicons/color/eth.svg" />
-        <img class="chain-logo-pad" src="assets/cryptoicons/color/ltc.svg" />
-        <img class="chain-logo-pad" src="assets/cryptoicons/color/neo.svg" />
-        <img class="chain-logo-pad" src="assets/cryptoicons/color/rvn.svg" />
-        <img class="chain-logo-pad" src="assets/cryptoicons/color/xrp.svg" />
-        <img class="chain-logo-pad" src="assets/cryptoicons/color/bnb.svg" />
+        <img class="chain-logo-pad" src="assets/cryptoicons/color/btc.svg" title="Bitcoin" />
+        <img class="chain-logo-pad" src="assets/cryptoicons/color/bch.svg" title="Bitcoin Cash" />
+        <img class="chain-logo-pad" src="assets/cryptoicons/color/eth.svg" title="Ethereum" />
+        <img class="chain-logo-pad" src="assets/cryptoicons/color/ltc.svg" title="Litecoin" />
+        <img class="chain-logo-pad" src="assets/cryptoicons/color/neo.svg" title="Neo" />
+        <img class="chain-logo-pad" src="assets/cryptoicons/color/rvn.svg" title="Raven Coin" />
+        <img class="chain-logo-pad" src="assets/cryptoicons/color/xrp.svg" title="Ripple" />
+        <img class="chain-logo-pad" src="assets/cryptoicons/color/bnb.svg" title="Binance Coin" />
     </div>
     <h3 *ngIf="huntStatus === 1">Searching...</h3>
     <h3 *ngIf="huntStatus === 2 && selectedChain === ''">Nothing found</h3>

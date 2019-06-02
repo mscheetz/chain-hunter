@@ -10,7 +10,11 @@ import { Blockchain } from 'src/app/classes/ChainHunter/Blockchain';
 export class SearchResultsComponent implements OnInit{
     @Input() blockchain: Blockchain;
     @Input() transactionsComplete: boolean;
-    @Output() txnsGetter: EventEmitter<any> = new EventEmitter();
+    @Input() tokensComplete: boolean;
+    @Input() huntStatus: number = 0;
+    @Output() getTransactions: EventEmitter<any> = new EventEmitter();
+    @Output() getTokens: EventEmitter<any> = new EventEmitter();
+    @Input() selectedChain: string;
 
     constructor() {}
 
@@ -20,7 +24,11 @@ export class SearchResultsComponent implements OnInit{
     onTxnsOpen(e: any) {
         if(e.index === 0) {
             if(this.blockchain.address.transactions === null || this.blockchain.address.transactions === undefined) {
-                this.txnsGetter.emit(this.blockchain.symbol);
+                this.getTransactions.emit(this.blockchain.symbol);
+            }
+        } else if(e.index === 1) {
+            if(this.blockchain.address.tokens === null || this.blockchain.address.tokens === undefined) {
+                this.getTokens.emit(this.blockchain.symbol);
             }
         }
     }

@@ -7,8 +7,6 @@ import { OnInit, Input, Component } from '@angular/core';
 })
 
 export class SamplesComponent implements OnInit{
-    @Input() samplesIndex: number;
-
     constructor() {
     }
 

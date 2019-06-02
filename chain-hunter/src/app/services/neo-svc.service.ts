@@ -28,6 +28,7 @@ export class NeoService{
         let chain = new Blockchain();
         chain.name = 'Neo';
         chain.symbol = 'NEO';
+        chain.hasTokens = true;
 
         return chain;
     }

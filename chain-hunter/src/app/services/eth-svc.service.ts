@@ -32,6 +32,7 @@ export class EthService{
         let chain = new Blockchain();
         chain.name = 'Ethereum';
         chain.symbol = 'ETH';
+        chain.hasTokens = true;
 
         return chain;
     }

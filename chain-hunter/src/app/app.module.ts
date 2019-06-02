@@ -15,6 +15,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { PanelModule } from 'primeng/panel';
 import { SearchResultsComponent } from './components/search-results/search-results.component';
+import {ProgressBarModule} from 'primeng/progressbar';
 
 @NgModule({
   declarations: [
@@ -35,7 +36,8 @@ import { SearchResultsComponent } from './components/search-results/search-resul
     AccordionModule,
     BrowserAnimationsModule,
     ProgressSpinnerModule,
-    PanelModule
+    PanelModule,
+    ProgressBarModule
   ],
   providers: [],
   bootstrap: [AppComponent]

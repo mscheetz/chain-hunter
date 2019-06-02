@@ -21,55 +21,30 @@ import { EthBlock } from 'src/app/classes/ETH/EthBlock';
 
 export class ChainHunterComponent implements OnInit {
     @Output() addyTxn: string;
-    btcFound: boolean = false;
-    viewBtc: boolean = false;
+    bchComplete: boolean = true;   
     btcComplete: boolean = true;
-    btcIcon: string;
-    bnbFound: boolean = false;
-    viewBnb: boolean = false;
     bnbComplete: boolean = true;
-    bnbIcon: string;
+    ethComplete: boolean = true; 
+    ltcComplete: boolean = true;
+    neoComplete: boolean = true;
+    rvnComplete: boolean = true;
+    xrpComplete: boolean = true;
     ethTransaction: EthTransaction = null;
     ethTransactions: EthTransaction[] = null;
-    ethFound: boolean = false;
     ethBlockCount: number = 0;
     ethLatestBlock: string = null;
     ethBlocks: Map<string, EthBlock> = new Map<string, EthBlock>();
-    viewEth: boolean = false;
-    ethComplete: boolean = true;
-    ethIcon: string;
-    bchFound: boolean = false;
-    viewBch: boolean = false;
-    bchIcon: string;
-    bchComplete: boolean = true;    
-    ltcFound: boolean = false;
-    viewLtc: boolean = false;
-    ltcComplete: boolean = true;
-    ltcIcon: string;
-    rvnFound: boolean = false;
-    viewRvn: boolean = false;
-    rvnComplete: boolean = true;
-    rvnIcon: string;
-    xrpFound: boolean = false;
-    viewXrp: boolean = false;
-    xrpIcon: string;
-    xrpComplete: boolean = true;
-    neoFound: boolean = false;
-    viewNeo: boolean = false;
-    neoIcon: string;
-    neoComplete: boolean = true;
-    items: MenuItem[];
-    emptyHanded: boolean = false;
     notRunning: boolean = true;
     seeItem: boolean = false;
     activeItem: MenuItem;
-    @Output() samplesIndex = null;
     @Output() blockchain: Blockchain = null;
     map: Map<string, Blockchain> = new Map<string, Blockchain>();
     menuItems: MenuItem[];
     selectedChain: string = "";
     txnsComplete: boolean = true;
     previousSearch: string = "";
+    tokensComplete: boolean = true;
+    @Output() huntStatus: number = 0; // 0 = no search yet, 1 = searching, 2 = nothing found, 3 = something found
 
     constructor(private btcService: BtcService, 
                 private bchService: BchService,
@@ -96,42 +71,50 @@ export class ChainHunterComponent implements OnInit {
     }
 
     chainHunt(){
+        this.addyTxn = this.addyTxn.trim();
         if(this.previousSearch === this.addyTxn || this.addyTxn === "") {
             return;
         }
+        this.huntStatus = 1;
         this.blockchain = new Blockchain();
-        this.samplesIndex = -100;
-        this.hideAll();
         this.nullOut();
         this.buildMap();
         this.notRunning = false;
         this.previousSearch = this.addyTxn;
+        this.getBtcAddress();
+        this.getBchAddress();
+        this.getBnbAddress();
+        this.getEthAddress();
+        this.getLtcAddress();
+        this.getNeoAddress();
+        this.getRvnAddress();
+        this.getXrpAddress();
+    }
+
+    getBtcAddress() {
         this.btcService.getAddress(this.addyTxn)
             .subscribe(address => {
-                if(address.err_no === 0 && address.data !== null) {
-                    this.btcFound = true;
-                    let btc = this.getBlockchain("BTC");
-                    btc.address = this.btcService.addressConvert(address.data);
-                    this.setMap(btc);
-                    //this.getBtcTransactions();
-                    this.emptyHanded = false;
-                    this.btcComplete = true;
-                    this.calculateIcons();
-                    console.log("btc address found");
-                } else {
-                    console.log("btc address not found");
-                    this.getBtcTransaction();
-                }
-            },
-            error => {
+            if(address.err_no === 0 && address.data !== null) {
+                let btc = this.getBlockchain("BTC");
+                btc.address = this.btcService.addressConvert(address.data);
+                this.setMap(btc);
+                this.btcComplete = true;
+                this.calculateIcons();
+                console.log("btc address found");
+            } else {
+                console.log("btc address not found");
                 this.getBtcTransaction();
-                console.log("btc address error:" + error);
-            });
+            }
+        },
+        error => {
+            this.getBtcTransaction();
+            console.log("btc address error:" + error);
+        });
+    }
+
+    getBnbAddress() {
         this.bnbService.getAddress(this.addyTxn)
             .subscribe(address => {
-                this.bnbFound = true;
-                //this.getBnbTransactions();
-                this.emptyHanded = false;
                 this.bnbComplete = true;
                 let bnb = this.getBlockchain("BNB");
                 bnb.address = this.bnbService.addressConvert(address);
@@ -143,132 +126,133 @@ export class ChainHunterComponent implements OnInit {
                 this.getBnbTransaction();
                 console.log("bnb address error:" + error);
         });
+    }
+
+    getBchAddress() {
         this.bchService.getAddress(this.addyTxn)
-            .subscribe(address => {
-                if(address.err_no === 0 && address.data !== null) {
-                    this.bchFound = true;
-                    let bch = this.getBlockchain("BCH");
-                    bch.address = this.bchService.addressConvert(address.data);
-                    this.setMap(bch);
-                    //this.getBchTransactions();
-                    this.emptyHanded = false;
-                    this.bchComplete = true;
-                    this.calculateIcons();
-                    console.log("bch address found");
-                } else {
-                    console.log("bch address not found");
-                    this.getBchTransaction();
-                }
-            },
-            error => {
-                this.getBchTransaction();
-                console.log("bch address error:" + error);
-            });
-        this.ethService.getAddress(this.addyTxn)
-            .subscribe(addressResponse => {
-                if((addressResponse.status === "1" || addressResponse.message === "OK") 
-                    && addressResponse.result !== "0" ) {
-                    let ethAddress = new EthAddress();
-                    ethAddress.Address = this.addyTxn;
-                    ethAddress.Balance = parseInt(addressResponse.result);
-                    this.ethFound = true;
-                    this.ethBlocks = new Map<string, EthBlock>();
-                    this.ethLatestBlock = null;
-                    let eth = this.getBlockchain("ETH");
-                    eth.address = this.ethService.addressConvert(ethAddress);
-                    this.setMap(eth);
-                    this.getEthTokens();
-                    this.emptyHanded = false;
-                    this.ethComplete = true;
-                    this.calculateIcons();
-                    console.log("eth address found");
-                } else {
-                    console.log("eth address not found");
-                    this.getEthTransaction();
-                }
-            },
-            error => {
-                this.getEthTransaction();
-                console.log("eth address error:" + error);
-            });
-        this.ltcService.getAddress(this.addyTxn)
-            .subscribe(address => {
-                this.ltcFound = true;
-                this.emptyHanded = false;
-                this.ltcComplete = true;
-                let ltc = this.getBlockchain("LTC");
-                ltc.address = this.ltcService.addressConvert(address);
-                this.setMap(ltc);
+        .subscribe(address => {
+            if(address.err_no === 0 && address.data !== null) {
+                let bch = this.getBlockchain("BCH");
+                bch.address = this.bchService.addressConvert(address.data);
+                this.setMap(bch);
+                this.bchComplete = true;
                 this.calculateIcons();
-                console.log("ltc address found");  
-            },
-            error => {
-                this.getLtcTransaction();
-                console.log("ltc address error:" + error);
-            });
-        this.neoService.getAddress(this.addyTxn)
-            .subscribe(address => {
-                if(address.balance.length > 0) {
-                    this.neoFound = true;
-                    //this.getNeoTransactions();
-                    this.emptyHanded = false;
-                    this.neoComplete = true;
-                    let neo = this.getBlockchain("NEO");
-                    neo.address = this.neoService.addressConvert(address);
-                    this.setMap(neo);
-                    this.calculateIcons();
-                console.log("neo address found");
-                } else {
-                    console.log("neo address not found");
-                    this.getNeoTransaction();
-                }
-            },
-            error => {
-                this.getNeoTransaction();
-                console.log("neo address error:" + error);
+                console.log("bch address found");
+            } else {
+                console.log("bch address not found");
+                this.getBchTransaction();
+            }
+        },
+        error => {
+            this.getBchTransaction();
+            console.log("bch address error:" + error);
         });
+    }
+
+    getEthAddress() {
+        this.ethService.getAddress(this.addyTxn)
+        .subscribe(addressResponse => {
+            if((addressResponse.status === "1" || addressResponse.message === "OK") 
+                && addressResponse.result !== "0" ) {
+                let ethAddress = new EthAddress();
+                ethAddress.Address = this.addyTxn;
+                ethAddress.Balance = parseInt(addressResponse.result);
+                this.ethBlocks = new Map<string, EthBlock>();
+                this.ethLatestBlock = null;
+                let eth = this.getBlockchain("ETH");
+                eth.address = this.ethService.addressConvert(ethAddress);
+                this.setMap(eth);
+                this.ethComplete = true;
+                this.calculateIcons();
+                console.log("eth address found");
+            } else {
+                console.log("eth address not found");
+                this.getEthTransaction();
+            }
+        },
+        error => {
+            this.getEthTransaction();
+            console.log("eth address error:" + error);
+        });
+    }
+
+    getLtcAddress() {
+        this.ltcService.getAddress(this.addyTxn)
+        .subscribe(address => {
+            this.ltcComplete = true;
+            let ltc = this.getBlockchain("LTC");
+            ltc.address = this.ltcService.addressConvert(address);
+            this.setMap(ltc);
+            this.calculateIcons();
+            console.log("ltc address found");  
+        },
+        error => {
+            this.getLtcTransaction();
+            console.log("ltc address error:" + error);
+        });
+    }
+
+    getNeoAddress() {
+        this.neoService.getAddress(this.addyTxn)
+        .subscribe(address => {
+            if(address.balance.length > 0) {
+                this.neoComplete = true;
+                let neo = this.getBlockchain("NEO");
+                neo.address = this.neoService.addressConvert(address);
+                this.setMap(neo);
+                this.calculateIcons();
+            console.log("neo address found");
+            } else {
+                console.log("neo address not found");
+                this.getNeoTransaction();
+            }
+        },
+        error => {
+            this.getNeoTransaction();
+            console.log("neo address error:" + error);
+        });
+    }
+
+    getRvnAddress() {
         this.rvnService.getAddress(this.addyTxn)
-            .subscribe(address => {
-                if(address) {
-                    this.rvnFound = true;
-                    //this.getRvnTransactions();
-                    this.emptyHanded = false;
-                    this.rvnComplete = true;
-                    let rvn = this.getBlockchain("RVN");
-                    rvn.address = this.rvnService.addressConvert(address);
-                    this.setMap(rvn);
-                    this.calculateIcons();
-                    console.log("rvn address found");
-                } else {
-                    console.log("rvn address not found");
-                    this.getRvnTransaction();
-                }
-            },
-            error => {
+        .subscribe(address => {
+            if(address) {
+                this.rvnComplete = true;
+                let rvn = this.getBlockchain("RVN");
+                rvn.address = this.rvnService.addressConvert(address);
+                this.setMap(rvn);
+                this.calculateIcons();
+                console.log("rvn address found");
+            } else {
+                console.log("rvn address not found");
                 this.getRvnTransaction();
-                console.log("rvn address error:" + error);
-            });
+            }
+        },
+        error => {
+            this.getRvnTransaction();
+            console.log("rvn address error:" + error);
+        });
+    }
+
+    getXrpAddress() {
         this.xrpService.getAddress(this.addyTxn)
-            .subscribe(address => {
-                if(address) {
-                    this.xrpFound = true;
-                    //this.getXrpTransactions();
-                    this.emptyHanded = false;
-                    this.xrpComplete = true;
-                    let xrp = this.getBlockchain("XRP");
-                    xrp.address = this.xrpService.addressConvert(address);
-                    this.setMap(xrp);
-                    this.calculateIcons();
-                    console.log("xrp address found");
-                } else {
-                    console.log("xrp address not found");
-                    this.getXrpTransaction();
-                }
-            },
-            error => {
+        .subscribe(address => {
+            if(address) {
+                this.xrpComplete = true;
+                let xrp = this.getBlockchain("XRP");
+                xrp.address = this.xrpService.addressConvert(address);
+                this.setMap(xrp);
+                this.calculateIcons();
+                console.log("xrp address found");
+            } else {
+                console.log("xrp address not found");
                 this.getXrpTransaction();
-                console.log("xrp address error:" + error);
-            });
+            }
+        },
+        error => {
+            this.getXrpTransaction();
+            console.log("xrp address error:" + error);
+        });
     }
 
     getBtcTransaction() {
@@ -279,8 +263,6 @@ export class ChainHunterComponent implements OnInit {
                     let btc = this.getBlockchain("BTC");
                     btc.transaction = this.btcService.transactionConvert(txn.data);
                     this.setMap(btc);
-                    this.btcFound = true;
-                    this.emptyHanded = false;
                     console.log("btc transaction found");
                 } else {
                     console.log("btc transaction not found");
@@ -294,7 +276,7 @@ export class ChainHunterComponent implements OnInit {
             });
     }
 
-    getAddressTransactions(symbol: string): any {
+    getAddressTxns(symbol: string): any {
         if(symbol === "BTC") {
             return this.getBtcTransactions();
         } else if (symbol === "BCH") {
@@ -314,6 +296,19 @@ export class ChainHunterComponent implements OnInit {
         }
     }
 
+    getAddressTokens(symbol: string): any {
+        if(symbol === "BTC") {
+        } else if (symbol === "BCH") {
+        } else if (symbol === "ETH") {
+            return this.getEthTokens();
+        } else if (symbol === "LTC") {
+        } else if (symbol === "NEO") {
+        } else if (symbol === "RVN") {
+        } else if (symbol === "XRP") {
+        } else if (symbol === "BNB") {
+        }
+    }
+
     getBtcTransactions() {
         this.txnsComplete = false;
         this.btcService.getAddressTransactions(this.addyTxn)
@@ -329,8 +324,6 @@ export class ChainHunterComponent implements OnInit {
         this.bnbService.getTransaction(this.addyTxn)
             .subscribe(txn => {
                 this.bnbComplete = true;
-                this.bnbFound = true;
-                this.emptyHanded = false;
                 let bnb = this.getBlockchain("BNB");
                 bnb.transaction = this.bnbService.transactionConvert(txn);
                 this.setMap(bnb);
@@ -363,8 +356,6 @@ export class ChainHunterComponent implements OnInit {
                     let bch = this.getBlockchain("BCH");
                     bch.transaction = this.bchService.transactionConvert(txn.data);
                     this.setMap(bch);
-                    this.bchFound = true;
-                    this.emptyHanded = false;
                     console.log("bch transaction found");
                 } else {
                     console.log("bch transaction not found");
@@ -390,7 +381,9 @@ export class ChainHunterComponent implements OnInit {
     }
 
     getEthTokens() {
+        this.tokensComplete = false;
         this.ethService.getTokens(this.addyTxn).subscribe(result => {
+            this.tokensComplete = true;
             let eth = this.getBlockchain("ETH");
             eth.address.tokens = this.ethService.tokenConvert(result.tokens);
             this.setMap(eth);
@@ -401,8 +394,6 @@ export class ChainHunterComponent implements OnInit {
         this.ethService.getTransaction(this.addyTxn)
             .subscribe(txn => {
                 if(!txn.error && txn.result !== null) {
-                    this.ethFound = true;
-                    this.emptyHanded = false;
                     this.ethBlockCount = 1;
                     this.ethBlocks.set(txn.result.blockNumber, null);
                     this.getEthBlock(txn.result.blockNumber);
@@ -491,9 +482,6 @@ export class ChainHunterComponent implements OnInit {
                 });
             } else {
                 this.ethTransaction.currentBlock = block.result;
-                // if(this.ethTxnReady()) {
-                //     this.buildEthTransactions();
-                // }
             }
             if(this.ethTxnReady()) {
                 this.buildEthTransactions();
@@ -542,8 +530,6 @@ export class ChainHunterComponent implements OnInit {
         this.neoService.getTransaction(this.addyTxn)
             .subscribe(txn => {
                 this.neoComplete = true;
-                this.neoFound = true;
-                this.emptyHanded = false;
                 let neo = this.getBlockchain("NEO");
                 neo.transaction = this.neoService.transactionConvert(txn);
                 this.setMap(neo);
@@ -573,8 +559,6 @@ export class ChainHunterComponent implements OnInit {
             .subscribe(txn => {
                 this.rvnComplete = true;
                 if(txn) {
-                    this.rvnFound = true;
-                    this.emptyHanded = false;
                     let rvn = this.getBlockchain("RVN");
                     rvn.transaction = this.rvnService.transactionConvert(txn);
                     this.setMap(rvn);
@@ -607,8 +591,6 @@ export class ChainHunterComponent implements OnInit {
             .subscribe(txn => {
                 this.xrpComplete = true;
                 if(txn) {
-                    this.xrpFound = true;
-                    this.emptyHanded = false;
                     let xrp = this.getBlockchain("XRP");
                     xrp.transaction = this.xrpService.transactionConvert(txn);
                     this.setMap(xrp);
@@ -637,8 +619,8 @@ export class ChainHunterComponent implements OnInit {
     }
 
     calculateIcons() {
-        this.updateMenuItems();
         this.checkComplete();
+        this.updateMenuItems();
     }
 
     checkComplete() {
@@ -651,7 +633,11 @@ export class ChainHunterComponent implements OnInit {
 
     updateMenuItems() {
         this.menuItems = [];
+        this.huntStatus = this.addyTxn === undefined ? 0 : this.notRunning ? 2 : 1;
         this.map.forEach((value: Blockchain, key: string) => {
+            if (value.address || value.transaction) {
+                this.huntStatus = 3;
+            }
             this.menuItems.push({ 
                 label: value.symbol, 
                 icon: value.icon,
@@ -708,93 +694,10 @@ export class ChainHunterComponent implements OnInit {
         return chain;
     }
 
-    getIcon(symbol: string, exists: boolean): string {
-        let iconBase = ""; //"/assets/cryptoicons/";
-        let property = exists ? "color" : "white";
+    // getIcon(symbol: string, exists: boolean): string {
+    //     let iconBase = ""; //"/assets/cryptoicons/";
+    //     let property = exists ? "color" : "white";
 
-        return iconBase + property + "/" + symbol + ".svg";
-    }
-
-    hideAll() {
-        this.viewBch = false;
-        this.viewBnb = false;
-        this.viewBtc = false;
-        this.viewEth = false;
-        this.viewLtc = false;
-        this.viewNeo = false;
-        this.viewRvn = false;
-        this.viewXrp = false;
-    }
-
-    showBtc() {
-        if(this.viewBtc === true) {
-            this.hideAll();
-        } else {
-            this.hideAll();
-            this.viewBtc = true;
-        }
-    }
-
-    showBnb() {
-        if(this.viewBnb === true) {
-            this.hideAll();
-        } else {
-            this.hideAll();
-            this.viewBnb = true;
-        }
-    }
-
-    showBch() {
-        if(this.viewBch === true) {
-            this.hideAll();
-        } else {
-            this.hideAll();
-            this.viewBch = true;
-        }
-    }
-
-    showEth() {
-        if(this.viewEth === true) {
-            this.hideAll();
-        } else {
-            this.hideAll();
-            this.viewEth = true;
-        }
-    }
-
-    showLtc() {
-        if(this.viewLtc === true) {
-            this.hideAll();
-        } else {
-            this.hideAll();
-            this.viewLtc = true;
-        }
-    }
-
-    showNeo() {
-        if(this.viewNeo === true) {
-            this.hideAll();
-        } else {
-            this.hideAll();
-            this.viewNeo = true;
-        }
-    }
-
-    showRvn() {
-        if(this.viewRvn === true) {
-            this.hideAll();
-        } else {
-            this.hideAll();
-            this.viewRvn = true;
-        }
-    }
-
-    showXrp() {
-        if(this.viewXrp === true) {
-            this.hideAll();
-        } else {
-            this.hideAll();
-            this.viewXrp = true;
-        }
-    }
+    //     return iconBase + property + "/" + symbol + ".svg";
+    // }
 }

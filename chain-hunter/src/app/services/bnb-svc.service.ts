@@ -27,6 +27,7 @@ export class BnbService {
         let chain = new Blockchain();
         chain.name = 'Binance Coin';
         chain.symbol = 'BNB';
+        chain.hasTokens = true;
 
         return chain;
     }

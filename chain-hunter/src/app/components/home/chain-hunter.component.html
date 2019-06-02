@@ -1,19 +1,17 @@
-<h1>Chain Hunter</h1>
+<h2>Chain Hunter</h2>
 
 <div *ngIf="notRunning">
     <div class="pull-right">
-        <div></div>
         <span class="ui-float-label">
             <input [(ngModel)]="addyTxn" id="addy-txn" type="text" size="50" pInputText> 
             <label for="addy-txn">Address/Transaction</label>
-        </span>
-    </div>
-    <div class="pull-right">
         <button pButton type="button" (click)="chainHunt()" label="Go!" class="ui-button-success"></button>
+        </span>
     </div>
 </div>
 <div *ngIf="!notRunning">
-    <p-progressSpinner></p-progressSpinner>
+    <h3>The hunt is on!</h3>
+    <p-progressBar mode="indeterminate" [style]="{'width': '50%'}"></p-progressBar>
 </div>
 <div>
     <p-tabMenu [model]="menuItems" [activeItem]="activeItem">
@@ -23,7 +21,7 @@
             </div>
         </ng-template>
     </p-tabMenu>
-    <search-results [blockchain]="blockchain" [transactionsComplete]="txnsComplete" (txnsGetter)="getAddressTransactions($event)"></search-results>
+    <search-results [blockchain]="blockchain" [huntStatus]="huntStatus" [selectedChain]="selectedChain" [transactionsComplete]="txnsComplete" [tokensComplete]="tokensComplete" (getTransactions)="getAddressTxns($event)" (getTokens)="getAddressTokens($event)"></search-results>
 </div>
 <div>    
     <div>
@@ -44,6 +42,6 @@
 </div>
 <p-accordion [activeIndex]="samplesIndex">
     <p-accordionTab header="Samples">
-        <samples [samplesIndex]="samplesIndex"></samples>
+        <samples></samples>
     </p-accordionTab>
 </p-accordion>

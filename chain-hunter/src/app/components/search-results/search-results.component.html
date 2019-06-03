@@ -9,11 +9,11 @@
             <ul>
                 <li *ngFor="let txn of blockchain.address.transactions">
                     Hash: {{txn.hash}} <br>
-                    Date: {{txn.date}} <br>
                     Quantity: {{txn.quantity.toLocaleString()}}<br>
-                    Confirmations: {{txn.confirmations}}<br>
                     From: {{txn.from}}<br>
                     To: {{txn.to}}
+                    Date: {{txn.date}} <br>
+                    <span *ngIf="txn.confirmations > -1">Confirmations: {{txn.confirmations}}</span>
                 </li>
             </ul>
         </p-accordionTab>
@@ -33,8 +33,10 @@
     <h3>{{blockchain.symbol}} Transaction Hash: {{blockchain.transaction.hash}}</h3>
     <div>Quantity: {{blockchain.transaction.quantity | number}}</div>
     <div>Date: {{blockchain.transaction.date}}</div>
+    <div>From: {{blockchain.transaction.from}}</div>
+    <div>To: {{blockchain.transaction.to}}</div>
     <div>Block: {{blockchain.transaction.block}}</div>
-    <div>Confirmations: {{blockchain.transaction.confirmations}}</div>
+    <div *ngIf="blockchain.transaction.confirmations > -1">Confirmations: {{blockchain.transaction.confirmations}}</div>
 </p-panel>
 </div>
 <p-panel showHeader="false">
@@ -49,6 +51,7 @@
         <img class="chain-logo-pad" src="assets/cryptoicons/color/rvn.svg" title="Raven Coin" />
         <img class="chain-logo-pad" src="assets/cryptoicons/color/xrp.svg" title="Ripple" />
         <img class="chain-logo-pad" src="assets/cryptoicons/color/bnb.svg" title="Binance Coin" />
+        <img class="chain-logo-pad" src="assets/cryptoicons/color/trx.svg" title="Tron" />
     </div>
     <h3 *ngIf="huntStatus === 1">Searching...</h3>
     <h3 *ngIf="huntStatus === 2 && selectedChain === ''">Nothing found</h3>

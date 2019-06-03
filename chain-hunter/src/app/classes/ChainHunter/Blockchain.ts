@@ -9,6 +9,7 @@ export class Blockchain {
     found: boolean;
     address: Address;
     transaction: Transaction;
+    contract: Address;
     icon: string;
     hasTokens: boolean = false;
 

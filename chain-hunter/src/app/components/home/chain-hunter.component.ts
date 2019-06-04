@@ -12,6 +12,8 @@ import { BnbService } from 'src/app/services/bnb-svc.service';
 import { NeoService } from 'src/app/services/neo-svc.service';
 import { Blockchain } from 'src/app/classes/ChainHunter/Blockchain';
 import { EthBlock } from 'src/app/classes/ETH/EthBlock';
+import { AionService } from 'src/app/services/aion-svc.service';
+import { AionTokenDetail } from 'src/app/classes/AION/AionTokenDetail';
 
 @Component({
     selector: 'chain-hunter',
@@ -28,6 +30,7 @@ export class ChainHunterComponent implements OnInit {
     ltcComplete: boolean = true;
     neoComplete: boolean = true;
     rvnComplete: boolean = true;
+    aionComplete: boolean = true;
     xrpComplete: boolean = true;
     
     /*ETH materials*/
@@ -36,6 +39,13 @@ export class ChainHunterComponent implements OnInit {
     ethBlockCount: number = 0;
     ethLatestBlock: string = null;
     ethBlocks: Map<string, EthBlock> = new Map<string, EthBlock>();
+
+    /*AION materials */
+    aionBlockCount: number = 0;
+    aionLatestBlock: string = null;
+    aionBlocks: Map<string, string> = new Map<string, string>();
+    aionTokenCount: number = 0;
+    aionTokens: Map<string, AionTokenDetail> = new Map<string, AionTokenDetail>();
 
     notRunning: boolean = true;
     seeItem: boolean = false;
@@ -56,7 +66,8 @@ export class ChainHunterComponent implements OnInit {
                 private ltcService: LtcService,
                 private neoService: NeoService,
                 private rvnService: RvnService,
-                private xrpService: XrpService) {}
+                private xrpService: XrpService,
+                private aionService: AionService) {}
 
     ngOnInit() {
         this.nullOut();
@@ -68,7 +79,7 @@ export class ChainHunterComponent implements OnInit {
         this.ethTransactions = null;
         this.btcComplete = this.bnbComplete = this.bchComplete = 
         this.ethComplete = this.ltcComplete = this.neoComplete = 
-        this.rvnComplete = this.xrpComplete = false;
+        this.rvnComplete = this.xrpComplete = this.aionComplete = false;
         this.map = new Map<string, Blockchain>();
         this.calculateIcons();
     }
@@ -92,6 +103,7 @@ export class ChainHunterComponent implements OnInit {
         this.getNeoAddress();
         this.getRvnAddress();
         this.getXrpAddress();
+        this.getAionAddress();
     }
 
     getBtcAddress() {
@@ -128,6 +140,23 @@ export class ChainHunterComponent implements OnInit {
             error => {
                 this.getBnbTransaction();
                 console.log("bnb address error:" + error);
+        });
+    }
+
+    getAionAddress() {
+        this.aionService.getAddress(this.addyTxn)
+            .subscribe(address => {
+                this.aionTokenCount = address.content[0].tokens.length;
+                this.aionComplete = true;
+                let aion = this.getBlockchain("AION");
+                aion.address = this.aionService.addressConvert(address.content[0]);
+                this.setMap(aion);
+                this.calculateIcons();
+                console.log("aion address found");
+            },
+            error => {
+                this.getAionTransaction();
+                console.log("aion address error:" + error);
         });
     }
 
@@ -296,6 +325,8 @@ export class ChainHunterComponent implements OnInit {
             return this.getXrpTransactions();
         } else if (symbol === "BNB") {
             return this.getBnbTransactions();
+        } else if (symbol === "AION") {
+            return this.getAionTransactions();
         }
     }
 
@@ -309,6 +340,7 @@ export class ChainHunterComponent implements OnInit {
         } else if (symbol === "RVN") {
         } else if (symbol === "XRP") {
         } else if (symbol === "BNB") {
+        } else if (symbol === "AION") {
         }
     }
 
@@ -350,6 +382,46 @@ export class ChainHunterComponent implements OnInit {
                 this.txnsComplete = true;
             });
     }
+
+    getAionTransaction() {
+        this.aionService.getTransaction(this.addyTxn)
+            .subscribe(txn => {
+                this.aionComplete = true;
+                let aion = this.getBlockchain("AION");
+                aion.transaction = this.aionService.transactionConvert(txn.content[0]);
+                this.setMap(aion);
+                console.log("aion transaction found");
+                this.calculateIcons();
+            },
+            error => {
+                this.aionComplete = true;
+                this.calculateIcons();
+                console.log("aion transaction error:" + error);
+            });
+    }
+
+    getAionTransactions() {
+        this.txnsComplete = false;
+        this.aionService.getAddressTransactions(this.addyTxn)
+            .subscribe(txns => {
+                let aion = this.getBlockchain("AION");
+                aion.address.transactions = this.aionService.transactionsConvert(txns.content);
+                this.setMap(aion);
+                this.txnsComplete = true;
+            });
+    }
+
+    getAionTokens() {
+        this.tokensComplete = false;
+        this.aionTokenCount = 0;
+        // this.aionService.getTokens(this.addyTxn).subscribe(result => {
+        //     this.tokensComplete = true;
+        //     let eth = this.getBlockchain("ETH");
+        //     eth.address.tokens = this.ethService.tokenConvert(result.tokens);
+        //     this.setMap(eth);
+        // });
+    }
+
 
     getBchTransaction() {
         this.bchService.getTransaction(this.addyTxn)
@@ -658,6 +730,7 @@ export class ChainHunterComponent implements OnInit {
         this.map.set("XRP", this.xrpService.getBlockchain());
         this.map.set("NEO", this.neoService.getBlockchain());
         this.map.set("RVN", this.rvnService.getBlockchain());
+        this.map.set("AION", this.aionService.getBlockchain());
         this.map.set("BNB", this.bnbService.getBlockchain());
 
         this.map.forEach((value: Blockchain, key: string) => {
@@ -689,7 +762,7 @@ export class ChainHunterComponent implements OnInit {
     }
 
     getMenuIcon(chain: Blockchain): Blockchain {
-        let iconBase = ""; //"/assets/cryptoicons/";
+        let iconBase = "";
         let property = chain.address || chain.transaction ? "color" : "white";
 
         chain.icon = iconBase + property + "/" + chain.symbol.toLowerCase() + ".svg";

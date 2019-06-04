@@ -2,6 +2,7 @@
 export class Connections{
     constructor(){}
 
+    aionBase: string = "https://mainnet-api.aion.network/aion/dashboard";
     bchBase: string = "https://bch-chain.api.btc.com/v3";
     bnbBase: string = "https://dex.binance.org/api/v1";
     bnbBase2: string = "https://explorer.binance.org/api/v1";
@@ -16,5 +17,4 @@ export class Connections{
     neoBase: string = "https://api.neoscan.io/api/main_net";
     rvnBase: string = "https://ravencoin.network/api";
     xrpBase: string = "https://api.xrpscan.com/api";
-    //ethBase: string = "https://mainnet.infura.io/v3/chainhunter";
 }

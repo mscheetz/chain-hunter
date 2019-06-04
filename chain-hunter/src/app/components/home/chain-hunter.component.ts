@@ -12,11 +12,6 @@ import { BnbService } from 'src/app/services/bnb-svc.service';
 import { NeoService } from 'src/app/services/neo-svc.service';
 import { Blockchain } from 'src/app/classes/ChainHunter/Blockchain';
 import { EthBlock } from 'src/app/classes/ETH/EthBlock';
-import { TrxService } from 'src/app/services/trx-svc.service';
-import { TrxToken20 } from 'src/app/classes/TRX/TrxToken20';
-import { TrxToken10 } from 'src/app/classes/TRX/TrxToken10';
-import { TrxAddress } from 'src/app/classes/TRX/TrxAddress';
-import { TrxTransaction } from 'src/app/classes/TRX/TrxTransaction';
 
 @Component({
     selector: 'chain-hunter',
@@ -34,7 +29,6 @@ export class ChainHunterComponent implements OnInit {
     neoComplete: boolean = true;
     rvnComplete: boolean = true;
     xrpComplete: boolean = true;
-    trxComplete: boolean = true;
     
     /*ETH materials*/
     ethTransaction: EthTransaction = null;
@@ -42,11 +36,6 @@ export class ChainHunterComponent implements OnInit {
     ethBlockCount: number = 0;
     ethLatestBlock: string = null;
     ethBlocks: Map<string, EthBlock> = new Map<string, EthBlock>();
-
-    /*TRX materials */
-    trxAddress: TrxAddress = null;
-    trx10Complete: boolean = true;
-    trx20Complete: boolean = true;
 
     notRunning: boolean = true;
     seeItem: boolean = false;
@@ -67,8 +56,7 @@ export class ChainHunterComponent implements OnInit {
                 private ltcService: LtcService,
                 private neoService: NeoService,
                 private rvnService: RvnService,
-                private xrpService: XrpService,
-                private trxService: TrxService) {}
+                private xrpService: XrpService) {}
 
     ngOnInit() {
         this.nullOut();
@@ -80,7 +68,7 @@ export class ChainHunterComponent implements OnInit {
         this.ethTransactions = null;
         this.btcComplete = this.bnbComplete = this.bchComplete = 
         this.ethComplete = this.ltcComplete = this.neoComplete = 
-        this.rvnComplete = this.xrpComplete = this.trxComplete = false;
+        this.rvnComplete = this.xrpComplete = false;
         this.map = new Map<string, Blockchain>();
         this.calculateIcons();
     }
@@ -104,7 +92,6 @@ export class ChainHunterComponent implements OnInit {
         this.getNeoAddress();
         this.getRvnAddress();
         this.getXrpAddress();
-        this.getTrxAddress();
     }
 
     getBtcAddress() {
@@ -309,8 +296,6 @@ export class ChainHunterComponent implements OnInit {
             return this.getXrpTransactions();
         } else if (symbol === "BNB") {
             return this.getBnbTransactions();
-        } else if (symbol === "TRX") {
-            return this.getTrxTransactions();
         }
     }
 
@@ -324,8 +309,6 @@ export class ChainHunterComponent implements OnInit {
         } else if (symbol === "RVN") {
         } else if (symbol === "XRP") {
         } else if (symbol === "BNB") {
-        } else if (symbol === "TRX") {
-            return this.getTrxTokens();
         }
     }
 
@@ -637,174 +620,7 @@ export class ChainHunterComponent implements OnInit {
                 this.txnsComplete = true;
             });
     }
-
-    getTrxAddress() {
-        this.trxAddress = null;
-        this.trxService.getAddress(this.addyTxn)
-            .subscribe(address => {
-                if(address.address) {
-                    this.trxComplete = true;
-                    this.trxAddress = address;
-                    let trx = this.getBlockchain("TRX");
-                    trx.address = this.trxService.addressConvert(address);
-                    this.setMap(trx);
-                    console.log("trx address found");  
-                    //this.buildTrxTokenList();
-                } else {
-                    console.log("trx address not found");
-                    this.getTrxTransaction();
-                }
-                this.calculateIcons();
-            },
-            error => {
-                this.calculateIcons();
-                console.log("trx address error:" + error);
-            });
-    }
-
-    getTrxContract() {
-        this.trxService.getContract(this.addyTxn)
-            .subscribe(contract => {
-                this.trxComplete = true;
-                if(contract && contract.data.address !== "") {
-                    this.trxComplete = true;
-                    let trx = this.getBlockchain("TRX");
-                    trx.contract = this.trxService.contractConvert(contract.data);
-                    this.setMap(trx);
-                    console.log("trx contract found");  
-                } else {
-                    console.log("trx contract not found");
-                    this.getTrxTransaction();
-                }
-                this.calculateIcons();
-            },
-            error => {
-                this.trxComplete = true;
-                this.calculateIcons();
-                console.log("trx contract error:" + error);
-            });
-    }
-
-    getTrxTransaction() {
-        this.trxService.getTransaction(this.addyTxn)
-            .subscribe(txn => {
-                if(txn.hash) {
-                    this.trxComplete = true;
-                    let trx = this.getBlockchain("TRX");
-                    trx.transaction = this.trxService.transactionConvert(txn);
-                    this.setMap(trx);
-                    console.log("trx transaction found");  
-                } else {                    
-                    console.log("trx transaction not found");
-                    this.getTrxContract();
-                }
-                this.calculateIcons();
-            },
-            error => {
-                console.log("trx transaction error:" + error);
-                this.getTrxContract();
-                this.calculateIcons();
-            });
-    }
-
-    getTrxTransactions() {
-        this.txnsComplete = false;
-        this.trxService.getAddressTransactions(this.addyTxn)
-            .subscribe(txns => {
-                let trx = this.getBlockchain("TRX");
-                trx.address.transactions = this.trxService.transactionsConvert(txns.data);
-                this.setMap(trx);
-                this.txnsComplete = true;
-            });
-    }
-
-    getTrxTokens() {
-        this.tokensComplete = false;
-        this.buildTrxTokenList();
-        let trx = this.getBlockchain("TRX");
-        trx.address.tokens = this.trxService.tokenConvert(this.trxAddress);
-        this.setMap(trx);
-    }
-
-    buildTrxTokenList() {
-        if(this.trxService.tokensNeeded()) {
-            this.getTrx10Tokens();
-            this.getTrx20Tokens();
-        }
-    }
-
-    getTrx10Tokens() {
-        let getTokens: boolean = true;
-        let doItAgain: boolean = true;
-        let returned: boolean = false;
-        let page: number = 1;
-        let tokenList: TrxToken10[];
-        while(getTokens) {
-            if(doItAgain) {
-                this.trxService.getTrx10Tokens(page)
-                    .subscribe(tokens => {
-                        returned = true;
-                        tokens.data.forEach(token => {
-                            tokenList.push(token);
-                        })
-                        if(tokens.total === tokens.totalAll) {
-                            getTokens = false;
-                            this.trx10Complete = true;
-                            this.trxService.setTrx10s(tokenList);
-                            if(this.trx20Complete) {
-                                this.tokensComplete = true;
-                            }
-                            doItAgain = false;
-                        } else {
-                            page++;
-                            doItAgain = true;
-                        }
-                    })
-                if(returned) {
-                    returned = false;
-                } else {
-                    doItAgain = false;
-                }
-            }
-        }
-    }
-
-    getTrx20Tokens() {
-        let getTokens: boolean = true;
-        let doItAgain: boolean = true;
-        let returned: boolean = false;
-        let page: number = 1;
-        let tokenList: TrxToken20[];
-        while(getTokens) {
-            if(doItAgain) {
-                this.trxService.getTrx20Tokens(page)
-                    .subscribe(tokens => {
-                        returned = true;
-                        tokens.trc20_tokens.forEach(token => {
-                            tokenList.push(token);
-                        })
-                        if(tokens.total === tokens.rangeTotal) {
-                            getTokens = false;
-                            this.trx20Complete = true;
-                            this.trxService.setTrx20s(tokenList);
-                            if(this.trx10Complete) {
-                                this.tokensComplete = true;
-                            }
-                            doItAgain = false;
-                        } else {
-                            page++;
-                            doItAgain = true;
-                        }
-                    })
-                if(returned) {
-                    returned = false;
-                } else {
-                    doItAgain = false;
-                }
-            }
-        }
-    }
-
+    
     calculateIcons() {
         this.checkComplete();
         this.updateMenuItems();
@@ -813,7 +629,7 @@ export class ChainHunterComponent implements OnInit {
     checkComplete() {
         if(this.btcComplete && this.bnbComplete && this.bchComplete 
             && this.ethComplete && this.ltcComplete && this.neoComplete
-            && this.rvnComplete && this.xrpComplete && this.trxComplete ){
+            && this.rvnComplete && this.xrpComplete ){
             this.notRunning = true;
         }
     }
@@ -842,7 +658,6 @@ export class ChainHunterComponent implements OnInit {
         this.map.set("XRP", this.xrpService.getBlockchain());
         this.map.set("NEO", this.neoService.getBlockchain());
         this.map.set("RVN", this.rvnService.getBlockchain());
-        this.map.set("TRX", this.trxService.getBlockchain());
         this.map.set("BNB", this.bnbService.getBlockchain());
 
         this.map.forEach((value: Blockchain, key: string) => {

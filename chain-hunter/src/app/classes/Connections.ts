@@ -15,7 +15,6 @@ export class Connections{
     chainzExplorerKey: string = "b1b1502c3852";
     neoBase: string = "https://api.neoscan.io/api/main_net";
     rvnBase: string = "https://ravencoin.network/api";
-    trxBase: string = "https://apilist.tronscan.org/api";
     xrpBase: string = "https://api.xrpscan.com/api";
     //ethBase: string = "https://mainnet.infura.io/v3/chainhunter";
 }

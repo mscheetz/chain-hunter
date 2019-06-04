@@ -9,7 +9,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { TabMenuModule } from 'primeng/tabmenu';
 import { TabViewModule } from 'primeng/tabview';
-import {AccordionModule} from 'primeng/accordion';
+import { AccordionModule } from 'primeng/accordion';
 import { SamplesComponent } from './components/samples/samples.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';

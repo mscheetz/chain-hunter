@@ -467,6 +467,11 @@ export class ChainHunterComponent implements OnInit {
 
     getAionTokens() {
         this.tokensComplete = false;
+        if(this.aionTokenContracts.length === 0){
+            this.tokensComplete = true;
+            this.aionTokens = [];
+            this.buildAionTokens();
+        }
         let address = this.getBlockchain("AION").address.address;
         this.aionTokenContracts.forEach(contr => {
             this.aionService.getTokens(address, contr)

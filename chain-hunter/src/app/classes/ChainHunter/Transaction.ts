@@ -8,4 +8,5 @@ export class Transaction{
     date: string;
     confirmations: number;
     block: number;
+    latestBlock: number;
 } 

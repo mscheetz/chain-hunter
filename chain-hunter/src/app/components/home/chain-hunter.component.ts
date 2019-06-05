@@ -148,7 +148,10 @@ export class ChainHunterComponent implements OnInit {
     getAionAddress() {
         this.aionService.getAddress(this.addyTxn)
             .subscribe(response => {
-                if(response.content.length > 0){
+                if((typeof response.content === "undefined") || response.content.length === 0){
+                    console.log("aion address not found");
+                    this.getAionTransaction();
+                } else {
                     this.aionTokenCount = response.content[0].tokens.length;
                     this.aionTokens = [];
                     this.aionTokenContracts = [];
@@ -159,14 +162,11 @@ export class ChainHunterComponent implements OnInit {
                     this.setMap(aion);
                     this.calculateIcons();
                     console.log("aion address found");
-                } else {
-                    console.log("aion address not found");
-                    this.getAionTransaction();
                 }
             },
             error => {
-                this.getAionTransaction();
                 console.log("aion address error:" + error);
+                this.getAionTransaction();
         });
     }
 
@@ -409,6 +409,7 @@ export class ChainHunterComponent implements OnInit {
                 aion.transaction = this.aionService.transactionConvert(txn.content[0]);
                 this.setMap(aion);
                 console.log("aion transaction found");
+                this.getAionLatestBlock();
                 this.calculateIcons();
             },
             error => {
@@ -418,11 +419,27 @@ export class ChainHunterComponent implements OnInit {
             });
     }
 
-    getAionLatestBlock() {
+    /**
+     * Get latest AION block number
+     * 
+     * @param multi Is this for multiple transactions?
+     */
+    getAionLatestBlock(multi: boolean = false) {
         this.aionLatestBlock = null;
         this.aionService.getLatestBlock()
             .subscribe(response => {
                 this.aionLatestBlock = response.content[0].blockNumber.toString();
+                let aion = this.getBlockchain("AION");
+                if(multi) {
+                    aion.address.transactions.forEach(txn => {
+                        txn.latestBlock = parseInt(this.aionLatestBlock);
+                        txn.confirmations = txn.latestBlock - txn.block;
+                    })
+                } else {
+                    aion.transaction.latestBlock = parseInt(this.aionLatestBlock);
+                    aion.transaction.confirmations = aion.transaction.latestBlock - aion.transaction.block;
+                }
+                this.setMap(aion);
             })
     }
 
@@ -443,6 +460,7 @@ export class ChainHunterComponent implements OnInit {
                 let aion = this.getBlockchain("AION");
                 aion.address.transactions = this.aionService.transactionsConvert(txns.content);
                 this.setMap(aion);
+                this.getAionLatestBlock(true);
                 this.txnsComplete = true;
             });
     }

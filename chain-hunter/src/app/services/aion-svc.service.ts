@@ -3,15 +3,10 @@ import { Observable } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { delay } from 'rxjs/operators';
-import { BchBase } from '../classes/BCH/BchBase';
-import { BchAddress } from '../classes/BCH/BchAddress';
-import { BchTransaction } from '../classes/BCH/BchTransaction';
-import { BchPagedResponse } from '../classes/BCH/BchPagedResponse';
 import { Blockchain } from '../classes/ChainHunter/Blockchain';
 import { Address } from '../classes/ChainHunter/Address';
 import { Transaction } from '../classes/ChainHunter/Transaction';
 import { HelperService } from './helper-svc.service';
-import { ChildActivationEnd } from '@angular/router';
 import { AionAddress } from '../classes/AION/AionAddress';
 import { AionResponse } from '../classes/AION/AionResponse';
 import { Asset } from '../classes/ChainHunter/Asset';
@@ -68,7 +63,7 @@ export class AionService{
 
     tokenConvert(aionAddress: AionTokenDetail): Asset {
         let asset = new Asset();
-        asset.quantity = aionAddress.balance.toString();
+        asset.quantity = this.helperSvc.commaBigNumber(aionAddress.balance.toString());
         asset.symbol = aionAddress.tokenSymbol;
 
         return asset;
@@ -104,7 +99,8 @@ export class AionService{
             txn.block = aionTransaction.blockNumber;
             txn.quantity = aionTransaction.value;
             //txn.confirmations = aionTransaction.confirmations;
-            txn.date = this.helperSvc.unixToUTC(aionTransaction.transactionTimestamp);
+            let ts = aionTransaction.transactionTimestamp.toString().substr(0, 10);
+            txn.date = this.helperSvc.unixToUTC(parseInt(ts));
             txn.from = aionTransaction.fromAddr;
             txn.to = aionTransaction.toAddr;
         }
@@ -147,7 +143,7 @@ export class AionService{
      * @param tokenAddress Token address to check
      */
     getTokens(address: string, tokenAddress: string): Observable<AionResponse<AionTokenDetail[]>>{
-        let endpoint: string = "/getAccountDetails?accountAddress=" + address + "&tokenAddress" + tokenAddress;
+        let endpoint: string = "/getAccountDetails?accountAddress=" + address + "&tokenAddress=" + tokenAddress;
         let url: string = this.base + endpoint;
 
         let result = this.http.get<AionResponse<AionTokenDetail[]>>(url)

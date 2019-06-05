@@ -14,6 +14,7 @@ import { Blockchain } from 'src/app/classes/ChainHunter/Blockchain';
 import { EthBlock } from 'src/app/classes/ETH/EthBlock';
 import { AionService } from 'src/app/services/aion-svc.service';
 import { AionTokenDetail } from 'src/app/classes/AION/AionTokenDetail';
+import { AionToken } from 'src/app/classes/AION/AionToken';
 
 @Component({
     selector: 'chain-hunter',
@@ -45,7 +46,8 @@ export class ChainHunterComponent implements OnInit {
     aionLatestBlock: string = null;
     aionBlocks: Map<string, string> = new Map<string, string>();
     aionTokenCount: number = 0;
-    aionTokens: Map<string, AionTokenDetail> = new Map<string, AionTokenDetail>();
+    aionTokenContracts: string[];
+    aionTokens: AionTokenDetail[] = [];
 
     notRunning: boolean = true;
     seeItem: boolean = false;
@@ -145,19 +147,33 @@ export class ChainHunterComponent implements OnInit {
 
     getAionAddress() {
         this.aionService.getAddress(this.addyTxn)
-            .subscribe(address => {
-                this.aionTokenCount = address.content[0].tokens.length;
-                this.aionComplete = true;
-                let aion = this.getBlockchain("AION");
-                aion.address = this.aionService.addressConvert(address.content[0]);
-                this.setMap(aion);
-                this.calculateIcons();
-                console.log("aion address found");
+            .subscribe(response => {
+                if(response.content.length > 0){
+                    this.aionTokenCount = response.content[0].tokens.length;
+                    this.aionTokens = [];
+                    this.aionTokenContracts = [];
+                    this.setAionTokens(response.content[0].tokens);
+                    this.aionComplete = true;
+                    let aion = this.getBlockchain("AION");
+                    aion.address = this.aionService.addressConvert(response.content[0]);
+                    this.setMap(aion);
+                    this.calculateIcons();
+                    console.log("aion address found");
+                } else {
+                    console.log("aion address not found");
+                    this.getAionTransaction();
+                }
             },
             error => {
                 this.getAionTransaction();
                 console.log("aion address error:" + error);
         });
+    }
+
+    setAionTokens(tokens: AionToken[]) {
+        tokens.forEach(token => {
+            this.aionTokenContracts.push(token.contractAddr);
+        })
     }
 
     getBchAddress() {
@@ -341,6 +357,7 @@ export class ChainHunterComponent implements OnInit {
         } else if (symbol === "XRP") {
         } else if (symbol === "BNB") {
         } else if (symbol === "AION") {
+            return this.getAionTokens();
         }
     }
 
@@ -387,6 +404,7 @@ export class ChainHunterComponent implements OnInit {
         this.aionService.getTransaction(this.addyTxn)
             .subscribe(txn => {
                 this.aionComplete = true;
+                this.aionBlockCount = 1;
                 let aion = this.getBlockchain("AION");
                 aion.transaction = this.aionService.transactionConvert(txn.content[0]);
                 this.setMap(aion);
@@ -398,6 +416,24 @@ export class ChainHunterComponent implements OnInit {
                 this.calculateIcons();
                 console.log("aion transaction error:" + error);
             });
+    }
+
+    getAionLatestBlock() {
+        this.aionLatestBlock = null;
+        this.aionService.getLatestBlock()
+            .subscribe(response => {
+                this.aionLatestBlock = response.content[0].blockNumber.toString();
+            })
+    }
+
+    /**
+     * Aion transactions ready to process?
+     */
+    aionTxnReady(): boolean {
+        if(this.aionBlockCount === 0 && this.aionLatestBlock !== null) {
+            return true
+        }
+        return false;
     }
 
     getAionTransactions() {
@@ -413,15 +449,25 @@ export class ChainHunterComponent implements OnInit {
 
     getAionTokens() {
         this.tokensComplete = false;
-        this.aionTokenCount = 0;
-        // this.aionService.getTokens(this.addyTxn).subscribe(result => {
-        //     this.tokensComplete = true;
-        //     let eth = this.getBlockchain("ETH");
-        //     eth.address.tokens = this.ethService.tokenConvert(result.tokens);
-        //     this.setMap(eth);
-        // });
+        let address = this.getBlockchain("AION").address.address;
+        this.aionTokenContracts.forEach(contr => {
+            this.aionService.getTokens(address, contr)
+                .subscribe(response => {
+                    this.aionTokenCount--;
+                    this.aionTokens.push(response.content[0]);
+                    if(this.aionTokenCount === 0){
+                        this.buildAionTokens();
+                    }
+                })
+        })
     }
 
+    buildAionTokens() {
+        let aion = this.getBlockchain("AION");
+        aion.address.tokens = this.aionService.tokensConvert(this.aionTokens);
+        this.setMap(aion);
+        this.tokensComplete = true;
+    }
 
     getBchTransaction() {
         this.bchService.getTransaction(this.addyTxn)

@@ -15,6 +15,7 @@ import { EthBlock } from 'src/app/classes/ETH/EthBlock';
 import { AionService } from 'src/app/services/aion-svc.service';
 import { AionTokenDetail } from 'src/app/classes/AION/AionTokenDetail';
 import { AionToken } from 'src/app/classes/AION/AionToken';
+import { HelperService } from 'src/app/services/helper-svc.service';
 
 @Component({
     selector: 'chain-hunter',
@@ -35,16 +36,16 @@ export class ChainHunterComponent implements OnInit {
     xrpComplete: boolean = true;
     
     /*ETH materials*/
-    ethTransaction: EthTransaction = null;
-    ethTransactions: EthTransaction[] = null;
+    //ethTransaction: EthTransaction = null;
+    //ethTransactions: EthTransaction[] = null;
+    ethBlockFound: boolean = true;
     ethBlockCount: number = 0;
     ethLatestBlock: string = null;
-    ethBlocks: Map<string, EthBlock> = new Map<string, EthBlock>();
+    ethBlocks: string[] = [];
+    //ethBlocks: Map<string, EthBlock> = new Map<string, EthBlock>();
 
     /*AION materials */
-    aionBlockCount: number = 0;
     aionLatestBlock: string = null;
-    aionBlocks: Map<string, string> = new Map<string, string>();
     aionTokenCount: number = 0;
     aionTokenContracts: string[];
     aionTokens: AionTokenDetail[] = [];
@@ -61,7 +62,8 @@ export class ChainHunterComponent implements OnInit {
     tokensComplete: boolean = true;
     @Output() huntStatus: number = 0; // 0 = no search yet, 1 = searching, 2 = nothing found, 3 = something found
 
-    constructor(private btcService: BtcService, 
+    constructor(private helperService: HelperService,
+                private btcService: BtcService, 
                 private bchService: BchService,
                 private bnbService: BnbService,
                 private ethService: EthService,
@@ -77,8 +79,8 @@ export class ChainHunterComponent implements OnInit {
     }
 
     nullOut(){
-        this.ethTransaction = null;
-        this.ethTransactions = null;
+        //this.ethTransaction = null;
+        //this.ethTransactions = null;
         this.btcComplete = this.bnbComplete = this.bchComplete = 
         this.ethComplete = this.ltcComplete = this.neoComplete = 
         this.rvnComplete = this.xrpComplete = this.aionComplete = false;
@@ -205,7 +207,7 @@ export class ChainHunterComponent implements OnInit {
                 let ethAddress = new EthAddress();
                 ethAddress.Address = this.addyTxn;
                 ethAddress.Balance = parseInt(addressResponse.result);
-                this.ethBlocks = new Map<string, EthBlock>();
+                this.ethBlocks = [];// new Map<string, EthBlock>();
                 this.ethLatestBlock = null;
                 let eth = this.getBlockchain("ETH");
                 eth.address = this.ethService.addressConvert(ethAddress);
@@ -404,7 +406,6 @@ export class ChainHunterComponent implements OnInit {
         this.aionService.getTransaction(this.addyTxn)
             .subscribe(txn => {
                 this.aionComplete = true;
-                this.aionBlockCount = 1;
                 let aion = this.getBlockchain("AION");
                 aion.transaction = this.aionService.transactionConvert(txn.content[0]);
                 this.setMap(aion);
@@ -441,16 +442,6 @@ export class ChainHunterComponent implements OnInit {
                 }
                 this.setMap(aion);
             })
-    }
-
-    /**
-     * Aion transactions ready to process?
-     */
-    aionTxnReady(): boolean {
-        if(this.aionBlockCount === 0 && this.aionLatestBlock !== null) {
-            return true
-        }
-        return false;
     }
 
     getAionTransactions() {
@@ -539,7 +530,11 @@ export class ChainHunterComponent implements OnInit {
             .subscribe(txn => {
                 if(!txn.error && txn.result !== null) {
                     this.ethBlockCount = 1;
-                    this.ethBlocks.set(txn.result.blockNumber, null);
+                    this.ethBlocks.push(txn.result.blockNumber);
+                    //this.ethBlocks.set(txn.result.blockNumber, null);
+                    let eth = this.getBlockchain("ETH");
+                    eth.transaction = this.ethService.transactionConvert(txn.result);
+                    this.setMap(eth);
                     this.getEthBlock(txn.result.blockNumber);
                     this.getEthLastBlock();
                     console.log("eth transaction found");
@@ -562,14 +557,22 @@ export class ChainHunterComponent implements OnInit {
             .subscribe(txns => {
                 let keepers = txns.result.splice(0, 10);
                 this.ethBlockCount = 0;
-                this.ethTransactions = keepers;
+                //this.ethTransactions = keepers;
+                let eth = this.getBlockchain("ETH");
+                eth.address.transactions = this.ethService.transactionsConvert(keepers);
+                this.setMap(eth);
                 this.getEthLastBlock(true);
                 keepers.forEach(txn => {
-                    if(!this.ethBlocks.has(txn.blockNumber)){
+                    if(!this.ethBlocks.indexOf(txn.blockNumber)) {
                         this.ethBlockCount++;
-                        this.ethBlocks.set(txn.blockNumber, null);
-                        this.getEthBlock(txn.blockNumber);
+                        this.ethBlocks.push(txn.blockNumber);
+                        this.getEthBlock(txn.blockNumber, true);
                     }
+                    // if(!this.ethBlocks.has(txn.blockNumber)){
+                    //     this.ethBlockCount++;
+                    //     this.ethBlocks.set(txn.blockNumber, null);
+                    //     this.getEthBlock(txn.blockNumber, true);
+                    // }
                 });
                 this.txnsComplete = true;
                 if(this.ethTxnReady()) {
@@ -578,12 +581,24 @@ export class ChainHunterComponent implements OnInit {
             });
     }
 
-    getEthBlock(block: string) {
+    getEthBlock(block: string, multi: boolean = false) {
         let intBlock = parseInt(block);
         this.ethService.getBlock(intBlock).subscribe(result => {
             let blockInfo = result.result;
-            this.ethBlocks.set(block, blockInfo);
+            //this.ethBlocks.set(block, blockInfo);            
             this.ethBlockCount--;
+            let eth = this.getBlockchain("ETH");
+            let time = this.helperService.unixToUTC(parseInt(blockInfo.timestamp));
+            if(multi) {
+                eth.address.transactions.forEach(txn => {
+                    if(txn.block == parseInt(block)){
+                        txn.date = time;
+                    }
+                });
+            } else {
+                eth.transaction.date = time;
+            }            
+            this.setMap(eth);
             if(this.ethTxnReady()) {
                 this.buildEthTransactions();
             }
@@ -594,22 +609,27 @@ export class ChainHunterComponent implements OnInit {
      * Build Eth transactions
      */
     buildEthTransactions(){
-        let multi = this.ethTransaction !== null ? false : true;
         let eth = this.getBlockchain("ETH");
+        let multi = eth.transaction !== null ? false : true;
+        //let eth = this.getBlockchain("ETH");
 
-        if(multi) {
-            this.ethTransactions.forEach(txn => {
-                let blockInfo = this.ethBlocks.get(txn.blockNumber);
-                txn.timestamp = blockInfo.timestamp;
-            });
-            eth.address.transactions = this.ethService.transactionsConvert(this.ethTransactions);
-        } else {
+        if(!multi){
             this.ethComplete = true;
-            let blockInfo = this.ethBlocks.get(this.ethTransaction.blockNumber);
-            this.ethTransaction.timestamp = blockInfo.timestamp;
-            eth.transaction = this.ethService.transactionConvert(this.ethTransaction);
         }
-        this.setMap(eth);
+
+        // if(multi) {
+        //     this.ethTransactions.forEach(txn => {
+        //         let blockInfo = this.ethBlocks.get(txn.blockNumber);
+        //         txn.timestamp = blockInfo.timestamp;
+        //     });
+        //     eth.address.transactions = this.ethService.transactionsConvert(this.ethTransactions);
+        // } else {
+        //     this.ethComplete = true;
+        //     let blockInfo = this.ethBlocks.get(this.ethTransaction.blockNumber);
+        //     this.ethTransaction.timestamp = blockInfo.timestamp;
+        //     eth.transaction = this.ethService.transactionConvert(this.ethTransaction);
+        // }
+        // this.setMap(eth);
     }
 
     /**
@@ -618,15 +638,25 @@ export class ChainHunterComponent implements OnInit {
      * @param multi Is this for multiple transactions?
      */
     getEthLastBlock(multi: boolean = false) {
+        this.ethBlockFound = false;
         this.ethService.getLatestBlock().subscribe(block => {
             this.ethLatestBlock = block.result;
+            let eth = this.getBlockchain("ETH");
             if(multi) {
-                this.ethTransactions.forEach(txn => {
-                    txn.currentBlock = block.result;
-                });
+                eth.address.transactions.forEach(txn => {
+                    txn.latestBlock = parseInt(block.result);
+                    txn.confirmations = txn.latestBlock - txn.block;
+                })
+                // this.ethTransactions.forEach(txn => {
+                //     txn.currentBlock = block.result;
+                // });
             } else {
-                this.ethTransaction.currentBlock = block.result;
+                //this.ethTransaction.currentBlock = block.result;
+                eth.transaction.latestBlock = parseInt(block.result);
+                eth.transaction.confirmations = eth.transaction.latestBlock - eth.transaction.block;
             }
+            this.setMap(eth);
+            this.ethBlockFound = true;
             if(this.ethTxnReady()) {
                 this.buildEthTransactions();
             }

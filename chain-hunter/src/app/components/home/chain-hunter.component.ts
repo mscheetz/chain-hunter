@@ -561,7 +561,7 @@ export class ChainHunterComponent implements OnInit {
                 this.setMap(eth);
                 this.getEthLastBlock(true);
                 keepers.forEach(txn => {
-                    if(this.ethBlocks.length === 0 || this.ethBlocks.indexOf(txn.blockNumber) < -1) {
+                    if(this.ethBlocks.length === 0 || this.ethBlocks.indexOf(txn.blockNumber) < 0) {
                         this.ethBlockCount++;
                         this.ethBlocks.push(txn.blockNumber);
                         this.getEthBlock(txn.blockNumber, true);

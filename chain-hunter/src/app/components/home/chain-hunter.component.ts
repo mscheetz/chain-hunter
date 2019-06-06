@@ -36,13 +36,10 @@ export class ChainHunterComponent implements OnInit {
     xrpComplete: boolean = true;
     
     /*ETH materials*/
-    //ethTransaction: EthTransaction = null;
-    //ethTransactions: EthTransaction[] = null;
     ethBlockFound: boolean = true;
     ethBlockCount: number = 0;
     ethLatestBlock: string = null;
     ethBlocks: string[] = [];
-    //ethBlocks: Map<string, EthBlock> = new Map<string, EthBlock>();
 
     /*AION materials */
     aionLatestBlock: string = null;
@@ -79,8 +76,6 @@ export class ChainHunterComponent implements OnInit {
     }
 
     nullOut(){
-        //this.ethTransaction = null;
-        //this.ethTransactions = null;
         this.btcComplete = this.bnbComplete = this.bchComplete = 
         this.ethComplete = this.ltcComplete = this.neoComplete = 
         this.rvnComplete = this.xrpComplete = this.aionComplete = false;
@@ -207,7 +202,7 @@ export class ChainHunterComponent implements OnInit {
                 let ethAddress = new EthAddress();
                 ethAddress.Address = this.addyTxn;
                 ethAddress.Balance = parseInt(addressResponse.result);
-                this.ethBlocks = [];// new Map<string, EthBlock>();
+                this.ethBlocks = [];
                 this.ethLatestBlock = null;
                 let eth = this.getBlockchain("ETH");
                 eth.address = this.ethService.addressConvert(ethAddress);
@@ -531,7 +526,6 @@ export class ChainHunterComponent implements OnInit {
                 if(!txn.error && txn.result !== null) {
                     this.ethBlockCount = 1;
                     this.ethBlocks.push(txn.result.blockNumber);
-                    //this.ethBlocks.set(txn.result.blockNumber, null);
                     let eth = this.getBlockchain("ETH");
                     eth.transaction = this.ethService.transactionConvert(txn.result);
                     this.setMap(eth);
@@ -557,7 +551,6 @@ export class ChainHunterComponent implements OnInit {
             .subscribe(txns => {
                 let keepers = txns.result.splice(0, 10);
                 this.ethBlockCount = 0;
-                //this.ethTransactions = keepers;
                 let eth = this.getBlockchain("ETH");
                 eth.address.transactions = this.ethService.transactionsConvert(keepers);
                 this.setMap(eth);
@@ -568,11 +561,6 @@ export class ChainHunterComponent implements OnInit {
                         this.ethBlocks.push(txn.blockNumber);
                         this.getEthBlock(txn.blockNumber, true);
                     }
-                    // if(!this.ethBlocks.has(txn.blockNumber)){
-                    //     this.ethBlockCount++;
-                    //     this.ethBlocks.set(txn.blockNumber, null);
-                    //     this.getEthBlock(txn.blockNumber, true);
-                    // }
                 });
                 this.txnsComplete = true;
                 if(this.ethTxnReady()) {
@@ -585,7 +573,6 @@ export class ChainHunterComponent implements OnInit {
         let intBlock = parseInt(block);
         this.ethService.getBlock(intBlock).subscribe(result => {
             let blockInfo = result.result;
-            //this.ethBlocks.set(block, blockInfo);            
             this.ethBlockCount--;
             let eth = this.getBlockchain("ETH");
             let time = this.helperService.unixToUTC(parseInt(blockInfo.timestamp));
@@ -611,25 +598,10 @@ export class ChainHunterComponent implements OnInit {
     buildEthTransactions(){
         let eth = this.getBlockchain("ETH");
         let multi = eth.transaction !== null ? false : true;
-        //let eth = this.getBlockchain("ETH");
 
         if(!multi){
             this.ethComplete = true;
         }
-
-        // if(multi) {
-        //     this.ethTransactions.forEach(txn => {
-        //         let blockInfo = this.ethBlocks.get(txn.blockNumber);
-        //         txn.timestamp = blockInfo.timestamp;
-        //     });
-        //     eth.address.transactions = this.ethService.transactionsConvert(this.ethTransactions);
-        // } else {
-        //     this.ethComplete = true;
-        //     let blockInfo = this.ethBlocks.get(this.ethTransaction.blockNumber);
-        //     this.ethTransaction.timestamp = blockInfo.timestamp;
-        //     eth.transaction = this.ethService.transactionConvert(this.ethTransaction);
-        // }
-        // this.setMap(eth);
     }
 
     /**
@@ -647,11 +619,7 @@ export class ChainHunterComponent implements OnInit {
                     txn.latestBlock = parseInt(block.result);
                     txn.confirmations = txn.latestBlock - txn.block;
                 })
-                // this.ethTransactions.forEach(txn => {
-                //     txn.currentBlock = block.result;
-                // });
             } else {
-                //this.ethTransaction.currentBlock = block.result;
                 eth.transaction.latestBlock = parseInt(block.result);
                 eth.transaction.confirmations = eth.transaction.latestBlock - eth.transaction.block;
             }

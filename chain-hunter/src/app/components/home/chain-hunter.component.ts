@@ -400,13 +400,18 @@ export class ChainHunterComponent implements OnInit {
     getAionTransaction() {
         this.aionService.getTransaction(this.addyTxn)
             .subscribe(txn => {
-                this.aionComplete = true;
-                let aion = this.getBlockchain("AION");
-                aion.transaction = this.aionService.transactionConvert(txn.content[0]);
-                this.setMap(aion);
-                console.log("aion transaction found");
-                this.getAionLatestBlock();
-                this.calculateIcons();
+                if(typeof txn.content === "undefined") {
+                    console.log("aion transaction not found");
+                    this.aionComplete = true;
+                } else {
+                    this.aionComplete = true;
+                    let aion = this.getBlockchain("AION");
+                    aion.transaction = this.aionService.transactionConvert(txn.content[0]);
+                    this.setMap(aion);
+                    console.log("aion transaction found");
+                    this.getAionLatestBlock();
+                    this.calculateIcons();
+                }
             },
             error => {
                 this.aionComplete = true;
@@ -556,7 +561,7 @@ export class ChainHunterComponent implements OnInit {
                 this.setMap(eth);
                 this.getEthLastBlock(true);
                 keepers.forEach(txn => {
-                    if(!this.ethBlocks.indexOf(txn.blockNumber)) {
+                    if(this.ethBlocks.length === 0 || this.ethBlocks.indexOf(txn.blockNumber) < -1) {
                         this.ethBlockCount++;
                         this.ethBlocks.push(txn.blockNumber);
                         this.getEthBlock(txn.blockNumber, true);

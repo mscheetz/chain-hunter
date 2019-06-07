@@ -1,0 +1,43 @@
+export class TrxToken10 {
+    constructor() {}
+
+    totalTransactions: number;
+    country: string;
+    tokenID: number;
+    participated: number;
+    precision: number;
+    num: number;
+    available: number;
+    reputation: string;
+    description: string;
+    issuedPercentage: number;
+    nrOfTokenHolders: number;
+    voteScore: number;
+    dateCreated: number;
+    price: number;
+    percentage: number;
+    startTime: number;
+    id: number;
+    issued: number;
+    trxNum: number;
+    abbr: string;
+    website: string;
+    github: string;
+    availableSupply: number;
+    totalSupply: number;
+    index: number;
+    frozenTotal: number;
+    frozen: object[];
+    canShow: number;
+    remaining: number;
+    url: string;
+    frozenPercentage: number;
+    imgUrl: string;
+    isBlack: boolean;
+    remainingPercentage: number;
+    name: string;
+    ownerAddress: string;
+    endTime: number;
+    white_paper: string;
+    social_media: object[];
+}

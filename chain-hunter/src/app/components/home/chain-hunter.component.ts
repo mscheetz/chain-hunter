@@ -16,6 +16,14 @@ import { AionService } from 'src/app/services/aion-svc.service';
 import { AionTokenDetail } from 'src/app/classes/AION/AionTokenDetail';
 import { AionToken } from 'src/app/classes/AION/AionToken';
 import { HelperService } from 'src/app/services/helper-svc.service';
+import { TrxAddress } from 'src/app/classes/TRX/TrxAddress';
+import { TrxService } from 'src/app/services/trx-svc.service';
+import { TrxToken20 } from 'src/app/classes/TRX/TrxToken20';
+import { TrxToken10 } from 'src/app/classes/TRX/TrxToken10';
+import { IfStmt } from '@angular/compiler';
+import { TrxAddress20Token } from 'src/app/classes/TRX/TrxAddress20Token';
+import { TrxAddress10Token } from 'src/app/classes/TRX/TrxAddress10Token';
+import { strictEqual } from 'assert';
 
 @Component({
     selector: 'chain-hunter',
@@ -33,8 +41,9 @@ export class ChainHunterComponent implements OnInit {
     neoComplete: boolean = true;
     rvnComplete: boolean = true;
     aionComplete: boolean = true;
-    xrpComplete: boolean = true;
-    
+    xrpComplete: boolean = true;    
+    trxComplete: boolean = true;
+
     /*ETH materials*/
     ethBlockFound: boolean = true;
     ethBlockCount: number = 0;
@@ -47,6 +56,16 @@ export class ChainHunterComponent implements OnInit {
     aionTokenContracts: string[];
     aionTokens: AionTokenDetail[] = [];
 
+    /*TRX materials */
+    trxAddress: TrxAddress = null;
+    trx10Complete: boolean = true;
+    trx20Complete: boolean = true;
+    trxTokens: Map<string, string> = new Map<string, string>();
+    trxTokenPage: number = 1;
+    trx10s: TrxAddress10Token[];
+    trx20s: TrxAddress20Token[];
+    trx10Count: number = 0;
+    
     notRunning: boolean = true;
     seeItem: boolean = false;
     activeItem: MenuItem;
@@ -68,7 +87,8 @@ export class ChainHunterComponent implements OnInit {
                 private neoService: NeoService,
                 private rvnService: RvnService,
                 private xrpService: XrpService,
-                private aionService: AionService) {}
+                private aionService: AionService,
+                private trxService: TrxService) {}
 
     ngOnInit() {
         this.nullOut();
@@ -78,7 +98,8 @@ export class ChainHunterComponent implements OnInit {
     nullOut(){
         this.btcComplete = this.bnbComplete = this.bchComplete = 
         this.ethComplete = this.ltcComplete = this.neoComplete = 
-        this.rvnComplete = this.xrpComplete = this.aionComplete = false;
+        this.rvnComplete = this.xrpComplete = this.aionComplete = 
+        this.trxComplete = false;
         this.map = new Map<string, Blockchain>();
         this.calculateIcons();
     }
@@ -94,6 +115,10 @@ export class ChainHunterComponent implements OnInit {
         this.buildMap();
         this.notRunning = false;
         this.previousSearch = this.addyTxn;
+        this.getAddresses();
+    }
+
+    getAddresses() {
         this.getBtcAddress();
         this.getBchAddress();
         this.getBnbAddress();
@@ -103,6 +128,48 @@ export class ChainHunterComponent implements OnInit {
         this.getRvnAddress();
         this.getXrpAddress();
         this.getAionAddress();
+        this.getTrxAddress();
+    }
+
+    getAddressTxns(symbol: string): any {
+        if(symbol === "BTC") {
+            return this.getBtcTransactions();
+        } else if (symbol === "BCH") {
+            return this.getBchTransactions();
+        } else if (symbol === "ETH") {
+            return this.getEthTransactions();
+        } else if (symbol === "LTC") {
+            return this.getLtcTransactions();
+        } else if (symbol === "NEO") {
+            return this.getNeoTransactions();
+        } else if (symbol === "RVN") {
+            return this.getRvnTransactions();            
+        } else if (symbol === "XRP") {
+            return this.getXrpTransactions();
+        } else if (symbol === "BNB") {
+            return this.getBnbTransactions();
+        } else if (symbol === "AION") {
+            return this.getAionTransactions();
+        } else if (symbol === "TRX") {
+            return this.getTrxTransactions();
+        }
+    }
+
+    getAddressTokens(symbol: string): any {
+        if(symbol === "BTC") {
+        } else if (symbol === "BCH") {
+        } else if (symbol === "ETH") {
+            return this.getEthTokens();
+        } else if (symbol === "LTC") {
+        } else if (symbol === "NEO") {
+        } else if (symbol === "RVN") {
+        } else if (symbol === "XRP") {
+        } else if (symbol === "BNB") {
+        } else if (symbol === "AION") {
+            return this.getAionTokens();
+        } else if (symbol === "TRX") {
+            return this.getTrxTokens();
+        }
     }
 
     getBtcAddress() {
@@ -319,43 +386,6 @@ export class ChainHunterComponent implements OnInit {
                 this.calculateIcons();
                 console.log("btc transaction error:" + error);
             });
-    }
-
-    getAddressTxns(symbol: string): any {
-        if(symbol === "BTC") {
-            return this.getBtcTransactions();
-        } else if (symbol === "BCH") {
-            return this.getBchTransactions();
-        } else if (symbol === "ETH") {
-            return this.getEthTransactions();
-        } else if (symbol === "LTC") {
-            return this.getLtcTransactions();
-        } else if (symbol === "NEO") {
-            return this.getNeoTransactions();
-        } else if (symbol === "RVN") {
-            return this.getRvnTransactions();            
-        } else if (symbol === "XRP") {
-            return this.getXrpTransactions();
-        } else if (symbol === "BNB") {
-            return this.getBnbTransactions();
-        } else if (symbol === "AION") {
-            return this.getAionTransactions();
-        }
-    }
-
-    getAddressTokens(symbol: string): any {
-        if(symbol === "BTC") {
-        } else if (symbol === "BCH") {
-        } else if (symbol === "ETH") {
-            return this.getEthTokens();
-        } else if (symbol === "LTC") {
-        } else if (symbol === "NEO") {
-        } else if (symbol === "RVN") {
-        } else if (symbol === "XRP") {
-        } else if (symbol === "BNB") {
-        } else if (symbol === "AION") {
-            return this.getAionTokens();
-        }
     }
 
     getBtcTransactions() {
@@ -764,6 +794,182 @@ export class ChainHunterComponent implements OnInit {
                 this.txnsComplete = true;
             });
     }
+
+    getTrxAddress() {
+        this.trxAddress = null;
+        this.trxService.getAddress(this.addyTxn)
+            .subscribe(address => {
+                if(address.address) {
+                    this.trxComplete = true;
+                    this.trxAddress = address;
+                    this.trx10s = address.tokenBalances;
+                    this.trx20s = address.trc20token_balances;
+                    this.trx10Count = this.trx10s.length;
+                    let trx = this.getBlockchain("TRX");
+                    trx.address = this.trxService.addressConvert(address);
+                    this.setMap(trx);
+                    console.log("trx address found");  
+                } else {
+                    console.log("trx address not found");
+                    this.getTrxTransaction();
+                }
+                this.calculateIcons();
+            },
+            error => {
+                this.calculateIcons();
+                console.log("trx address error:" + error);
+            });
+    }
+
+    getTrxContract() {
+        this.trxService.getContract(this.addyTxn)
+            .subscribe(contract => {
+                this.trxComplete = true;
+                if(contract && contract.data.address !== "") {
+                    this.trxComplete = true;
+                    let trx = this.getBlockchain("TRX");
+                    trx.contract = this.trxService.contractConvert(contract.data);
+                    this.setMap(trx);
+                    console.log("trx contract found");  
+                } else {
+                    console.log("trx contract not found");
+                }
+                this.calculateIcons();
+            },
+            error => {
+                this.trxComplete = true;
+                this.calculateIcons();
+                console.log("trx contract error:" + error);
+            });
+    }
+
+    getTrxTransaction() {
+        this.trxService.getTransaction(this.addyTxn)
+            .subscribe(txn => {
+                if(txn.hash) {
+                    this.trxComplete = true;
+                    let trx = this.getBlockchain("TRX");
+                    trx.transaction = this.trxService.transactionConvert(txn);
+                    this.setMap(trx);
+                    console.log("trx transaction found");  
+                } else {                    
+                    console.log("trx transaction not found");
+                    this.getTrxContract();
+                }
+                this.calculateIcons();
+            },
+            error => {
+                console.log("trx transaction error:" + error);
+                this.getTrxContract();
+                this.calculateIcons();
+            });
+    }
+
+    getTrxTransactions() {
+        this.txnsComplete = false;
+        this.trxService.getAddressTransactions(this.addyTxn)
+            .subscribe(txns => {
+                let trx = this.getBlockchain("TRX");
+                trx.address.transactions = this.trxService.transactionsConvert(txns.data);
+                this.setMap(trx);
+                this.txnsComplete = true;
+            });
+    }
+
+    getTrxTokens() {
+        this.tokensComplete = false;
+        this.buildTrxTokenList();
+        // let trx = this.getBlockchain("TRX");
+        // trx.address.tokens = this.trxService.tokenConvert(this.trxAddress);
+        // this.setMap(trx);
+    }
+
+    buildTrxTokenList() {
+        this.tokensComplete = false;
+        this.trx10Complete = false;
+        this.trxTokenPage = 1;
+        if(this.trxTokens.size > 0) {
+            this.trx10Complete = true;
+        }
+        this.checkTrxTokenStatus();
+    }
+
+    getTrx10TokensMethod() {
+        let limit = 200;
+        this.trxService.getTrx10Tokens(this.trxTokenPage, limit)
+            .subscribe(tokens => {
+                tokens.data.forEach(token => {
+                    // let idx = this.trx10s.findIndex(t => t.name === token.tokenID.toString())
+                    // if(idx >= 0) {
+                    //     this.trx10s[idx].symbol = token.abbr;
+                    //     this.trx10Count--;
+                    // }
+                    this.trxTokens.set(token.tokenID.toString(), token.abbr);
+                })
+                if((this.trxTokenPage * limit) >= tokens.totalAll) {
+                    this.trx10Complete = true;  
+                } else {
+                    this.trxTokenPage++;
+                }
+                this.checkTrxTokenStatus();
+            })
+    }
+
+    checkTrxTokenStatus() {
+        if(this.trx10Complete || this.trx10Count === 0) {
+            this.buildTrxTokens();
+        } else {
+            this.getTrx10TokensMethod();
+        }
+    }
+
+    buildTrxTokens() {
+        this.trx10s.forEach(token => {
+            let symbol = this.trxTokens.get(token.name);
+            token.symbol = symbol;
+        });
+
+        let trx = this.getBlockchain("TRX");
+        trx.address.tokens = this.trxService.tokensConvert(this.trx10s, this.trx20s);
+        this.setMap(trx);
+        this.tokensComplete = true;
+    }
+
+    getTrx20Tokens() {
+        let getTokens: boolean = true;
+        let doItAgain: boolean = true;
+        let returned: boolean = false;
+        let page: number = 1;
+        let tokenList: TrxToken20[];
+        while(getTokens) {
+            if(doItAgain) {
+                this.trxService.getTrx20Tokens(page)
+                    .subscribe(tokens => {
+                        returned = true;
+                        tokens.trc20_tokens.forEach(token => {
+                            tokenList.push(token);
+                        })
+                        if(tokens.total === tokens.rangeTotal) {
+                            getTokens = false;
+                            this.trx20Complete = true;
+                            this.trxService.setTrx20s(tokenList);
+                            if(this.trx10Complete) {
+                                this.tokensComplete = true;
+                            }
+                            doItAgain = false;
+                        } else {
+                            page++;
+                            doItAgain = true;
+                        }
+                    })
+                if(returned) {
+                    returned = false;
+                } else {
+                    doItAgain = false;
+                }
+            }
+        }
+    }
     
     calculateIcons() {
         this.checkComplete();
@@ -802,6 +1008,7 @@ export class ChainHunterComponent implements OnInit {
         this.map.set("XRP", this.xrpService.getBlockchain());
         this.map.set("NEO", this.neoService.getBlockchain());
         this.map.set("RVN", this.rvnService.getBlockchain());
+        this.map.set("TRX", this.trxService.getBlockchain());
         this.map.set("AION", this.aionService.getBlockchain());
         this.map.set("BNB", this.bnbService.getBlockchain());
 

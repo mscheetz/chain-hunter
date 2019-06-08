@@ -1,6 +1,6 @@
-.bch-color-icon {
-    background-image: url('/src/assets/bch.png');
-}
+// .bch-color-icon {
+//     background-image: url('/src/assets/bch.png');
+// }
 // .bch-white-icon {
 //     background-image: url('../../../../assets/cryptoicons/white/bch.svg');
 // }
@@ -31,4 +31,8 @@
 
 .chain-logo-pad {
     padding: 0 2px 0 2px;
+}
+
+* {
+    font-family: "Open Sans","Helvetica Neue",sans-serif;
 }

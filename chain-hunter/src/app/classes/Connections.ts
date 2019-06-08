@@ -7,6 +7,7 @@ export class Connections{
     bnbBase: string = "https://dex.binance.org/api/v1";
     bnbBase2: string = "https://explorer.binance.org/api/v1";
     btcBase: string = "https://chain.api.btc.com/v3";
+    eosBase: string = "https://eos.greymass.com/v1";
     ethscanBase: string = "https://api.etherscan.io/api";
     ethscanKey: string = "YYT6FH7R4K7WK729Z2ZPTC2ZNTK48WEKHG";
     ethplorerBase: string = "http://api.ethplorer.io";

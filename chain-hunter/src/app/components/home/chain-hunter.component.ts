@@ -24,6 +24,8 @@ import { IfStmt } from '@angular/compiler';
 import { TrxAddress20Token } from 'src/app/classes/TRX/TrxAddress20Token';
 import { TrxAddress10Token } from 'src/app/classes/TRX/TrxAddress10Token';
 import { strictEqual } from 'assert';
+import { EosService } from 'src/app/services/eos-svc.service';
+import { EosAddress } from 'src/app/classes/EOS/EosAddress';
 
 @Component({
     selector: 'chain-hunter',
@@ -36,6 +38,7 @@ export class ChainHunterComponent implements OnInit {
     bchComplete: boolean = true;   
     btcComplete: boolean = true;
     bnbComplete: boolean = true;
+    eosComplete: boolean = true;
     ethComplete: boolean = true; 
     ltcComplete: boolean = true;
     neoComplete: boolean = true;
@@ -88,7 +91,8 @@ export class ChainHunterComponent implements OnInit {
                 private rvnService: RvnService,
                 private xrpService: XrpService,
                 private aionService: AionService,
-                private trxService: TrxService) {}
+                private trxService: TrxService,
+                private eosService: EosService) {}
 
     ngOnInit() {
         this.nullOut();
@@ -99,7 +103,7 @@ export class ChainHunterComponent implements OnInit {
         this.btcComplete = this.bnbComplete = this.bchComplete = 
         this.ethComplete = this.ltcComplete = this.neoComplete = 
         this.rvnComplete = this.xrpComplete = this.aionComplete = 
-        this.trxComplete = false;
+        this.trxComplete = this.eosComplete = false;
         this.map = new Map<string, Blockchain>();
         this.calculateIcons();
     }
@@ -129,6 +133,7 @@ export class ChainHunterComponent implements OnInit {
         this.getXrpAddress();
         this.getAionAddress();
         this.getTrxAddress();
+        this.getEosAddress();
     }
 
     getAddressTxns(symbol: string): any {
@@ -878,14 +883,6 @@ export class ChainHunterComponent implements OnInit {
 
     getTrxTokens() {
         this.tokensComplete = false;
-        this.buildTrxTokenList();
-        // let trx = this.getBlockchain("TRX");
-        // trx.address.tokens = this.trxService.tokenConvert(this.trxAddress);
-        // this.setMap(trx);
-    }
-
-    buildTrxTokenList() {
-        this.tokensComplete = false;
         this.trx10Complete = false;
         this.trxTokenPage = 1;
         if(this.trxTokens.size > 0) {
@@ -899,11 +896,6 @@ export class ChainHunterComponent implements OnInit {
         this.trxService.getTrx10Tokens(this.trxTokenPage, limit)
             .subscribe(tokens => {
                 tokens.data.forEach(token => {
-                    // let idx = this.trx10s.findIndex(t => t.name === token.tokenID.toString())
-                    // if(idx >= 0) {
-                    //     this.trx10s[idx].symbol = token.abbr;
-                    //     this.trx10Count--;
-                    // }
                     this.trxTokens.set(token.tokenID.toString(), token.abbr);
                 })
                 if((this.trxTokenPage * limit) >= tokens.totalAll) {
@@ -971,6 +963,31 @@ export class ChainHunterComponent implements OnInit {
         }
     }
     
+    getEosAddress() {
+        this.trxAddress = null;
+        this.eosService.getAddress(this.addyTxn)
+            .subscribe(response => {                
+                if(response.length > 0) {
+                    this.eosComplete = true;
+                    let eosAddress = new EosAddress();
+                    eosAddress.address = this.addyTxn;
+                    eosAddress.balance = parseFloat(response[0].replace(/\D/g, ""));
+                    let eos = this.getBlockchain("EOS");
+                    eos.address = this.eosService.addressConvert(eosAddress);
+                    this.setMap(eos);
+                    console.log("eos address found");  
+                } else {
+                    console.log("eos address not found");
+                    //this.getTrxTransaction();
+                }
+                this.calculateIcons();
+            },
+            error => {
+                this.calculateIcons();
+                console.log("eos address error:" + error);
+            });
+    }
+
     calculateIcons() {
         this.checkComplete();
         this.updateMenuItems();
@@ -1007,6 +1024,7 @@ export class ChainHunterComponent implements OnInit {
         this.map.set("LTC", this.ltcService.getBlockchain());
         this.map.set("XRP", this.xrpService.getBlockchain());
         this.map.set("NEO", this.neoService.getBlockchain());
+        this.map.set("EOS", this.eosService.getBlockchain());
         this.map.set("RVN", this.rvnService.getBlockchain());
         this.map.set("TRX", this.trxService.getBlockchain());
         this.map.set("AION", this.aionService.getBlockchain());

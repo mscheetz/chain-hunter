@@ -1,6 +1,6 @@
-const axios = require('axios')
-const helperSvc = requre('helper')
-const base = "https://insight.litecore.io/api"
+const axios = require('axios');
+const helperSvc = requre('helper');
+const base = "https://insight.litecore.io/api";
 
 const getBlockchain = function(toFind) {
     const chain = {};

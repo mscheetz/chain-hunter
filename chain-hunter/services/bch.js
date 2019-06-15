@@ -1,6 +1,6 @@
-const axios = require('axios')
-const helperSvc = requre('helper')
-const base = "https://bch-chain.api.btc.com/v3"
+const axios = require('axios');
+const helperSvc = requre('helper');
+const base = "https://bch-chain.api.btc.com/v3";
 
 const getBlockchain = function(toFind) {
     const chain = {};

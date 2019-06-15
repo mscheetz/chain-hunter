@@ -1,5 +1,5 @@
-const axios = require('axios')
-const helperSvc = requre('helper')
+const axios = require('axios');
+const helperSvc = requre('helper');
 const ethscanBase = "https://api.etherscan.io/api";
 const ethscanKey = "&apikey=YYT6FH7R4K7WK729Z2ZPTC2ZNTK48WEKHG";
 const ethplorerBase = "http://api.ethplorer.io";

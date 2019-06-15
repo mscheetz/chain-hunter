@@ -2,7 +2,7 @@ const axios = require('axios');
 const helperSvc = requre('helper');
 const base = "https://api.neoscan.io/api/main_net";
 
-const getBlockchain = function() {
+const getBlockchain = function(toFind) {
     const chain = {};
     chain.name = 'Neo';
     chain.symbol = 'NEO';
@@ -19,8 +19,8 @@ const getBlockchain = function() {
     return chain;
 }
 
-const getAddress = async(toFind) => {
-    let endpoint = "/v1/get_balance/" + toFind;
+const getAddress = async(address) => {
+    let endpoint = "/v1/get_balance/" + address;
     let url = base + endpoint;
 
     try{

@@ -4,11 +4,8 @@ const ethscanBase = "https://api.etherscan.io/api";
 const ethscanKey = "&apikey=YYT6FH7R4K7WK729Z2ZPTC2ZNTK48WEKHG";
 const ethplorerBase = "http://api.ethplorer.io";
 const ethplorerKey = "?apiKey=freekey";
-let latestBlock = 0;
-let blockCount = 0;
-let blocks = null;
 
-const getBlockchain = function() {
+const getBlockchain = function(toFind) {
     const chain = {};
     chain.name = 'Ethereum';
     chain.symbol = 'ETH';
@@ -25,8 +22,8 @@ const getBlockchain = function() {
     return chain;
 }
 
-const getAddress = async(toFind) => {
-    let endpoint = "?module=account&action=balance&address="+ toFind +"&tag=latest";
+const getAddress = async(address) => {
+    let endpoint = "?module=account&action=balance&address="+ address +"&tag=latest";
     let url = ethscanBase + endpoint + ethscanKey;
 
     try{
@@ -101,8 +98,8 @@ const getAddressTokenTransactions = async(address) => {
     }
 }
 
-const getTransaction = function(toFind) {
-    let endpoint = "?module=account&action=txlistinternal&txhash="+ toFind;
+const getTransaction = function(hash) {
+    let endpoint = "?module=account&action=txlistinternal&txhash="+ hash;
     let url = ethscanBase + endpoint + ethscanKey;
 
     try{
@@ -141,7 +138,7 @@ const getTransactions = async(address) => {
 
 const getTokens = async(address) => {
     const endpoint = "/getAddressInfo/" + address;
-    const url = ethplorerBase + endpoint + ethscanKey;
+    const url = ethplorerBase + endpoint + ethplorerKey;
     
     try{
         const response = await axios.get(url);

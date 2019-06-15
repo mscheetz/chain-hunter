@@ -6,6 +6,7 @@ const getBlockchain = async(toFind) => {
     const chain = {};
     chain.name = 'Bitcoin';
     chain.symbol = 'BTC';
+    chain.hasTokens = false;
 
     const address = await getAddress(toFind);
     chain.address = address;
@@ -18,8 +19,8 @@ const getBlockchain = async(toFind) => {
     return chain;
 }
 
-const getAddress = async(toFind) => {
-    let endpoint = "/address/" + toFind;
+const getAddress = async(address) => {
+    let endpoint = "/address/" + address;
     let url = base + endpoint;
 
     try{
@@ -39,8 +40,8 @@ const getAddress = async(toFind) => {
     }
 }
 
-const getTransactions = async(toFind) => {
-    let endpoint = "/address/" + toFind + "/tx";
+const getTransactions = async(address) => {
+    let endpoint = "/address/" + address + "/tx";
     let url = base + endpoint;
 
     try{
@@ -62,8 +63,8 @@ const getTransactions = async(toFind) => {
     }
 }
 
-const getTransaction = function(toFind) {
-    let endpoint = "/tx/" + toFind + "?verbose=3";
+const getTransaction = function(hash) {
+    let endpoint = "/tx/" + hash + "?verbose=3";
     let url = base + endpoint;
 
     try{

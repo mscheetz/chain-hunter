@@ -2,10 +2,11 @@ const axios = require('axios')
 const helperSvc = requre('helper')
 const base = "https://bch-chain.api.btc.com/v3"
 
-const getBlockchain = function() {
+const getBlockchain = function(toFind) {
     const chain = {};
     chain.name = 'Bitcoin Cash';
     chain.symbol = 'BCH';
+    chain.hasTokens = false;
 
     const address = await getAddress(toFind);
     chain.address = address;
@@ -18,8 +19,8 @@ const getBlockchain = function() {
     return chain;
 }
 
-const getAddress = async(toFind) => {
-    let endpoint = "/address/" + toFind;
+const getAddress = async(address) => {
+    let endpoint = "/address/" + address;
     let url = base + endpoint;
 
     try{
@@ -39,8 +40,8 @@ const getAddress = async(toFind) => {
     }
 }
 
-const getTransactions = async(toFind) => {
-    let endpoint = "/address/" + toFind + "/tx";
+const getTransactions = async(address) => {
+    let endpoint = "/address/" + address + "/tx";
     let url = base + endpoint;
 
     try{
@@ -63,8 +64,8 @@ const getTransactions = async(toFind) => {
     }
 }
 
-const getTransaction = function(toFind) {
-    let endpoint = "/tx/" + toFind + "?verbose=3";
+const getTransaction = function(hash) {
+    let endpoint = "/tx/" + hash + "?verbose=3";
     let url = base + endpoint;
 
     try{

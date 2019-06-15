@@ -2,10 +2,11 @@ const axios = require('axios')
 const helperSvc = requre('helper')
 const base = "https://insight.litecore.io/api"
 
-const getBlockchain = function() {
+const getBlockchain = function(toFind) {
     const chain = {};
     chain.name = 'Litecoin';
     chain.symbol = 'LTC';
+    chain.hasTokens = false;
 
     const address = await getAddress(toFind);
     chain.address = address;
@@ -18,8 +19,8 @@ const getBlockchain = function() {
     return chain;
 }
 
-const getAddress = async(toFind) => {
-    let endpoint = "/addr/" + toFind;
+const getAddress = async(address) => {
+    let endpoint = "/addr/" + address;
     let url = base + endpoint;
 
     try{
@@ -39,8 +40,8 @@ const getAddress = async(toFind) => {
     }
 }
 
-const getTransactions = async(toFind) => {
-    let endpoint = "/txs?address=" + toFind;
+const getTransactions = async(address) => {
+    let endpoint = "/txs?address=" + address;
     let url = base + endpoint;
 
     try{
@@ -59,8 +60,8 @@ const getTransactions = async(toFind) => {
     }
 }
 
-const getTransaction = function(toFind) {
-    let endpoint = "/tx/" + toFind;
+const getTransaction = function(hash) {
+    let endpoint = "/tx/" + hash;
     let url = base + endpoint;
 
     try{

@@ -6,7 +6,6 @@ const compression = require('compression');
 const helmet = require('helmet');
 const path = require('path');
 const manager = require('./services/chainhunter-manager.js');
-const btcSvc = require('./services/btc.js');
 const encryptionSvc = require('./services/encryption.js');
 
 const port = process.env.PORT || 8000;

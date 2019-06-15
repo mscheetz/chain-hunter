@@ -28,6 +28,8 @@ app.use(bodyParser.json());
 app.use(compression());
 app.use(helmet());
 
+app.use(express.static(path.join(__dirname, 'public')));
+
 const asyncMiddleware = fn =>
   (req, res, next) => {
     Promise.resolve(fn(req, res, next))

@@ -6,9 +6,11 @@ import { Transaction } from '../classes/ChainHunter/Transaction';
 import { Asset } from '../classes/ChainHunter/Asset';
 
 @Injectable({providedIn: 'root'})
-export class ServerService{
+export class ChainHunterService{
     constructor(private http: HttpClient) {}
     
+    private baseUrl: string = "http://localhost:8000";
+
     /**
      * Get a Blockchain
      * 
@@ -17,8 +19,9 @@ export class ServerService{
      */
     getBlockchain(chain: string, addyTxn: string): Observable<Map<string, Blockchain>>{
         let endpoint: string = "/api/blockchain/"+ chain + "/" + addyTxn;
+        let url: string = this.baseUrl + endpoint;
 
-        let result = this.http.get<Map<string, Blockchain>>(endpoint);
+        let result = this.http.get<Map<string, Blockchain>>(url);
     
         return result;
     }
@@ -31,8 +34,9 @@ export class ServerService{
      */
     getBlockchains(addyTxn: string): Observable<Map<string, Blockchain>>{
         let endpoint: string = "/api/blockchain" + addyTxn;
+        let url: string = this.baseUrl + endpoint;
 
-        let result = this.http.get<Map<string, Blockchain>>(endpoint);
+        let result = this.http.get<Map<string, Blockchain>>(url);
     
         return result;
     }
@@ -45,8 +49,9 @@ export class ServerService{
      */
     getAddressTransactions(chain: string, address: string): Observable<Transaction[]>{
         let endpoint: string = "/api/address/" + chain + "/" + address +"/tx";
+        let url: string = this.baseUrl + endpoint;
 
-        return this.http.get<Transaction[]>(endpoint);
+        return this.http.get<Transaction[]>(url);
     }
 
     /**
@@ -57,7 +62,8 @@ export class ServerService{
      */
     getAddressTokens(chain: string, address: string): Observable<Asset[]>{
         let endpoint: string = "/api/address/" + chain + "/" + address +"/tokens";
+        let url: string = this.baseUrl + endpoint;
 
-        return this.http.get<Asset[]>(endpoint);
+        return this.http.get<Asset[]>(url);
     }
 }

@@ -64,7 +64,7 @@ const getTransactions = async(toFind) => {
 }
 
 const getTransaction = function(toFind) {
-    let endpoint = "/tx/" + toFind + "?verbose=3";;
+    let endpoint = "/tx/" + toFind + "?verbose=3";
     let url = base + endpoint;
 
     try{

@@ -125,11 +125,72 @@ const getTransaction = function(hash) {
 
 const getTokens = async(address) => {
     const addyTokens = await getAddressTokens(address);
+    let tokens = [];
+    addyTokens["20"].forEach(token => {
+        const asset = createAsset(token);
+        if(asset !== null) {
+            tokens.push(asset);
+        }
+    });
+    let trx10Complete = false;
+    let trx10s = [];
+    let page = 1;
+    while(!trx10Complete) {
+        const limit = 200;
+        let trx10s = await getTrx10Tokens(limit, page);
+        trx10s.data.forEach(token => {
+            trx10s[token.tokenID.toString()] = token.abbr;
+        })
 
+        if((page * limit) >= trx10s.totalAll) {
+            trx10Complete = true;  
+        } else {
+            page++;
+        }
+    }
+    addyTokens["10"].forEach(token => {
+        const asset = createAsset(token, trx10s);
+        tokens.push(asset);
+    });
+
+    return tokens;
 }
 
-const getTrx10Tokens = async() => {
-    
+const createAsset = async(token, trx10s = []) => {
+    let asset = null;
+    if((typeof token.symbol !== 'undefined') && token.symbol !== null && token.symbol !== "" && token.name !== "_"){
+        let symbol = token.symbol;
+        if(trx10s.length > 0) {
+            symbol = trx10s[token.name];
+        }
+        if(typeof symbol !== 'undefined') {
+            asset = {
+                symbol: symbol,
+                quantity: token.balance.toString()
+            };
+        }
+    }
+    return asset;
+}
+
+const getTrx10Tokens = async(limit, page) => {
+    let start = page == 1 ? 0 : ((page - 1) * limit) + 1;
+    let endpoint = "/token?sort=-name&limit="+ limit +"&start="+ start;
+    let url = base + endpoint;
+
+    try{
+        const response = await axios.get(url);
+        if(response.hash) {
+            const transaction = buildTransaction(response);
+
+            return transaction;
+        } else {
+            return null;
+        }
+    } catch(error) {
+        return null;
+    }
+
 }
 
 const buildTransaction = function(txn) {
@@ -149,6 +210,7 @@ const buildTransaction = function(txn) {
 module.exports = {
     getBlockchain,
     getAddress,
+    getTokens,
     getTransactions,
     getTransaction
 }

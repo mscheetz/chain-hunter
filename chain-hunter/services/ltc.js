@@ -103,6 +103,7 @@ const buildTransaction = function(txn) {
 
         transaction.hash = txn.txid;
         transaction.block = txn.blockheight;
+        transaction.symbol = "LTC";
         transaction.quantity = txn.valueOut;
         transaction.confirmations = txn.confirmations;
         transaction.date = this.helperSvc.unixToUTC(txn.time);

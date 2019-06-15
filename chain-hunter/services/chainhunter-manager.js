@@ -6,6 +6,7 @@ const neo = require('neo.js');
 const xrp = require('xrp.js');
 const rvn = require('rvn.js');
 const bnb = require('bnb.js');
+const aion = require('aion.js');
 
 const getBlockchains = async(toFind) => {
     let blockchains = [];
@@ -18,6 +19,7 @@ const getBlockchains = async(toFind) => {
     blockchains.push({"NEO": await neo.getBlockchain(toFind)});
     blockchains.push({"RVN": await rvn.getBlockchain(toFind)});
     blockchains.push({"BNB": await bnb.getBlockchain(toFind)});
+    blockchains.push({"AION": await aion.getBlockchain(toFind)});
 
     return blockchains;
 }
@@ -39,12 +41,16 @@ const getBlockchain = async(chain, toFind) => {
         return await rvn.getBlockchain(toFind);
     } else if (chain === "bnb") {
         return await bnb.getBlockchain(toFind);
+    } else if (chain === "aion") {
+        return await aion.getBlockchain(toFind);
     }
 }
 
 const getTokens = async(chain, address) => {
     if(chain === "eth") {
         return await eth.getTokens(address);
+    } else if (chain === "aion") {
+        return await aion.getTokens(address);
     }
 }
 
@@ -65,6 +71,8 @@ const getTransactions = async(chain, address) => {
         return await rvn.getTransactions(address);
     } else if (chain === "bnb") {
         return await bnb.getTransactions(address);
+    } else if (chain === "aion") {
+        return await aion.getTransactions(address);
     }
 }
 

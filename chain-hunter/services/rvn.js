@@ -1,12 +1,12 @@
 const axios = require('axios');
 const helperSvc = requre('helper');
-const base = "https://chain.api.btc.com/v3";
+const base = "https://ravencoin.network/api";
 
 const getBlockchain = async(toFind) => {
     const chain = {};
-    chain.name = 'Bitcoin';
-    chain.symbol = 'BTC';
-    chain.hasTokens = false;
+    chain.name = 'Raven Coin';
+    chain.symbol = 'RVN';
+    chain.hasTokens = true;
 
     const address = await getAddress(toFind);
     chain.address = address;
@@ -20,16 +20,15 @@ const getBlockchain = async(toFind) => {
 }
 
 const getAddress = async(address) => {
-    let endpoint = "/address/" + address;
+    let endpoint = "/addr/" + address;
     let url = base + endpoint;
 
     try{
         const response = await axios.get(url);
-        if(response.err_no === 0 && response.data !== null) {
-            const datas = response.data;
+        if(response) {
             const address = {};
-            address.address = datas.address;
-            address.quantity = datas.balance/100000000;
+            address.address = response.addrStr;
+            address.quantity = response.balance/100000000;
 
             return address;
         } else {
@@ -41,13 +40,13 @@ const getAddress = async(address) => {
 }
 
 const getTransactions = async(address) => {
-    let endpoint = "/address/" + address + "/tx";
+    let endpoint = "/txs?address=" + address +"&pageNum=0";
     let url = base + endpoint;
 
     try{
         const response = await axios.get(url);
         if(response.err_no === 0 && response.data !== null) {
-            const datas = response.data.list;
+            const datas = response.txs;
             const transactions = [];
             if(datas.length > 0) {
                 datas.forEach(data => {
@@ -64,14 +63,13 @@ const getTransactions = async(address) => {
 }
 
 const getTransaction = function(hash) {
-    let endpoint = "/tx/" + hash + "?verbose=3";
+    let endpoint = "/tx/" + hash;
     let url = base + endpoint;
 
     try{
         const response = await axios.get(url);
-        if(response.err_no === 0 && response.data !== null) {
-            const data = response.data;
-            const transaction = buildTransaction(data);
+        if(response) {
+            const transaction = buildTransaction(response);
 
             return transaction;
         } else {
@@ -83,16 +81,31 @@ const getTransaction = function(hash) {
 }
 
 const buildTransaction = function(txn) {
-    const transaction = {
-    hash: txn.hash,
-    block: txn.block_height,
-    quantity: txn.outputs_value/100000000,
-    symbol: "BTC",
-    confirmations: txn.confirmations,
-    date: helperSvc.unixToUTC(txn.created_at),
-    from: txn.inputs[0].prev_addresses[0],
-    to: txn.outputs[0].addresses[0]
-    };
+    let transaction = null;
+
+    if(txn != null) {
+        let from = "";
+        let to = ""
+        txn.vin.forEach(vin => {
+            if(from !== "") {
+                from += ", ";
+            } 
+            from += vin.addr;
+        });
+        txn.vout.forEach(vout => {
+            if(to !== "") {
+                to += ", ";
+            } 
+            to += vout.scriptPubKey.addresses.join(", ");
+        });
+        transaction.hash = txn.txid;
+        transaction.block = txn.blockheight;
+        transaction.quantity = txn.valueOut/100000000;
+        transaction.confirmations = txn.confirmations;
+        transaction.date = helperSvc.unixToUTC(txn.blocktime);
+        transaction.from = from;
+        transaction.to = to;
+    }
 
     return transaction;
 }

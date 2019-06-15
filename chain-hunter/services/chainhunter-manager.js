@@ -4,7 +4,7 @@ const eth = require('eth.js');
 const ltc = require('ltc.js');
 const neo = require('neo.js');
 const xrp = require('xrp.js');
-
+const rvn = require('rvn.js');
 
 const getBlockchains = async(chain, toFind) => {
     let blockchains = [];
@@ -15,6 +15,7 @@ const getBlockchains = async(chain, toFind) => {
     blockchains.push({"LTC": await ltc.getBlockchain(toFind)});
     blockchains.push({"XRP": await xrp.getBlockchain(toFind)});
     blockchains.push({"NEO": await neo.getBlockchain(toFind)});
+    blockchains.push({"RVN": await rvn.getBlockchain(toFind)});
 
     return blockchains;
 }
@@ -32,6 +33,8 @@ const getBlockchain = async(chain, toFind) => {
         return await xrp.getBlockchain(toFind);
     } else if (chain === "neo") {
         return await neo.getBlockchain(toFind);
+    } else if (chain === "rvn") {
+        return await rvn.getBlockchain(toFind);
     }
 }
 
@@ -54,6 +57,8 @@ const getTransactions = async(chain, address) => {
         return await xrp.getTransactions(address);
     } else if (chain === "neo") {
         return await neo.getTransactions(address);
+    } else if (chain === "rvn") {
+        return await rvn.getTransactions(address);
     }
 }
 

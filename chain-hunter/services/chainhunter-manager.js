@@ -1,6 +1,7 @@
 const btc = require('btc.js');
 const bch = require('bch.js');
 const eth = require('eth.js');
+const ltc = require('ltc.js');
 
 const getBlockchains = async(chain, toFind) => {
     let blockchains = [];
@@ -8,6 +9,7 @@ const getBlockchains = async(chain, toFind) => {
     blockchains.push({"BTC": await btc.getBlockchain(toFind)});
     blockchains.push({"BCH": await bch.getBlockchain(toFind)});
     blockchains.push({"ETH": await eth.getBlockchain(toFind)});
+    blockchains.push({"LTC": await ltc.getBlockchain(toFind)});
 
     return blockchains;
 }
@@ -19,6 +21,8 @@ const getBlockchain = async(chain, toFind) => {
         return await bch.getBlockchain(toFind);
     } else if (chain === "eth") {
         return await eth.getBlockchain(toFind);
+    } else if (chain === "ltc") {
+        return await ltc.getBlockchain(toFind);
     }
 }
 
@@ -35,6 +39,8 @@ const getTransactions = async(chain, address) => {
         return await bch.getTransactions(address);
     } else if (chain === "eth") {
         return await eth.getTransactions(address);
+    } else if (chain === "ltc") {
+        return await ltc.getTransactions(address);
     }
 }
 

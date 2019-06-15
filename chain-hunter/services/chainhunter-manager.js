@@ -2,7 +2,9 @@ const btc = require('btc.js');
 const bch = require('bch.js');
 const eth = require('eth.js');
 const ltc = require('ltc.js');
+const neo = require('neo.js');
 const xrp = require('xrp.js');
+
 
 const getBlockchains = async(chain, toFind) => {
     let blockchains = [];
@@ -12,6 +14,7 @@ const getBlockchains = async(chain, toFind) => {
     blockchains.push({"ETH": await eth.getBlockchain(toFind)});
     blockchains.push({"LTC": await ltc.getBlockchain(toFind)});
     blockchains.push({"XRP": await xrp.getBlockchain(toFind)});
+    blockchains.push({"NEO": await neo.getBlockchain(toFind)});
 
     return blockchains;
 }
@@ -27,6 +30,8 @@ const getBlockchain = async(chain, toFind) => {
         return await ltc.getBlockchain(toFind);
     } else if (chain === "xrp") {
         return await xrp.getBlockchain(toFind);
+    } else if (chain === "neo") {
+        return await neo.getBlockchain(toFind);
     }
 }
 
@@ -47,6 +52,8 @@ const getTransactions = async(chain, address) => {
         return await ltc.getTransactions(address);
     } else if (chain === "xrp") {
         return await xrp.getTransactions(address);
+    } else if (chain === "neo") {
+        return await neo.getTransactions(address);
     }
 }
 

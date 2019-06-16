@@ -2,11 +2,17 @@ const axios = require('axios');
 const helperSvc = requre('helper');
 const base = "https://api.xrpscan.com/api";
 
-const getBlockchain = function(toFind) {
+const getEmptyBlockchain = function() {
     const chain = {};
     chain.name = 'Ripple';
     chain.symbol = 'XRP';
     chain.hasTokens = false;
+
+    return chain;
+}
+
+const getBlockchain = async(toFind) => {
+    const chain = getEmptyBlockchain();
 
     const address = await getAddress(toFind);
     chain.address = address;
@@ -94,6 +100,7 @@ const getTransaction = function(hash) {
 }
 
 module.exports = {
+    getEmptyBlockchain,
     getBlockchain,
     getAddress,
     getTransactions,

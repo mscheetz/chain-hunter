@@ -2,11 +2,17 @@ const axios = require('axios');
 const helperSvc = requre('helper');
 const base = "https://bch-chain.api.btc.com/v3";
 
-const getBlockchain = function(toFind) {
+const getEmptyBlockchain = function() {
     const chain = {};
     chain.name = 'Bitcoin Cash';
     chain.symbol = 'BCH';
     chain.hasTokens = false;
+
+    return chain;
+}
+
+const getBlockchain = async(toFind) => {
+    const chain = getEmptyBlockchain();
 
     const address = await getAddress(toFind);
     chain.address = address;
@@ -99,6 +105,7 @@ const buildTransaction = function(txn) {
 }
 
 module.exports = {
+    getEmptyBlockchain,
     getBlockchain,
     getAddress,
     getTransactions,

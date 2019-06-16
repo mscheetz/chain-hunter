@@ -5,11 +5,17 @@ const ethscanKey = "&apikey=YYT6FH7R4K7WK729Z2ZPTC2ZNTK48WEKHG";
 const ethplorerBase = "http://api.ethplorer.io";
 const ethplorerKey = "?apiKey=freekey";
 
-const getBlockchain = function(toFind) {
+const getEmptyBlockchain = function() {
     const chain = {};
     chain.name = 'Ethereum';
     chain.symbol = 'ETH';
     chain.hasTokens = true;
+
+    return chain;
+}
+
+const getBlockchain = async(toFind) => {
+    const chain = getEmptyBlockchain();
 
     const address = await getAddress(toFind);
     chain.address = address;
@@ -196,6 +202,7 @@ const buildTransaction = function(txn) {
 }
 
 module.exports = {
+    getEmptyBlockchain,
     getBlockchain,
     getAddress,
     getAddressTransactions,

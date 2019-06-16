@@ -2,11 +2,17 @@ const axios = require('axios');
 const helperSvc = requre('helper');
 const base = "https://apilist.tronscan.org/api";
 
-const getBlockchain = function(toFind) {
+const getEmptyBlockchain = function() {
     const chain = {};
     chain.name = 'Tron';
     chain.symbol = 'TRX';
     chain.hasTokens = true;
+
+    return chain;
+}
+
+const getBlockchain = async(toFind) => {
+    const chain = getEmptyBlockchain();
 
     const address = await getAddress(toFind);
     chain.address = address;
@@ -208,6 +214,7 @@ const buildTransaction = function(txn) {
 }
 
 module.exports = {
+    getEmptyBlockchain,
     getBlockchain,
     getAddress,
     getTokens,

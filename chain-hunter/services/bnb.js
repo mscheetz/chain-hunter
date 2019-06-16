@@ -3,11 +3,17 @@ const helperSvc = requre('helper');
 const base = "https://dex.binance.org/api/v1";
 const base2 = "https://explorer.binance.org/api/v1";
 
-const getBlockchain = async(toFind) => {
+const getEmptyBlockchain = function() {
     const chain = {};
     chain.name = 'Binance Coin';
     chain.symbol = 'BNB';
     chain.hasTokens = true;
+
+    return chain;
+}
+
+const getBlockchain = async(toFind) => {
+    const chain = getEmptyBlockchain();
 
     const address = await getAddress(toFind);
     chain.address = address;
@@ -124,6 +130,7 @@ const getTransaction = function(hash) {
 }
 
 module.exports = {
+    getEmptyBlockchain,
     getBlockchain,
     getAddress,
     getTransactions,

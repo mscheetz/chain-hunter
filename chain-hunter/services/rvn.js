@@ -2,11 +2,17 @@ const axios = require('axios');
 const helperSvc = requre('helper');
 const base = "https://ravencoin.network/api";
 
-const getBlockchain = async(toFind) => {
+const getEmptyBlockchain = function() {
     const chain = {};
     chain.name = 'Raven Coin';
     chain.symbol = 'RVN';
     chain.hasTokens = true;
+
+    return chain;
+}
+
+const getBlockchain = async(toFind) => {
+    const chain = getEmptyBlockchain();
 
     const address = await getAddress(toFind);
     chain.address = address;
@@ -111,6 +117,7 @@ const buildTransaction = function(txn) {
 }
 
 module.exports = {
+    getEmptyBlockchain,
     getBlockchain,
     getAddress,
     getTransactions,

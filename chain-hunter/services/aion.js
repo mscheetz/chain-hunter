@@ -2,11 +2,17 @@ const axios = require('axios');
 const helperSvc = requre('helper');
 const base = "https://mainnet-api.aion.network/aion/dashboard";
 
-const getBlockchain = function(toFind) {
+const getEmptyBlockchain = function() {
     const chain = {};
     chain.name = 'AION';
     chain.symbol = 'AION';
-    chain.hasTokens = false;
+    chain.hasTokens = true;
+
+    return chain;
+}
+
+const getBlockchain = async(toFind) => {
+    const chain = getEmptyBlockchain();
 
     const address = await getAddress(toFind);
     chain.address = address;
@@ -173,6 +179,7 @@ const buildTransaction = function(txn, latestBlock) {
 }
 
 module.exports = {
+    getEmptyBlockchain,
     getBlockchain,
     getAddress,
     getTokens,

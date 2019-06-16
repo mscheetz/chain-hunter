@@ -7,6 +7,26 @@ const xrp = require('xrp.js');
 const rvn = require('rvn.js');
 const bnb = require('bnb.js');
 const aion = require('aion.js');
+const eos = require('eos.js');
+const trx = require('trx.js');
+
+const getEmptyBlockchains = async() => {
+    let blockchains = [];
+
+    blockchains.push({"BTC": await btc.getEmptyBlockchain()});
+    blockchains.push({"BCH": await bch.getEmptyBlockchain()});
+    blockchains.push({"ETH": await eth.getEmptyBlockchain()});
+    blockchains.push({"LTC": await ltc.getEmptyBlockchain()});
+    blockchains.push({"XRP": await xrp.getEmptyBlockchain()});
+    blockchains.push({"NEO": await neo.getEmptyBlockchain()});
+    blockchains.push({"RVN": await rvn.getEmptyBlockchain()});
+    blockchains.push({"BNB": await bnb.getEmptyBlockchain()});
+    blockchains.push({"AION": await aion.getEmptyBlockchain()});
+    blockchains.push({"EOS": await eos.getEmptyBlockchain()});
+    blockchains.push({"TRX": await trx.getEmptyBlockchain()});
+
+    return blockchains;
+}
 
 const getBlockchains = async(toFind) => {
     let blockchains = [];
@@ -20,6 +40,8 @@ const getBlockchains = async(toFind) => {
     blockchains.push({"RVN": await rvn.getBlockchain(toFind)});
     blockchains.push({"BNB": await bnb.getBlockchain(toFind)});
     blockchains.push({"AION": await aion.getBlockchain(toFind)});
+    blockchains.push({"EOS": await eos.getBlockchain(toFind)});
+    blockchains.push({"TRX": await trx.getBlockchain(toFind)});
 
     return blockchains;
 }
@@ -43,6 +65,10 @@ const getBlockchain = async(chain, toFind) => {
         return await bnb.getBlockchain(toFind);
     } else if (chain === "aion") {
         return await aion.getBlockchain(toFind);
+    } else if (chain === "eos") {
+        return await eos.getBlockchain(toFind);
+    } else if (chain === "trx") {
+        return await trx.getBlockchain(toFind);
     }
 }
 
@@ -51,6 +77,8 @@ const getTokens = async(chain, address) => {
         return await eth.getTokens(address);
     } else if (chain === "aion") {
         return await aion.getTokens(address);
+    } else if (chain === "trx") {
+        return await trx.getTokens(address);
     }
 }
 
@@ -73,10 +101,15 @@ const getTransactions = async(chain, address) => {
         return await bnb.getTransactions(address);
     } else if (chain === "aion") {
         return await aion.getTransactions(address);
+    } else if (chain === "eos") {
+        return await eos.getTransactions(address);
+    } else if (chain === "trx") {
+        return await trx.getTransactions(address);
     }
 }
 
 modules.export = {
+    getEmptyBlockchains,
     getBlockchains,
     getBlockchain,
     getTokens,

@@ -119,19 +119,14 @@ export class ChainHunterComponent implements OnInit {
     }
 
     buildMap(){
-        this.map = new Map<string, Blockchain>();
-        this.map.set("BTC", new Blockchain());
-        this.map.set("BCH", new Blockchain());
-        this.map.set("ETH", new Blockchain());
-        this.map.set("LTC", new Blockchain());
-        this.map.set("XRP", new Blockchain());
-        this.map.set("NEO", new Blockchain());
-        this.map.set("EOS", new Blockchain());
-        this.map.set("RVN", new Blockchain());
-        this.map.set("TRX", new Blockchain());
-        this.map.set("AION", new Blockchain());
-        this.map.set("BNB", new Blockchain());
+        this.chainService.getEmptyBlockchains()
+            .subscribe(map => {
+                this.map = map;
+                this.setBlockchainIcons();
+            });
+    }
 
+    setBlockchainIcons() {
         this.map.forEach((value: Blockchain, key: string) => {
             value = this.getMenuIcon(value);
         });

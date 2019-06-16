@@ -8,7 +8,7 @@ const path = require('path');
 const manager = require('./services/chainhunter-manager.js');
 const encryptionSvc = require('./services/encryption.js');
 
-const port = process.env.PORT || 8000;
+const port = process.env.PORT || 4200;
 
 const whitelistOrigins = [
 'http://localhost:4200',
@@ -28,7 +28,7 @@ app.use(bodyParser.json());
 app.use(compression());
 app.use(helmet());
 
-app.use(express.static(path.join(__dirname, 'public')));
+//app.use(express.static(path.join(__dirname, 'public')));
 
 const asyncMiddleware = fn =>
   (req, res, next) => {
@@ -44,7 +44,7 @@ app.get('/api', asyncMiddleware(async function(req, res, next){
   	res.status(200).json({'about': 'Chain Hunter\'s apis are nested under here'});
 }));
 
-app.get('/api/blockchain:', asyncMiddleware(async function(req, res, next){
+app.get('/api/blockchain/empty', asyncMiddleware(async function(req, res, next){
   const toFind = req.params.toFind;
   // if(!this.headerCheck(req)) {
   //   this.errorResponse(res);

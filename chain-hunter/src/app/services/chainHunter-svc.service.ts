@@ -9,7 +9,23 @@ import { Asset } from '../classes/ChainHunter/Asset';
 export class ChainHunterService{
     constructor(private http: HttpClient) {}
     
-    private baseUrl: string = "http://localhost:8000";
+    private baseUrl: string = "http://localhost:4200";
+
+
+    /**
+     * Get empty Blockchains
+     * 
+     * @param chain Blockchain to query
+     * @param addyTxn Address/Transaction hash to query
+     */
+    getEmptyBlockchains(): Observable<Map<string, Blockchain>>{
+        let endpoint: string = "/api/blockchain/empty";
+        let url: string = this.baseUrl + endpoint;
+
+        let result = this.http.get<Map<string, Blockchain>>(url);
+    
+        return result;
+    }
 
     /**
      * Get a Blockchain
@@ -33,7 +49,7 @@ export class ChainHunterService{
      * @param addyTxn Address/Transaction hash to query
      */
     getBlockchains(addyTxn: string): Observable<Map<string, Blockchain>>{
-        let endpoint: string = "/api/blockchain" + addyTxn;
+        let endpoint: string = "/api/blockchain/" + addyTxn;
         let url: string = this.baseUrl + endpoint;
 
         let result = this.http.get<Map<string, Blockchain>>(url);

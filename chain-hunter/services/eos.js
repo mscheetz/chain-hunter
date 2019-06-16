@@ -47,7 +47,7 @@ const getTransactions = async(address) => {
     let data = '{"pos":"-1","offset":"-10","account_name":"'+ address +'"}';
 
     try{
-        const response = await axios.get(url);
+        const response = await axios.post(url, data);
         if(response.err_no === 0 && response.data !== null) {
             const datas = response.data.list;
             const transactions = [];
@@ -67,18 +67,41 @@ const getTransactions = async(address) => {
 }
 
 const getTransaction = function(hash) {
-    let endpoint = "/tx/" + hash + "?verbose=3";
+    let endpoint = "/history/get_transaction";
     let url = base + endpoint;
+    let data = '{ "id": "'+ hash +'", "block_num_hint": "0" }';
 
     try{
-        const response = await axios.get(url);
-        if(response.err_no === 0 && response.data !== null) {
-            const data = response.data;
-            const transaction = buildTransaction(data);
+        const response = await axios.post(url, hash);
+        if(typeof response.code === 'undefined' || response.code === 404) {
+            return null;
+        } else {
+            let from = (typeof response.trx.trx.actions.data.from !== 'undefined') 
+            ? response.trx.trx.actions.data.from : "eosio";
+            let to = (typeof response.trx.trx.actions.data.to !== 'undefined') 
+            ? response.trx.trx.actions.data.to : 
+            (typeof response.trx.trx.actions.data.owner !== 'undefined')
+            ? response.trx.trx.actions.data.owner : "eosio";
+            let symbol = "EOS";
+            let quantity = 0;
+            if(typeof response.trx.trx.actions.quantity !== 'undefined') {
+                quantity = response.trx.trx.actions.quantity;
+                symbol = quantity.substring(quantity.indexOf(" ")).trim();
+                quantity = quantity.replace(/\D/g,'');
+            }
+            let transaction = {
+                hash: response.id,
+                block: response.block_num,
+                latestBlock: response.last_irreversible_block,
+                confirmations: (response.last_irreversible_block - response.block_num),
+                quantity: quantity,
+                symbol: symbol,
+                date: response.block_time,
+                from: from,
+                to: to
+            };
 
             return transaction;
-        } else {
-            return null;
         }
     } catch(error) {
         return null;

@@ -163,6 +163,7 @@ const buildTransaction = function(txn, latestBlock) {
         latestBlock = latestBlock,
         confirmations = latestBlock - txn.blockNumber,
         quantity = txn.value,
+        symbol = "AION",
         date = helperSvc.unixToUTC(parseInt(ts)),
         from = txn.fromAddr,
         to = txn.toAddr,

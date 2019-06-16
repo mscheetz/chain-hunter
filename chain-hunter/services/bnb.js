@@ -1,9 +1,9 @@
 const axios = require('axios');
-const helperSvc = requre('helper');
+const helperSvc = require('./helperService.js');
 const base = "https://dex.binance.org/api/v1";
 const base2 = "https://explorer.binance.org/api/v1";
 
-const getEmptyBlockchain = function() {
+const getEmptyBlockchain = async() => {
     const chain = {};
     chain.name = 'Binance Coin';
     chain.symbol = 'BNB';
@@ -13,7 +13,7 @@ const getEmptyBlockchain = function() {
 }
 
 const getBlockchain = async(toFind) => {
-    const chain = getEmptyBlockchain();
+    const chain = await getEmptyBlockchain();
 
     const address = await getAddress(toFind);
     chain.address = address;
@@ -92,7 +92,7 @@ const getTransactions = async(address) => {
     }
 }
 
-const getTransaction = function(hash) {
+const getTransaction = async(hash) => {
     let endpoint = "/tx/" + hash + "?format=json";
     let url = base + endpoint;
 
@@ -115,11 +115,11 @@ const getTransaction = function(hash) {
                 to += output.address;
             });
             transaction = {
-                hash = response.hash,
-                block = parseInt(response.height),
-                quantity = response.tx.value.inputs[0].coins[0].amount,
-                from = from,
-                to = to
+                hash: response.hash,
+                block: parseInt(response.height),
+                quantity: response.tx.value.inputs[0].coins[0].amount,
+                from: from,
+                to: to
             }
         }
 

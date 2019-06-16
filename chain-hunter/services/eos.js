@@ -1,8 +1,8 @@
 const axios = require('axios');
-const helperSvc = requre('helper');
+const helperSvc = require('./helperService.js');
 const base = "https://eos.greymass.com/v1";
 
-const getEmptyBlockchain = function() {
+const getEmptyBlockchain = async() => {
     const chain = {};
     chain.name = 'EOS.IO';
     chain.symbol = 'EOS';
@@ -12,7 +12,7 @@ const getEmptyBlockchain = function() {
 }
 
 const getBlockchain = async(toFind) => {
-    const chain = getEmptyBlockchain();
+    const chain = await getEmptyBlockchain();
 
     const address = await getAddress(toFind);
     chain.address = address;
@@ -72,7 +72,7 @@ const getTransactions = async(address) => {
     }
 }
 
-const getTransaction = function(hash) {
+const getTransaction = async(hash) => {
     let endpoint = "/history/get_transaction";
     let url = base + endpoint;
     let data = '{ "id": "'+ hash +'", "block_num_hint": "0" }';

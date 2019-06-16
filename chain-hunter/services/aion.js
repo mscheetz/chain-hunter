@@ -1,8 +1,8 @@
 const axios = require('axios');
-const helperSvc = requre('helper');
+const helperSvc = require('./helperService.js');
 const base = "https://mainnet-api.aion.network/aion/dashboard";
 
-const getEmptyBlockchain = function() {
+const getEmptyBlockchain = async() => {
     const chain = {};
     chain.name = 'AION';
     chain.symbol = 'AION';
@@ -12,7 +12,7 @@ const getEmptyBlockchain = function() {
 }
 
 const getBlockchain = async(toFind) => {
-    const chain = getEmptyBlockchain();
+    const chain = await getEmptyBlockchain();
 
     const address = await getAddress(toFind);
     chain.address = address;
@@ -94,7 +94,7 @@ const getTransactions = async(address) => {
     }
 }
 
-const getTransaction = function(hash) {
+const getTransaction = async(hash) => {
     hash = hash.substr(0, 2) === "0x" ? hash.substr(2) : hash;
     let endpoint = "/getTransactionDetailsByTransactionHash?searchParam=" + hash;
     let url = base + endpoint;
@@ -118,18 +118,19 @@ const getTransaction = function(hash) {
 const getTokens = async(address) => {
     const tokenContracts = await getAddressTokenContracts(address);
     let tokens = [];
-    tokenContracts.forEach(contract => {
+    for (let i = 0; i < tokenContracts.length; i++) {
+        const contract = tokenContracts[i];
         token = await getToken(address, contract);
         if(token !== null) {
             tokens.push(token);
         }
-    });
+    }
 
     return tokens;
 }
 
 const getToken = async(address, contract) => {    
-    let endpoint = "/getAccountDetails?accountAddress=" + address + "&tokenAddress=" + tokenAddress;
+    let endpoint = "/getAccountDetails?accountAddress=" + address + "&tokenAddress=" + contract;
     let url = base + endpoint;
 
     try{
@@ -164,15 +165,15 @@ const buildTransaction = function(txn, latestBlock) {
     const ts = txn.transactionTimestamp.toString().substr(0, 10);
 
     const transaction = {
-        hash = "0x" + txn.transactionHash,
-        block = txn.blockNumber,
-        latestBlock = latestBlock,
-        confirmations = latestBlock - txn.blockNumber,
-        quantity = txn.value,
-        symbol = "AION",
-        date = helperSvc.unixToUTC(parseInt(ts)),
-        from = txn.fromAddr,
-        to = txn.toAddr,
+        hash: "0x" + txn.transactionHash,
+        block: txn.blockNumber,
+        latestBlock: latestBlock,
+        confirmations: latestBlock - txn.blockNumber,
+        quantity: txn.value,
+        symbol: "AION",
+        date: helperSvc.unixToUTC(parseInt(ts)),
+        from: txn.fromAddr,
+        to: txn.toAddr,
     };
 
     return transaction;

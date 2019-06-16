@@ -36,9 +36,9 @@ const asyncMiddleware = fn =>
       .catch(next);
   };
 
-app.get('/', function(req, res) {
-  res.sendFile(path.join(__dirname + '/index.html'));
-});
+// app.get('/', function(req, res) {
+//   res.sendFile(path.join(__dirname + '/index.html'));
+// });
 
 app.get('/api', asyncMiddleware(async function(req, res, next){
   	res.status(200).json({'about': 'Chain Hunter\'s apis are nested under here'});

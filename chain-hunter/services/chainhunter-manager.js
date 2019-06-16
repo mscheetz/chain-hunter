@@ -1,14 +1,14 @@
-const btc = require('btc.js');
-const bch = require('bch.js');
-const eth = require('eth.js');
-const ltc = require('ltc.js');
-const neo = require('neo.js');
-const xrp = require('xrp.js');
-const rvn = require('rvn.js');
-const bnb = require('bnb.js');
-const aion = require('aion.js');
-const eos = require('eos.js');
-const trx = require('trx.js');
+const btc = require('./btc.js');
+const bch = require('./bch.js');
+const eth = require('./eth.js');
+const ltc = require('./ltc.js');
+const neo = require('./neo.js');
+const xrp = require('./xrp.js');
+const rvn = require('./rvn.js');
+const bnb = require('./bnb.js');
+const aion = require('./aion.js');
+const eos = require('./eos.js');
+const trx = require('./trx.js');
 
 const getEmptyBlockchains = async() => {
     let blockchains = [];
@@ -108,7 +108,7 @@ const getTransactions = async(chain, address) => {
     }
 }
 
-modules.export = {
+module.export = {
     getEmptyBlockchains,
     getBlockchains,
     getBlockchain,

@@ -1,8 +1,8 @@
 const axios = require('axios');
-const helperSvc = requre('helper');
+const helperSvc = require('./helperService.js');
 const base = "https://bch-chain.api.btc.com/v3";
 
-const getEmptyBlockchain = function() {
+const getEmptyBlockchain = async() => {
     const chain = {};
     chain.name = 'Bitcoin Cash';
     chain.symbol = 'BCH';
@@ -12,7 +12,7 @@ const getEmptyBlockchain = function() {
 }
 
 const getBlockchain = async(toFind) => {
-    const chain = getEmptyBlockchain();
+    const chain = await getEmptyBlockchain();
 
     const address = await getAddress(toFind);
     chain.address = address;
@@ -70,7 +70,7 @@ const getTransactions = async(address) => {
     }
 }
 
-const getTransaction = function(hash) {
+const getTransaction = async(hash) => {
     let endpoint = "/tx/" + hash + "?verbose=3";
     let url = base + endpoint;
 

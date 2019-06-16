@@ -1,8 +1,8 @@
 const axios = require('axios');
-const helperSvc = requre('helper');
+const helperSvc = require('./helperService.js');
 const base = "https://api.neoscan.io/api/main_net";
 
-const getEmptyBlockchain = function() {
+const getEmptyBlockchain = async() => {
     const chain = {};
     chain.name = 'Neo';
     chain.symbol = 'NEO';
@@ -12,7 +12,7 @@ const getEmptyBlockchain = function() {
 }
 
 const getBlockchain = async(toFind) => {
-    const chain = getEmptyBlockchain();
+    const chain = await getEmptyBlockchain();
 
     const address = await getAddress(toFind);
     chain.address = address;
@@ -52,7 +52,7 @@ const getAddress = async(address) => {
     }
 }
 
-const tokenConvert = function(tokens) {
+const tokenConvert = async(tokens) => {
     let assets = [];
 
     tokens.forEach(token => {
@@ -95,7 +95,7 @@ const getTransactions = async(address) => {
     }
 }
 
-const getTransaction = function(hash) {
+const getTransaction = async(hash) => {
     let endpoint = "/v1/get_transaction/" + hash + "?verbose=3";
     let url = base + endpoint;
 

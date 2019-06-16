@@ -1,11 +1,11 @@
 const axios = require('axios');
-const helperSvc = requre('helper');
+const helperSvc = require('./helperService.js');
 const ethscanBase = "https://api.etherscan.io/api";
 const ethscanKey = "&apikey=YYT6FH7R4K7WK729Z2ZPTC2ZNTK48WEKHG";
 const ethplorerBase = "http://api.ethplorer.io";
 const ethplorerKey = "?apiKey=freekey";
 
-const getEmptyBlockchain = function() {
+const getEmptyBlockchain = async() => {
     const chain = {};
     chain.name = 'Ethereum';
     chain.symbol = 'ETH';
@@ -15,7 +15,7 @@ const getEmptyBlockchain = function() {
 }
 
 const getBlockchain = async(toFind) => {
-    const chain = getEmptyBlockchain();
+    const chain = await getEmptyBlockchain();
 
     const address = await getAddress(toFind);
     chain.address = address;
@@ -104,7 +104,7 @@ const getAddressTokenTransactions = async(address) => {
     }
 }
 
-const getTransaction = function(hash) {
+const getTransaction = async(hash) => {
     let endpoint = "?module=account&action=txlistinternal&txhash="+ hash;
     let url = ethscanBase + endpoint + ethscanKey;
 
@@ -155,8 +155,8 @@ const getTokens = async(address) => {
             const quantity = helperSvc.exponentialToNumber(token.balance);
             quantity = quantity.toString();
             assets.push({
-                quantity = this.helperSvc.commaBigNumber(quantity),
-                symbol = token.tokenInfo.symbol
+                quantity: helperSvc.commaBigNumber(quantity),
+                symbol: token.tokenInfo.symbol
             });
         });
 

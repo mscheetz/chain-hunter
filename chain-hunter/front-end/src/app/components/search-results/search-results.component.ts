@@ -15,6 +15,7 @@ export class SearchResultsComponent implements OnInit{
     @Output() getTransactions: EventEmitter<any> = new EventEmitter();
     @Output() getTokens: EventEmitter<any> = new EventEmitter();
     @Input() selectedChain: string;
+    @Input() resultsFound: string[];
 
     constructor() {}
 

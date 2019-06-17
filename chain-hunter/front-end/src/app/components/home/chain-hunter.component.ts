@@ -47,6 +47,8 @@ export class ChainHunterComponent implements OnInit {
     txnsComplete: boolean = true;
     previousSearch: string = "";
     tokensComplete: boolean = true;
+    requestedChains: number = 0;
+    @Output() resultsFound: string[] = [];
     @Output() huntStatus: number = 0; // 0 = no search yet, 1 = searching, 2 = nothing found, 3 = something found
 
     constructor(private helperService: HelperService,
@@ -59,6 +61,7 @@ export class ChainHunterComponent implements OnInit {
 
     nullOut(){
         this.map = new Map<string, Blockchain>();
+        this.resultsFound = [];
         this.calculateIcons();
     }
 
@@ -73,14 +76,29 @@ export class ChainHunterComponent implements OnInit {
         this.buildMap();
         this.notRunning = false;
         this.previousSearch = this.addyTxn;
-        this.startHunt();
+        //this.startHunt();
     }
 
     startHunt() {
-        this.chainService.getBlockchains(this.addyTxn)
-            .subscribe(chains => {
-                this.map = chains;
-            })
+        this.requestedChains = this.map.size;
+        this.map.forEach((value: Blockchain, key: string) => {
+            this.chainService.getBlockchain(key, this.addyTxn)
+                .subscribe(chain => {
+                    this.requestedChains--;
+                    this.setMap(chain);
+                    if(chain.address || chain.transaction) {
+                        this.resultsFound.push(chain.symbol);
+                    }
+                    this.calculateIcons();
+                    this.checkCompleted();
+                })
+        });
+    }
+
+    checkCompleted() {
+        if(this.requestedChains === 0){            
+            this.notRunning = true;
+        }
     }
 
     getAddressTxns(symbol: string): any {
@@ -121,14 +139,19 @@ export class ChainHunterComponent implements OnInit {
     buildMap(){
         this.chainService.getEmptyBlockchains()
             .subscribe(map => {
-                this.map = map;
+                this.map = new Map<string, Blockchain>();
+                Object.keys(map).forEach(e => {
+                    this.map.set(e, map[e]);
+                });
                 this.setBlockchainIcons();
+                this.startHunt();
             });
     }
 
     setBlockchainIcons() {
         this.map.forEach((value: Blockchain, key: string) => {
             value = this.getMenuIcon(value);
+            this.setMap(value);
         });
     }
 

@@ -57,6 +57,9 @@
     </div>
     <h3 *ngIf="huntStatus === 1">Searching...</h3>
     <h3 *ngIf="huntStatus === 2 && selectedChain === ''">Nothing found</h3>
-    <h3 *ngIf="huntStatus === 3 && selectedChain === ''">Select a Blockchain</h3>
+    <div *ngIf="huntStatus === 3 && selectedChain === ''">
+        <h3>Select a Blockchain</h3>
+        <span>Results found: {{resultsFound.join(', ')}}</span>
+    </div>
     <h3 *ngIf="(huntStatus === 2 || huntStatus === 3) && selectedChain !== '' && blockchain !== null && !blockchain.address && !blockchain.transaction">No {{blockchain.symbol}} Data found</h3>
 </p-panel>

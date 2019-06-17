@@ -33,11 +33,11 @@ export class ChainHunterService{
      * @param chain Blockchain to query
      * @param addyTxn Address/Transaction hash to query
      */
-    getBlockchain(chain: string, addyTxn: string): Observable<Map<string, Blockchain>>{
+    getBlockchain(chain: string, addyTxn: string): Observable<Blockchain>{
         let endpoint: string = "/api/blockchain/"+ chain + "/" + addyTxn;
         let url: string = this.baseUrl + endpoint;
 
-        let result = this.http.get<Map<string, Blockchain>>(url);
+        let result = this.http.get<Blockchain>(url);
     
         return result;
     }

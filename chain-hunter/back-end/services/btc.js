@@ -31,8 +31,8 @@ const getAddress = async(address) => {
 
     try{
         const response = await axios.get(url);
-        if(response.err_no === 0 && response.data !== null) {
-            const datas = response.data;
+        if(response.data.err_no === 0 && response.data.data !== null) {
+            const datas = response.data.data;
             const address = {};
             address.address = datas.address;
             address.quantity = datas.balance/100000000;

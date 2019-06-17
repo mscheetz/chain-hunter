@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 const compression = require('compression');
 const helmet = require('helmet');
 const path = require('path');
-const manager = require('./services/chainhunter-manager.js');
+const manager = require('./services/chainhunter-manager');
 const encryptionSvc = require('./services/encryption.js');
 
 const port = process.env.PORT || 3000;
@@ -45,7 +45,6 @@ app.get('/api', asyncMiddleware(async function(req, res, next){
 }));
 
 app.get('/api/blockchain/empty', asyncMiddleware(async function(req, res, next){
-  const toFind = req.params.toFind;
   // if(!this.headerCheck(req)) {
   //   this.errorResponse(res);
   // } else {
@@ -55,19 +54,20 @@ app.get('/api/blockchain/empty', asyncMiddleware(async function(req, res, next){
   //}
 }));
 
-app.get('/api/blockchain/:toFind/:', asyncMiddleware(async function(req, res, next){
+app.get('/api/blockchain/:toFind', asyncMiddleware(async function(req, res, next){
   const toFind = req.params.toFind;
   // if(!this.headerCheck(req)) {
   //   this.errorResponse(res);
   // } else {
+    console.log('searching for: '+ toFind);
     const result = await manager.getBlockchains(toFind);
 
   	res.status(200).json(result);
   //}
 }));
 
-app.get('/api/blockchain/:chain/:toFind/:', asyncMiddleware(async function(req, res, next){
-  const chain = req.params.chain;
+app.get('/api/blockchain/:chain/:toFind', asyncMiddleware(async function(req, res, next){
+  const chain = req.params.chain.toLowerCase();
   const toFind = req.params.toFind;
   // if(!this.headerCheck(req)) {
   //   this.errorResponse(res);
@@ -79,7 +79,7 @@ app.get('/api/blockchain/:chain/:toFind/:', asyncMiddleware(async function(req, 
 }));
 
 app.get('/api/address/:chain/:address/txs', asyncMiddleware(async function(req, res, next){
-  const chain = req.params.chain;
+  const chain = req.params.chain.toLowerCase();
   const address = req.params.address;
   // if(!this.headerCheck(req)) {
   //   this.errorResponse(res);
@@ -91,7 +91,7 @@ app.get('/api/address/:chain/:address/txs', asyncMiddleware(async function(req, 
 }));
 
 app.get('/api/address/:chain/:address/tokens', asyncMiddleware(async function(req, res, next){
-  const chain = req.params.chain;
+  const chain = req.params.chain.toLowerCase();
   const address = req.params.address;
   // if(!this.headerCheck(req)) {
   //   this.errorResponse(res);

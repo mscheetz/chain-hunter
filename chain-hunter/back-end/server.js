@@ -8,7 +8,7 @@ const path = require('path');
 const manager = require('./services/chainhunter-manager.js');
 const encryptionSvc = require('./services/encryption.js');
 
-const port = process.env.PORT || 4200;
+const port = process.env.PORT || 3000;
 
 const whitelistOrigins = [
 'http://localhost:4200',

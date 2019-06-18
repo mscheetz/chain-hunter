@@ -7,6 +7,7 @@ const getEmptyBlockchain = async() => {
     chain.name = 'Bitcoin';
     chain.symbol = 'BTC';
     chain.hasTokens = false;
+    chain.icon = "white/"+ chain.symbol.toLowerCase()  +".svg";
 
     return chain;
 }
@@ -21,21 +22,25 @@ const getBlockchain = async(toFind) => {
         const transaction = await getTransaction(toFind);
         chain.transaction = transaction;
     }
+    if(chain.address || chain.transaction) {
+        chain.icon = "color/"+ chain.symbol.toLowerCase()  +".svg";
+    }
 
     return chain;
 }
 
-const getAddress = async(address) => {
-    let endpoint = "/address/" + address;
+const getAddress = async(addressToFind) => {
+    let endpoint = "/address/" + addressToFind;
     let url = base + endpoint;
 
     try{
         const response = await axios.get(url);
         if(response.data.err_no === 0 && response.data.data !== null) {
             const datas = response.data.data;
-            const address = {};
-            address.address = datas.address;
-            address.quantity = datas.balance/100000000;
+            const address = {
+                address: datas.address,
+                quantity: datas.balance/100000000
+            };
 
             return address;
         } else {

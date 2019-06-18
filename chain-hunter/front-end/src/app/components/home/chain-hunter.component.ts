@@ -60,7 +60,6 @@ export class ChainHunterComponent implements OnInit {
     }
 
     nullOut(){
-        this.map = new Map<string, Blockchain>();
         this.resultsFound = [];
         this.calculateIcons();
     }
@@ -68,12 +67,17 @@ export class ChainHunterComponent implements OnInit {
     chainHunt(){
         this.addyTxn = this.addyTxn.trim();
         if(this.previousSearch === this.addyTxn || this.addyTxn === "") {
-            return;
+        //    return;
         }
         this.huntStatus = 1;
         this.blockchain = new Blockchain();
         this.nullOut();
-        this.buildMap();
+        if(this.map.size > 0) {
+            this.clearMap();
+        } else {
+            this.map = new Map<string, Blockchain>();
+            this.buildMap();
+        }
         this.notRunning = false;
         this.previousSearch = this.addyTxn;
         //this.startHunt();
@@ -96,8 +100,9 @@ export class ChainHunterComponent implements OnInit {
     }
 
     checkCompleted() {
-        if(this.requestedChains === 0){            
+        if(this.requestedChains === 0) {
             this.notRunning = true;
+            this.huntStatus = this.resultsFound.length === 0 ? 2 : 3;
         }
     }
 
@@ -123,10 +128,10 @@ export class ChainHunterComponent implements OnInit {
 
     updateMenuItems() {
         this.menuItems = [];
-        this.huntStatus = this.addyTxn === undefined ? 0 : this.notRunning ? 2 : 1;
+       // this.huntStatus = this.addyTxn === undefined ? 0 : this.notRunning ? 2 : 1;
         this.map.forEach((value: Blockchain, key: string) => {
             if (value.address || value.transaction) {
-                this.huntStatus = 3;
+         //       this.huntStatus = 3;
             }
             this.menuItems.push({ 
                 label: value.symbol, 
@@ -146,6 +151,16 @@ export class ChainHunterComponent implements OnInit {
                 this.setBlockchainIcons();
                 this.startHunt();
             });
+    }
+
+    clearMap() {
+        this.map.forEach((chain, key) => {
+            chain.address = null;
+            chain.transaction = null;
+            chain.icon = chain.icon.replace('color', 'white');
+        });
+        this.updateMenuItems();
+        this.startHunt();
     }
 
     setBlockchainIcons() {

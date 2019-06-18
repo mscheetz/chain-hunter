@@ -64,7 +64,7 @@ export class ChainHunterService{
      * @param address Address to query
      */
     getAddressTransactions(chain: string, address: string): Observable<Transaction[]>{
-        let endpoint: string = "/api/address/" + chain + "/" + address +"/tx";
+        let endpoint: string = "/api/address/" + chain + "/" + address +"/txs";
         let url: string = this.baseUrl + endpoint;
 
         return this.http.get<Transaction[]>(url);

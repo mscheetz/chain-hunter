@@ -8,6 +8,7 @@ const getEmptyBlockchain = async() => {
     chain.name = 'Binance Coin';
     chain.symbol = 'BNB';
     chain.hasTokens = true;
+    chain.icon = "white/"+ chain.symbol.toLowerCase()  +".svg";
 
     return chain;
 }
@@ -22,12 +23,15 @@ const getBlockchain = async(toFind) => {
         const transaction = await getTransaction(toFind);
         chain.transaction = transaction;
     }
+    if(chain.address || chain.transaction) {
+        chain.icon = "color/"+ chain.symbol.toLowerCase()  +".svg";
+    }
 
     return chain;
 }
 
-const getAddress = async(address) => {
-    let endpoint = "/account/" + address;
+const getAddress = async(addressToFind) => {
+    let endpoint = "/account/" + addressToFind;
     let url = base + endpoint;
 
     try{
@@ -39,12 +43,13 @@ const getAddress = async(address) => {
             }
         })
 
-        address = new Address();
-        address.address = response.address;
-        address.quantity = qty;
-        address.tokens = tokenConvert(response.balances);
+        const address = {
+            address: response.address,
+            quantity: qty,
+            tokens: tokenConvert(response.balances)
+        };
 
-        return address;
+        return addressToFind;
     } catch(error) {
         return null;
     }

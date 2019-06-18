@@ -10,6 +10,7 @@ const getEmptyBlockchain = async() => {
     chain.name = 'Ethereum';
     chain.symbol = 'ETH';
     chain.hasTokens = true;
+    chain.icon = "white/"+ chain.symbol.toLowerCase()  +".svg";
 
     return chain;
 }
@@ -24,22 +25,30 @@ const getBlockchain = async(toFind) => {
         const transaction = await getTransaction(toFind);
         chain.transaction = transaction;
     }
+    if(chain.address || chain.transaction) {
+        chain.icon = "color/"+ chain.symbol.toLowerCase()  +".svg";
+    }
 
     return chain;
 }
 
-const getAddress = async(address) => {
-    let endpoint = "?module=account&action=balance&address="+ address +"&tag=latest";
+const getAddress = async(addressToFind) => {
+    let endpoint = "?module=account&action=balance&address="+ addressToFind +"&tag=latest";
     let url = ethscanBase + endpoint + ethscanKey;
 
-    try{
+    try {
         const response = await axios.get(url);
-        if(response.status === "1" || response.message === "OK") {
-            const datas = response.data;
-            const address = {};
-            address.address = datas.address;
-            address.quantity = datas.balance === null || datas.balance === 0
-            ? 0 : datas.balance / Math.pow(10, 18);
+        if(response.data.status === "1" || response.data.message === "OK") {            
+            const balanceFull = response.data.result;
+            let quantity = 0;
+            if(balanceFull !== null && balanceFull !== "0") {
+                const balInt = parseInt(balanceFull);
+                quantity = balInt / Math.pow(10, 18);
+            }
+            let address = {
+                address: addressToFind,
+                quantity: quantity
+            };
 
             return address;
         } else {
@@ -56,9 +65,9 @@ const getAddressTransactions = async(address) => {
 
     try{
         const response = await axios.get(url);
-        if(!response.error && response.result !== null) {
-            const datas = response.result.splice(0, 10);
-            const lastestBlock = await getLatestBlock();            
+        if(!response.data.error && response.data.result !== null) {
+            const datas = response.data.result.splice(0, 10);
+            const lastestBlock = await getLatestBlock();
             datas.forEach(txn => {
                 txn.lastestBlock = lastestBlock;
             });
@@ -85,8 +94,9 @@ const getAddressTokenTransactions = async(address) => {
 
     try{
         const response = await axios.get(url);
-        if(!response.error && response.result !== null) {
-            const datas = response.result.splice(0, 10);
+        if(!response.data.error && response.data.result !== null) {
+            const datas = response.data.result.splice(0, 10);
+
             const transactions = [];
             
             if(datas.length > 0) {
@@ -132,12 +142,12 @@ const getTransactions = async(address) => {
             transactions.push(txn);
         })
     }
-    const tokens = await getAddressTokenTransactions(address);
-    if(tokens.length > 0) {
-        tokens.forEach(txn => {
-            transactions.push(txn);
-        })
-    }
+    // const tokens = await getAddressTokenTransactions(address);
+    // if(tokens.length > 0) {
+    //     tokens.forEach(txn => {
+    //         transactions.push(txn);
+    //     })
+    // }
 
     return transactions;
 }
@@ -172,24 +182,27 @@ const getLatestBlock = async() => {
 
     try{
         const response = await axios.get(url);
-        return response.result;
+        return parseInt(response.data.result);
     } catch(error) {
         return 0;
     }
 }
 
 const buildTransaction = function(txn) {
-    const decimals = txn.hasOwnPropery('tokenDecimal') 
-                ? txn.tokenDecimal : 8;
+    const decimals = 8;
+    if(txn.hasOwnProperty('tokenDecimal')) {
+        decimals = txn.tokenDecimal; 
+    }
     const precision = helperSvc.getPrecision(decimals);
-    const symbol = txn.hasOwnPropery('tokenSymbol') 
+    const symbol = txn.hasOwnProperty('tokenSymbol') 
                 ? txn.tokenSymbol : "ETH";
-    const confirmations = txn.hasOwnPropery('confirmations') 
-                ? txn.confirmations : txn.lastestBlock - txn.blockNumber;
+    const blockNumber = parseInt(txn.blockNumber);
+    const confirmations = txn.hasOwnProperty('confirmations') 
+                ? txn.confirmations : txn.lastestBlock - blockNumber;
 
     const transaction = {
         hash: txn.hash,
-        block: txn.blockNumber,
+        block: blockNumber,
         quantity: txn.value/precision,
         symbol: symbol,
         confirmations: confirmations,

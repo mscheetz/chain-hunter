@@ -21,12 +21,15 @@ const getBlockchain = async(toFind) => {
         const transaction = await getTransaction(toFind);
         chain.transaction = transaction;
     }
+    if(chain.address || chain.transaction) {
+        chain.icon = "color/"+ chain.symbol.toLowerCase()  +".svg";
+    }
 
     return chain;
 }
 
-const getAddress = async(address) => {
-    let endpoint = "/getAccountDetails?accountAddress=" + address;
+const getAddress = async(addressToFind) => {
+    let endpoint = "/getAccountDetails?accountAddress=" + addressToFind;
     let url = base + endpoint;
 
     try{

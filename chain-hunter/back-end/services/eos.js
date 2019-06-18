@@ -7,6 +7,7 @@ const getEmptyBlockchain = async() => {
     chain.name = 'EOS.IO';
     chain.symbol = 'EOS';
     chain.hasTokens = false;
+    chain.icon = "white/"+ chain.symbol.toLowerCase()  +".svg";
 
     return chain;
 }
@@ -21,14 +22,17 @@ const getBlockchain = async(toFind) => {
         const transaction = await getTransaction(toFind);
         chain.transaction = transaction;
     }
+    if(chain.address || chain.transaction) {
+        chain.icon = "color/"+ chain.symbol.toLowerCase()  +".svg";
+    }
 
     return chain;
 }
 
-const getAddress = async(address) => {
+const getAddress = async(addressToFind) => {
     let endpoint = "/chain/get_currency_balance";
     let url = base + endpoint;
-    let data = '{"code":"eosio.token","account":"'+ address +'","symbol":"EOS"}';
+    let data = '{"code":"eosio.token","account":"'+ addressToFind +'","symbol":"EOS"}';
 
     try{
         const response = await axios.post(url, data);

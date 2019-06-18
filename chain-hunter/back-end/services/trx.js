@@ -7,6 +7,7 @@ const getEmptyBlockchain = async() => {
     chain.name = 'Tron';
     chain.symbol = 'TRX';
     chain.hasTokens = true;
+    chain.icon = "white/"+ chain.symbol.toLowerCase()  +".svg";
 
     return chain;
 }
@@ -25,12 +26,15 @@ const getBlockchain = async(toFind) => {
             chain.contract = contract;
         }
     }
+    if(chain.address || chain.transaction) {
+        chain.icon = "color/"+ chain.symbol.toLowerCase()  +".svg";
+    }
 
     return chain;
 }
 
-const getAddress = async(address) => {
-    let endpoint = "/account?address=" + address;
+const getAddress = async(addressToFind) => {
+    let endpoint = "/account?address=" + addressToFind;
     let url = base + endpoint;
 
     try{

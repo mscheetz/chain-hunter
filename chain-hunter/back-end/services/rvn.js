@@ -7,6 +7,7 @@ const getEmptyBlockchain = async() => {
     chain.name = 'Raven Coin';
     chain.symbol = 'RVN';
     chain.hasTokens = true;
+    chain.icon = "white/"+ chain.symbol.toLowerCase()  +".svg";
 
     return chain;
 }
@@ -21,20 +22,24 @@ const getBlockchain = async(toFind) => {
         const transaction = await getTransaction(toFind);
         chain.transaction = transaction;
     }
+    if(chain.address || chain.transaction) {
+        chain.icon = "color/"+ chain.symbol.toLowerCase()  +".svg";
+    }
 
     return chain;
 }
 
-const getAddress = async(address) => {
-    let endpoint = "/addr/" + address;
+const getAddress = async(addressToFind) => {
+    let endpoint = "/addr/" + addressToFind;
     let url = base + endpoint;
 
     try{
         const response = await axios.get(url);
         if(response) {
-            const address = {};
-            address.address = response.addrStr;
-            address.quantity = response.balance/100000000;
+            const address = {
+                address: response.addrStr,
+                quantity: response.balance/100000000
+            };
 
             return address;
         } else {

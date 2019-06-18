@@ -7,6 +7,7 @@ const getEmptyBlockchain = async() => {
     chain.name = 'Ripple';
     chain.symbol = 'XRP';
     chain.hasTokens = false;
+    chain.icon = "white/"+ chain.symbol.toLowerCase()  +".svg";
 
     return chain;
 }
@@ -21,20 +22,24 @@ const getBlockchain = async(toFind) => {
         const transaction = await getTransaction(toFind);
         chain.transaction = transaction;
     }
+    if(chain.address || chain.transaction) {
+        chain.icon = "color/"+ chain.symbol.toLowerCase()  +".svg";
+    }
 
     return chain;
 }
 
-const getAddress = async(address) => {
-    let endpoint = "/v1/account/" + address;
+const getAddress = async(addressToFind) => {
+    let endpoint = "/v1/account/" + addressToFind;
     let url = base + endpoint;
 
     try{
         const response = await axios.get(url);
         if(response) {
-            const address = {};
-            address.address = response.account;
-            address.quantity = parseFloat(response.xrpBalance);
+            const address = {
+                address: response.account,
+                quantity: parseFloat(response.xrpBalance)
+            };
 
             return address;
         } else {

@@ -40,6 +40,30 @@ const exponentialToNumber = function(x) {
 }
 
 /**
+ * String of big number to decimals
+ * 
+ * @param {*} value value to convert to decimal
+ * @param {*} decimals places to place behind decimal
+ */
+const bigNumberToDecimal = function(value, decimals) {
+    const deci = ".";
+    let result = "";
+    if(value.length > decimals) {
+        const sub = value.length - decimals;
+        result = value.substr(0, sub);
+        result += deci + value.substr(sub);
+    } else {
+        const sub = decimals - value.length;
+        result = "0" + deci;
+        for(let i = 0; i < sub; i++) {
+            result += "0";
+        }
+        result += value;
+    }
+    return result;
+}
+
+/**
  * Comma up a big number
  * 
  * @param value value to comma up
@@ -72,7 +96,9 @@ getPrecision = function(decimals) {
 
 module.exports = {
     commaBigNumber,
+    bigNumberToDecimal,
     exponentialToNumber,
+    getPrecision,
     unixToUTC
 }
 

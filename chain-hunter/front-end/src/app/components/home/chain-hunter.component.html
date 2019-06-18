@@ -2,7 +2,7 @@
 <div *ngIf="notRunning">
     <div class="pull-right">
         <span class="ui-float-label">
-            <input [(ngModel)]="addyTxn" id="addy-txn" type="text" size="50" pInputText> 
+            <input [(ngModel)]="addyTxn" id="addy-txn" type="text" size="50" (keyup.enter)="chainHunt()" pInputText> 
             <label for="addy-txn">Address/Transaction</label>
         <button pButton type="button" (click)="chainHunt()" label="Go!" class="ui-button-success"></button>
         </span>
@@ -20,7 +20,16 @@
             </div>
         </ng-template>
     </p-tabMenu>
-    <search-results [blockchain]="blockchain" [huntStatus]="huntStatus" [selectedChain]="selectedChain" [transactionsComplete]="txnsComplete" [tokensComplete]="tokensComplete" (getTransactions)="getAddressTxns($event)" (getTokens)="getAddressTokens($event)"></search-results>
+    <search-results 
+        [blockchain]="blockchain" 
+        [huntStatus]="huntStatus" 
+        [selectedChain]="selectedChain" 
+        [transactionsComplete]="txnsComplete" 
+        [tokensComplete]="tokensComplete" 
+        [resultsFound]="resultsFound"
+        (getTransactions)="getAddressTxns($event)" 
+        (getTokens)="getAddressTokens($event)">
+    </search-results>
 </div>
 <div>    
     <div class="coming-soon">

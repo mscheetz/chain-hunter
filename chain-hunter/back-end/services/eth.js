@@ -21,11 +21,16 @@ const getBlockchain = async(toFind) => {
     const address = await getAddress(toFind);
     chain.address = address;
     chain.transaction = null;
+    chain.contract = null;
     if(address === null) {
         const transaction = await getTransaction(toFind);
         chain.transaction = transaction;
+        if(transaction === null) {
+            const contract = await getContract(toFind);
+            chain.contract = contract;
+        }
     }
-    if(chain.address || chain.transaction) {
+    if(chain.address || chain.transaction || chain.contract) {
         chain.icon = "color/"+ chain.symbol.toLowerCase()  +".svg";
     }
 
@@ -38,7 +43,7 @@ const getAddress = async(addressToFind) => {
 
     try {
         const response = await axios.get(url);
-        if(response.data.status === "1" || response.data.message === "OK") {            
+        if((response.data.status === "1" || response.data.message === "OK") && response.data.result !== "0") {            
             const balanceFull = response.data.result;
             let quantity = 0;
             if(balanceFull !== null && balanceFull !== "0") {
@@ -59,6 +64,29 @@ const getAddress = async(addressToFind) => {
     }
 }
 
+const getContract = async(addressToFind) => {
+    let endpoint = "?module=contract&action=getsourcecode&address="+ addressToFind +"&tag=latest";
+    let url = ethscanBase + endpoint + ethscanKey;
+
+    try {
+        const response = await axios.get(url);
+        if((response.data.status === "1" || response.data.message === "OK") && response.data.result !== "0") {            
+            const name = response.data.result[0].ContractName;
+            console.log(response.data.result[0]);
+            let contract = {
+                address: addressToFind,
+                name: name
+            };
+
+            return contract;
+        } else {
+            return null;
+        }
+    } catch(error) {
+        return null;
+    }
+}
+
 const getAddressTransactions = async(address) => {
     let endpoint = "?module=account&action=txlistinternal&address=" + address + "&page=1&offset=10&sort=asc";
     let url = ethscanBase + endpoint + ethscanKey;
@@ -66,11 +94,25 @@ const getAddressTransactions = async(address) => {
     try{
         const response = await axios.get(url);
         if(!response.data.error && response.data.result !== null) {
-            const datas = response.data.result.splice(0, 10);
+            let datas = response.data.result.splice(0, 10);
             const lastestBlock = await getLatestBlock();
+            let blockNos = [];
             datas.forEach(txn => {
                 txn.lastestBlock = lastestBlock;
+                // console.log(txn);
+                // if(blockNos.length === 0 || blockNos.indexOf(txn.blockNumber) > -1) {
+                //     blockNos.push(txn.blockNumber);
+                // }
             });
+
+            // const blocks = await getBlocks(blockNos);
+
+            // datas.forEach(txn => {
+            //     let block = blocks.find(b => b.blockHex === txn.blockNumber);
+
+            //     txn.timestamp = block.timestamp;
+            // });
+
             const transactions = [];
             
             if(datas.length > 0) {
@@ -115,14 +157,16 @@ const getAddressTokenTransactions = async(address) => {
 }
 
 const getTransaction = async(hash) => {
-    let endpoint = "?module=account&action=txlistinternal&txhash="+ hash;
+    let endpoint = "?module=proxy&action=eth_getTransactionByHash&txhash=" + hash;
     let url = ethscanBase + endpoint + ethscanKey;
 
     try{
         const response = await axios.get(url);
-        if(!response.error && response.result !== null) {
-            const data = response.result;
+        if(!response.data.error && response.data.result !== null) {
+            let data = response.data.result;
             data.lastestBlock = await getLatestBlock();
+            const blockData = await getBlock(data.blockNumber);
+            data.timeStamp = blockData.timestamp;
             const transaction = buildTransaction(data);
 
             return transaction;
@@ -188,6 +232,39 @@ const getLatestBlock = async() => {
     }
 }
 
+const getBlocks = async(blockNos) => {
+    let results = [];
+
+    for(let i = 0; i < blockNos.length; i++) {
+        console.log(blockNos[i]);
+        const blockResult = await getBlock(blockNos[i]);
+        console.log(blockResult);
+        results.push(blockResult);
+    }
+
+    return results;
+}
+
+const getBlock = async(blockNumber) => {
+    const endpoint = "?module=proxy&action=eth_getBlockByNumber&tag="+ blockNumber +"&boolean=true";
+    const url = ethscanBase + endpoint + ethscanKey;
+
+    try{
+        const response = await axios.get(url);
+        if(!response.data.error && response.data.result !== null) {
+            const data = response.data.result.timestamp;
+            const block = {
+                blockHex: blockNumber,
+                blockNumber: parseInt(blockNumber, 16),
+                timestamp:  parseInt(data)
+            };
+            return block;
+        }
+    } catch(error) {
+        return null;
+    }
+}
+
 const buildTransaction = function(txn) {
     const decimals = 8;
     if(txn.hasOwnProperty('tokenDecimal')) {
@@ -199,11 +276,13 @@ const buildTransaction = function(txn) {
     const blockNumber = parseInt(txn.blockNumber);
     const confirmations = txn.hasOwnProperty('confirmations') 
                 ? txn.confirmations : txn.lastestBlock - blockNumber;
+    const txnQty = txn.hasOwnProperty('value') ? txn.value : txn.value/precision;
+    const quantity = parseInt(txnQty) / Math.pow(10,10);
 
     const transaction = {
         hash: txn.hash,
         block: blockNumber,
-        quantity: txn.value/precision,
+        quantity: quantity,
         symbol: symbol,
         confirmations: confirmations,
         date: helperSvc.unixToUTC(txn.timeStamp),

@@ -186,14 +186,16 @@ const getTransactions = async(address) => {
 const getTokens = async(address) => {
     const endpoint = "/getAddressInfo/" + address;
     const url = ethplorerBase + endpoint + ethplorerKey;
-    
+
     try{
         const response = await axios.get(url);
-        const datas = response.tokens;
+        const datas = response.data.tokens;
         const assets = [];
 
         datas.forEach(token => {
-            const quantity = helperSvc.exponentialToNumber(token.balance);
+            console.log(token.tokenInfo.symbol);
+            console.log(token.balance);
+            let quantity = helperSvc.exponentialToNumber(token.balance);
             quantity = quantity.toString();
             assets.push({
                 quantity: helperSvc.commaBigNumber(quantity),

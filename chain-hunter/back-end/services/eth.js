@@ -72,7 +72,6 @@ const getContract = async(addressToFind) => {
         const response = await axios.get(url);
         if((response.data.status === "1" || response.data.message === "OK") && response.data.result !== "0") {            
             const name = response.data.result[0].ContractName;
-            console.log(response.data.result[0]);
             let contract = {
                 address: addressToFind,
                 name: name
@@ -99,19 +98,7 @@ const getAddressTransactions = async(address) => {
             let blockNos = [];
             datas.forEach(txn => {
                 txn.lastestBlock = lastestBlock;
-                // console.log(txn);
-                // if(blockNos.length === 0 || blockNos.indexOf(txn.blockNumber) > -1) {
-                //     blockNos.push(txn.blockNumber);
-                // }
             });
-
-            // const blocks = await getBlocks(blockNos);
-
-            // datas.forEach(txn => {
-            //     let block = blocks.find(b => b.blockHex === txn.blockNumber);
-
-            //     txn.timestamp = block.timestamp;
-            // });
 
             const transactions = [];
             
@@ -230,19 +217,6 @@ const getLatestBlock = async() => {
     } catch(error) {
         return 0;
     }
-}
-
-const getBlocks = async(blockNos) => {
-    let results = [];
-
-    for(let i = 0; i < blockNos.length; i++) {
-        console.log(blockNos[i]);
-        const blockResult = await getBlock(blockNos[i]);
-        console.log(blockResult);
-        results.push(blockResult);
-    }
-
-    return results;
 }
 
 const getBlock = async(blockNumber) => {

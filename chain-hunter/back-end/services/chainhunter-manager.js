@@ -25,18 +25,6 @@ const getEmptyBlockchains = async() => {
     blockchains["EOS"] = await eos.getEmptyBlockchain();
     blockchains["TRX"] = await trx.getEmptyBlockchain();
 
-    // blockchains.push({"BTC": await btc.getEmptyBlockchain()});
-    // blockchains.push({"BCH": await bch.getEmptyBlockchain()});
-    // blockchains.push({"ETH": await eth.getEmptyBlockchain()});
-    // blockchains.push({"LTC": await ltc.getEmptyBlockchain()});
-    // blockchains.push({"XRP": await xrp.getEmptyBlockchain()});
-    // blockchains.push({"NEO": await neo.getEmptyBlockchain()});
-    // blockchains.push({"RVN": await rvn.getEmptyBlockchain()});
-    // blockchains.push({"BNB": await bnb.getEmptyBlockchain()});
-    // blockchains.push({"AION": await aion.getEmptyBlockchain()});
-    // blockchains.push({"EOS": await eos.getEmptyBlockchain()});
-    // blockchains.push({"TRX": await trx.getEmptyBlockchain()});
-
     return blockchains;
 }
 
@@ -54,17 +42,6 @@ const getBlockchains = async(toFind) => {
     blockchains["AION"] = await aion.getBlockchain(toFind);
     blockchains["EOS"] = await eos.getBlockchain(toFind);
     blockchains["TRX"] = await trx.getBlockchain(toFind);
-    // blockchains.push({"BTC": await btc.getBlockchain(toFind)});
-    // blockchains.push({"BCH": await bch.getBlockchain(toFind)});
-    // blockchains.push({"ETH": await eth.getBlockchain(toFind)});
-    // blockchains.push({"LTC": await ltc.getBlockchain(toFind)});
-    // blockchains.push({"XRP": await xrp.getBlockchain(toFind)});
-    // blockchains.push({"NEO": await neo.getBlockchain(toFind)});
-    // blockchains.push({"RVN": await rvn.getBlockchain(toFind)});
-    // blockchains.push({"BNB": await bnb.getBlockchain(toFind)});
-    // blockchains.push({"AION": await aion.getBlockchain(toFind)});
-    // blockchains.push({"EOS": await eos.getBlockchain(toFind)});
-    // blockchains.push({"TRX": await trx.getBlockchain(toFind)});
 
     return blockchains;
 }

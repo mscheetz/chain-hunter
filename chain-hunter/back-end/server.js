@@ -81,7 +81,6 @@ app.get('/api/blockchain/:chain/:toFind', asyncMiddleware(async function(req, re
 app.get('/api/address/:chain/:address/txs', asyncMiddleware(async function(req, res, next){
   const chain = req.params.chain.toLowerCase();
   const address = req.params.address;
-  console.log('im here');
   // if(!this.headerCheck(req)) {
   //   this.errorResponse(res);
   // } else {

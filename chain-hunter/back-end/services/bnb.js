@@ -7,7 +7,7 @@ const getEmptyBlockchain = async() => {
     const chain = {};
     chain.name = 'Binance Coin';
     chain.symbol = 'BNB';
-    chain.hasTokens = true;
+    chain.hasTokens = false;
     chain.icon = "white/"+ chain.symbol.toLowerCase()  +".svg";
 
     return chain;

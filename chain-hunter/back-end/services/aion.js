@@ -6,7 +6,8 @@ const getEmptyBlockchain = async() => {
     const chain = {};
     chain.name = 'AION';
     chain.symbol = 'AION';
-    chain.hasTokens = true;
+    chain.hasTokens = false;
+    chain.icon = "white/"+ chain.symbol.toLowerCase()  +".svg";
 
     return chain;
 }

@@ -6,7 +6,7 @@ const getEmptyBlockchain = async() => {
     const chain = {};
     chain.name = 'Neo';
     chain.symbol = 'NEO';
-    chain.hasTokens = true;
+    chain.hasTokens = false;
     chain.icon = "white/"+ chain.symbol.toLowerCase()  +".svg";
 
     return chain;

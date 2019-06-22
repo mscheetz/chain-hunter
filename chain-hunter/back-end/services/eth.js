@@ -9,7 +9,7 @@ const getEmptyBlockchain = async() => {
     const chain = {};
     chain.name = 'Ethereum';
     chain.symbol = 'ETH';
-    chain.hasTokens = true;
+    chain.hasTokens = false;
     chain.icon = "white/"+ chain.symbol.toLowerCase()  +".svg";
 
     return chain;

@@ -107,13 +107,11 @@ const getTransaction = async(hash) => {
 
     try{
         const response = await axios.get(url);
-        console.log(response.data);
         if(typeof response.data.content === "undefined") {
             return null;
         } else {
             const data = response.data.content[0];
             const latestBlock = await getLatestBlock();
-            console.log(latestBlock);
             const transaction = buildTransaction(data, latestBlock);
 
             return transaction;

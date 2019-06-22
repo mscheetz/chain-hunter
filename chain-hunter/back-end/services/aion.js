@@ -1,6 +1,7 @@
 const axios = require('axios');
 const helperSvc = require('./helperService.js');
 const base = "https://mainnet-api.aion.network/aion/dashboard";
+const delay = time => new Promise(res=>setTimeout(res,time));
 
 const getEmptyBlockchain = async() => {
     const chain = {};
@@ -19,6 +20,7 @@ const getBlockchain = async(toFind) => {
     chain.address = address;
     chain.transaction = null;
     if(address === null) {
+        await delay(1000);
         const transaction = await getTransaction(toFind);
         chain.transaction = transaction;
     }
@@ -35,10 +37,10 @@ const getAddress = async(addressToFind) => {
 
     try{
         const response = await axios.get(url);
-        if((typeof response.content === "undefined") || response.content === null || response.content.length === 0){
+        if((typeof response.data.content === "undefined") || response.data.content === null || response.data.content.length === 0){
             return null;
         } else {
-            const datas = response.content[0];
+            const datas = response.data.content[0];
             const address = {
                 address: datas.address,
                 quantity: datas.balance
@@ -57,10 +59,10 @@ const getAddressTokenContracts = async(address) => {
 
     try{
         const response = await axios.get(url);
-        if((typeof response.content === "undefined") || response.content === null || response.content.length === 0){
+        if((typeof response.data.content === "undefined") || response.data.content === null || response.data.content.length === 0){
             return [];
         } else {
-            const datas = response.content[0].tokens;
+            const datas = response.data.content[0].tokens;
             let contracts = [];
             datas.forEach(data => {
                 contracts.push(data.contractAddr);
@@ -79,8 +81,8 @@ const getTransactions = async(address) => {
 
     try{
         const response = await axios.get(url);
-        if(response.content !== null && response.content.length > 0) {
-            const datas = response.content;
+        if(response.data.content !== null && response.data.content.length > 0) {
+            const datas = response.data.content;
             const transactions = [];
             const latestBlock = await getLatestBlock();
             if(datas.length > 0) {
@@ -105,11 +107,13 @@ const getTransaction = async(hash) => {
 
     try{
         const response = await axios.get(url);
-        if(typeof response.content === "undefined") {
+        console.log(response.data);
+        if(typeof response.data.content === "undefined") {
             return null;
         } else {
-            const data = response.content[0];
-            const latestBlock = await getLatestBlock(chain);
+            const data = response.data.content[0];
+            const latestBlock = await getLatestBlock();
+            console.log(latestBlock);
             const transaction = buildTransaction(data, latestBlock);
 
             return transaction;
@@ -139,7 +143,7 @@ const getToken = async(address, contract) => {
 
     try{
         const response = await axios.get(url);
-        const data = response.content[0];
+        const data = response.data.content[0];
         let asset = {
             quantity: helperSvc.commaBigNumber(data.balance.toString()),
             symbol: aionAddress.tokenSymbol
@@ -159,7 +163,7 @@ const getLatestBlock = async() => {
     try{
         const response = await axios.get(url);
         
-        return response.content[0].blockNumber.toString();
+        return response.data.content[0].blockNumber.toString();
     } catch(error) {
         return 0;
     }

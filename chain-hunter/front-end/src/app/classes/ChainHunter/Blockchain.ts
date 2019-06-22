@@ -1,5 +1,6 @@
 import { Address } from './Address';
 import { Transaction } from './Transaction';
+import { Contract } from './Contract';
 
 export class Blockchain {
     constructor () {}
@@ -9,9 +10,10 @@ export class Blockchain {
     found: boolean;
     address: Address;
     transaction: Transaction;
-    contract: Address;
+    contract: Contract;
     icon: string;
     hasTokens: boolean = false;
+    hasContract: boolean = false;
 
     getIcon(): string {
         let iconBase = ""; //"/assets/cryptoicons/";

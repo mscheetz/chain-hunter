@@ -25,12 +25,10 @@ const getBlockchain = async(toFind) => {
         await delay(1000);
         const transaction = await getTransaction(toFind);
         chain.transaction = transaction;
-        if(transaction === null) {
-            await delay(1000);
-            const contract = await getContract(toFind);
-            chain.contract = contract;
-        }
     }
+    await delay(1000);
+    const contract = await getContract(toFind);
+    chain.contract = contract;
     if(chain.address || chain.transaction || chain.contract) {
         chain.icon = "color/"+ chain.symbol.toLowerCase()  +".svg";
     }
@@ -61,7 +59,7 @@ const getAddress = async(addressToFind) => {
 }
 
 const getContract = async(address) => {
-    let endpoint = "/getContractDetailsByContractAddress?searchParam=" + addressToFind;
+    let endpoint = "/getContractDetailsByContractAddress?searchParam=" + address;
     let url = base + endpoint;
 
     try{

@@ -7,6 +7,7 @@ const getEmptyBlockchain = async() => {
     chain.name = 'Raven Coin';
     chain.symbol = 'RVN';
     chain.hasTokens = false;
+    chain.hasContracts = false;
     chain.icon = "white/"+ chain.symbol.toLowerCase()  +".svg";
 
     return chain;

@@ -7,6 +7,7 @@ const getEmptyBlockchain = async() => {
     chain.name = 'Tron';
     chain.symbol = 'TRX';
     chain.hasTokens = false;
+    chain.hasContracts = true;
     chain.icon = "white/"+ chain.symbol.toLowerCase()  +".svg";
 
     return chain;

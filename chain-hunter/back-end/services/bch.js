@@ -8,6 +8,7 @@ const getEmptyBlockchain = async() => {
     chain.name = 'Bitcoin Cash';
     chain.symbol = 'BCH';
     chain.hasTokens = false;
+    chain.hasContracts = false;
     chain.icon = "white/"+ chain.symbol.toLowerCase()  +".svg";
 
     return chain;

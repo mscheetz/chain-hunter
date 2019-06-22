@@ -7,6 +7,7 @@ const getEmptyBlockchain = async() => {
     chain.name = 'Litecoin';
     chain.symbol = 'LTC';
     chain.hasTokens = false;
+    chain.hasContracts = false;
     chain.icon = "white/"+ chain.symbol.toLowerCase()  +".svg";
 
     return chain;

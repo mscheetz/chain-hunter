@@ -7,6 +7,7 @@ const getEmptyBlockchain = async() => {
     chain.name = 'Neo';
     chain.symbol = 'NEO';
     chain.hasTokens = false;
+    chain.hasContracts = true;
     chain.icon = "white/"+ chain.symbol.toLowerCase()  +".svg";
 
     return chain;
@@ -18,6 +19,7 @@ const getBlockchain = async(toFind) => {
     const address = await getAddress(toFind);
     chain.address = address;
     chain.transaction = null;
+    chain.contract = null;
     if(address === null) {
         const transaction = await getTransaction(toFind);
         chain.transaction = transaction;

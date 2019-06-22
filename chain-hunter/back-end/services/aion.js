@@ -8,6 +8,7 @@ const getEmptyBlockchain = async() => {
     chain.name = 'AION';
     chain.symbol = 'AION';
     chain.hasTokens = false;
+    chain.hasContracts = true;
     chain.icon = "white/"+ chain.symbol.toLowerCase()  +".svg";
 
     return chain;
@@ -19,12 +20,18 @@ const getBlockchain = async(toFind) => {
     const address = await getAddress(toFind);
     chain.address = address;
     chain.transaction = null;
+    chain.contract = null;
     if(address === null) {
         await delay(1000);
         const transaction = await getTransaction(toFind);
         chain.transaction = transaction;
+        if(transaction === null) {
+            await delay(1000);
+            const contract = await getContract(toFind);
+            chain.contract = contract;
+        }
     }
-    if(chain.address || chain.transaction) {
+    if(chain.address || chain.transaction || chain.contract) {
         chain.icon = "color/"+ chain.symbol.toLowerCase()  +".svg";
     }
 
@@ -47,6 +54,29 @@ const getAddress = async(addressToFind) => {
             };
 
             return address;
+        }
+    } catch(error) {
+        return null;
+    }
+}
+
+const getContract = async(address) => {
+    let endpoint = "/getContractDetailsByContractAddress?searchParam=" + addressToFind;
+    let url = base + endpoint;
+
+    try{
+        const response = await axios.get(url);
+        if((typeof response.data.content === "undefined") || response.data.content === null || response.data.content.length === 0){
+            return null;
+        } else {
+            const datas = response.data.content[0];
+            const contract = {
+                address: datas.contractAddr,
+                quantity: datas.balance,
+                creator: datas.contractCreatorAddr
+            };
+
+            return contract;
         }
     } catch(error) {
         return null;

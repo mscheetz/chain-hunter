@@ -1,6 +1,7 @@
 const axios = require('axios');
 const helperSvc = require('./helperService.js');
 const base = "https://chain.api.btc.com/v3";
+const delay = time => new Promise(res=>setTimeout(res,time));
 
 const getEmptyBlockchain = async() => {
     const chain = {};
@@ -19,6 +20,7 @@ const getBlockchain = async(toFind) => {
     chain.address = address;
     chain.transaction = null;
     if(address === null) {
+        await delay(1000);
         const transaction = await getTransaction(toFind);
         chain.transaction = transaction;
     }
@@ -57,8 +59,8 @@ const getTransactions = async(address) => {
 
     try{
         const response = await axios.get(url);
-        if(response.err_no === 0 && response.data !== null) {
-            const datas = response.data.list;
+        if(response.data.err_no === 0 && response.data.data !== null) {
+            const datas = response.data.data.list.splice(0, 10);
             const transactions = [];
             if(datas.length > 0) {
                 datas.forEach(data => {
@@ -80,10 +82,10 @@ const getTransaction = async(hash) => {
 
     try{
         const response = await axios.get(url);
-        if(response.err_no === 0 && response.data !== null) {
-            const data = response.data;
+        if(response.data.err_no === 0 && response.data.data !== null) {
+            const data = response.data.data;
             const transaction = buildTransaction(data);
-
+            
             return transaction;
         } else {
             return null;
@@ -94,6 +96,17 @@ const getTransaction = async(hash) => {
 }
 
 const buildTransaction = function(txn) {
+    let from = "";
+    let to = "";
+    if(txn.inputs[0].prev_addresses.length > 0) {
+        from = txn.inputs[0].prev_addresses[0];
+    } else if(txn.is_coinbase) {
+        from = "Coinbase";
+    }
+    if(txn.outputs[0].addresses.length > 0) {
+        to = txn.outputs[0].addresses[0];
+    }
+
     const transaction = {
     hash: txn.hash,
     block: txn.block_height,
@@ -101,8 +114,8 @@ const buildTransaction = function(txn) {
     symbol: "BTC",
     confirmations: txn.confirmations,
     date: helperSvc.unixToUTC(txn.created_at),
-    from: txn.inputs[0].prev_addresses[0],
-    to: txn.outputs[0].addresses[0]
+    from: from,
+    to: to
     };
 
     return transaction;

@@ -30,6 +30,11 @@
         </p-accordionTab>
     </p-accordion>
 </p-panel>
+<p-panel header="{{blockchain.symbol}} Contract" *ngIf="blockchain.hasContracts && blockchain.contract">
+    <h3>{{blockchain.symbol}} Address: {{blockchain.contract.address}}</h3>
+    <p>Balance: {{blockchain.contract.quantity | number}} {{blockchain.symbol}}</p>
+    <p *ngIf="blockchain.contract.creatorAddress">Creator Address: {{blockchain.contract.creatorAddress}}</p>
+</p-panel>
 <p-panel header="{{blockchain.symbol}} Transaction" *ngIf="blockchain.transaction">
     <h3>{{blockchain.symbol}} Transaction Hash: {{blockchain.transaction.hash}}</h3>
     <div>Quantity: {{blockchain.transaction.quantity | number}} {{blockchain.transaction.symbol}}</div>
@@ -40,26 +45,30 @@
     <div *ngIf="blockchain.transaction.confirmations > -1">Confirmations: {{blockchain.transaction.confirmations}}</div>
 </p-panel>
 </div>
-<p-panel showHeader="false">
-    <div *ngIf="huntStatus === 0 && selectedChain === ''">
-        <h3>Enter an Address or Transaction Hash</h3>
-        <span>To search the following blockchains at once!&nbsp;&nbsp;&nbsp;</span>
-        <img class="chain-logo-pad" src="assets/cryptoicons/color/btc.svg" title="Bitcoin" />
-        <img class="chain-logo-pad" src="assets/cryptoicons/color/bch.svg" title="Bitcoin Cash" />
-        <img class="chain-logo-pad" src="assets/cryptoicons/color/eth.svg" title="Ethereum" />
-        <img class="chain-logo-pad" src="assets/cryptoicons/color/ltc.svg" title="Litecoin" />
-        <img class="chain-logo-pad" src="assets/cryptoicons/color/neo.svg" title="Neo" />
-        <img class="chain-logo-pad" src="assets/cryptoicons/color/rvn.svg" title="Raven Coin" />
-        <img class="chain-logo-pad" src="assets/cryptoicons/color/xrp.svg" title="Ripple" />
-        <img class="chain-logo-pad" src="assets/cryptoicons/color/trx.svg" title="Tron" />
-        <img class="chain-logo-pad" src="assets/cryptoicons/color/aion.svg" title="Aion" />
-        <img class="chain-logo-pad" src="assets/cryptoicons/color/bnb.svg" title="Binance Coin" />
-    </div>
-    <h3 *ngIf="huntStatus === 1">Searching...</h3>
-    <h3 *ngIf="huntStatus === 2 && selectedChain === ''">Nothing found</h3>
-    <div *ngIf="huntStatus === 3 && selectedChain === ''">
-        <h3>Select a Blockchain</h3>
-        <span>Results found: {{resultsFound.join(', ')}}</span>
-    </div>
-    <h3 *ngIf="(huntStatus === 2 || huntStatus === 3) && selectedChain !== '' && blockchain !== null && !blockchain.address && !blockchain.transaction">No {{blockchain.symbol}} Data found</h3>
+<p-panel showHeader="false" *ngIf="huntStatus === 0 && selectedChain === ''">
+    <h3>Enter an Address or Transaction Hash</h3>
+    <span>To search the following blockchains at once!&nbsp;&nbsp;&nbsp;</span>
+    <img class="chain-logo-pad" src="assets/cryptoicons/color/btc.svg" title="Bitcoin" />
+    <img class="chain-logo-pad" src="assets/cryptoicons/color/bch.svg" title="Bitcoin Cash" />
+    <img class="chain-logo-pad" src="assets/cryptoicons/color/eth.svg" title="Ethereum" />
+    <img class="chain-logo-pad" src="assets/cryptoicons/color/ltc.svg" title="Litecoin" />
+    <img class="chain-logo-pad" src="assets/cryptoicons/color/neo.svg" title="Neo" />
+    <img class="chain-logo-pad" src="assets/cryptoicons/color/rvn.svg" title="Raven Coin" />
+    <img class="chain-logo-pad" src="assets/cryptoicons/color/xrp.svg" title="Ripple" />
+    <img class="chain-logo-pad" src="assets/cryptoicons/color/trx.svg" title="Tron" />
+    <img class="chain-logo-pad" src="assets/cryptoicons/color/aion.svg" title="Aion" />
+    <img class="chain-logo-pad" src="assets/cryptoicons/color/bnb.svg" title="Binance Coin" />
+</p-panel>
+<p-panel showHeader="false" *ngIf="huntStatus === 1">
+    <h3>Searching...</h3>
+</p-panel>
+<p-panel showHeader="false" *ngIf="huntStatus === 2 && selectedChain === ''">
+    <h3>Nothing found</h3>
+</p-panel>
+<p-panel showHeader="false" *ngIf="huntStatus === 3 && selectedChain === ''">
+    <h3>Select a Blockchain</h3>
+    <span>Results found: {{resultsFound.join(', ')}}</span>
+</p-panel>
+<p-panel showHeader="false" *ngIf="(huntStatus === 2 || huntStatus === 3) && selectedChain !== '' && blockchain !== null && !blockchain.address && !blockchain.transaction && !blockchain.contract">
+    <h3>No {{blockchain.symbol}} Data found</h3>
 </p-panel>

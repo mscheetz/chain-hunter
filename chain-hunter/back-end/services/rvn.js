@@ -37,10 +37,10 @@ const getAddress = async(addressToFind) => {
 
     try{
         const response = await axios.get(url);
-        if(response) {
+        if(response.data) {
             const address = {
-                address: response.addrStr,
-                quantity: response.balance/100000000
+                address: response.data.addrStr,
+                quantity: response.data.balance/100000000
             };
 
             return address;
@@ -58,8 +58,8 @@ const getTransactions = async(address) => {
 
     try{
         const response = await axios.get(url);
-        if(response.err_no === 0 && response.data !== null) {
-            const datas = response.txs;
+        if(response.data.data !== null) {
+            const datas = response.data.txs.splice(0, 10);
             const transactions = [];
             if(datas.length > 0) {
                 datas.forEach(data => {
@@ -81,8 +81,8 @@ const getTransaction = async(hash) => {
 
     try{
         const response = await axios.get(url);
-        if(response) {
-            const transaction = buildTransaction(response);
+        if(response.data) {
+            const transaction = buildTransaction(response.data);
 
             return transaction;
         } else {
@@ -94,33 +94,48 @@ const getTransaction = async(hash) => {
 }
 
 const buildTransaction = function(txn) {
-    let transaction = null;
-
     if(txn != null) {
-        let from = "";
-        let to = ""
+        let from = [];
+        let to = [];
+        let quantity = 0;
+        let manyAddresses = false;
+        if(txn.vin.length > 5) {
+            from.push(txn.vin.length + ' incoming addresses');
+            manyAddresses = true;
+        }
         txn.vin.forEach(vin => {
-            if(from !== "") {
-                from += ", ";
-            } 
-            from += vin.addr;
+            if(vin.addr && from.indexOf(vin.addr) <= -1 && !manyAddresses) {
+                from.push(vin.addr);
+            }
+            quantity += +vin.value;
         });
-        txn.vout.forEach(vout => {
-            if(to !== "") {
-                to += ", ";
-            } 
-            to += vout.scriptPubKey.addresses.join(", ");
-        });
+        if(txn.vout.length > 5) {
+            to.push(txn.vout.length + ' outgoing addresses');
+        } else {
+            txn.vout.forEach(vout => {
+                if(vout.scriptPubKey && vout.scriptPubKey.addresses ) {
+                    for(var i = 0; i < vout.scriptPubKey.addresses.length; i++) {
+                        toAddy = vout.scriptPubKey.addresses[i];
+                        if(to.indexOf(toAddy) <= -1) {
+                            to.push(toAddy);
+                        }
+                    }
+                }
+            });
+        }
+        let transaction = {};
         transaction.hash = txn.txid;
         transaction.block = txn.blockheight;
-        transaction.quantity = txn.valueOut/100000000;
+        transaction.quantity = quantity;
+        transaction.symbol = "RVN";
         transaction.confirmations = txn.confirmations;
         transaction.date = helperSvc.unixToUTC(txn.blocktime);
-        transaction.from = from;
-        transaction.to = to;
+        transaction.from = from.join(", ");
+        transaction.to = to.join(", ");
+        return transaction;
     }
 
-    return transaction;
+    return null;
 }
 
 module.exports = {

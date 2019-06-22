@@ -37,17 +37,18 @@ const getAddress = async(addressToFind) => {
 
     try{
         const response = await axios.get(url);
-        if(response.balance.length > 0) {
+        if(response.data.balance.length > 0) {
+            const datas = response.data;
             let qty = 0;
-            response.balance.forEach(bal => {
+            datas.balance.forEach(bal => {
                 if(bal.asset_symbol === "NEO") {
                     qty = bal.amount;
                 }
             })
             const address = {
-                address: response.address,
+                address: datas.address,
                 quantity: qty,
-                tokens: tokenConvert(response.balance)
+                tokens: tokenConvert(datas.balance)
             };
 
             return address;
@@ -80,7 +81,7 @@ const getTransactions = async(address) => {
 
     try{
         const response = await axios.get(url);
-            const datas = response.entries;
+            const datas = response.data.entries;
             const transactions = [];
             if(datas !== null && datas.length > 0) {
                 datas.forEach(data => {
@@ -108,29 +109,35 @@ const getTransaction = async(hash) => {
 
     try{
         const response = await axios.get(url);
-        if(response !== null) {                
-            let from = "";
-            let to = ""
-            response.vin.forEach(vin => {
-                if(from !== "") {
-                    from += ", ";
-                } 
-                from += vin.address_hash;
+        if(response.data !== null) {
+            const datas = response.data;
+            let quantity = 0;
+            let symbol = "";
+            let from = [];
+            let to = [];
+            datas.vin.forEach(vin => {
+                const inQty = vin.value;
+                const inQtyNo = helperSvc.exponentialToNumber(inQty.toString());
+                quantity += parseFloat(inQtyNo);
+                symbol = vin.asset;
+                if(vin.address_hash && from.indexOf(vin.address_hash) <= -1) {
+                    from.push(vin.address_hash);
+                }
             });
-            response.vouts.forEach(vout => {
-                if(to !== "") {
-                    to += ", ";
-                } 
-                to += vout.address_hash;
+            datas.vouts.forEach(vout => {
+                if(vout.address_hash && to.indexOf(vout.address_hash) <= -1) {
+                    to.push(vout.address_hash);
+                }
             });
             const transaction = {
-                hash: response.txid,
-                block: response.block_height,
-                quantity: response.size,
-                confirmations: response.block_height,
-                date: helperSvc.unixToUTC(response.time),
-                from: from,
-                to: to
+                hash: datas.txid,
+                block: datas.block_height,
+                quantity: quantity,
+                symbol: symbol,
+                confirmations: datas.block_height,
+                date: helperSvc.unixToUTC(datas.time),
+                from: from.join(", "),
+                to: to.join(", ")
             };
 
             return transaction;

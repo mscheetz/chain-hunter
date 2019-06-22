@@ -8,7 +8,7 @@
             <div *ngIf="blockchain.address.transactions !== undefined && blockchain.address.transactions.length === 0">No transactions found</div>
             <ul>
                 <li *ngFor="let txn of blockchain.address.transactions">
-                    Transaction Type: {{blockchain.address === txn.from ? 'Send' : 'Receive'}} <br>
+                    Transaction Type: {{txn.from.includes(blockchain.address.address) ? 'Send' : 'Receive'}} <br>
                     Hash: {{txn.hash}} <br>
                     Quantity: {{txn.quantity.toLocaleString()}} {{txn.symbol}}<br>
                     From: {{txn.from}}<br>

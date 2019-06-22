@@ -1,6 +1,7 @@
 const axios = require('axios');
 const helperSvc = require('./helperService.js');
 const base = "https://bch-chain.api.btc.com/v3";
+const delay = time => new Promise(res=>setTimeout(res,time));
 
 const getEmptyBlockchain = async() => {
     const chain = {};
@@ -19,6 +20,7 @@ const getBlockchain = async(toFind) => {
     chain.address = address;
     chain.transaction = null;
     if(address === null) {
+        await delay(1000);
         const transaction = await getTransaction(toFind);
         chain.transaction = transaction;
     }
@@ -57,8 +59,8 @@ const getTransactions = async(address) => {
 
     try{
         const response = await axios.get(url);
-        if(response.err_no === 0 && response.data !== null) {
-            const datas = response.data.list;
+        if(response.data.err_no === 0 && response.data.data !== null) {
+            const datas = response.data.data.list.splice(0, 10);
             const transactions = [];
             if(datas.length > 0) {
                 datas.forEach(data => {
@@ -81,8 +83,8 @@ const getTransaction = async(hash) => {
 
     try{
         const response = await axios.get(url);
-        if(response.err_no === 0 && response.data !== null) {
-            const data = response.data;
+        if(response.data.err_no === 0 && response.data.data !== null) {
+            const data = response.data.data;
             const transaction = buildTransaction(data);
 
             return transaction;

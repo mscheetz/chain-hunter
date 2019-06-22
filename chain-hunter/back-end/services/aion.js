@@ -71,7 +71,8 @@ const getContract = async(address) => {
             const contract = {
                 address: datas.contractAddr,
                 quantity: datas.balance,
-                creator: datas.contractCreatorAddr
+                creator: datas.contractCreatorAddr,
+                contractName: datas.contractName
             };
 
             return contract;

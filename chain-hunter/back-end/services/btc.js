@@ -9,6 +9,7 @@ const getEmptyBlockchain = async() => {
     chain.symbol = 'BTC';
     chain.hasTokens = false;
     chain.hasContracts = false;
+    chain.contract = null;
     chain.icon = "white/"+ chain.symbol.toLowerCase()  +".svg";
 
     return chain;

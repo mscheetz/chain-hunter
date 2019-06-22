@@ -31,8 +31,9 @@
     </p-accordion>
 </p-panel>
 <p-panel header="{{blockchain.symbol}} Contract" *ngIf="blockchain.hasContracts && blockchain.contract">
-    <h3>{{blockchain.symbol}} Address: {{blockchain.contract.address}}</h3>
-    <p>Balance: {{blockchain.contract.quantity | number}} {{blockchain.symbol}}</p>
+    <h3>{{blockchain.symbol}} Contract Address: {{blockchain.contract.address}}</h3>
+    <p *ngIf="blockchain.contract.quantity">Balance: {{blockchain.contract.quantity | number}} {{blockchain.symbol}}</p>
+    <p *ngIf="blockchain.contract.contractName">Contract Name: {{blockchain.contract.contractName}}</p>
     <p *ngIf="blockchain.contract.creatorAddress">Creator Address: {{blockchain.contract.creatorAddress}}</p>
 </p-panel>
 <p-panel header="{{blockchain.symbol}} Transaction" *ngIf="blockchain.transaction">

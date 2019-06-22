@@ -90,7 +90,7 @@ export class ChainHunterComponent implements OnInit {
                 .subscribe(chain => {
                     this.requestedChains--;
                     this.setMap(chain);
-                    if(chain.address || chain.transaction) {
+                    if(chain.address || chain.transaction || chain.contract) {
                         this.resultsFound.push(chain.symbol);
                     }
                     this.calculateIcons();
@@ -130,7 +130,7 @@ export class ChainHunterComponent implements OnInit {
         this.menuItems = [];
        // this.huntStatus = this.addyTxn === undefined ? 0 : this.notRunning ? 2 : 1;
         this.map.forEach((value: Blockchain, key: string) => {
-            if (value.address || value.transaction) {
+            if (value.address || value.transaction || value.contract) {
          //       this.huntStatus = 3;
             }
             this.menuItems.push({ 

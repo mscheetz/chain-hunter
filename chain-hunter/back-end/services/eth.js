@@ -4,6 +4,7 @@ const ethscanBase = "https://api.etherscan.io/api";
 const ethscanKey = "&apikey=YYT6FH7R4K7WK729Z2ZPTC2ZNTK48WEKHG";
 const ethplorerBase = "http://api.ethplorer.io";
 const ethplorerKey = "?apiKey=freekey";
+const delay = time => new Promise(res=>setTimeout(res,time));
 
 const getEmptyBlockchain = async() => {
     const chain = {};
@@ -11,6 +12,7 @@ const getEmptyBlockchain = async() => {
     chain.symbol = 'ETH';
     chain.hasTokens = false;
     chain.hasContracts = true;
+    chain.contract = null;
     chain.icon = "white/"+ chain.symbol.toLowerCase()  +".svg";
 
     return chain;
@@ -24,9 +26,11 @@ const getBlockchain = async(toFind) => {
     chain.transaction = null;
     chain.contract = null;
     if(address === null) {
+        await delay(1000);
         const transaction = await getTransaction(toFind);
         chain.transaction = transaction;
         if(transaction === null) {
+            await delay(1000);
             const contract = await getContract(toFind);
             chain.contract = contract;
         }
@@ -75,7 +79,10 @@ const getContract = async(addressToFind) => {
             const name = response.data.result[0].ContractName;
             let contract = {
                 address: addressToFind,
-                name: name
+                quantity: null,
+                creator: null,
+                contractName: name
+
             };
 
             return contract;

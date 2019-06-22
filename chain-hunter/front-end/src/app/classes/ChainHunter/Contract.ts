@@ -1,6 +1,8 @@
-import { Address } from './Address';
+export class Contract {
+    constructor() {}
 
-export class Contract extends Address {
-
+    address: string;
+    quantity: number;
     creatorAddress: string;
+    contractName: string;
 } 

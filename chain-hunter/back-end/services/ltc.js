@@ -37,10 +37,10 @@ const getAddress = async(addressToFind) => {
 
     try{
         const response = await axios.get(url);
-        if(response.err_no === 0 && response.data !== null) {
+        if(response.data !== null) {
             const datas = response.data;
             const address = {
-                address: datas.address,
+                address: datas.addrStr,
                 quantity: datas.balance
             };
 
@@ -59,11 +59,12 @@ const getTransactions = async(address) => {
 
     try{
         const response = await axios.get(url);
-        const datas = response.txs;
+        const datas = response.data.txs.splice(0, 10);
         const transactions = [];
         if(datas.length > 0) {
             datas.forEach(data => {
-                transactions.push(buildTransaction(data));
+                const txn = buildTransaction(data);
+                transactions.push(txn);
             })
         }
 
@@ -79,8 +80,8 @@ const getTransaction = async(hash) => {
 
     try{
         const response = await axios.get(url);
-        if(response.err_no === 0 && response.data !== null) {
-            const transaction = buildTransaction(response);
+        if( response.data !== null) {
+            const transaction = buildTransaction(response.data);
 
             return transaction;
         } else {
@@ -93,36 +94,33 @@ const getTransaction = async(hash) => {
 
 const buildTransaction = function(txn) {
     if(txn != null) {
-        let transaction = {};
-
-        let qty = txn.valueOut;
-        let from = "";
-        let to = ""
+        let from = [];
+        let to = [];
         txn.vin.forEach(vin => {
-            if(from !== "") {
-                from += ", ";
-            } 
-            if(vin.addr) {
-                from += vin.addr;
+            if(vin.addr && from.indexOf(vin.addr) <= -1) {
+                from.push(vin.addr);
             }
         });
         txn.vout.forEach(vout => {
-            if(from !== "") {
-                from += ", ";
-            } 
-            if(vout.scriptPubKey && vout.scriptPubKey.addresses) {
-                from += vout.scriptPubKey.addresses.join(", ");
+            if(vout.scriptPubKey && vout.scriptPubKey.addresses ) {
+                for(var i = 0; i < vout.scriptPubKey.addresses.length; i++) {
+                    toAddy = vout.scriptPubKey.addresses[i];
+                    if(to.indexOf(toAddy) <= -1) {
+                        to.push(toAddy);
+                    }
+                }
             }
         });
 
+        let transaction = {};
         transaction.hash = txn.txid;
         transaction.block = txn.blockheight;
         transaction.symbol = "LTC";
         transaction.quantity = txn.valueOut;
         transaction.confirmations = txn.confirmations;
-        transaction.date = this.helperSvc.unixToUTC(txn.time);
-        transaction.from = from;
-        transaction.to = to;
+        transaction.date = helperSvc.unixToUTC(txn.time);
+        transaction.from = from.join(", ");
+        transaction.to = to.join(", ");
 
         return transaction;
     }

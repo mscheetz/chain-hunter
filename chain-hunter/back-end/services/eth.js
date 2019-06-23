@@ -201,8 +201,6 @@ const getTokens = async(address) => {
         const assets = [];
 
         datas.forEach(token => {
-            console.log(token.tokenInfo.symbol);
-            console.log(token.balance);
             let quantity = helperSvc.exponentialToNumber(token.balance);
             quantity = quantity.toString();
             assets.push({

@@ -832,9 +832,9 @@ export class OGChainHunterComponent implements OnInit {
                 this.trxComplete = true;
                 if(contract && contract.data.address !== "") {
                     this.trxComplete = true;
-                    let trx = this.getBlockchain("TRX");
-                    trx.contract = this.trxService.contractConvert(contract.data);
-                    this.setMap(trx);
+                    // let trx = this.getBlockchain("TRX");
+                    // trx.contract = this.trxService.contractConvert(contract.data);
+                    // this.setMap(trx);
                     console.log("trx contract found");  
                 } else {
                     console.log("trx contract not found");

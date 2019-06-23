@@ -21,6 +21,7 @@ const getBlockchain = async(toFind) => {
     chain.address = address;
     chain.transaction = null;
     if(address === null) {
+        console.log('finding xrp txn');
         const transaction = await getTransaction(toFind);
         chain.transaction = transaction;
     }
@@ -37,10 +38,10 @@ const getAddress = async(addressToFind) => {
 
     try{
         const response = await axios.get(url);
-        if(response) {
+        if(response.data) {
             const address = {
-                address: response.account,
-                quantity: parseFloat(response.xrpBalance)
+                address: response.data.account,
+                quantity: parseFloat(response.data.xrpBalance)
             };
 
             return address;
@@ -58,13 +59,14 @@ const getTransactions = async(address) => {
 
     try{
         const response = await axios.get(url);
-        const datas = response.payments;
+        const datas = response.data.payments;
         const transactions = [];
         if(datas.length > 0) {
             datas.forEach(data => {
                 transactions.push({
                     hash: data.tx_hash,
                     block: data.ledger_index,
+                    symbol: "XRP",
                     quantity: parseInt(data.delivered_amount),
                     date: data.executed_time,
                     from: data.source,
@@ -80,17 +82,18 @@ const getTransactions = async(address) => {
 }
 
 const getTransaction = async(hash) => {
-    let endpoint = "/tx/" + hash + "?verbose=3";
+    let endpoint = "/v1/tx/" + hash;
     let url = base + endpoint;
 
     try{
         const response = await axios.get(url);
-        if(response.err_no === 0 && response.data !== null) {
-            const data = response.data;
+        console.log(response.data);
+        if(response.data.err_no === 0 && response.data.data !== null) {
+            const data = response.data.data;
             const transaction = {
                 hash: data.hash,
                 block: data.ledger_index,
-                symbol: "XRP",
+                symbol: data.Amount.currency,
                 quantity: data.Amount.value,
                 date: data.date,
                 from: data.Account,

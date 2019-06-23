@@ -41,15 +41,15 @@ const getAddress = async(addressToFind) => {
 
     try{
         const response = await axios.get(url);
-        if(response.address) {
-            const datas = response.address;
+        const datas = response.data;
+        if(Object.keys(datas).length === 0 && datas.constructor === Object) {
+            return null;
+        } else {
             const address = {
                 address: datas.address,
                 quantity: datas.balance/100000000
             };
             return address;
-        } else {
-            return null;
         }
     } catch(error) {
         return null;
@@ -62,7 +62,7 @@ const getContract = async(address) => {
 
     try{
         const response = await axios.get(url);
-        if(response && response.data.address !== "") {
+        if(response.data && response.data.address !== "") {
             const datas = response.address;
             const contract = {
                 address: datas.address,
@@ -83,7 +83,7 @@ const getAddressTokens = async(address) => {
 
     try{
         const response = await axios.get(url);
-        if(response.address) {
+        if(response.data.address) {
             const datas = response.address;
             let tokens = [];
             tokens["10"] = datas.tokenBalances;
@@ -105,10 +105,19 @@ const getTransactions = async(address) => {
     try{
         const response = await axios.get(url);
         let transactions = [];
-        if(response.length > 0) {
-            response.forEach(data => {
-                transactions.push(buildTransaction(data));
-            })
+        if(response.data.data.length > 0) {
+            const datas = response.data.data;
+            let tokens = [];
+            for(let i = 0; i < datas.length; i++) {
+                const data = datas[i];
+                const tokenId = data.contractData.asset_name;
+                let token = tokens.find(t => { return t.id === tokenId;})
+                if(token === undefined) {
+                    token = await getTrx10Token(tokenId);
+                    tokens.push(token);
+                }
+                transactions.push(buildTransaction(data, token));
+            }
         }
 
         return transactions;
@@ -123,8 +132,21 @@ const getTransaction = async(hash) => {
 
     try{
         const response = await axios.get(url);
-        if(response.hash) {
-            const transaction = buildTransaction(response);
+        if(response.data.hash) {
+            const datas = response.data;
+            let token = {};
+            if(datas.contractData.hasOwnProperty('asset_name')) {
+                token = await getTrx10Token(data.contractData.asset_name);
+            } else {
+                token = {
+                    id: 0,
+                    symbol: "TRX",
+                    name: "Tronix",
+                    precision: 6
+                };
+            }
+            console.log(token);
+            const transaction = buildTransaction(response.data, token);
 
             return transaction;
         } else {
@@ -185,6 +207,31 @@ const createAsset = async(token, trx10s = []) => {
     return asset;
 }
 
+const getTrx10Token = async(id) => {
+    let endpoint = "/token?id=" + id + "&showAll=1";
+    let url = base + endpoint;
+
+    try{
+        const response = await axios.get(url);
+        if(response.data.data.length > 0) {
+            const datas = response.data.data[0];
+        console.log(datas);
+            const token = {
+                id: datas.tokenID,
+                symbol: datas.abbr,
+                name: datas.name,
+                precision: datas.precision
+            };
+
+            return token;
+        } else {
+            return null;
+        }
+    } catch(error) {
+        return null;
+    }
+}
+
 const getTrx10Tokens = async(limit, page) => {
     let start = page == 1 ? 0 : ((page - 1) * limit) + 1;
     let endpoint = "/token?sort=-name&limit="+ limit +"&start="+ start;
@@ -205,11 +252,16 @@ const getTrx10Tokens = async(limit, page) => {
 
 }
 
-const buildTransaction = function(txn) {
+const buildTransaction = function(txn, token) {
+    let quantity = txn.contractData.amount;
+    if(token.precision > 0) {
+        quantity = quantity / Math.pow(10, token.precision);
+    }
     const transaction = {
         hash: txn.hash,
         block: txn.block,
-        quantity: txn.contractData.amount,
+        quantity: quantity,
+        symbol: token.symbol,
         confirmations: -1,
         date: helperSvc.unixToUTC(txn.timestamp),
         from: txn.ownerAddress,

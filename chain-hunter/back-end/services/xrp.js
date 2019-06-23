@@ -21,7 +21,6 @@ const getBlockchain = async(toFind) => {
     chain.address = address;
     chain.transaction = null;
     if(address === null) {
-        console.log('finding xrp txn');
         const transaction = await getTransaction(toFind);
         chain.transaction = transaction;
     }
@@ -87,9 +86,8 @@ const getTransaction = async(hash) => {
 
     try{
         const response = await axios.get(url);
-        console.log(response.data);
-        if(response.data.err_no === 0 && response.data.data !== null) {
-            const data = response.data.data;
+        if(response.data) {
+            const data = response.data;
             const transaction = {
                 hash: data.hash,
                 block: data.ledger_index,
@@ -97,9 +95,9 @@ const getTransaction = async(hash) => {
                 quantity: data.Amount.value,
                 date: data.date,
                 from: data.Account,
-                to: data.DesinationName
+                to: data.Destination
             };
-
+            
             return transaction;
         } else {
             return null;

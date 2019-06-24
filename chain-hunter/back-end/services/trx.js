@@ -136,7 +136,7 @@ const getTransaction = async(hash) => {
             const datas = response.data;
             let token = {};
             if(datas.contractData.hasOwnProperty('asset_name')) {
-                token = await getTrx10Token(data.contractData.asset_name);
+                token = await getTrx10Token(datas.contractData.asset_name);
             } else {
                 token = {
                     id: 0,
@@ -145,7 +145,6 @@ const getTransaction = async(hash) => {
                     precision: 6
                 };
             }
-            console.log(token);
             const transaction = buildTransaction(response.data, token);
 
             return transaction;
@@ -215,7 +214,6 @@ const getTrx10Token = async(id) => {
         const response = await axios.get(url);
         if(response.data.data.length > 0) {
             const datas = response.data.data[0];
-        console.log(datas);
             const token = {
                 id: datas.tokenID,
                 symbol: datas.abbr,

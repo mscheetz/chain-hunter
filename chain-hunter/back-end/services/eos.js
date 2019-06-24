@@ -38,10 +38,10 @@ const getAddress = async(addressToFind) => {
 
     try{
         const response = await axios.post(url, data);
-        if(response.length > 0) {
+        if(response.data.length > 0) {
             const address = {
                 address:  address,
-                balance: parseFloat(response[0].replace(/\D/g, "")),
+                balance: parseFloat(response.data[0].replace(/\D/g, "")),
             };
 
             return address;
@@ -60,7 +60,7 @@ const getTransactions = async(address) => {
 
     try{
         const response = await axios.post(url, data);
-        if(response.err_no === 0 && response.data !== null) {
+        if(response.data.err_no === 0 && response.data !== null) {
             const datas = response.data.list;
             const transactions = [];
             if(datas.length > 0) {
@@ -84,31 +84,33 @@ const getTransaction = async(hash) => {
     let data = '{ "id": "'+ hash +'", "block_num_hint": "0" }';
 
     try{
-        const response = await axios.post(url, hash);
+        const response = await axios.post(url, data);
+
         if(typeof response.code === 'undefined' || response.code === 404) {
             return null;
         } else {
-            let from = (typeof response.trx.trx.actions.data.from !== 'undefined') 
-            ? response.trx.trx.actions.data.from : "eosio";
-            let to = (typeof response.trx.trx.actions.data.to !== 'undefined') 
-            ? response.trx.trx.actions.data.to : 
-            (typeof response.trx.trx.actions.data.owner !== 'undefined')
-            ? response.trx.trx.actions.data.owner : "eosio";
+            const datas = response.data;
+            let from = datas.trx.trx.actions.data.hasOwnProperty('payer')
+                        ? datas.trx.trx.actions.data.payer : "eosio";
+            let to = datas.trx.trx.actions.data.hasOwnProperty('receiver')
+                        ? datas.trx.trx.actions.data.receiver : "eosio";
             let symbol = "EOS";
             let quantity = 0;
-            if(typeof response.trx.trx.actions.quantity !== 'undefined') {
-                quantity = response.trx.trx.actions.quantity;
+
+            if(datas.trx.trx.actions.data.hasOwnProperty('quant')) {
+                quantity = datas.trx.trx.actions.data.quant;
                 symbol = quantity.substring(quantity.indexOf(" ")).trim();
                 quantity = quantity.replace(/\D/g,'');
             }
+
             let transaction = {
-                hash: response.id,
-                block: response.block_num,
-                latestBlock: response.last_irreversible_block,
-                confirmations: (response.last_irreversible_block - response.block_num),
+                hash: datas.id,
+                block: datas.block_num,
+                latestBlock: datas.last_irreversible_block,
+                confirmations: (datas.last_irreversible_block - datas.block_num),
                 quantity: quantity,
                 symbol: symbol,
-                date: response.block_time,
+                date: datas.block_time,
                 from: from,
                 to: to
             };

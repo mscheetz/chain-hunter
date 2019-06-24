@@ -22,7 +22,7 @@ const getEmptyBlockchains = async() => {
     blockchains["RVN"] = await rvn.getEmptyBlockchain();
     blockchains["BNB"] = await bnb.getEmptyBlockchain();
     blockchains["AION"] = await aion.getEmptyBlockchain();
-    blockchains["EOS"] = await eos.getEmptyBlockchain();
+    //blockchains["EOS"] = await eos.getEmptyBlockchain();
     blockchains["TRX"] = await trx.getEmptyBlockchain();
 
     return blockchains;
@@ -40,7 +40,7 @@ const getBlockchains = async(toFind) => {
     blockchains["RVN"] = await rvn.getBlockchain(toFind);
     blockchains["BNB"] = await bnb.getBlockchain(toFind);
     blockchains["AION"] = await aion.getBlockchain(toFind);
-    blockchains["EOS"] = await eos.getBlockchain(toFind);
+    //blockchains["EOS"] = await eos.getBlockchain(toFind);
     blockchains["TRX"] = await trx.getBlockchain(toFind);
 
     return blockchains;
@@ -65,8 +65,8 @@ const getBlockchain = async(chain, toFind) => {
         return await bnb.getBlockchain(toFind);
     } else if (chain === "aion") {
         return await aion.getBlockchain(toFind);
-    } else if (chain === "eos") {
-        return await eos.getBlockchain(toFind);
+    // } else if (chain === "eos") {
+    //     return await eos.getBlockchain(toFind);
     } else if (chain === "trx") {
         return await trx.getBlockchain(toFind);
     }
@@ -101,8 +101,8 @@ const getTransactions = async(chain, address) => {
         return await bnb.getTransactions(address);
     } else if (chain === "aion") {
         return await aion.getTransactions(address);
-    } else if (chain === "eos") {
-        return await eos.getTransactions(address);
+    // } else if (chain === "eos") {
+    //     return await eos.getTransactions(address);
     } else if (chain === "trx") {
         return await trx.getTransactions(address);
     }

@@ -39,19 +39,20 @@ const getAddress = async(addressToFind) => {
     try{
         const response = await axios.get(url);
         let qty = 0;
-        response.balances.forEach(balance => {
+        const datas = response.data;
+        datas.balances.forEach(balance => {
             if(balance.symbol === "BNB") {
                 qty = +balance.free + +balance.frozen + +balance.locked;
             }
         })
 
         const address = {
-            address: response.address,
+            address: datas.address,
             quantity: qty,
-            tokens: tokenConvert(response.balances)
+            //tokens: tokenConvert(datas.balances)
         };
 
-        return addressToFind;
+        return address;
     } catch(error) {
         return null;
     }
@@ -78,18 +79,19 @@ const getTransactions = async(address) => {
 
     try{
         const response = await axios.get(url);
-        const datas = response.txArray;
+        const datas = response.data.txArray;
         const transactions = [];
         if(datas !== null && datas.length > 0) {
             datas.forEach(data => {                
                 transactions.push({
-                    hash: bnbTransaction.txHash,
-                    block: bnbTransaction.blockHeight,
-                    quantity: bnbTransaction.value,
-                    confirmations: bnbTransaction.confirmBlocks,
-                    date: helperSvc.unixToUTC(bnbTransaction.timeStamp),
-                    from: bnbTransaction.fromAddr,
-                    to: bnbTransaction.toAddr
+                    hash: data.txHash,
+                    block: data.blockHeight,
+                    symbol: data.txAsset,
+                    quantity: data.value,
+                    confirmations: -1,
+                    date: helperSvc.unixToUTC(data.timeStamp),
+                    from: data.fromAddr,
+                    to: data.toAddr
                 });
             })
         }
@@ -105,28 +107,34 @@ const getTransaction = async(hash) => {
 
     try{
         const response = await axios.get(url);
+        const datas = response.data;
         let transaction = null;
-        if(response !== null) {
-            let from = "";
-            let to = ""
-            response.tx.value.inputs.forEach(input => {
-                if(from !== "") {
-                    from += ", ";
-                } 
-                from += input.address;
+        if(datas !== null) {
+            let from = [];
+            let to = [];
+            let quantity = 0;
+            let symbol = "";
+            datas.tx.value.msg[0].value.inputs.forEach(input => {
+                if(input.address && from.indexOf(input.address) <= -1) {
+                    from.push(input.address);
+                }
+                quantity += +input.coins[0].amount;
+                if(symbol === ""){
+                    symbol = input.coins[0].denom;
+                }
             });
-            response.tx.value.outputs.forEach(output => {
-                if(to !== "") {
-                    to += ", ";
-                } 
-                to += output.address;
+            datas.tx.value.msg[0].value.outputs.forEach(output => {
+                if(output.address && to.indexOf(output.address) <= -1) {
+                    to.push(output.address);
+                }
             });
             transaction = {
-                hash: response.hash,
-                block: parseInt(response.height),
-                quantity: response.tx.value.inputs[0].coins[0].amount,
-                from: from,
-                to: to
+                hash: datas.hash,
+                block: parseInt(datas.height),
+                symbol: symbol,
+                quantity: quantity/100000000,
+                from: from.join(", "),
+                to: to.join(", ")
             }
         }
 

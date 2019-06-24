@@ -39,7 +39,7 @@
 <p-panel header="{{blockchain.symbol}} Transaction" *ngIf="blockchain.transaction">
     <h3>{{blockchain.symbol}} Transaction Hash: {{blockchain.transaction.hash}}</h3>
     <div>Quantity: {{blockchain.transaction.quantity | number}} {{blockchain.transaction.symbol}}</div>
-    <div>Date: {{blockchain.transaction.date}}</div>
+    <div *ngIf="blockchain.transaction.date">Date: {{blockchain.transaction.date}}</div>
     <div>From: {{blockchain.transaction.from}}</div>
     <div>To: {{blockchain.transaction.to}}</div>
     <div>Block: {{blockchain.transaction.block}}</div>

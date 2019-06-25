@@ -10,38 +10,186 @@ const aion = require('./aion.js');
 const eos = require('./eos.js');
 const trx = require('./trx.js');
 
+const getChains = function() {
+    const chains = [
+        {
+            name: 'Bitcoin',
+            symbol: 'BTC',
+            status: 'Active'
+        },
+        {
+            name: 'Bitcoin Cash',
+            symbol: 'BCH',
+            status: 'Active'
+        },
+        {
+            name: 'Ethereum',
+            symbol: 'ETH',
+            status: 'Active'
+        },
+        {
+            name: 'Litecoin',
+            symbol: 'LTC',
+            status: 'Active'
+        },
+        {
+            name: 'Neo',
+            symbol: 'NEO',
+            status: 'Active'
+        },
+        {
+            name: 'Raven Coin',
+            symbol: 'RVN',
+            status: 'Active'
+        },
+        {
+            name: 'Ripple',
+            symbol: 'XRP',
+            status: 'Active'
+        },
+        {
+            name: 'Tron',
+            symbol: 'TRX',
+            status: 'Active'
+        },
+        {
+            name: 'AION',
+            symbol: 'AION',
+            status: 'Active'
+        },
+        {
+            name: 'Binance Coin',
+            symbol: 'BNB',
+            status: 'Active'
+        },
+        {
+            name: 'Dash',
+            symbol: 'DASH',
+            status: 'Future'
+        },
+        {
+            name: 'EOSIO',
+            symbol: 'EOS',
+            status: 'Future'
+        },
+        {
+            name: 'Icon',
+            symbol: 'ICX',
+            status: 'Future'
+        },
+        {
+            name: 'IOST',
+            symbol: 'IOST',
+            status: 'Future'
+        },
+        {
+            name: 'Ontology',
+            symbol: 'ONT',
+            status: 'Future'
+        },
+        {
+            name: 'QTUM',
+            symbol: 'QTUM',
+            status: 'Future'
+        },
+        {
+            name: 'Tether',
+            symbol: 'USDT',
+            status: 'Future'
+        },
+        {
+            name: 'Wanchain',
+            symbol: 'WAN',
+            status: 'Future'
+        },
+        {
+            name: 'Stellar Lumens',
+            symbol: 'XLM',
+            status: 'Future'
+        },
+        {
+            name: 'Zilliqa',
+            symbol: 'ZIL',
+            status: 'Future'
+        }
+    ]
+
+    return chains;
+}
+
+const getActiveChains = function() {
+    const chains = getChains();
+
+    return chains.filter(c => c.status === 'Active');
+}
+
+const getFutureChains = function() {
+    const chains = getChains();
+
+    return chains.filter(c => c.status === 'Future');
+}
+
 const getEmptyBlockchains = async() => {
     let blockchains = {};
+    const chains = getActiveChains();
 
-    blockchains["BTC"] = await btc.getEmptyBlockchain();
-    blockchains["BCH"] = await bch.getEmptyBlockchain();
-    blockchains["ETH"] = await eth.getEmptyBlockchain();
-    blockchains["LTC"] = await ltc.getEmptyBlockchain();
-    blockchains["XRP"] = await xrp.getEmptyBlockchain();
-    blockchains["NEO"] = await neo.getEmptyBlockchain();
-    blockchains["RVN"] = await rvn.getEmptyBlockchain();
-    blockchains["BNB"] = await bnb.getEmptyBlockchain();
-    blockchains["AION"] = await aion.getEmptyBlockchain();
-    //blockchains["EOS"] = await eos.getEmptyBlockchain();
-    blockchains["TRX"] = await trx.getEmptyBlockchain();
-
+    for(var i = 0; i < chains.length; i++) {
+        if(chains[i].symbol === 'BTC') {
+            blockchains["BTC"] = await btc.getEmptyBlockchain();
+        } else if(chains[i].symbol === 'BCH') {
+            blockchains["BCH"] = await bch.getEmptyBlockchain();
+        } else if(chains[i].symbol === 'ETH') {
+            blockchains["ETH"] = await eth.getEmptyBlockchain();
+        } else if(chains[i].symbol === 'LTC') {
+           blockchains["LTC"] = await ltc.getEmptyBlockchain();
+        } else if(chains[i].symbol === 'XRP') {
+            blockchains["XRP"] = await xrp.getEmptyBlockchain();
+        } else if(chains[i].symbol === 'NEO') {
+            blockchains["NEO"] = await neo.getEmptyBlockchain();
+        } else if(chains[i].symbol === 'RVN') {
+            blockchains["RVN"] = await rvn.getEmptyBlockchain();
+        } else if(chains[i].symbol === 'BNB') {
+            blockchains["BNB"] = await bnb.getEmptyBlockchain();
+        } else if(chains[i].symbol === 'AION') {
+            blockchains["AION"] = await aion.getEmptyBlockchain();
+        } else if(chains[i].symbol === 'EOS') {
+            blockchains["EOS"] = await eos.getEmptyBlockchain();
+        } else if(chains[i].symbol === 'TRX') {
+            blockchains["TRX"] = await trx.getEmptyBlockchain();
+        }
+    }
     return blockchains;
 }
 
 const getBlockchains = async(toFind) => {
     let blockchains = [];
+    const chains = getActiveChains();
 
-    blockchains["BTC"] = await btc.getBlockchain(toFind);
-    blockchains["BCH"] = await bch.getBlockchain(toFind);
-    blockchains["ETH"] = await eth.getBlockchain(toFind);
-    blockchains["LTC"] = await ltc.getBlockchain(toFind);
-    blockchains["XRP"] = await xrp.getBlockchain(toFind);
-    blockchains["NEO"] = await neo.getBlockchain(toFind);
-    blockchains["RVN"] = await rvn.getBlockchain(toFind);
-    blockchains["BNB"] = await bnb.getBlockchain(toFind);
-    blockchains["AION"] = await aion.getBlockchain(toFind);
-    //blockchains["EOS"] = await eos.getBlockchain(toFind);
-    blockchains["TRX"] = await trx.getBlockchain(toFind);
+    for(var i = 0; i < chains.length; i++) {
+        if(chains[i].symbol === 'BTC') {
+            blockchains["BTC"] = await btc.getBlockchain(toFind);
+        } else if(chains[i].symbol === 'BCH') {
+            blockchains["BCH"] = await bch.getBlockchain(toFind);
+        } else if(chains[i].symbol === 'ETH') {
+            blockchains["ETH"] = await eth.getBlockchain(toFind);
+        } else if(chains[i].symbol === 'LTC') {
+           blockchains["LTC"] = await ltc.getBlockchain(toFind);
+        } else if(chains[i].symbol === 'XRP') {
+            blockchains["XRP"] = await xrp.getBlockchain(toFind);
+        } else if(chains[i].symbol === 'NEO') {
+            blockchains["NEO"] = await neo.getBlockchain(toFind);
+        } else if(chains[i].symbol === 'RVN') {
+            blockchains["RVN"] = await rvn.getBlockchain(toFind);
+        } else if(chains[i].symbol === 'BNB') {
+            blockchains["BNB"] = await bnb.getBlockchain(toFind);
+        } else if(chains[i].symbol === 'AION') {
+            blockchains["AION"] = await aion.getBlockchain(toFind);
+        } else if(chains[i].symbol === 'EOS') {
+            blockchains["EOS"] = await eos.getBlockchain(toFind);
+        } else if(chains[i].symbol === 'TRX') {
+            blockchains["TRX"] = await trx.getBlockchain(toFind);
+        }
+    }
 
     return blockchains;
 }
@@ -109,6 +257,9 @@ const getTransactions = async(chain, address) => {
 }
 
 module.exports = {
+    getChains,
+    getActiveChains,
+    getFutureChains,
     getEmptyBlockchains,
     getBlockchains,
     getBlockchain,

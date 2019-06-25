@@ -44,6 +44,26 @@ app.get('/api', asyncMiddleware(async function(req, res, next){
   	res.status(200).json({'about': 'Chain Hunter\'s apis are nested under here'});
 }));
 
+app.get('/api/blockchain/active', asyncMiddleware(async function(req, res, next) {
+  // if(!this.headerCheck(req)) {
+  //   this.errorResponse(res);
+  // } else {
+    const result = await manager.getActiveChains();
+
+  	res.status(200).json(result);
+  //}
+}));
+
+app.get('/api/blockchain/future', asyncMiddleware(async function(req, res, next) {
+  // if(!this.headerCheck(req)) {
+  //   this.errorResponse(res);
+  // } else {
+    const result = await manager.getFutureChains();
+
+  	res.status(200).json(result);
+  //}
+}));
+
 app.get('/api/blockchain/empty', asyncMiddleware(async function(req, res, next){
   // if(!this.headerCheck(req)) {
   //   this.errorResponse(res);

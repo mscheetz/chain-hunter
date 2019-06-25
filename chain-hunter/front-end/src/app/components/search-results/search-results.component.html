@@ -47,18 +47,15 @@
 </p-panel>
 </div>
 <p-panel showHeader="false" *ngIf="huntStatus === 0 && selectedChain === ''">
-    <h3>Enter an Address or Transaction Hash</h3>
-    <span>To search the following blockchains at once!&nbsp;&nbsp;&nbsp;</span>
-    <img class="chain-logo-pad" src="assets/cryptoicons/color/btc.svg" title="Bitcoin" />
-    <img class="chain-logo-pad" src="assets/cryptoicons/color/bch.svg" title="Bitcoin Cash" />
-    <img class="chain-logo-pad" src="assets/cryptoicons/color/eth.svg" title="Ethereum" />
-    <img class="chain-logo-pad" src="assets/cryptoicons/color/ltc.svg" title="Litecoin" />
-    <img class="chain-logo-pad" src="assets/cryptoicons/color/neo.svg" title="Neo" />
-    <img class="chain-logo-pad" src="assets/cryptoicons/color/rvn.svg" title="Raven Coin" />
-    <img class="chain-logo-pad" src="assets/cryptoicons/color/xrp.svg" title="Ripple" />
-    <img class="chain-logo-pad" src="assets/cryptoicons/color/trx.svg" title="Tron" />
-    <img class="chain-logo-pad" src="assets/cryptoicons/color/aion.svg" title="Aion" />
-    <img class="chain-logo-pad" src="assets/cryptoicons/color/bnb.svg" title="Binance Coin" />
+    <h3>Enter an Address, Contract, or Transaction Hash</h3>
+    <ul class="no-pad">
+        <li class="active-chain-pad">
+            To search the following blockchains at once!
+        </li>
+        <li *ngFor="let chain of activeChains">
+            <img class="chain-logo-pad" src="assets/cryptoicons/color/{{chain.symbol.toLowerCase()}}.svg" title="{{chain.name}}" />
+        </li>
+    </ul>
 </p-panel>
 <p-panel showHeader="false" *ngIf="huntStatus === 1">
     <h3>Searching...</h3>

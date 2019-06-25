@@ -1,5 +1,6 @@
 import { OnInit, Input, Component, Output, EventEmitter } from '@angular/core';
 import { Blockchain } from 'src/app/classes/ChainHunter/Blockchain';
+import { Chain } from 'src/app/classes/ChainHunter/Chain';
 
 @Component({
     selector: 'search-results',
@@ -8,6 +9,7 @@ import { Blockchain } from 'src/app/classes/ChainHunter/Blockchain';
 })
 
 export class SearchResultsComponent implements OnInit{
+    @Input() activeChains: Chain[];
     @Input() blockchain: Blockchain;
     @Input() transactionsComplete: boolean;
     @Input() tokensComplete: boolean;

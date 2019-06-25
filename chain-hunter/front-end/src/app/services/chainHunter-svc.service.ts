@@ -4,6 +4,7 @@ import { Injectable } from '@angular/core';
 import { Blockchain } from '../classes/ChainHunter/Blockchain';
 import { Transaction } from '../classes/ChainHunter/Transaction';
 import { Asset } from '../classes/ChainHunter/Asset';
+import { Chain } from '../classes/ChainHunter/Chain';
 
 @Injectable({providedIn: 'root'})
 export class ChainHunterService{
@@ -11,6 +12,29 @@ export class ChainHunterService{
     
     private baseUrl: string = "http://localhost:4200";
 
+    /**
+     * Get active blockchains
+     */
+    getActiveChains(): Observable<Chain[]> {
+        let endpoint: string = "/api/blockchain/active";
+        let url: string = this.baseUrl + endpoint;
+
+        let result = this.http.get<Chain[]>(url);
+    
+        return result;
+    }
+
+    /**
+     * Get future blockchains
+     */
+    getFutureChains(): Observable<Chain[]> {
+        let endpoint: string = "/api/blockchain/future";
+        let url: string = this.baseUrl + endpoint;
+
+        let result = this.http.get<Chain[]>(url);
+    
+        return result;
+    }
 
     /**
      * Get empty Blockchains

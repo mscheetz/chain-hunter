@@ -3,7 +3,7 @@
     <div class="pull-right">
         <span class="ui-float-label">
             <input [(ngModel)]="addyTxn" id="addy-txn" type="text" size="50" (keyup.enter)="chainHunt()" pInputText> 
-            <label for="addy-txn">Address/Transaction</label>
+            <label for="addy-txn">Address/Contract/Transaction</label>
         <button pButton type="button" (click)="chainHunt()" label="Go!" class="ui-button-success"></button>
         </span>
     </div>
@@ -21,6 +21,7 @@
         </ng-template>
     </p-tabMenu>
     <search-results 
+        [activeChains]="activeChains"
         [blockchain]="blockchain" 
         [huntStatus]="huntStatus" 
         [selectedChain]="selectedChain" 
@@ -32,20 +33,13 @@
     </search-results>
 </div>
 <div>    
-    <div class="coming-soon">
+    <div class="coming-soon" *ngIf="comingSoon.length > 0">
         <p>Coming soon:</p>
-        <div>
-            <img class="chain-logo-pad" src="assets/cryptoicons/color/dash.svg" title="Dash" />
-            <img class="chain-logo-pad" src="assets/cryptoicons/color/eos.svg" title="EOS" />
-            <img class="chain-logo-pad" src="assets/cryptoicons/color/icx.svg" title="Icon" />
-            <img class="chain-logo-pad" src="assets/cryptoicons/color/iost.svg" title="IOST" />
-            <img class="chain-logo-pad" src="assets/cryptoicons/color/ont.svg" title="Ontology" />
-            <img class="chain-logo-pad" src="assets/cryptoicons/color/qtum.svg" title="QTUM" />
-            <img class="chain-logo-pad" src="assets/cryptoicons/color/usdt.svg" title="Tether" />
-            <img class="chain-logo-pad" src="assets/cryptoicons/color/wan.svg" title="Wanchain" />
-            <img class="chain-logo-pad" src="assets/cryptoicons/color/xlm.svg" title="Stellar Lumens" />
-            <img class="chain-logo-pad" src="assets/cryptoicons/color/zil.svg" title="Zilliqa" />
-        </div>
+        <ul class="no-pad">
+            <li *ngFor="let chain of futureChains">
+                <img class="chain-logo-pad" src="assets/cryptoicons/color/{{chain.symbol.toLowerCase()}}.svg" title="{{chain.name}}" />
+            </li>
+        </ul>
     </div>
 </div>
 <p-accordion>

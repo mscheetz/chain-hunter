@@ -27,6 +27,7 @@ import { strictEqual } from 'assert';
 import { EosService } from 'src/app/services/eos-svc.service';
 import { EosAddress } from 'src/app/classes/EOS/EosAddress';
 import { ChainHunterService } from 'src/app/services/chainHunter-svc.service';
+import { Chain } from 'src/app/classes/ChainHunter/Chain';
 
 @Component({
     selector: 'chain-hunter',
@@ -36,7 +37,9 @@ import { ChainHunterService } from 'src/app/services/chainHunter-svc.service';
 
 export class ChainHunterComponent implements OnInit {
     @Output() addyTxn: string;
-    
+    @Output() activeChains: Chain[] = [];
+    futureChains: Chain[] = [];
+    comingSoon: string = "";
     notRunning: boolean = true;
     seeItem: boolean = false;
     activeItem: MenuItem;
@@ -55,6 +58,7 @@ export class ChainHunterComponent implements OnInit {
                 private chainService: ChainHunterService) {}
 
     ngOnInit() {
+        this.getChains();
         this.nullOut();
         this.updateMenuItems();
     }
@@ -64,6 +68,24 @@ export class ChainHunterComponent implements OnInit {
         this.calculateIcons();
     }
 
+    getChains() {
+        this.chainService.getActiveChains()
+            .subscribe(chains => {
+                this.activeChains = chains;
+            });
+        this.chainService.getFutureChains()
+            .subscribe(chains => {
+                this.futureChains = chains;
+                chains.forEach(chain => {
+                    const iconClass = `class="chain-logo-pad"`;
+                    const iconSrc = `src="assets/cryptoicons/color/${chain.symbol.toLowerCase()}.svg"`;
+                    const iconName = `title="${chain.name}"`;
+                    const icon = `<img ${iconClass} ${iconSrc} ${iconName} />`;
+                    this.comingSoon += icon;
+                });
+            });
+    }
+
     chainHunt(){
         this.addyTxn = this.addyTxn.trim();
         if(this.previousSearch === this.addyTxn || this.addyTxn === "") {
@@ -71,6 +93,7 @@ export class ChainHunterComponent implements OnInit {
         }
         this.huntStatus = 1;
         this.blockchain = new Blockchain();
+        this.selectedChain = '';
         this.nullOut();
         if(this.map.size > 0) {
             this.clearMap();
@@ -176,7 +199,7 @@ export class ChainHunterComponent implements OnInit {
     }
 
     setMap(chain: Blockchain) {
-        chain = this.getMenuIcon(chain);
+        //chain = this.getMenuIcon(chain);
         this.map.set(chain.symbol, chain);
     }
 

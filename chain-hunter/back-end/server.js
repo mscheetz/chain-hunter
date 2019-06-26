@@ -36,93 +36,91 @@ const asyncMiddleware = fn =>
       .catch(next);
   };
 
-// app.get('/', function(req, res) {
-//   res.sendFile(path.join(__dirname + '/index.html'));
-// });
-
 app.get('/api', asyncMiddleware(async function(req, res, next){
   	res.status(200).json({'about': 'Chain Hunter\'s apis are nested under here'});
 }));
 
 app.get('/api/blockchain/active', asyncMiddleware(async function(req, res, next) {
-  // if(!this.headerCheck(req)) {
-  //   this.errorResponse(res);
-  // } else {
+   if(!this.headerCheck(req)) {
+     this.errorResponse(res);
+   } else {
     const result = await manager.getActiveChains();
 
   	res.status(200).json(result);
-  //}
+  }
 }));
 
 app.get('/api/blockchain/future', asyncMiddleware(async function(req, res, next) {
-  // if(!this.headerCheck(req)) {
-  //   this.errorResponse(res);
-  // } else {
+  if(!this.headerCheck(req)) {
+    this.errorResponse(res);
+  } else {
     const result = await manager.getFutureChains();
 
   	res.status(200).json(result);
-  //}
+  }
 }));
 
 app.get('/api/blockchain/empty', asyncMiddleware(async function(req, res, next){
-  // if(!this.headerCheck(req)) {
-  //   this.errorResponse(res);
-  // } else {
+  if(!this.headerCheck(req)) {
+    this.errorResponse(res);
+  } else {
     const result = await manager.getEmptyBlockchains();
 
   	res.status(200).json(result);
-  //}
+  }
 }));
 
 app.get('/api/blockchain/:toFind', asyncMiddleware(async function(req, res, next){
   const toFind = req.params.toFind;
-  // if(!this.headerCheck(req)) {
-  //   this.errorResponse(res);
-  // } else {
+  if(!this.headerCheck(req)) {
+    this.errorResponse(res);
+  } else {
     console.log('searching for: '+ toFind);
     const result = await manager.getBlockchains(toFind);
 
   	res.status(200).json(result);
-  //}
+  }
 }));
 
 app.get('/api/blockchain/:chain/:toFind', asyncMiddleware(async function(req, res, next){
-  const chain = req.params.chain.toLowerCase();
-  const toFind = req.params.toFind;
-  // if(!this.headerCheck(req)) {
-  //   this.errorResponse(res);
-  // } else {
+  if(!this.headerCheck(req)) {
+    this.errorResponse(res);
+  } else {
+    const chain = req.params.chain.toLowerCase();
+    const toFind = req.params.toFind;
     const result = await manager.getBlockchain(chain, toFind);
 
   	res.status(200).json(result);
-  //}
+  }
 }));
 
 app.get('/api/address/:chain/:address/txs', asyncMiddleware(async function(req, res, next){
-  const chain = req.params.chain.toLowerCase();
-  const address = req.params.address;
-  // if(!this.headerCheck(req)) {
-  //   this.errorResponse(res);
-  // } else {
+  if(!this.headerCheck(req)) {
+    this.errorResponse(res);
+  } else {
+    const chain = req.params.chain.toLowerCase();
+    const address = req.params.address;
     const result = await manager.getTransactions(chain, address);
 
 	  res.status(200).json(result);
-  //}
+  }
 }));
 
 app.get('/api/address/:chain/:address/tokens', asyncMiddleware(async function(req, res, next){
-  const chain = req.params.chain.toLowerCase();
-  const address = req.params.address;
-  // if(!this.headerCheck(req)) {
-  //   this.errorResponse(res);
-  // } else {
-  	const result = await manager.getTokens(chain, address);
+  if(!this.headerCheck(req)) {
+    this.errorResponse(res);
+  } else {
+  	const chain = req.params.chain.toLowerCase();
+    const address = req.params.address;
+    const result = await manager.getTokens(chain, address);
 
   	res.status(200).json(result);
-  //}
+  }
 }));
 
-const whitelistUsers = new Map([['volitility-d', 'b59e052f-891d-45be-b316-0c22b561bb11'],['volitility-p', 'e64b33f6-54af-4303-9e6e-cc390d2add10']]);
+const whitelistUsers = new Map([
+  ['chainhunter-d', 'e2f755b9-3115-4478-947a-69324c03b4c6'],
+  ['chainhunter-p', '4e5896c2-6481-41a5-8fa2-d6cc2f3808a8']]);
 
 errorResponse = function(res) {
 	return res.status(400).json({'code': 400, 'message': 'You said whaaaaaa??'});

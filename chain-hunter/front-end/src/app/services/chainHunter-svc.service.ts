@@ -5,12 +5,15 @@ import { Blockchain } from '../classes/ChainHunter/Blockchain';
 import { Transaction } from '../classes/ChainHunter/Transaction';
 import { Asset } from '../classes/ChainHunter/Asset';
 import { Chain } from '../classes/ChainHunter/Chain';
+import { environment } from 'src/environments/environment';
+import { HelperService } from './helper-svc.service';
 
 @Injectable({providedIn: 'root'})
 export class ChainHunterService{
-    constructor(private http: HttpClient) {}
+    constructor(private http: HttpClient, private helperSvc: HelperService) {}
     
     private baseUrl: string = "http://localhost:4200";
+    private user: string = environment.user;
 
     /**
      * Get active blockchains
@@ -19,7 +22,7 @@ export class ChainHunterService{
         let endpoint: string = "/api/blockchain/active";
         let url: string = this.baseUrl + endpoint;
 
-        let result = this.http.get<Chain[]>(url);
+        let result = this.onGet<Chain[]>(url);
     
         return result;
     }
@@ -31,7 +34,7 @@ export class ChainHunterService{
         let endpoint: string = "/api/blockchain/future";
         let url: string = this.baseUrl + endpoint;
 
-        let result = this.http.get<Chain[]>(url);
+        let result = this.onGet<Chain[]>(url);
     
         return result;
     }
@@ -46,7 +49,7 @@ export class ChainHunterService{
         let endpoint: string = "/api/blockchain/empty";
         let url: string = this.baseUrl + endpoint;
 
-        let result = this.http.get<Map<string, Blockchain>>(url);
+        let result = this.onGet<Map<string, Blockchain>>(url);
     
         return result;
     }
@@ -61,7 +64,7 @@ export class ChainHunterService{
         let endpoint: string = "/api/blockchain/"+ chain + "/" + addyTxn;
         let url: string = this.baseUrl + endpoint;
 
-        let result = this.http.get<Blockchain>(url);
+        let result = this.onGet<Blockchain>(url);
     
         return result;
     }
@@ -76,7 +79,7 @@ export class ChainHunterService{
         let endpoint: string = "/api/blockchain/" + addyTxn;
         let url: string = this.baseUrl + endpoint;
 
-        let result = this.http.get<Map<string, Blockchain>>(url);
+        let result = this.onGet<Map<string, Blockchain>>(url);
     
         return result;
     }
@@ -91,7 +94,7 @@ export class ChainHunterService{
         let endpoint: string = "/api/address/" + chain + "/" + address +"/txs";
         let url: string = this.baseUrl + endpoint;
 
-        return this.http.get<Transaction[]>(url);
+        return this.onGet<Transaction[]>(url);
     }
 
     /**
@@ -104,6 +107,18 @@ export class ChainHunterService{
         let endpoint: string = "/api/address/" + chain + "/" + address +"/tokens";
         let url: string = this.baseUrl + endpoint;
 
-        return this.http.get<Asset[]>(url);
+        return this.onGet<Asset[]>(url);
+    }
+
+    onGet<T>(url: string): Observable<T> {
+        let headers = {
+            'TCH-USER': this.user,
+            'TCH-SIGNATURE': this.helperSvc.requestSignature()
+        }
+        let requestOptions = {
+            headers: new HttpHeaders(headers),
+        }
+
+        return this.http.get<T>(url, requestOptions);
     }
 }

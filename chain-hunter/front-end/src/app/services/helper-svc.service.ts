@@ -1,8 +1,12 @@
 import { Injectable } from '@angular/core';
+import { environment } from 'src/environments/environment';
+import { AES } from 'node_modules/crypto-ts'
 
 @Injectable({providedIn: 'root'})
 export class HelperService{
     constructor() {}
+    
+    token: string = environment.token;
 
     /**
      * conver unix time to utc time
@@ -69,5 +73,15 @@ export class HelperService{
       }
 
       return updatedValue + decimals;
+    }
+
+    /**
+     * Get request signature
+     */
+    requestSignature(): string {
+      const timestamp = Date.now() * 1000;
+      const cypher = AES.encrypt(timestamp.toString(), this.token);
+
+      return cypher.toString();
     }
 }

@@ -17,6 +17,7 @@ import { PanelModule } from 'primeng/panel';
 import { SearchResultsComponent } from './components/search-results/search-results.component';
 import {ProgressBarModule} from 'primeng/progressbar';
 import { ComingSoonComponent } from './components/coming-soon/coming-soon.component';
+import { FooterComponent } from './components/footer/footer.component';
 
 @NgModule({
   declarations: [
@@ -24,7 +25,8 @@ import { ComingSoonComponent } from './components/coming-soon/coming-soon.compon
     ChainHunterComponent,
     SearchResultsComponent,
     SamplesComponent,
-    ComingSoonComponent
+    ComingSoonComponent,
+    FooterComponent
   ],
   imports: [
     BrowserModule,

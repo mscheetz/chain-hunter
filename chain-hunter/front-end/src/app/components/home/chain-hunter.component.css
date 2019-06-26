@@ -40,6 +40,15 @@ div {
     margin: 10px 0 10px 0;
 }
 
+.footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    /* Set the fixed height of the footer here */
+    height: 30px;
+    line-height: 30px;
+}
+
 ul > li {
     display: inline-block;
     zoom: 1;

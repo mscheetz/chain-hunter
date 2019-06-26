@@ -1,0 +1,60 @@
+/*body{
+    font-family: "Open Sans","Helvetica Neue",sans-serif;
+}
+
+h2 {
+    font-family: "Open Sans","Helvetica Neue",sans-serif;
+    font-weight: 400;
+    font-size: 30px;
+    margin-bottom: 20px;
+    display: block;
+}
+
+div {
+    font-family: "Open Sans","Helvetica Neue",sans-serif;
+}
+
+.not-found-bg {
+    background-color: dimgrey;
+}
+
+.found-bg {
+    background-color: ghostwhite;
+}
+
+.float-input {
+    font-family: "Open Sans","Helvetica Neue",sans-serif;
+}
+*/
+.logo-main {
+    height: 99.438px;
+    width: 400px;
+    margin-bottom: 20px;
+}
+
+.chain-logo-pad {
+    padding: 0 2px 0 2px;
+}
+
+.coming-soon{
+    margin: 10px 0 10px 0;
+}
+
+.footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    /* Set the fixed height of the footer here */
+    height: 30px;
+    line-height: 30px;
+}
+
+ul > li {
+    display: inline-block;
+    zoom: 1;
+    *display: inline;
+}
+
+.no-pad {
+    padding: 0px;
+}

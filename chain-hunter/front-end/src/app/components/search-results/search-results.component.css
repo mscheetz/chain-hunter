@@ -1,0 +1,23 @@
+.p-accordion {
+    height: 275px;
+    display: block;
+    overflow: scroll;
+}
+
+.chain-logo-pad {
+    padding: 0 2px 0 2px;
+}
+
+ul > li {
+    display: inline-block;
+    zoom: 1;
+    *display: inline;
+}
+
+.no-pad {
+    padding: 0px;
+}
+
+.active-chain-pad {
+    padding-right: 20px;
+}

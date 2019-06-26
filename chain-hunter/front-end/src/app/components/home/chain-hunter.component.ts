@@ -1,31 +1,7 @@
-import { OnInit, Component, Output, Input } from '@angular/core';
-import { BtcService } from 'src/app/services/btc-svc.service';
-import { EthService } from 'src/app/services/eth-svc.service';
-import { EthAddress } from 'src/app/classes/ETH/EthAddress';
-import { LtcService } from 'src/app/services/ltc-svc.service';
-import { BchService } from 'src/app/services/bch-svc.service';
-import { EthTransaction } from 'src/app/classes/ETH/EthTransaction';
-import { RvnService } from 'src/app/services/rvn-svc.service';
+import { OnInit, Component, Output, Input, isDevMode } from '@angular/core';
 import { MenuItem } from 'primeng/api';
-import { XrpService } from 'src/app/services/xrp-svc.service';
-import { BnbService } from 'src/app/services/bnb-svc.service';
-import { NeoService } from 'src/app/services/neo-svc.service';
 import { Blockchain } from 'src/app/classes/ChainHunter/Blockchain';
-import { EthBlock } from 'src/app/classes/ETH/EthBlock';
-import { AionService } from 'src/app/services/aion-svc.service';
-import { AionTokenDetail } from 'src/app/classes/AION/AionTokenDetail';
-import { AionToken } from 'src/app/classes/AION/AionToken';
 import { HelperService } from 'src/app/services/helper-svc.service';
-import { TrxAddress } from 'src/app/classes/TRX/TrxAddress';
-import { TrxService } from 'src/app/services/trx-svc.service';
-import { TrxToken20 } from 'src/app/classes/TRX/TrxToken20';
-import { TrxToken10 } from 'src/app/classes/TRX/TrxToken10';
-import { IfStmt } from '@angular/compiler';
-import { TrxAddress20Token } from 'src/app/classes/TRX/TrxAddress20Token';
-import { TrxAddress10Token } from 'src/app/classes/TRX/TrxAddress10Token';
-import { strictEqual } from 'assert';
-import { EosService } from 'src/app/services/eos-svc.service';
-import { EosAddress } from 'src/app/classes/EOS/EosAddress';
 import { ChainHunterService } from 'src/app/services/chainHunter-svc.service';
 import { Chain } from 'src/app/classes/ChainHunter/Chain';
 
@@ -38,7 +14,7 @@ import { Chain } from 'src/app/classes/ChainHunter/Chain';
 export class ChainHunterComponent implements OnInit {
     @Output() addyTxn: string;
     @Output() activeChains: Chain[] = [];
-    futureChains: Chain[] = [];
+    @Output() futureChains: Chain[] = [];
     comingSoon: string = "";
     notRunning: boolean = true;
     seeItem: boolean = false;
@@ -53,6 +29,7 @@ export class ChainHunterComponent implements OnInit {
     requestedChains: number = 0;
     @Output() resultsFound: string[] = [];
     @Output() huntStatus: number = 0; // 0 = no search yet, 1 = searching, 2 = nothing found, 3 = something found
+    devMode: boolean = isDevMode();
 
     constructor(private helperService: HelperService,
                 private chainService: ChainHunterService) {}

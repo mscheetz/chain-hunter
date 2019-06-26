@@ -32,17 +32,9 @@
         (getTokens)="getAddressTokens($event)">
     </search-results>
 </div>
-<div>    
-    <div class="coming-soon" *ngIf="comingSoon.length > 0">
-        <p>Coming soon:</p>
-        <ul class="no-pad">
-            <li *ngFor="let chain of futureChains">
-                <img class="chain-logo-pad" src="assets/cryptoicons/color/{{chain.symbol.toLowerCase()}}.svg" title="{{chain.name}}" />
-            </li>
-        </ul>
-    </div>
-</div>
-<p-accordion>
+<coming-soon [futureChains]="futureChains">
+</coming-soon>
+<p-accordion *ngIf="devMode">
     <p-accordionTab header="Samples">
         <samples></samples>
     </p-accordionTab>

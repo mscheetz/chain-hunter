@@ -16,13 +16,15 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { PanelModule } from 'primeng/panel';
 import { SearchResultsComponent } from './components/search-results/search-results.component';
 import {ProgressBarModule} from 'primeng/progressbar';
+import { ComingSoonComponent } from './components/coming-soon/coming-soon.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     ChainHunterComponent,
     SearchResultsComponent,
-    SamplesComponent
+    SamplesComponent,
+    ComingSoonComponent
   ],
   imports: [
     BrowserModule,

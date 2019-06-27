@@ -12,6 +12,7 @@ import { Chain } from 'src/app/classes/ChainHunter/Chain';
 })
 
 export class ChainHunterComponent implements OnInit {
+    offLine: boolean = false;
     @Output() addyTxn: string;
     @Output() activeChains: Chain[] = [];
     @Output() futureChains: Chain[] = [];
@@ -49,6 +50,9 @@ export class ChainHunterComponent implements OnInit {
         this.chainService.getActiveChains()
             .subscribe(chains => {
                 this.activeChains = chains;
+            },
+            error => {
+                this.offLine = true;
             });
         this.chainService.getFutureChains()
             .subscribe(chains => {

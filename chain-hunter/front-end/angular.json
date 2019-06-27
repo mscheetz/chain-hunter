@@ -25,7 +25,6 @@
             "assets": [
               "src/favicon.ico",
               "src/assets",
-              //"./node_modules/primeng/resources/primeng.min.css",
               {
                 "glob": "**/*",
                 "input": "./node_modules/cryptocurrency-icons/svg/color/",
@@ -39,7 +38,7 @@
             ],
             "styles": [
               "src/styles.scss",
-              "node_modules/primeng/resources/themes/luna-blue/theme.css",
+              "node_modules/primeng/resources/themes/nova-light/theme.css",
               "node_modules/primeng/resources/primeng.min.css",
               "node_modules/primeicons/primeicons.css"
             ],
@@ -98,13 +97,15 @@
             "tsConfig": "src/tsconfig.spec.json",
             "karmaConfig": "src/karma.conf.js",
             "styles": [
-              "src/styles.scss"
+              "src/styles.scss",
+              "node_modules/primeng/resources/themes/nova-light/theme.css",
+              "node_modules/primeng/resources/primeng.min.css",
+              "node_modules/primeicons/primeicons.css"
             ],
             "scripts": [],
             "assets": [
               "src/favicon.ico",
               "src/assets",
-              //"./node_modules/primeng/resources/primeng.min.css",
               {
                 "glob": "**/*",
                 "input": "./node_modules/cryptocurrency-icons/svg/color/",

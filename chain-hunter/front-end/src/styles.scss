@@ -1,10 +1,83 @@
-/* You can add global styles to this file, and also import other style files */
-html {
-    position: relative;
-    min-height: 100%;
-}
+// /* You can add global styles to this file, and also import other style files */
+// html {
+//     position: relative;
+//     min-height: 100%;
+// }
 
-body {
-  /* Margin bottom by footer height */
-  margin-bottom: 30px;
-}
+// body {
+//   /* Margin bottom by footer height */
+//   margin-bottom: 30px;
+// }
+* {
+	box-sizing: border-box;
+  }
+  
+  body {
+	font-family: Arial, Helvetica, sans-serif;
+	margin: 0;
+  }
+  
+  /* Style the header */
+  .header {
+	//background-color: #666;
+	padding: 10px;
+	//text-align: center;
+	font-size: 35px;
+	color: white;
+  }
+    
+  .main-content {
+	//  margin: 8px;
+	//float: left;
+	padding: 20px;
+	//width: 70%;
+	//background-color: #f1f1f1;
+	//height: 300px; /* only for demonstration, should be removed */
+  }
+  
+  /* Clear floats after the columns */
+//   .main-content:after {
+// 	content: "";
+// 	display: table;
+// 	clear: both;
+//   }
+  
+  /* Style the footer */
+  .footer {
+	font-size: 14px;
+	width: 100%;
+	padding: 14px 5px;
+	//color: #eef1f6;
+	//border-top: 4px solid #F36F25;
+	bottom: 0;
+	position: fixed;
+	background-color: #dbdbdb;
+	// padding: 10px;
+	// text-align: center;
+	// color: white;
+  }
+  
+  /* Responsive layout - makes the two columns/boxes stack on top of each other instead of next to each other, on small screens */
+  @media (max-width: 600px) {
+	.main-content {
+	  width: 100%;
+	  height: auto;
+	}
+  }
+
+  .search-bar {
+	  margin-bottom: 10px;
+  }
+
+  .search-button {
+	  margin-left: 10px;
+  }
+
+  .chain-logo-pad {
+	  padding: 0 2px 0 2px;
+  }
+
+  .footer-right {
+	  font-size: 12px;
+	  text-align: right;
+  }

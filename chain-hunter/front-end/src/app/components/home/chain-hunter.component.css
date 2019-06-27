@@ -26,6 +26,16 @@ div {
     font-family: "Open Sans","Helvetica Neue",sans-serif;
 }
 */
+
+.ui-button {
+    margin-left: 10px;
+}
+
+.ui-button.ui-state-default.ui-button-success {
+    background-color: #83bd4d;
+    border: 1px solid #d4d4d4;
+}
+
 .logo-main {
     height: 99.438px;
     width: 400px;

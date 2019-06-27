@@ -63,6 +63,11 @@ const getChains = function() {
             status: 'Active'
         },
         {
+            name: 'Cosmos',
+            symbol: 'ATOM',
+            status: 'Future'
+        },
+        {
             name: 'Dash',
             symbol: 'DASH',
             status: 'Future'

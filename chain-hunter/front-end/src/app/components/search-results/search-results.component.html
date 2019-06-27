@@ -48,10 +48,12 @@
 </div>
 <p-panel showHeader="false" *ngIf="huntStatus === 0 && selectedChain === ''">
     <h3>Enter an Address, Contract, or Transaction Hash</h3>
+    <p><strong>Chain Hunter</strong> allows you to search an address, contract, or transaction hash for multiple blockchains all from one site.</p>
+    <p>Use <strong>Chain Hunter</strong> now to search the following blockchains at once:</p>
     <ul class="no-pad">
-        <li class="active-chain-pad">
-            To search the following blockchains at once!
-        </li>
+        <!-- <li class="active-chain-pad">
+            
+        </li> -->
         <li *ngFor="let chain of activeChains">
             <img class="chain-logo-pad" src="assets/cryptoicons/color/{{chain.symbol.toLowerCase()}}.svg" title="{{chain.name}}" />
         </li>

@@ -30,7 +30,7 @@ export class ChainHunterComponent implements OnInit {
     requestedChains: number = 0;
     @Output() resultsFound: string[] = [];
     @Output() huntStatus: number = 0; // 0 = no search yet, 1 = searching, 2 = nothing found, 3 = something found
-    devMode: boolean = false; //isDevMode();
+    devMode: boolean = isDevMode();
 
     constructor(private helperService: HelperService,
                 private chainService: ChainHunterService) {}

@@ -24,13 +24,13 @@ export class ChainHunterComponent implements OnInit {
     map: Map<string, Blockchain> = new Map<string, Blockchain>();
     menuItems: MenuItem[];
     selectedChain: string = "";
-    txnsComplete: boolean = true;
+    @Output() txnsComplete: boolean = true;
     previousSearch: string = "";
     tokensComplete: boolean = true;
     requestedChains: number = 0;
     @Output() resultsFound: string[] = [];
     @Output() huntStatus: number = 0; // 0 = no search yet, 1 = searching, 2 = nothing found, 3 = something found
-    devMode: boolean = isDevMode();
+    devMode: boolean = false; //isDevMode();
 
     constructor(private helperService: HelperService,
                 private chainService: ChainHunterService) {}
@@ -70,7 +70,7 @@ export class ChainHunterComponent implements OnInit {
     chainHunt(){
         this.addyTxn = this.addyTxn.trim();
         if(this.previousSearch === this.addyTxn || this.addyTxn === "") {
-        //    return;
+            return;
         }
         this.huntStatus = 1;
         this.blockchain = new Blockchain();
@@ -111,10 +111,12 @@ export class ChainHunterComponent implements OnInit {
     }
 
     getAddressTxns(symbol: string): any {
+        this.txnsComplete = false;
         let chain = this.getBlockchain(symbol);
         this.chainService.getAddressTransactions(symbol, chain.address.address)
             .subscribe(txns => {
                 chain.address.transactions = txns;
+                this.txnsComplete = true;
             });
     }
 

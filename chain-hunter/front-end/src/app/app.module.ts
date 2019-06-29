@@ -19,6 +19,7 @@ import {ProgressBarModule} from 'primeng/progressbar';
 import { ComingSoonComponent } from './components/coming-soon/coming-soon.component';
 import { FooterComponent } from './components/footer/footer.component';
 import { HeaderComponent } from './components/header/header.component';
+import { ActiveChainsComponent } from './components/active-chains/active-chains.component';
 
 @NgModule({
   declarations: [
@@ -28,7 +29,8 @@ import { HeaderComponent } from './components/header/header.component';
     SamplesComponent,
     ComingSoonComponent,
     FooterComponent,
-    HeaderComponent
+    HeaderComponent,
+    ActiveChainsComponent
   ],
   imports: [
     BrowserModule,

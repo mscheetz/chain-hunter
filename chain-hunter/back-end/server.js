@@ -75,7 +75,6 @@ app.get('/api/blockchain/:toFind', asyncMiddleware(async function(req, res, next
   if(!this.headerCheck(req)) {
     this.errorResponse(res);
   } else {
-    console.log('searching for: '+ toFind);
     const result = await manager.getBlockchains(toFind);
 
   	res.status(200).json(result);

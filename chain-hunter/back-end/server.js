@@ -5,8 +5,7 @@ const bodyParser = require('body-parser');
 const compression = require('compression');
 const helmet = require('helmet');
 const path = require('path');
-const manager = require('./services/chainhunter-manager');
-const encryptionSvc = require('./services/encryption.js');
+const api = require('./routes/api');
 
 const port = process.env.PORT || 3000;
 
@@ -28,129 +27,11 @@ app.use(bodyParser.json());
 app.use(compression());
 app.use(helmet());
 
+app.use('/', api);
+
+app.set('port', port);
+
 //app.use(express.static(path.join(__dirname, 'public')));
-
-const asyncMiddleware = fn =>
-  (req, res, next) => {
-    Promise.resolve(fn(req, res, next))
-      .catch(next);
-  };
-
-app.get('/api', asyncMiddleware(async function(req, res, next){
-  	res.status(200).json({'about': 'Chain Hunter\'s apis are nested under here'});
-}));
-
-app.get('/api/blockchain/active', asyncMiddleware(async function(req, res, next) {
-   if(!this.headerCheck(req)) {
-     this.errorResponse(res);
-   } else {
-    const result = await manager.getActiveChains();
-
-  	res.status(200).json(result);
-  }
-}));
-
-app.get('/api/blockchain/future', asyncMiddleware(async function(req, res, next) {
-  if(!this.headerCheck(req)) {
-    this.errorResponse(res);
-  } else {
-    const result = await manager.getFutureChains();
-
-  	res.status(200).json(result);
-  }
-}));
-
-app.get('/api/blockchain/empty', asyncMiddleware(async function(req, res, next){
-  if(!this.headerCheck(req)) {
-    this.errorResponse(res);
-  } else {
-    const result = await manager.getEmptyBlockchains();
-
-  	res.status(200).json(result);
-  }
-}));
-
-app.get('/api/blockchain/:toFind', asyncMiddleware(async function(req, res, next){
-  const toFind = req.params.toFind;
-  if(!this.headerCheck(req)) {
-    this.errorResponse(res);
-  } else {
-    const result = await manager.getBlockchains(toFind);
-
-  	res.status(200).json(result);
-  }
-}));
-
-app.get('/api/blockchain/:chain/:toFind', asyncMiddleware(async function(req, res, next){
-  if(!this.headerCheck(req)) {
-    this.errorResponse(res);
-  } else {
-    const chain = req.params.chain.toLowerCase();
-    const toFind = req.params.toFind;
-    const result = await manager.getBlockchain(chain, toFind);
-
-  	res.status(200).json(result);
-  }
-}));
-
-app.get('/api/address/:chain/:address/txs', asyncMiddleware(async function(req, res, next){
-  if(!this.headerCheck(req)) {
-    this.errorResponse(res);
-  } else {
-    const chain = req.params.chain.toLowerCase();
-    const address = req.params.address;
-    const result = await manager.getTransactions(chain, address);
-
-	  res.status(200).json(result);
-  }
-}));
-
-app.get('/api/address/:chain/:address/tokens', asyncMiddleware(async function(req, res, next){
-  if(!this.headerCheck(req)) {
-    this.errorResponse(res);
-  } else {
-  	const chain = req.params.chain.toLowerCase();
-    const address = req.params.address;
-    const result = await manager.getTokens(chain, address);
-
-  	res.status(200).json(result);
-  }
-}));
-
-const whitelistUsers = new Map([
-  ['chainhunter-d', 'e2f755b9-3115-4478-947a-69324c03b4c6'],
-  ['chainhunter-p', '4e5896c2-6481-41a5-8fa2-d6cc2f3808a8']]);
-
-errorResponse = function(res) {
-	return res.status(400).json({'code': 400, 'message': 'You said whaaaaaa??'});
-}
-
-headerCheck = function(req) {
-    let ip = req.socket.remoteAddress;
-    let user = req.header('TCH-USER');
-    let message = req.header('TCH-SIGNATURE');
-    if(typeof user === 'undefined' || typeof message === 'undefined' 
-      || user === "" || message === "") {
-      console.log('poorly formatted request from: '+ ip);
-      return false;
-    }
-    let token = whitelistUsers.get(user);
-    if(typeof token === 'undefined' || token === "") {
-      console.log('invalid user');
-      return false;
-    }
-    let timestamp = Date.now();
-    let decryptedTs = encryptionSvc.decryptHeader(message, token);
-
-    let valid = timestamp + 2000 > decryptedTs && timestamp - 2000 < decryptedTs
-    ? true : false;
-
-    if(!valid) {
-      console.log('unsynced request from: '+ ip);
-    }
-
-    return valid;
-};
 
 app.listen(port, () => {
   console.log('Server started on port: '+ port +'!')

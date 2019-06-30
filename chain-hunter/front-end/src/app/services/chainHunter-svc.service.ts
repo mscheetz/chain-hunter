@@ -12,7 +12,7 @@ import { HelperService } from './helper-svc.service';
 export class ChainHunterService{
     constructor(private http: HttpClient, private helperSvc: HelperService) {}
     
-    private baseUrl: string = "http://localhost:4200";
+    private baseUrl: string = "http://localhost:3000";
     private user: string = environment.user;
 
     /**

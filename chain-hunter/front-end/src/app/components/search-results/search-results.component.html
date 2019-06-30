@@ -1,13 +1,13 @@
 <div *ngIf="blockchain !== null">
 <p-panel header="{{blockchain.symbol}} Address" *ngIf="blockchain.address">
     <h3>{{blockchain.symbol}} Address: {{blockchain.address.address}}</h3>
-    <p>Balance: {{blockchain.address.quantity | number}} {{blockchain.symbol}}</p>
+    <div class="m-bottom-1">Balance: {{blockchain.address.quantity | number}} {{blockchain.symbol}}</div>
     <p-accordion (onOpen)="onTxnsOpen($event)">
-        <p-accordionTab header="{{blockchain.symbol}} Address Transactions">
+        <p-accordionTab header="Most recent {{blockchain.symbol}} address transactions">
             <div *ngIf="!transactionsComplete">Fetching Transactions...</div>
             <div *ngIf="blockchain.address.transactions !== undefined && blockchain.address.transactions.length === 0">No transactions found</div>
             <ul>
-                <li *ngFor="let txn of blockchain.address.transactions">
+                <li class="address-txn" *ngFor="let txn of blockchain.address.transactions">
                     Transaction Type: {{txn.from.includes(blockchain.address.address) ? 'Send' : 'Receive'}} <br>
                     Hash: {{txn.hash}} <br>
                     Quantity: {{txn.quantity.toLocaleString()}} {{txn.symbol}}<br>
@@ -46,17 +46,6 @@
     <div *ngIf="blockchain.transaction.confirmations > -1">Confirmations: {{blockchain.transaction.confirmations}}</div>
 </p-panel>
 </div>
-<p-panel showHeader="false" *ngIf="huntStatus === 0 && selectedChain === ''">
-    <h3>Enter an Address, Contract, or Transaction Hash</h3>
-    <ul class="no-pad">
-        <li class="active-chain-pad">
-            To search the following blockchains at once!
-        </li>
-        <li *ngFor="let chain of activeChains">
-            <img class="chain-logo-pad" src="assets/cryptoicons/color/{{chain.symbol.toLowerCase()}}.svg" title="{{chain.name}}" />
-        </li>
-    </ul>
-</p-panel>
 <p-panel showHeader="false" *ngIf="huntStatus === 1">
     <h3>Searching...</h3>
 </p-panel>

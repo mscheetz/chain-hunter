@@ -4,20 +4,10 @@
     overflow: scroll;
 }
 
-.chain-logo-pad {
-    padding: 0 2px 0 2px;
+li {
+    background-color: #fff;
 }
 
-ul > li {
-    display: inline-block;
-    zoom: 1;
-    *display: inline;
-}
-
-.no-pad {
-    padding: 0px;
-}
-
-.active-chain-pad {
-    padding-right: 20px;
+li:nth-child(odd) {
+    background-color: #eff0f1;
 }

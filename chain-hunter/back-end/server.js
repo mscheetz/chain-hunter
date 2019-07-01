@@ -18,7 +18,6 @@ var corsOptions = {
   	let isWhitelisted = whitelistOrigins.indexOf(origin) !== -1;
   	callback(null, isWhitelisted);
   },
-  //credentials: true //'http://localhost:8000',
   optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204 
 };
 
@@ -30,8 +29,6 @@ app.use(helmet());
 app.use('/', api);
 
 app.set('port', port);
-
-//app.use(express.static(path.join(__dirname, 'public')));
 
 app.listen(port, () => {
   console.log('Server started on port: '+ port +'!')

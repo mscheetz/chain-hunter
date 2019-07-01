@@ -1,0 +1,13 @@
+.coming-soon{
+    margin: 10px 0 10px 0;
+}
+
+ul > li {
+    display: inline-block;
+    zoom: 1;
+    *display: inline;
+}
+
+.no-pad {
+    padding: 0px;
+}

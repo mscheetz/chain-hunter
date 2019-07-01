@@ -1,0 +1,382 @@
+Ontology Address:
+
+https://dappnode1.ont.io:10334/api/v1/balance/AS7MjVEicEsJ4zjEfm2LoKoYoFsmapD7rT
+
+{
+  "Action": "getbalance",
+  "Desc": "SUCCESS",
+  "Error": 0,
+  "Result": {
+    "ont": "144768442",
+    "ong": "844093336251080"
+  },
+  "Version": "1.0.0"
+}
+
+invalid address:
+
+{
+  "Action": "getbalance",
+  "Desc": "INVALID PARAMS",
+  "Error": 42002,
+  "Result": "",
+  "Version": "1.0.0"
+}
+
+Addy 2
+
+https://explorer.ont.io/v2/addresses/AS7MjVEicEsJ4zjEfm2LoKoYoFsmapD7rT/native/balances
+
+{
+    "code": 400,
+    "msg": "queryAddressBalance.address: Incorrect address format",
+    "result": null
+}
+or
+{
+  "code": 0,
+  "msg": "SUCCESS",
+  "result": [
+    {
+      "balance": "844093.33625108",
+      "asset_name": "ong",
+      "asset_type": "native"
+    },
+    {
+      "balance": "4260984.0302302",
+      "asset_name": "waitboundong",
+      "asset_type": "native"
+    },
+    {
+      "balance": "20231351.831358865",
+      "asset_name": "unboundong",
+      "asset_type": "native"
+    },
+    {
+      "balance": "144768442",
+      "asset_name": "ont",
+      "asset_type": "native"
+    }
+  ]
+}
+
+Token balances:
+https://explorer.ont.io/v2/addresses/AS7MjVEicEsJ4zjEfm2LoKoYoFsmapD7rT/oep4/balance
+https://explorer.ont.io/v2/addresses/AS7MjVEicEsJ4zjEfm2LoKoYoFsmapD7rT/oep5/balances
+https://explorer.ont.io/v2/addresses/AS7MjVEicEsJ4zjEfm2LoKoYoFsmapD7rT/oep8/balances
+
+
+Addy transactions
+
+https://explorer.ont.io/v2/addresses/AS7MjVEicEsJ4zjEfm2LoKoYoFsmapD7rT/transactions?page_size=10&page_number=1
+
+{
+  "code": 0,
+  "msg": "SUCCESS",
+  "result": [
+    {
+      "tx_hash": "62269029000bce91d34f98caee475af4c6ce4abb54150f665570b978c5738256",
+      "tx_type": 209,
+      "tx_time": 1556032290,
+      "block_height": 3025316,
+      "fee": "0.01",
+      "block_index": 1,
+      "confirm_flag": 1,
+      "transfers": [
+        {
+          "amount": "50000",
+          "from_address": "AZLwZGajPVw8ysbJvQoNeVABRAin91faSV",
+          "to_address": "AS7MjVEicEsJ4zjEfm2LoKoYoFsmapD7rT",
+          "asset_name": "ont"
+        }
+      ]
+    },
+    {
+      "tx_hash": "95e73637e246a31bd53644728ebc03b5b740e3869ae74b10a30da61d16937446",
+      "tx_type": 209,
+      "tx_time": 1553271140,
+      "block_height": 2532682,
+      "fee": "0.01",
+      "block_index": 1,
+      "confirm_flag": 1,
+      "transfers": [
+        {
+          "amount": "500000",
+          "from_address": "AS7MjVEicEsJ4zjEfm2LoKoYoFsmapD7rT",
+          "to_address": "AHgJ9GMh4Ltuy8ixyapKfH7bY4VGyVF1xK",
+          "asset_name": "ong"
+        },
+        {
+          "amount": "0.01",
+          "from_address": "AS7MjVEicEsJ4zjEfm2LoKoYoFsmapD7rT",
+          "to_address": "AFmseVrdL9f9oyCzZefL9tG6UbviEH9ugK",
+          "asset_name": "ong"
+        }
+      ]
+    },
+    {
+      "tx_hash": "a13b2b750ea40fee39fb0496c7fed938c856a7a8c41e904905ca1cfb88390cff",
+      "tx_type": 209,
+      "tx_time": 1548993317,
+      "block_height": 2053315,
+      "fee": "0.01",
+      "block_index": 1,
+      "confirm_flag": 1,
+      "transfers": [
+        {
+          "amount": "1000000",
+          "from_address": "AS7MjVEicEsJ4zjEfm2LoKoYoFsmapD7rT",
+          "to_address": "AKoXoMZHg3r2bb9kXYWYzV4mQTq45e9GVo",
+          "asset_name": "ont"
+        },
+        {
+          "amount": "0.01",
+          "from_address": "AS7MjVEicEsJ4zjEfm2LoKoYoFsmapD7rT",
+          "to_address": "AFmseVrdL9f9oyCzZefL9tG6UbviEH9ugK",
+          "asset_name": "ong"
+        }
+      ]
+    },
+    {
+      "tx_hash": "0f932954058a253d5307db2decbfb23a0e43f836732da53de2e4ea90464d29c0",
+      "tx_type": 209,
+      "tx_time": 1548284087,
+      "block_height": 1960949,
+      "fee": "0.01",
+      "block_index": 1,
+      "confirm_flag": 1,
+      "transfers": [
+        {
+          "amount": "3166665",
+          "from_address": "AS7MjVEicEsJ4zjEfm2LoKoYoFsmapD7rT",
+          "to_address": "AcZ1YeWuKNQy75YfEQamnTaNHxcFfvnnYf",
+          "asset_name": "ont"
+        },
+        {
+          "amount": "0.01",
+          "from_address": "AS7MjVEicEsJ4zjEfm2LoKoYoFsmapD7rT",
+          "to_address": "AFmseVrdL9f9oyCzZefL9tG6UbviEH9ugK",
+          "asset_name": "ong"
+        }
+      ]
+    },
+    {
+      "tx_hash": "ce9698630a9b39f9c11944259d59ca038129e150d2161d13282c409a305e0f43",
+      "tx_type": 209,
+      "tx_time": 1548223184,
+      "block_height": 1952778,
+      "fee": "0.01",
+      "block_index": 1,
+      "confirm_flag": 1,
+      "transfers": [
+        {
+          "amount": "1",
+          "from_address": "AS7MjVEicEsJ4zjEfm2LoKoYoFsmapD7rT",
+          "to_address": "AcZ1YeWuKNQy75YfEQamnTaNHxcFfvnnYf",
+          "asset_name": "ont"
+        },
+        {
+          "amount": "0.01",
+          "from_address": "AS7MjVEicEsJ4zjEfm2LoKoYoFsmapD7rT",
+          "to_address": "AFmseVrdL9f9oyCzZefL9tG6UbviEH9ugK",
+          "asset_name": "ong"
+        }
+      ]
+    },
+    {
+      "tx_hash": "eee92f408baffb5e02334d34e6b0bfb51006624debb3d20d43114dfc0cf477e4",
+      "tx_type": 209,
+      "tx_time": 1544677691,
+      "block_height": 1193278,
+      "fee": "0.01",
+      "block_index": 1,
+      "confirm_flag": 1,
+      "transfers": [
+        {
+          "amount": "1944443",
+          "from_address": "AS7MjVEicEsJ4zjEfm2LoKoYoFsmapD7rT",
+          "to_address": "APzy5khDmNX5oBKNn9aGxhh4MVUHdsa13z",
+          "asset_name": "ont"
+        },
+        {
+          "amount": "0.01",
+          "from_address": "AS7MjVEicEsJ4zjEfm2LoKoYoFsmapD7rT",
+          "to_address": "AFmseVrdL9f9oyCzZefL9tG6UbviEH9ugK",
+          "asset_name": "ong"
+        }
+      ]
+    },
+    {
+      "tx_hash": "9d67cdb4f7f64c0ee1c4dbcf25305cdec2c6bfd2fbe1be260a66f4078ba73d95",
+      "tx_type": 209,
+      "tx_time": 1544613381,
+      "block_height": 1188061,
+      "fee": "0.01",
+      "block_index": 1,
+      "confirm_flag": 1,
+      "transfers": [
+        {
+          "amount": "2083333",
+          "from_address": "AS7MjVEicEsJ4zjEfm2LoKoYoFsmapD7rT",
+          "to_address": "AZeT1g9Rfny1cUDqTNXVNPc3AJP8usaH6m",
+          "asset_name": "ont"
+        },
+        {
+          "amount": "0.01",
+          "from_address": "AS7MjVEicEsJ4zjEfm2LoKoYoFsmapD7rT",
+          "to_address": "AFmseVrdL9f9oyCzZefL9tG6UbviEH9ugK",
+          "asset_name": "ong"
+        }
+      ]
+    },
+    {
+      "tx_hash": "136f0cd6b9f6311f6e5b8fdd35d3e2381529c4b53b68278f43b5245407f0e4de",
+      "tx_type": 209,
+      "tx_time": 1544576045,
+      "block_height": 1183740,
+      "fee": "0.01",
+      "block_index": 1,
+      "confirm_flag": 1,
+      "transfers": [
+        {
+          "amount": "833333",
+          "from_address": "AS7MjVEicEsJ4zjEfm2LoKoYoFsmapD7rT",
+          "to_address": "AUTrh6NKVKvDzdZLxauZAm1Sd4mZt7zbef",
+          "asset_name": "ont"
+        },
+        {
+          "amount": "0.01",
+          "from_address": "AS7MjVEicEsJ4zjEfm2LoKoYoFsmapD7rT",
+          "to_address": "AFmseVrdL9f9oyCzZefL9tG6UbviEH9ugK",
+          "asset_name": "ong"
+        }
+      ]
+    },
+    {
+      "tx_hash": "943b31e57389141494353868c8d22472495478b1ecdabba373bf8b54b984ba63",
+      "tx_type": 209,
+      "tx_time": 1543813958,
+      "block_height": 1128148,
+      "fee": "0.01",
+      "block_index": 1,
+      "confirm_flag": 1,
+      "transfers": [
+        {
+          "amount": "4166666",
+          "from_address": "AS7MjVEicEsJ4zjEfm2LoKoYoFsmapD7rT",
+          "to_address": "APun67NGrAufPx1KcS6ytS8zEhrFBz4UXE",
+          "asset_name": "ont"
+        },
+        {
+          "amount": "0.01",
+          "from_address": "AS7MjVEicEsJ4zjEfm2LoKoYoFsmapD7rT",
+          "to_address": "AFmseVrdL9f9oyCzZefL9tG6UbviEH9ugK",
+          "asset_name": "ong"
+        }
+      ]
+    },
+    {
+      "tx_hash": "1993cadc074b513c44b6db0709903e9366dc634bea35a8538197425740fb2cdd",
+      "tx_type": 209,
+      "tx_time": 1542636690,
+      "block_height": 1058071,
+      "fee": "0.01",
+      "block_index": 1,
+      "confirm_flag": 1,
+      "transfers": [
+        {
+          "amount": "2777777",
+          "from_address": "AS7MjVEicEsJ4zjEfm2LoKoYoFsmapD7rT",
+          "to_address": "AcWQWTCdQtpMQYADsnTMNhacFJMAbAExqJ",
+          "asset_name": "ont"
+        },
+        {
+          "amount": "0.01",
+          "from_address": "AS7MjVEicEsJ4zjEfm2LoKoYoFsmapD7rT",
+          "to_address": "AFmseVrdL9f9oyCzZefL9tG6UbviEH9ugK",
+          "asset_name": "ong"
+        }
+      ]
+    }
+  ]
+}
+
+Transaction
+https://explorer.ont.io/v2/transactions/62269029000bce91d34f98caee475af4c6ce4abb54150f665570b978c5738256
+
+{
+    "code": 400,
+    "msg": "queryTxnByHash.txHash: Incorrect transaction hash",
+    "result": null
+}
+or
+{
+  "code": 0,
+  "msg": "SUCCESS",
+  "result": {
+    "tx_hash": "62269029000bce91d34f98caee475af4c6ce4abb54150f665570b978c5738256",
+    "tx_type": 209,
+    "tx_time": 1556032290,
+    "block_height": 3025316,
+    "fee": "0.01",
+    "description": "transfer",
+    "block_index": 1,
+    "confirm_flag": 1,
+    "event_type": 3,
+    "detail": {
+      "transfers": [
+        {
+          "amount": "50000",
+          "asset_name": "ont",
+          "from_address": "AZLwZGajPVw8ysbJvQoNeVABRAin91faSV",
+          "to_address": "AS7MjVEicEsJ4zjEfm2LoKoYoFsmapD7rT",
+          "description": "transfer"
+        },
+        {
+          "amount": "0.01",
+          "asset_name": "ong",
+          "from_address": "AZLwZGajPVw8ysbJvQoNeVABRAin91faSV",
+          "to_address": "AFmseVrdL9f9oyCzZefL9tG6UbviEH9ugK",
+          "description": "gasconsume"
+        }
+      ]
+    }
+  }
+}
+
+Contract
+
+https://explorer.ont.io/v2/contracts/b71fc841b203bcf08e81311131671885db689faf
+
+{
+    "code": 400,
+    "msg": "queryContractDetail.contractHash: Incorrect contract hash",
+    "result": null
+}
+or
+{
+  "code": 0,
+  "msg": "SUCCESS",
+  "result": {
+    "contract_hash": "b71fc841b203bcf08e81311131671885db689faf",
+    "name": "DAD",
+    "create_time": 1559724046,
+    "update_time": 1559724046,
+    "contact_info": "{\"Official Website\":\"https://dad.one/\",\"Github\":\"https://github.com/DAD-Chain\"}",
+    "description": "Dispatch DAD token",
+    "type": "oep4",
+    "logo": "https://app.ont.io/socialmedia/pic/dad.png",
+    "creator": "AQiGGfoMdYQM6Pwr8xrKAWV7ibfvrinqsv",
+    "address_count": 23269,
+    "tx_count": 1225,
+    "ont_sum": "0",
+    "ong_sum": "141.0875375",
+    "token_sum": "[]",
+    "category": "",
+    "dapp_name": "DAD",
+    "abi": "{\"contractHash\":\"b71fc841b203bcf08e81311131671885db689faf\",\"abi\":{\"CompilerVersion\":\"1.0.2\",\"hash\":\"b71fc841b203bcf08e81311131671885db689faf\",\"entrypoint\":\"Main\",\"functions\":[{\"name\":\"init\",\"parameters\":[]},{\"name\":\"name\",\"parameters\":[]},{\"name\":\"symbol\",\"parameters\":[]},{\"name\":\"decimals\",\"parameters\":[]},{\"name\":\"totalSupply\",\"parameters\":[]},{\"name\":\"balanceOf\",\"parameters\":[{\"name\":\"account\",\"type\":\"\"}]},{\"name\":\"transfer\",\"parameters\":[{\"name\":\"from_acct\",\"type\":\"\"},{\"name\":\"to_acct\",\"type\":\"\"},{\"name\":\"amount\",\"type\":\"\"}]},{\"name\":\"transferMulti\",\"parameters\":[{\"name\":\"args\",\"type\":\"\"}]},{\"name\":\"approve\",\"parameters\":[{\"name\":\"owner\",\"type\":\"\"},{\"name\":\"spender\",\"type\":\"\"},{\"name\":\"amount\",\"type\":\"\"}]},{\"name\":\"transferFrom\",\"parameters\":[{\"name\":\"spender\",\"type\":\"\"},{\"name\":\"from_acct\",\"type\":\"\"},{\"name\":\"to_acct\",\"type\":\"\"},{\"name\":\"amount\",\"type\":\"\"}]},{\"name\":\"allowance\",\"parameters\":[{\"name\":\"owner\",\"type\":\"\"},{\"name\":\"spender\",\"type\":\"\"}]},{\"name\":\"burn\",\"parameters\":[{\"name\":\"account\",\"type\":\"\"},{\"name\":\"amount\",\"type\":\"\"}]}]}}",
+    "code": "0138c56b6a00527ac46a51527ac46a00c304696e69749c64090065960a6c7566616a00c3046e616d659c64090065710a6c7566616a00c30673796d626f6c9c640900654a0a6c7566616a00c308646563696d616c739c64090065240a6c7566616a00c30b746f74616c537570706c799c64090065b6096c7566616a00c30962616c616e63654f669c6424006a51c3c0519e640700006c7566616a51c300c36a52527ac46a52c3650f096c7566616a00c3087472616e736665729c6440006a51c3c0539e640700006c7566616a51c300c36a53527ac46a51c351c36a54527ac46a51c352c36a55527ac46a53c36a54c36a55c352726516076c7566616a00c30d7472616e736665724d756c74699c640c006a51c3655e066c7566616a00c30c7472616e7366657246726f6d9c645f006a51c3c0549e640700006c7566616a51c300c36a56527ac46a51c351c36a53527ac46a51c352c36a54527ac46a51c353c36a55527ac46a56c36a53c36a54c36a55c353795179557275517275527952795472755272756596026c7566616a00c307617070726f76659c6440006a51c3c0539e640700006c7566616a51c300c36a57527ac46a51c351c36a56527ac46a51c352c36a55527ac46a57c36a56c36a55c352726592046c7566616a00c309616c6c6f77616e63659c6432006a51c3c0529e640700006c7566616a51c300c36a57527ac46a51c351c36a56527ac46a57c36a56c37c65a4016c7566616a00c3046275726e9c6432006a51c3c0529e640700006c7566616a51c300c36a52527ac46a51c351c36a55527ac46a52c36a55c37c650b006c756661006c75660113c56b6a00527ac46a51527ac4681953797374656d2e53746f726167652e476574436f6e74657874616a52527ac4224152706866414269776d594c72535548424d4b747a6968745032637161797869453575146e3a2aeb6b68734c048cba8b816a78c072b40a276a53527ac401016a54527ac40b546f74616c537570706c796a55527ac46a00c3681b53797374656d2e52756e74696d652e436865636b5769746e65737361009c630b006a51c300a164080061006c7566616a00c36a53c39e640700006c7566616a00c36591066a56527ac46a56c36a51c39f640700006c7566616a52c36a54c36a00c37e6a56c36a51c3945272681253797374656d2e53746f726167652e507574616a52c36a55c365c0066a51c3945272681253797374656d2e53746f726167652e507574616a00c3006a51c35272087472616e7366657254c1681553797374656d2e52756e74696d652e4e6f74696679516c756658c56b6a00527ac46a51527ac4681953797374656d2e53746f726167652e476574436f6e74657874616a52527ac401026a53527ac46a53c36a00c37e6a51c37e6a54527ac46a52c36a54c37c681253797374656d2e53746f726167652e476574616c7566011fc56b6a00527ac46a51527ac46a52527ac46a53527ac4681953797374656d2e53746f726167652e476574436f6e74657874616a54527ac401016a55527ac401026a56527ac46a00c3c001149e6317006a51c3c001149e630d006a52c3c001149e641a00611461646472657373206c656e677468206572726f72f0616a00c3681b53797374656d2e52756e74696d652e436865636b5769746e65737361009c640700006c7566616a55c36a51c37e6a57527ac46a54c36a57c37c681253797374656d2e53746f726167652e476574616a58527ac46a53c36a58c3a0630b006a53c3009f64080061006c7566616a56c36a51c37e6a00c37e6a59527ac46a54c36a59c37c681253797374656d2e53746f726167652e476574616a5a527ac46a55c36a52c37e6a5b527ac46a53c36a5ac3a0640700006c7566616a53c36a5ac39c6449006a54c36a59c37c681553797374656d2e53746f726167652e44656c657465616a54c36a57c36a58c36a53c3945272681253797374656d2e53746f726167652e50757461624c00616a54c36a59c36a5ac36a53c3945272681253797374656d2e53746f726167652e507574616a54c36a57c36a58c36a53c3945272681253797374656d2e53746f726167652e50757461616a54c36a5bc37c681253797374656d2e53746f726167652e476574616a5c527ac46a54c36a5bc36a5cc36a53c3935272681253797374656d2e53746f726167652e507574616a51c36a52c36a53c35272087472616e7366657254c1681553797374656d2e52756e74696d652e4e6f74696679516c75660111c56b6a00527ac46a51527ac46a52527ac4681953797374656d2e53746f726167652e476574436f6e74657874616a53527ac401026a54527ac46a51c3c001149e630d006a00c3c001149e641a00611461646472657373206c656e677468206572726f72f0616a00c3681b53797374656d2e52756e74696d652e436865636b5769746e65737361009c640700006c7566616a52c36a00c365ba02a0630b006a52c3009f64080061006c7566616a54c36a00c37e6a51c37e6a55527ac46a53c36a55c36a52c35272681253797374656d2e53746f726167652e507574616a00c36a51c36a52c3527208617070726f76616c54c1681553797374656d2e52756e74696d652e4e6f74696679516c756659c56b6a00527ac4006a52527ac46a00c3c06a53527ac4616a52c36a53c39f6473006a00c36a52c3c36a51527ac46a52c351936a52527ac46a51c3c0539e6420001b7472616e736665724d756c746920706172616d73206572726f722ef0616a51c300c36a51c351c36a51c352c35272652900009c64a2ff157472616e736665724d756c7469206661696c65642ef06288ff616161516c75660117c56b6a00527ac46a51527ac46a52527ac4681953797374656d2e53746f726167652e476574436f6e74657874616a53527ac401016a54527ac46a51c3c001149e630d006a00c3c001149e641a00611461646472657373206c656e677468206572726f72f0616a00c3681b53797374656d2e52756e74696d652e436865636b5769746e65737361009c630b006a52c3009f64080061006c7566616a54c36a00c37e6a55527ac46a53c36a55c37c681253797374656d2e53746f726167652e476574616a56527ac46a52c36a56c3a0640700006c7566616a52c36a56c39c6425006a53c36a55c37c681553797374656d2e53746f726167652e44656c65746561622800616a53c36a55c36a56c36a52c3945272681253797374656d2e53746f726167652e50757461616a54c36a51c37e6a57527ac46a53c36a57c37c681253797374656d2e53746f726167652e476574616a58527ac46a53c36a57c36a58c36a52c3935272681253797374656d2e53746f726167652e507574616a00c36a51c36a52c35272087472616e7366657254c1681553797374656d2e52756e74696d652e4e6f74696679516c756658c56b6a00527ac4681953797374656d2e53746f726167652e476574436f6e74657874616a51527ac401016a52527ac46a00c3c001149e6419001461646472657373206c656e677468206572726f72f0616a51c36a52c36a00c37e7c681253797374656d2e53746f726167652e476574616c756655c56b681953797374656d2e53746f726167652e476574436f6e74657874616a00527ac40b546f74616c537570706c796a51527ac46a00c36a51c37c681253797374656d2e53746f726167652e476574616c756654c56b596a00527ac46a00c36c756654c56b034441446a00527ac46a00c36c756654c56b034441446a00527ac46a00c36c75660113c56b681953797374656d2e53746f726167652e476574436f6e74657874616a00527ac40400ca9a3b6a51527ac4224152706866414269776d594c72535548424d4b747a6968745032637161797869453575146e3a2aeb6b68734c048cba8b816a78c072b40a276a52527ac40400ca9a3b6a53527ac401016a54527ac40b546f74616c537570706c796a55527ac46a52c3c001149e6432000e4f776e657220696c6c6567616c2151c176c9681553797374656d2e52756e74696d652e4e6f7469667961006c7566616a00c36a55c37c681253797374656d2e53746f726167652e4765746164340014416c726561647920696e697469616c697a656421681553797374656d2e52756e74696d652e4e6f7469667961006c7566616a53c36a51c3956a56527ac46a00c36a55c36a56c35272681253797374656d2e53746f726167652e507574616a00c36a54c36a52c37e6a56c35272681253797374656d2e53746f726167652e50757461006a52c36a56c35272087472616e7366657254c1681553797374656d2e52756e74696d652e4e6f74696679516c7566006c75665ec56b6a00527ac46a51527ac46a51c36a00c3946a52527ac46a52c3c56a53527ac4006a54527ac46a00c36a55527ac461616a00c36a51c39f6433006a54c36a55c3936a56527ac46a56c36a53c36a54c37bc46a54c351936a54527ac46a55c36a54c3936a00527ac462c8ff6161616a53c36c7566",
+    "source_code": ""
+  }
+}
+

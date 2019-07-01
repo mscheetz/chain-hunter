@@ -14,7 +14,7 @@
     "e2e": "ng e2e",
     "pree2e": "webdriver-manager update",
     "preinstall": "npm install -g angular-cli",
-    "postinstall": "ng build --aot -prod",
+    "postinstall": "ng build --prod",
     "deploy": "git push origin master && git push heroku master"
   },
   "private": true,

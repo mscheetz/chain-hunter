@@ -1,7 +1,10 @@
 {
   "name": "chain-hunter",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "license": "MIT",
+  "engines": {
+    "node": "10.16.0"
+  },
   "scripts": {
     "ng": "ng",
     "start": "node server.js",

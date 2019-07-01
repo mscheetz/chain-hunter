@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const manager = require('../services/chainhunter-manager');
 const encryptionSvc = require('../services/encryption.js');
-
+const path = require('path');
 
 const asyncMiddleware = fn =>
   (req, res, next) => {

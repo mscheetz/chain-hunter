@@ -13,6 +13,19 @@ const whitelistOrigins = [
 'http://localhost:4200',
 'http://produrl.com'];
 
+const forceSSL = function() {
+  return function (req, res, next) {
+    if (req.headers['x-forwarded-proto'] !== 'https') {
+      return res.redirect(
+       ['https://', req.get('Host'), req.url].join('')
+      );
+    }
+    next();
+  }
+}
+
+app.use(forceSSL());
+
 var corsOptions = {
   origin: function(origin, callback) {
   	let isWhitelisted = whitelistOrigins.indexOf(origin) !== -1;
@@ -25,6 +38,10 @@ app.use(cors(corsOptions));
 app.use(bodyParser.json());
 app.use(compression());
 app.use(helmet());
+
+app.get('/', async (req, res) => {
+  res.sendFile(path.join(__dirname + '/dist/chain-hunter/index.html'));
+})
 
 app.use('/', api);
 

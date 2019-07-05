@@ -11,6 +11,6 @@ RUN npm rebuild node-sass
 
 COPY . /app/
 
-EXPOSE 4200
+EXPOSE 3000
 
 CMD ["npm", "start"]

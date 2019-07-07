@@ -1,14 +1,16 @@
 {
   "name": "chain-hunter",
   "version": "0.1.0",
+  "description": "Chain Hunter allows you to search multiple blockchains for address, contracts, and transactions.",
   "license": "MIT",
+  "author": "thechainhunter.com",
   "engines": {
     "node": "10.16.0"
   },
   "scripts": {
     "ng": "ng",
     "start": "node server.js",
-    "build": "ng build --aot --prod",
+    "build": "ng build",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",

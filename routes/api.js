@@ -113,31 +113,33 @@ headerCheck = function(req) {
     let ip = req.socket.remoteAddress;
     let user = req.header('TCH-USER');
     let message = req.header('TCH-SIGNATURE');
+    let valid = false;
+    let msg = "";
+
     if(typeof user === 'undefined' || typeof message === 'undefined' 
       || user === "" || message === "") {
-        const msg = 'poorly formatted request from: '+ ip;
-      console.log(msg);
-      return { status: false, message: msg};//false;
+      msg = 'poorly formatted request from: '+ ip;
+      //return { status: valid, message: msg};
     }
     let token = whitelistUsers.get(user);
     if(typeof token === 'undefined' || token === "") {
-      const msg = 'invalid user';
-      console.log(msg);
-      return { status: false, message: msg};//false;
+      msg = 'invalid user';
+      //return { status: valid, message: msg};
     }
-    let timestamp = Date.now();
-    let decryptedTs = encryptionSvc.decryptHeader(message, token);
+    
+    if(msg === "") {
+      let timestamp = Date.now();
+      let decryptedTs = encryptionSvc.decryptHeader(message, token);
 
-    let valid = timestamp + 2000 > decryptedTs && timestamp - 2000 < decryptedTs
-    ? true : false;
+      valid = timestamp + 10000 > decryptedTs && timestamp - 10000 < decryptedTs
+      ? true : false;
 
-    let msg = 'time is within the range';
-    if(!valid) {
-      msg = "server: '"+ timestamp +"' is not '"+ decryptedTs +"'";
-      //console.log('unsynced request from: '+ ip);
+      msg = 'time is within the range';
+      if(!valid) {
+        msg = "server: '"+ timestamp +"' is not '"+ decryptedTs +"'";
+      }
     }
-
-    return { status: valid, message: msg };//valid;
+    return { status: valid, message: msg };
 };
 
 

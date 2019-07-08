@@ -15,8 +15,9 @@ router.get('/api', async (req, res, next) => {
 });
 
 router.get('/api/blockchain/active', asyncMiddleware(async (req, res, next) => {
-   if(!headerCheck(req)) {
-     errorResponse(res);
+  const headerMsg = headerCheck(req);
+  if(!headerMsg.status) {
+     errorResponse(res, headerMsg.message);
    } else {
     const result = await manager.getActiveChains();
 
@@ -25,7 +26,8 @@ router.get('/api/blockchain/active', asyncMiddleware(async (req, res, next) => {
 }));
 
 router.get('/api/blockchain/future', asyncMiddleware(async (req, res, next) => {
-  if(!headerCheck(req)) {
+  const headerMsg = headerCheck(req);
+  if(!headerMsg.status) {
     errorResponse(res);
   } else {
     const result = await manager.getFutureChains();
@@ -35,7 +37,8 @@ router.get('/api/blockchain/future', asyncMiddleware(async (req, res, next) => {
 }));
 
 router.get('/api/blockchain/empty', asyncMiddleware(async (req, res, next) => {
-  if(!headerCheck(req)) {
+  const headerMsg = headerCheck(req);
+  if(!headerMsg.status) {
     errorResponse(res);
   } else {
     const result = await manager.getEmptyBlockchains();
@@ -45,10 +48,11 @@ router.get('/api/blockchain/empty', asyncMiddleware(async (req, res, next) => {
 }));
 
 router.get('/api/blockchain/:toFind', asyncMiddleware(async (req, res, next) => {
-  const toFind = req.params.toFind;
-  if(!headerCheck(req)) {
+  const headerMsg = headerCheck(req);
+  if(!headerMsg.status) {
     errorResponse(res);
   } else {
+    const toFind = req.params.toFind;
     const result = await manager.getBlockchains(toFind);
 
   	res.status(200).json(result);
@@ -56,7 +60,8 @@ router.get('/api/blockchain/:toFind', asyncMiddleware(async (req, res, next) => 
 }));
 
 router.get('/api/blockchain/:chain/:toFind', asyncMiddleware(async (req, res, next) => {
-  if(!headerCheck(req)) {
+  const headerMsg = headerCheck(req);
+  if(!headerMsg.status) {
     errorResponse(res);
   } else {
     const chain = req.params.chain.toLowerCase();
@@ -68,7 +73,8 @@ router.get('/api/blockchain/:chain/:toFind', asyncMiddleware(async (req, res, ne
 }));
 
 router.get('/api/address/:chain/:address/txs', asyncMiddleware(async (req, res, next) => {
-  if(!headerCheck(req)) {
+  const headerMsg = headerCheck(req);
+  if(!headerMsg.status) {
     errorResponse(res);
   } else {
     const chain = req.params.chain.toLowerCase();
@@ -80,7 +86,8 @@ router.get('/api/address/:chain/:address/txs', asyncMiddleware(async (req, res, 
 }));
 
 router.get('/api/address/:chain/:address/tokens', asyncMiddleware(async (req, res, next) => {
-  if(!headerCheck(req)) {
+  const headerMsg = headerCheck(req);
+  if(!headerMsg.status) {
     errorResponse(res);
   } else {
   	const chain = req.params.chain.toLowerCase();
@@ -95,35 +102,42 @@ const whitelistUsers = new Map([
   ['chainhunter-d', 'e2f755b9-3115-4478-947a-69324c03b4c6'],
   ['chainhunter-p', '4e5896c2-6481-41a5-8fa2-d6cc2f3808a8']]);
 
-errorResponse = function(res) {
-	return res.status(400).json({'code': 400, 'message': 'You said whaaaaaa??'});
+errorResponse = function(res, msg = '') {
+  if(msg === '') {
+    msg = 'You said whaaaaaaa??';
+  }
+	return res.status(400).json({'code': 400, 'message': msg});
 }
 
 headerCheck = function(req) {
     let ip = req.socket.remoteAddress;
     let user = req.header('TCH-USER');
     let message = req.header('TCH-SIGNATURE');
+    let valid = false;
+    let msg = "";
+
     if(typeof user === 'undefined' || typeof message === 'undefined' 
       || user === "" || message === "") {
-      console.log('poorly formatted request from: '+ ip);
-      return false;
+      msg = 'poorly formatted request from: '+ ip;
     }
     let token = whitelistUsers.get(user);
     if(typeof token === 'undefined' || token === "") {
-      console.log('invalid user');
-      return false;
-    }
-    let timestamp = Date.now();
-    let decryptedTs = encryptionSvc.decryptHeader(message, token);
-
-    let valid = timestamp + 2000 > decryptedTs && timestamp - 2000 < decryptedTs
-    ? true : false;
-
-    if(!valid) {
-      console.log('unsynced request from: '+ ip);
+      msg = 'invalid user';
     }
 
-    return valid;
+    if(msg === "") {
+      let timestamp = Date.now();
+      let decryptedTs = encryptionSvc.decryptHeader(message, token);
+
+      valid = timestamp + 10000 > decryptedTs && timestamp - 10000 < decryptedTs
+      ? true : false;
+
+      msg = 'time is within the range';
+      if(!valid) {
+        msg = "server: '"+ timestamp +"' is not '"+ decryptedTs +"'";
+      }
+    }
+    return { status: valid, message: msg };
 };
 
 

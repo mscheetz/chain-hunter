@@ -20,11 +20,17 @@ body {
 	.container {
 		max-width: 1140px;
 	}
+	body .ui-tabmenu .ui-tabmenu-nav .ui-tabmenuitem .ui-menuitem-link {
+		padding: .571em 1em;
+	}
 }
 
 @media(max-width: 992px){
 	.container {
 		max-width: 960px;
+	}
+	body .ui-tabmenu .ui-tabmenu-nav .ui-tabmenuitem .ui-menuitem-link {
+		padding: .571em 1em;
 	}
 }
 
@@ -32,11 +38,17 @@ body {
 	.container {
 		max-width: 720px;
 	}
+	body .ui-tabmenu .ui-tabmenu-nav .ui-tabmenuitem .ui-menuitem-link {
+		padding: .21em .51em !important;
+	}
 }
 
 @media(max-width: 576px){
 	.container {
 		max-width: 540px;
+	}
+	body .ui-tabmenu .ui-tabmenu-nav .ui-tabmenuitem .ui-menuitem-link {
+		padding: .21em .51em !important;
 	}
 }
 
@@ -63,6 +75,10 @@ body {
 
 .search-bar {
 	margin-bottom: 1rem;
+}
+
+.search-width {
+	width: 75%;
 }
 
 .search-button {

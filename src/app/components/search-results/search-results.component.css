@@ -4,6 +4,10 @@
     overflow: scroll;
 }
 
+ul {
+    word-break: break-all;
+}
+
 li {
     background-color: #fff;
 }

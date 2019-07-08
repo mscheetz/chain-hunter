@@ -119,14 +119,12 @@ headerCheck = function(req) {
     if(typeof user === 'undefined' || typeof message === 'undefined' 
       || user === "" || message === "") {
       msg = 'poorly formatted request from: '+ ip;
-      //return { status: valid, message: msg};
     }
     let token = whitelistUsers.get(user);
     if(typeof token === 'undefined' || token === "") {
       msg = 'invalid user';
-      //return { status: valid, message: msg};
     }
-    
+
     if(msg === "") {
       let timestamp = Date.now();
       let decryptedTs = encryptionSvc.decryptHeader(message, token);

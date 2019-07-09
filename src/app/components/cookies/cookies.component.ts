@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Message } from 'primeng/components/common/api';
 
 @Component({
     selector: 'cookies',
@@ -7,7 +8,19 @@ import { Component, OnInit } from '@angular/core';
 })
 
 export class CookiesComponent implements OnInit {
+    msgs: Message[] = [];
+    @Output() childEvent = new EventEmitter();
     constructor() {}
+    
+    ngOnInit() {
+        this.msgs = [];
+        // this.msgs.push({
+        //     severity: "info", 
+        //     summary: "Cookie Notice", 
+        //     detail: "Chain Hunter uses cookies for the following purposes: analysis of web traffic and displaying targeted advertisements. By using Chain Hunter you consent to the use of our cookies."});
+    }
 
-    ngOnInit() {}
+    cookieOk(){
+        this.childEvent.emit();
+    }
 }

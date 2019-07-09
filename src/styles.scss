@@ -135,3 +135,20 @@ body .ui-accordion .ui-accordion-header:not(.ui-state-disabled).ui-state-active:
 .m-bottom-1 {
 	margin-bottom: 1rem;
 }
+
+.cookie-box {
+	height: 90px;
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	background-color: #464a4e;
+	color: #ffffff;
+	font-size: 14px;
+}
+
+.cookie-title {
+	font-size: 18px;
+	color: yellow;
+	font-weight: 100;
+}

@@ -15,11 +15,12 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { PanelModule } from 'primeng/panel';
 import { SearchResultsComponent } from './components/search-results/search-results.component';
-import {ProgressBarModule} from 'primeng/progressbar';
+import { ProgressBarModule } from 'primeng/progressbar';
 import { ComingSoonComponent } from './components/coming-soon/coming-soon.component';
 import { FooterComponent } from './components/footer/footer.component';
 import { HeaderComponent } from './components/header/header.component';
 import { ActiveChainsComponent } from './components/active-chains/active-chains.component';
+import { CookiesComponent } from './components/cookies/cookies.component';
 
 @NgModule({
   declarations: [
@@ -30,7 +31,8 @@ import { ActiveChainsComponent } from './components/active-chains/active-chains.
     ComingSoonComponent,
     FooterComponent,
     HeaderComponent,
-    ActiveChainsComponent
+    ActiveChainsComponent,
+    CookiesComponent
   ],
   imports: [
     BrowserModule,

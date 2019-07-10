@@ -31,6 +31,7 @@ export class ChainHunterComponent implements OnInit {
     @Output() resultsFound: string[] = [];
     @Output() huntStatus: number = 0; // 0 = no search yet, 1 = searching, 2 = nothing found, 3 = something found
     devMode: boolean = isDevMode();
+    showNotice: boolean = true;
 
     constructor(private helperService: HelperService,
                 private chainService: ChainHunterService) {}
@@ -206,5 +207,9 @@ export class ChainHunterComponent implements OnInit {
         chain.icon = iconBase + property + "/" + chain.symbol.toLowerCase() + ".svg";
 
         return chain;
+    }
+    
+    cookieOk(){
+        this.showNotice = false;
     }
 }

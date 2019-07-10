@@ -1,0 +1,4 @@
+This is a Brave Rewards publisher verification file.
+
+Domain: thechainhunter.com 
+Token: c1cfc3567d0cc525d0eed00f8fc766c848d543c1d7db02cb0c0b10d37fb7a9d0

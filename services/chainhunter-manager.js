@@ -12,6 +12,7 @@ const trx = require('./trx.js');
 const ont = require('./ont.js');
 const usdt = require('./usdt.js');
 const iost = require('./iost.js');
+const icx = require('./icx.js');
 
 const getChains = function() {
     const chains = [
@@ -83,7 +84,7 @@ const getChains = function() {
         {
             name: 'Icon',
             symbol: 'ICX',
-            status: 'Future'
+            status: 'Active'
         },
         {
             name: 'IOST',
@@ -170,6 +171,8 @@ const getEmptyBlockchains = async() => {
             blockchains["USDT"] = await usdt.getEmptyBlockchain();
         } else if(chains[i].symbol === 'IOST') {
             blockchains["IOST"] = await iost.getEmptyBlockchain();
+        } else if(chains[i].symbol === 'ICX') {
+            blockchains["ICX"] = await icx.getEmptyBlockchain();
         }
     }
     return blockchains;
@@ -208,6 +211,8 @@ const getBlockchains = async(toFind) => {
             blockchains["USDT"] = await usdt.getBlockchain(toFind);
         } else if(chains[i].symbol === 'IOST') {
             blockchains["IOST"] = await iost.getBlockchain(toFind);
+        } else if(chains[i].symbol === 'ICX') {
+            blockchains["ICX"] = await icx.getBlockchain(toFind);
         }
     }
 
@@ -243,6 +248,8 @@ const getBlockchain = async(chain, toFind) => {
         return await usdt.getBlockchain(toFind);
     } else if (chain === "iost") {
         return await iost.getBlockchain(toFind);
+    } else if (chain === "icx") {
+        return await icx.getBlockchain(toFind);
     }
 }
 
@@ -285,6 +292,8 @@ const getTransactions = async(chain, address) => {
         return await usdt.getTransactions(address);
     } else if (chain === "iost") {
         return await iost.getTransactions(address);
+    } else if (chain === "icx") {
+        return await icx.getTransactions(address);
     }
 }
 

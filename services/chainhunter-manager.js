@@ -10,7 +10,8 @@ const aion = require('./aion.js');
 const eos = require('./eos.js');
 const trx = require('./trx.js');
 const ont = require('./ont.js');
-const usdt = require('/usdt.js');
+const usdt = require('./usdt.js');
+const iost = require('./iost.js');
 
 const getChains = function() {
     const chains = [
@@ -87,7 +88,7 @@ const getChains = function() {
         {
             name: 'IOST',
             symbol: 'IOST',
-            status: 'Future'
+            status: 'Active'
         },
         {
             name: 'Ontology',
@@ -167,6 +168,8 @@ const getEmptyBlockchains = async() => {
             blockchains["ONT"] = await ont.getEmptyBlockchain();
         } else if(chains[i].symbol === 'USDT') {
             blockchains["USDT"] = await usdt.getEmptyBlockchain();
+        } else if(chains[i].symbol === 'IOST') {
+            blockchains["IOST"] = await iost.getEmptyBlockchain();
         }
     }
     return blockchains;
@@ -203,6 +206,8 @@ const getBlockchains = async(toFind) => {
             blockchains["ONT"] = await ont.getBlockchain(toFind);
         } else if(chains[i].symbol === 'USDT') {
             blockchains["USDT"] = await usdt.getBlockchain(toFind);
+        } else if(chains[i].symbol === 'IOST') {
+            blockchains["IOST"] = await iost.getBlockchain(toFind);
         }
     }
 
@@ -236,6 +241,8 @@ const getBlockchain = async(chain, toFind) => {
         return await ont.getBlockchain(toFind);
     } else if (chain === "usdt") {
         return await usdt.getBlockchain(toFind);
+    } else if (chain === "iost") {
+        return await iost.getBlockchain(toFind);
     }
 }
 
@@ -276,6 +283,8 @@ const getTransactions = async(chain, address) => {
         return await ont.getTransactions(address);
     } else if (chain === "usdt") {
         return await usdt.getTransactions(address);
+    } else if (chain === "iost") {
+        return await iost.getTransactions(address);
     }
 }
 

@@ -9,6 +9,7 @@ const bnb = require('./bnb.js');
 const aion = require('./aion.js');
 const eos = require('./eos.js');
 const trx = require('./trx.js');
+const ont = require('./ont.js');
 
 const getChains = function() {
     const chains = [
@@ -90,7 +91,7 @@ const getChains = function() {
         {
             name: 'Ontology',
             symbol: 'ONT',
-            status: 'Future'
+            status: 'Active'
         },
         {
             name: 'QTUM',
@@ -161,6 +162,8 @@ const getEmptyBlockchains = async() => {
             blockchains["EOS"] = await eos.getEmptyBlockchain();
         } else if(chains[i].symbol === 'TRX') {
             blockchains["TRX"] = await trx.getEmptyBlockchain();
+        } else if(chains[i].symbol === 'ONT') {
+            blockchains["ONT"] = await ont.getEmptyBlockchain();
         }
     }
     return blockchains;
@@ -193,6 +196,8 @@ const getBlockchains = async(toFind) => {
             blockchains["EOS"] = await eos.getBlockchain(toFind);
         } else if(chains[i].symbol === 'TRX') {
             blockchains["TRX"] = await trx.getBlockchain(toFind);
+        } else if(chains[i].symbol === 'ONT') {
+            blockchains["ONT"] = await ont.getBlockchain(toFind);
         }
     }
 
@@ -222,6 +227,8 @@ const getBlockchain = async(chain, toFind) => {
     //     return await eos.getBlockchain(toFind);
     } else if (chain === "trx") {
         return await trx.getBlockchain(toFind);
+    } else if (chain === "ont") {
+        return await ont.getBlockchain(toFind);
     }
 }
 
@@ -258,6 +265,8 @@ const getTransactions = async(chain, address) => {
     //     return await eos.getTransactions(address);
     } else if (chain === "trx") {
         return await trx.getTransactions(address);
+    } else if (chain === "ont") {
+        return await ont.getTransactions(address);
     }
 }
 

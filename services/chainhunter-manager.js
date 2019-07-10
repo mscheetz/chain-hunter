@@ -10,6 +10,7 @@ const aion = require('./aion.js');
 const eos = require('./eos.js');
 const trx = require('./trx.js');
 const ont = require('./ont.js');
+const usdt = require('/usdt.js');
 
 const getChains = function() {
     const chains = [
@@ -101,7 +102,7 @@ const getChains = function() {
         {
             name: 'Tether',
             symbol: 'USDT',
-            status: 'Future'
+            status: 'Active'
         },
         {
             name: 'Wanchain',
@@ -164,6 +165,8 @@ const getEmptyBlockchains = async() => {
             blockchains["TRX"] = await trx.getEmptyBlockchain();
         } else if(chains[i].symbol === 'ONT') {
             blockchains["ONT"] = await ont.getEmptyBlockchain();
+        } else if(chains[i].symbol === 'USDT') {
+            blockchains["USDT"] = await usdt.getEmptyBlockchain();
         }
     }
     return blockchains;
@@ -198,6 +201,8 @@ const getBlockchains = async(toFind) => {
             blockchains["TRX"] = await trx.getBlockchain(toFind);
         } else if(chains[i].symbol === 'ONT') {
             blockchains["ONT"] = await ont.getBlockchain(toFind);
+        } else if(chains[i].symbol === 'USDT') {
+            blockchains["USDT"] = await usdt.getBlockchain(toFind);
         }
     }
 
@@ -229,6 +234,8 @@ const getBlockchain = async(chain, toFind) => {
         return await trx.getBlockchain(toFind);
     } else if (chain === "ont") {
         return await ont.getBlockchain(toFind);
+    } else if (chain === "usdt") {
+        return await usdt.getBlockchain(toFind);
     }
 }
 
@@ -267,6 +274,8 @@ const getTransactions = async(chain, address) => {
         return await trx.getTransactions(address);
     } else if (chain === "ont") {
         return await ont.getTransactions(address);
+    } else if (chain === "usdt") {
+        return await usdt.getTransactions(address);
     }
 }
 

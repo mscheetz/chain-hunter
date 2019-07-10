@@ -14,8 +14,10 @@
             </div>
         </div>
         <div *ngIf="!notRunning">
-            <h3>The hunt is on!</h3>
-            <p-progressBar mode="indeterminate" [style]="{'width': '50%'}"></p-progressBar>
+            <div class="h3-like">
+                The hunt is on!
+                <p-progressBar mode="indeterminate" [style]="{'width': '50%'}"></p-progressBar>
+            </div>
         </div>
         <active-chains *ngIf="huntStatus === 0" [activeChains]="activeChains"></active-chains>
         <div *ngIf="huntStatus !== 0">
@@ -51,5 +53,5 @@
             <footer-component></footer-component>
         </div>
     </div>
-    <cookies *ngIf="showNotice" (childEvent)="cookieOk" class="cookie-box"></cookies>
+    <cookies *ngIf="showNotice" (cookiesOk)="cookieOk($event)" class="cookie-box"></cookies>
 </div>

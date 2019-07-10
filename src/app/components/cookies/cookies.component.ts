@@ -9,7 +9,7 @@ import { Message } from 'primeng/components/common/api';
 
 export class CookiesComponent implements OnInit {
     msgs: Message[] = [];
-    @Output() childEvent = new EventEmitter();
+    @Output() cookiesOk: EventEmitter<any> = new EventEmitter();
     constructor() {}
     
     ngOnInit() {
@@ -21,6 +21,6 @@ export class CookiesComponent implements OnInit {
     }
 
     cookieOk(){
-        this.childEvent.emit();
+        this.cookiesOk.emit();
     }
 }

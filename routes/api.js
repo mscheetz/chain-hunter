@@ -114,7 +114,7 @@ headerCheck = function(req) {
     let user = req.header('TCH-USER');
     let message = req.header('TCH-SIGNATURE');
     let valid = false;
-    const timeDiff = 30000;
+    const timeDiff = 90000;
     let msg = "";
 
     if(typeof user === 'undefined' || typeof message === 'undefined' 

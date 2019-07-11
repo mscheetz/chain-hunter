@@ -84,17 +84,17 @@ const getChains = function() {
         {
             name: 'Icon',
             symbol: 'ICX',
-            status: 'Active'
+            status: 'Future'
         },
         {
             name: 'IOST',
             symbol: 'IOST',
-            status: 'Active'
+            status: 'Future'
         },
         {
             name: 'Ontology',
             symbol: 'ONT',
-            status: 'Active'
+            status: 'Future'
         },
         {
             name: 'QTUM',
@@ -104,7 +104,7 @@ const getChains = function() {
         {
             name: 'Tether',
             symbol: 'USDT',
-            status: 'Active'
+            status: 'Future'
         },
         {
             name: 'Wanchain',

@@ -114,6 +114,7 @@ headerCheck = function(req) {
     let user = req.header('TCH-USER');
     let message = req.header('TCH-SIGNATURE');
     let valid = false;
+    const timeDiff = 30000;
     let msg = "";
 
     if(typeof user === 'undefined' || typeof message === 'undefined' 
@@ -129,7 +130,7 @@ headerCheck = function(req) {
       let timestamp = Date.now();
       let decryptedTs = encryptionSvc.decryptHeader(message, token);
 
-      valid = timestamp + 10000 > decryptedTs && timestamp - 10000 < decryptedTs
+      valid = timestamp + timeDiff > decryptedTs && timestamp - timeDiff < decryptedTs
       ? true : false;
 
       msg = 'time is within the range';

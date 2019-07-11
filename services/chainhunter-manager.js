@@ -9,6 +9,10 @@ const bnb = require('./bnb.js');
 const aion = require('./aion.js');
 const eos = require('./eos.js');
 const trx = require('./trx.js');
+const ont = require('./ont.js');
+const usdt = require('./usdt.js');
+const iost = require('./iost.js');
+const icx = require('./icx.js');
 
 const getChains = function() {
     const chains = [
@@ -161,6 +165,14 @@ const getEmptyBlockchains = async() => {
             blockchains["EOS"] = await eos.getEmptyBlockchain();
         } else if(chains[i].symbol === 'TRX') {
             blockchains["TRX"] = await trx.getEmptyBlockchain();
+        } else if(chains[i].symbol === 'ONT') {
+            blockchains["ONT"] = await ont.getEmptyBlockchain();
+        } else if(chains[i].symbol === 'USDT') {
+            blockchains["USDT"] = await usdt.getEmptyBlockchain();
+        } else if(chains[i].symbol === 'IOST') {
+            blockchains["IOST"] = await iost.getEmptyBlockchain();
+        } else if(chains[i].symbol === 'ICX') {
+            blockchains["ICX"] = await icx.getEmptyBlockchain();
         }
     }
     return blockchains;
@@ -193,6 +205,14 @@ const getBlockchains = async(toFind) => {
             blockchains["EOS"] = await eos.getBlockchain(toFind);
         } else if(chains[i].symbol === 'TRX') {
             blockchains["TRX"] = await trx.getBlockchain(toFind);
+        } else if(chains[i].symbol === 'ONT') {
+            blockchains["ONT"] = await ont.getBlockchain(toFind);
+        } else if(chains[i].symbol === 'USDT') {
+            blockchains["USDT"] = await usdt.getBlockchain(toFind);
+        } else if(chains[i].symbol === 'IOST') {
+            blockchains["IOST"] = await iost.getBlockchain(toFind);
+        } else if(chains[i].symbol === 'ICX') {
+            blockchains["ICX"] = await icx.getBlockchain(toFind);
         }
     }
 
@@ -222,6 +242,14 @@ const getBlockchain = async(chain, toFind) => {
     //     return await eos.getBlockchain(toFind);
     } else if (chain === "trx") {
         return await trx.getBlockchain(toFind);
+    } else if (chain === "ont") {
+        return await ont.getBlockchain(toFind);
+    } else if (chain === "usdt") {
+        return await usdt.getBlockchain(toFind);
+    } else if (chain === "iost") {
+        return await iost.getBlockchain(toFind);
+    } else if (chain === "icx") {
+        return await icx.getBlockchain(toFind);
     }
 }
 
@@ -258,6 +286,14 @@ const getTransactions = async(chain, address) => {
     //     return await eos.getTransactions(address);
     } else if (chain === "trx") {
         return await trx.getTransactions(address);
+    } else if (chain === "ont") {
+        return await ont.getTransactions(address);
+    } else if (chain === "usdt") {
+        return await usdt.getTransactions(address);
+    } else if (chain === "iost") {
+        return await iost.getTransactions(address);
+    } else if (chain === "icx") {
+        return await icx.getTransactions(address);
     }
 }
 

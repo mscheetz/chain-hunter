@@ -72,13 +72,28 @@ const getChains = function() {
             status: 'Future'
         },
         {
+            name: 'Cardano',
+            symbol: 'ADA',
+            status: 'Future'
+        },
+        {
             name: 'Dash',
             symbol: 'DASH',
             status: 'Future'
         },
         {
+            name: 'Dogecoin',
+            symbol: 'DOGE',
+            status: 'Future'
+        },
+        {
             name: 'EOSIO',
             symbol: 'EOS',
+            status: 'Future'
+        },
+        {
+            name: 'Ethereum Classic',
+            symbol: 'ETC',
             status: 'Future'
         },
         {
@@ -92,6 +107,31 @@ const getChains = function() {
             status: 'Future'
         },
         {
+            name: 'IOTA',
+            symbol: 'MIOTA',
+            status: 'Future'
+        },
+        {
+            name: 'Lisk',
+            symbol: 'LSK',
+            status: 'Future'
+        },
+        {
+            name: 'Monero',
+            symbol: 'XMR',
+            status: 'Future'
+        },
+        {
+            name: 'Nano',
+            symbol: 'NANO',
+            status: 'Future'
+        },
+        {
+            name: 'NEM',
+            symbol: 'XEM',
+            status: 'Future'
+        },
+        {
             name: 'Ontology',
             symbol: 'ONT',
             status: 'Future'
@@ -102,8 +142,23 @@ const getChains = function() {
             status: 'Future'
         },
         {
+            name: 'Stellar Lumens',
+            symbol: 'XLM',
+            status: 'Future'
+        },
+        {
             name: 'Tether',
             symbol: 'USDT',
+            status: 'Future'
+        },
+        {
+            name: 'Tezos',
+            symbol: 'XTZ',
+            status: 'Future'
+        },
+        {
+            name: 'VeChain',
+            symbol: 'VET',
             status: 'Future'
         },
         {
@@ -112,8 +167,8 @@ const getChains = function() {
             status: 'Future'
         },
         {
-            name: 'Stellar Lumens',
-            symbol: 'XLM',
+            name: 'Zcash',
+            symbol: 'ZEC',
             status: 'Future'
         },
         {

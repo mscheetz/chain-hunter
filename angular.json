@@ -39,6 +39,11 @@
                 "glob": "**/*",
                 "input": "./.well-known",
                 "output": "./.well-known/"
+              },
+              {
+                "glob": "**/*",
+                "input": "./chainhunter.css",
+                "output": "./"
               }
             ],
             "styles": [
@@ -125,6 +130,11 @@
                 "glob": "**/*",
                 "input": "./.well-known",
                 "output": "./.well-known/"
+              },
+              {
+                "glob": "**/*",
+                "input": "./chainhunter.css",
+                "output": "./"
               }
             ]
           }

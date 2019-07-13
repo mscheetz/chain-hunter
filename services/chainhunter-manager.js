@@ -13,6 +13,7 @@ const ont = require('./ont.js');
 const usdt = require('./usdt.js');
 const iost = require('./iost.js');
 const icx = require('./icx.js');
+const nano = require('./nano.js');
 
 const getChains = function() {
     const chains = [
@@ -124,7 +125,7 @@ const getChains = function() {
         {
             name: 'Nano',
             symbol: 'NANO',
-            status: 'Future'
+            status: 'Active'
         },
         {
             name: 'NEM',
@@ -149,7 +150,7 @@ const getChains = function() {
         {
             name: 'Tether',
             symbol: 'USDT',
-            status: 'Future'
+            status: 'Active'
         },
         {
             name: 'Tezos',
@@ -228,6 +229,8 @@ const getEmptyBlockchains = async() => {
             blockchains["IOST"] = await iost.getEmptyBlockchain();
         } else if(chains[i].symbol === 'ICX') {
             blockchains["ICX"] = await icx.getEmptyBlockchain();
+        } else if(chains[i].symbol === 'NANO') {
+            blockchains["NANO"] = await nano.getEmptyBlockchain();
         }
     }
     return blockchains;
@@ -268,6 +271,8 @@ const getBlockchains = async(toFind) => {
             blockchains["IOST"] = await iost.getBlockchain(toFind);
         } else if(chains[i].symbol === 'ICX') {
             blockchains["ICX"] = await icx.getBlockchain(toFind);
+        } else if(chains[i].symbol === 'NANO') {
+            blockchains["NANO"] = await nano.getBlockchain(toFind);
         }
     }
 
@@ -305,6 +310,8 @@ const getBlockchain = async(chain, toFind) => {
         return await iost.getBlockchain(toFind);
     } else if (chain === "icx") {
         return await icx.getBlockchain(toFind);
+    } else if (chain === "nano") {
+        return await nano.getBlockchain(toFind);
     }
 }
 
@@ -349,6 +356,8 @@ const getTransactions = async(chain, address) => {
         return await iost.getTransactions(address);
     } else if (chain === "icx") {
         return await icx.getTransactions(address);
+    } else if (chain === "nano") {
+        return await nano.getTransactions(address);
     }
 }
 

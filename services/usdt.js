@@ -39,29 +39,27 @@ const getAddress = async(addressToFind) => {
 
     try{
         const response = await axios.post(url, data);
-        if(response.data.err_no === 0 && response.data.data !== null) {
-            const datas = response.data.balance;
-            let quantity = 0;
-            datas.forEach(data => {
-                if(data.propertyinfo.name == "TetherUS") {
-                    quantity = data.propertyinfo.totaltokens;
-                }
-            });
-            let address = {};
-            if(quantity > 0){
-                address = {
-                    address: addressToFind,
-                    quantity: quantity
-                };
-                address.transactions = getTransactions(datas.transactions);
-            } else {
-                address = null;
+        
+        const datas = response.data.balance;
+        const txns = response.data.transactions;
+        let quantity = 0;
+        datas.forEach(data => {
+            if(data.propertyinfo.name == "TetherUS") {
+                quantity = parseInt(data.value)/100000000;
             }
-
-            return address;
+        });
+        let address = {};
+        if(quantity > 0){
+            address = {
+                address: addressToFind,
+                quantity: quantity
+            };
+            address.transactions = getTransactions(txns);
         } else {
-            return null;
+            address = null;
         }
+
+        return address;
     } catch(error) {
         return null;
     }

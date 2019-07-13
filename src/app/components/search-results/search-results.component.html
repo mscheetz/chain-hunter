@@ -42,7 +42,7 @@
     <div *ngIf="blockchain.transaction.date">Date: {{blockchain.transaction.date}}</div>
     <div>From: {{blockchain.transaction.from}}</div>
     <div>To: {{blockchain.transaction.to}}</div>
-    <div>Block: {{blockchain.transaction.block}}</div>
+    <div *ngIf="blockchain.transaction.block > 0">Block: {{blockchain.transaction.block}}</div>
     <div *ngIf="blockchain.transaction.confirmations > -1">Confirmations: {{blockchain.transaction.confirmations}}</div>
 </p-panel>
 </div>

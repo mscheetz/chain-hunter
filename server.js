@@ -25,7 +25,7 @@ const forceSSL = function() {
   }
 }
 
-app.use(forceSSL());
+//app.use(forceSSL());
 
 var corsOptions = {
   origin: function(origin, callback) {

@@ -150,7 +150,7 @@ const getChains = function() {
         {
             name: 'Tether',
             symbol: 'USDT',
-            status: 'Future'
+            status: 'Active'
         },
         {
             name: 'Tezos',

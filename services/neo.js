@@ -1,6 +1,7 @@
 const axios = require('axios');
 const helperSvc = require('./helperService.js');
 const base = "https://api.neoscan.io/api/main_net";
+const contractBase = "http://151.106.3.178/api";
 
 const getEmptyBlockchain = async() => {
     const chain = {};
@@ -23,8 +24,16 @@ const getBlockchain = async(toFind) => {
     if(address === null) {
         const transaction = await getTransaction(toFind);
         chain.transaction = transaction;
+        if(transaction === null) {
+            const contractHash = "0x" + toFind;
+            let contract = await getContract(contractHash);
+            if(contract === null) {
+                contract = await getContract(toFind);
+            }
+            chain.contract = contract;
+        }
     }
-    if(chain.address || chain.transaction) {
+    if(chain.address || chain.transaction || chain.contract) {
         chain.icon = "color/"+ chain.symbol.toLowerCase()  +".svg";
     }
 
@@ -55,6 +64,28 @@ const getAddress = async(addressToFind) => {
         } else {
             return null;
         }
+    } catch(error) {
+        return null;
+    }
+}
+
+const getContract = async(addressToFind) => {
+    let endpoint = "/smartcontract/get/" + addressToFind;
+    let url = contractBase + endpoint;
+
+    try{
+        const response = await axios.get(url);        
+        const datas = response.data;
+
+        const contract = {
+            address: addressToFind,
+            quantity: null,
+            symbol: null,
+            creator: datas.author,
+            contractName: datas.name
+        };
+
+        return contract;
     } catch(error) {
         return null;
     }

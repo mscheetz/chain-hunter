@@ -66,7 +66,8 @@ const getContract = async(address) => {
             const datas = response.address;
             const contract = {
                 address: datas.address,
-                quantity: datas.balance/100000000
+                quantity: datas.balance/100000000,
+                symbol: "TRX"
             };
             return contract;
         } else {

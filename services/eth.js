@@ -80,6 +80,7 @@ const getContract = async(addressToFind) => {
             let contract = {
                 address: addressToFind,
                 quantity: null,
+                symbol: null,
                 creator: null,
                 contractName: name
 

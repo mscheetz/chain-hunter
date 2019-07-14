@@ -3,6 +3,7 @@ export class Contract {
 
     address: string;
     quantity: number;
-    creatorAddress: string;
+    symbol: string;
+    creator: string;
     contractName: string;
 } 

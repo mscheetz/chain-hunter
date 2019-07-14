@@ -8,8 +8,7 @@ const getEmptyBlockchain = async() => {
     chain.name = 'Ontology';
     chain.symbol = 'ONT';
     chain.hasTokens = false;
-    chain.hasContracts = false;
-    chain.contract = null;
+    chain.hasContracts = true;
     chain.icon = "white/"+ chain.symbol.toLowerCase()  +".svg";
 
     return chain;
@@ -23,14 +22,14 @@ const getBlockchain = async(toFind) => {
     chain.transaction = null;
     chain.contract = null;
     if(address === null) {
-        await delay(1000);
         const transaction = await getTransaction(toFind);
         chain.transaction = transaction;
+        if(transaction === null) {
+            const contract = await getContract(toFind);
+            chain.contract = contract;
+        }
     }
-    await delay(1000);
-    //const contract = await getContract(toFind);
-    //chain.contract = contract;
-    if(chain.address || chain.transaction /*|| chain.contract*/) {
+    if(chain.address || chain.transaction || chain.contract) {
         chain.icon = "color/"+ chain.symbol.toLowerCase()  +".svg";
     }
 
@@ -66,23 +65,27 @@ const getAddress = async(addressToFind) => {
 }
 
 const getContract = async(address) => {
-    let endpoint = "/getContractDetailsByContractAddress?searchParam=" + address;
+    let endpoint = "/contracts/" + address;
     let url = base + endpoint;
 
     try{
         const response = await axios.get(url);
-        if((typeof response.data.content === "undefined") || response.data.content === null || response.data.content.length === 0){
-            return null;
-        } else {
-            const datas = response.data.content[0];
+        if(response.data.code === 0){
+            const datas = response.data.result;            
+            let symbol = datas.ont_sum === "0" ? "ONG" : "ONT";
+            let quantity = datas.ont_sum === "0" ? parseFloat(datas.ong_sum) : parseFloat(datas.ont_sum);
+
             const contract = {
-                address: datas.contractAddr,
-                quantity: datas.balance,
-                creator: datas.contractCreatorAddr,
-                contractName: datas.contractName
+                address: datas.contract_hash,
+                quantity: quantity,
+                symbol: symbol,
+                creator: datas.creator,
+                contractName: datas.name
             };
 
             return contract;
+        } else {
+            return null;
         }
     } catch(error) {
         return null;
@@ -120,7 +123,7 @@ const getTransactions = async(address) => {
         if(response.data.code === 0) {
             const datas = response.data.result;
             const transactions = [];
-            const latestBlock = 0;//await getLatestBlock();
+            const latestBlock = await getLatestBlock();
             if(datas.length > 0) {
                 datas.forEach(data => {
                     transactions.push(buildTransaction(data, latestBlock));
@@ -142,14 +145,14 @@ const getTransaction = async(hash) => {
 
     try{
         const response = await axios.get(url);
-        if(response.data.code !== 0) {
-            return null;
-        } else {
-            const data = response.data.result;
-            const latestBlock = 0;//await getLatestBlock();
-            const transaction = buildTransactionII(data, latestBlock);
+        if(response.data.code === 0) {
+            const datas = response.data.result;
+            const latestBlock = await getLatestBlock();
+            const transaction = buildTransactionII(datas, latestBlock);
 
             return transaction;
+        } else {
+            return null;
         }
     } catch(error) {
         return null;
@@ -190,28 +193,28 @@ const getToken = async(address, contract) => {
 }
 
 const getLatestBlock = async() => {
-    let endpoint = "/getBlockList?page=0&size=1";
+    let endpoint = "/blocks?page_size=1&page_number=1";
     let url = base + endpoint;
 
     try{
         const response = await axios.get(url);
         
-        return response.data.content[0].blockNumber.toString();
+        return response.data.result.records[0].block_height.toString();
     } catch(error) {
         return 0;
     }
 }
 
 const buildTransaction = function(txn, latestBlock) {
-    const ts = txn.time.toString().substr(0, 10);
+    const ts = txn.tx_time.toString().substr(0, 10);
 
     let quantity = 0;
     let symbol = "";
     let from = "";
     let to = "";
     txn.transfers.forEach(xfer => {
-        if(xfer.amount > 1) {
-            quantity = xfer.amount;
+        quantity = parseInt(xfer.amount);
+        if(quantity > 0) {
             symbol = xfer.asset_name.toUpperCase();
             from = xfer.from_address;
             to = xfer.to_address;
@@ -221,8 +224,8 @@ const buildTransaction = function(txn, latestBlock) {
     const transaction = {
         hash: txn.tx_hash,
         block: txn.block_height,
-        //latestBlock: latestBlock,
-        //confirmations: latestBlock - txn.blockNumber,
+        latestBlock: latestBlock,
+        confirmations: latestBlock - txn.block_height,
         quantity: quantity,
         symbol: symbol,
         date: helperSvc.unixToUTC(parseInt(ts)),
@@ -234,26 +237,26 @@ const buildTransaction = function(txn, latestBlock) {
 }
 
 const buildTransactionII = function(txn, latestBlock) {
-    const ts = txn.time.toString().substr(0, 10);
+    const ts = txn.tx_time.toString().substr(0, 10);
 
     let quantity = 0;
     let symbol = "";
     let from = "";
     let to = "";
     txn.detail.transfers.forEach(xfer => {
-        if(xfer.amount > 1 && xfer.description !== "gasconsume") {
-            quantity = xfer.amount;
+        const xferQty = parseInt(xfer.amount);
+        if(xferQty > 0 && xfer.description !== "gasconsume" && from === "") {
+            quantity = xferQty;
             symbol = xfer.asset_name.toUpperCase();
             from = xfer.from_address;
             to = xfer.to_address;
         }
     });
-
     const transaction = {
         hash: txn.tx_hash,
         block: txn.block_height,
-        //latestBlock: latestBlock,
-        //confirmations: latestBlock - txn.blockNumber,
+        latestBlock: latestBlock,
+        confirmations: latestBlock - txn.block_height,
         quantity: quantity,
         symbol: symbol,
         date: helperSvc.unixToUTC(parseInt(ts)),

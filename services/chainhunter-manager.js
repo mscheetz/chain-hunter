@@ -135,7 +135,7 @@ const getChains = function() {
         {
             name: 'Ontology',
             symbol: 'ONT',
-            status: 'Future'
+            status: 'Active'
         },
         {
             name: 'QTUM',

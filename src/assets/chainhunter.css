@@ -1,0 +1,67 @@
+html {
+	height: 100%;
+}
+
+body {
+/*	position: relative;*/
+	height: 100%;
+	margin: 0;
+}
+
+.jumbotron {
+    padding: 1rem 4rem !important;
+    background-color: #e4e5e6;
+    margin-bottom: 1.5rem; 
+}
+
+.logo-main[_ngcontent-rap-c1] {
+    height: 74.58471760797343spx;
+    width: 300px;
+}
+
+.left-side {
+    width: 85%;
+    float: left;
+}
+
+.right-side {
+    width: 15%;
+    float: right;
+}
+
+.main {
+    /* margin-bottom: -4rem;
+    height: 100vh; */
+}
+
+.main-container {
+    width: auto;
+    max-width: 1140px;
+    padding: 0 15px;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+@media(max-width: 1200px){
+    .main-container {
+        max-width: 1140px;
+    }
+}
+
+@media(max-width: 992px){
+    .main-container {
+        max-width: 960px;
+    }
+}
+
+@media(max-width: 768px){
+    .main-container {
+        max-width: 720px;
+    }
+}
+
+@media(max-width: 576px){
+    .main-container {
+        max-width: 540px;
+    }
+}

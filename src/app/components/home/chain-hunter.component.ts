@@ -4,6 +4,7 @@ import { Blockchain } from 'src/app/classes/ChainHunter/Blockchain';
 import { HelperService } from 'src/app/services/helper-svc.service';
 import { ChainHunterService } from 'src/app/services/chainHunter-svc.service';
 import { Chain } from 'src/app/classes/ChainHunter/Chain';
+import { DomSanitizer } from '@angular/platform-browser';
 
 @Component({
     selector: 'chain-hunter',
@@ -34,7 +35,8 @@ export class ChainHunterComponent implements OnInit {
     showNotice: boolean = true;
 
     constructor(private helperService: HelperService,
-                private chainService: ChainHunterService) {}
+                private chainService: ChainHunterService,
+                private domSanitizer: DomSanitizer) {}
 
     ngOnInit() {
         this.getChains();
@@ -211,5 +213,16 @@ export class ChainHunterComponent implements OnInit {
     
     cookieOk(){
         this.showNotice = false;
+    }
+
+    styles: string = `
+    <style>
+        .img-overlay {
+            display: none;
+        }
+    </style>`;
+
+    getStyles() {
+        return this.domSanitizer.bypassSecurityTrustHtml(this.styles); 
     }
 }

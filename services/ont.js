@@ -44,12 +44,19 @@ const getAddress = async(addressToFind) => {
         const response = await axios.get(url);
         if(response.data.code === 0){
             const datas = response.data.result;
+            let allZeros = 0;
             let quantity = 0;
             datas.forEach(token => {
+                if(token.balance === '0') {
+                    allZeros++;
+                }
                 if(token.asset_name === "ont") {
                     quantity = token.balance;
                 }
             })
+            if(allZeros === datas.length) {
+                return null;
+            }
             const address = {
                 address: addressToFind,
                 quantity: quantity
@@ -71,7 +78,7 @@ const getContract = async(address) => {
     try{
         const response = await axios.get(url);
         if(response.data.code === 0){
-            const datas = response.data.result;            
+            const datas = response.data.result;
             let symbol = datas.ont_sum === "0" ? "ONG" : "ONT";
             let quantity = datas.ont_sum === "0" ? parseFloat(datas.ong_sum) : parseFloat(datas.ont_sum);
 
@@ -119,7 +126,7 @@ const getTransactions = async(address) => {
     let url = base + endpoint;
 
     try{
-        const response = await axios.get(url);
+        const response = await axios.get(url);        
         if(response.data.code === 0) {
             const datas = response.data.result;
             const transactions = [];

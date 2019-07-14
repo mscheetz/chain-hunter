@@ -34,7 +34,7 @@
     <h3>{{blockchain.symbol}} Contract Address: {{blockchain.contract.address}}</h3>
     <p *ngIf="blockchain.contract.quantity">Balance: {{blockchain.contract.quantity | number}} {{blockchain.contract.symbol}}</p>
     <p *ngIf="blockchain.contract.contractName">Contract Name: {{blockchain.contract.contractName}}</p>
-    <p *ngIf="blockchain.contract.creatorAddress">Creator Address: {{blockchain.contract.creatorAddress}}</p>
+    <p *ngIf="blockchain.contract.creator">Creator Address: {{blockchain.contract.creator}}</p>
 </p-panel>
 <p-panel header="{{blockchain.symbol}} Transaction" *ngIf="blockchain.transaction">
     <h3>{{blockchain.symbol}} Transaction Hash: {{blockchain.transaction.hash}}</h3>

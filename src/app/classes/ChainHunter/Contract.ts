@@ -4,6 +4,6 @@ export class Contract {
     address: string;
     quantity: number;
     symbol: string;
-    creatorAddress: string;
+    creator: string;
     contractName: string;
 } 

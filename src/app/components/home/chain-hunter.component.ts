@@ -98,7 +98,7 @@ export class ChainHunterComponent implements OnInit {
                     this.requestedChains--;
                     this.setMap(chain);
                     if(chain.address || chain.transaction || chain.contract) {
-                        this.resultsFound.push(chain.symbol);
+                        this.resultsFound.push(chain.name);
                     }
                     this.calculateIcons();
                     this.checkCompleted();

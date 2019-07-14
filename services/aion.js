@@ -71,6 +71,7 @@ const getContract = async(address) => {
             const contract = {
                 address: datas.contractAddr,
                 quantity: datas.balance,
+                symbol: "AION",
                 creator: datas.contractCreatorAddr,
                 contractName: datas.contractName
             };

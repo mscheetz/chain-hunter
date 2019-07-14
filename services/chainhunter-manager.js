@@ -14,6 +14,7 @@ const usdt = require('./usdt.js');
 const iost = require('./iost.js');
 const icx = require('./icx.js');
 const nano = require('./nano.js');
+const dash = require('./dash.js');
 
 const getChains = function() {
     const chains = [
@@ -80,7 +81,7 @@ const getChains = function() {
         {
             name: 'Dash',
             symbol: 'DASH',
-            status: 'Future'
+            status: 'Active'
         },
         {
             name: 'Dogecoin',
@@ -231,6 +232,8 @@ const getEmptyBlockchains = async() => {
             blockchains["ICX"] = await icx.getEmptyBlockchain();
         } else if(chains[i].symbol === 'NANO') {
             blockchains["NANO"] = await nano.getEmptyBlockchain();
+        } else if(chains[i].symbol === 'DASH') {
+            blockchains["DASH"] = await dash.getEmptyBlockchain();
         }
     }
     return blockchains;
@@ -273,6 +276,8 @@ const getBlockchains = async(toFind) => {
             blockchains["ICX"] = await icx.getBlockchain(toFind);
         } else if(chains[i].symbol === 'NANO') {
             blockchains["NANO"] = await nano.getBlockchain(toFind);
+        } else if(chains[i].symbol === 'DASH') {
+            blockchains["DASH"] = await dash.getBlockchain(toFind);
         }
     }
 
@@ -312,6 +317,8 @@ const getBlockchain = async(chain, toFind) => {
         return await icx.getBlockchain(toFind);
     } else if (chain === "nano") {
         return await nano.getBlockchain(toFind);
+    } else if (chain === "dash") {
+        return await dash.getBlockchain(toFind);
     }
 }
 
@@ -358,6 +365,8 @@ const getTransactions = async(chain, address) => {
         return await icx.getTransactions(address);
     } else if (chain === "nano") {
         return await nano.getTransactions(address);
+    } else if (chain === "dash") {
+        return await dash.getTransactions(address);
     }
 }
 

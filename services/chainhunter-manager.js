@@ -14,47 +14,13 @@ const usdt = require('./usdt.js');
 const iost = require('./iost.js');
 const icx = require('./icx.js');
 const nano = require('./nano.js');
+const dash = require('./dash.js');
 
 const getChains = function() {
     const chains = [
         {
             name: 'Bitcoin',
             symbol: 'BTC',
-            status: 'Active'
-        },
-        {
-            name: 'Bitcoin Cash',
-            symbol: 'BCH',
-            status: 'Active'
-        },
-        {
-            name: 'Ethereum',
-            symbol: 'ETH',
-            status: 'Active'
-        },
-        {
-            name: 'Litecoin',
-            symbol: 'LTC',
-            status: 'Active'
-        },
-        {
-            name: 'Neo',
-            symbol: 'NEO',
-            status: 'Active'
-        },
-        {
-            name: 'Raven Coin',
-            symbol: 'RVN',
-            status: 'Active'
-        },
-        {
-            name: 'Ripple',
-            symbol: 'XRP',
-            status: 'Active'
-        },
-        {
-            name: 'Tron',
-            symbol: 'TRX',
             status: 'Active'
         },
         {
@@ -68,9 +34,9 @@ const getChains = function() {
             status: 'Active'
         },
         {
-            name: 'Cosmos',
-            symbol: 'ATOM',
-            status: 'Future'
+            name: 'Bitcoin Cash',
+            symbol: 'BCH',
+            status: 'Active'
         },
         {
             name: 'Cardano',
@@ -78,9 +44,14 @@ const getChains = function() {
             status: 'Future'
         },
         {
+            name: 'Cosmos',
+            symbol: 'ATOM',
+            status: 'Future'
+        },
+        {
             name: 'Dash',
             symbol: 'DASH',
-            status: 'Future'
+            status: 'Active'
         },
         {
             name: 'Dogecoin',
@@ -91,6 +62,11 @@ const getChains = function() {
             name: 'EOSIO',
             symbol: 'EOS',
             status: 'Future'
+        },
+        {
+            name: 'Ethereum',
+            symbol: 'ETH',
+            status: 'Active'
         },
         {
             name: 'Ethereum Classic',
@@ -118,6 +94,11 @@ const getChains = function() {
             status: 'Future'
         },
         {
+            name: 'Litecoin',
+            symbol: 'LTC',
+            status: 'Active'
+        },
+        {
             name: 'Monero',
             symbol: 'XMR',
             status: 'Future'
@@ -133,6 +114,11 @@ const getChains = function() {
             status: 'Future'
         },
         {
+            name: 'Neo',
+            symbol: 'NEO',
+            status: 'Active'
+        },
+        {
             name: 'Ontology',
             symbol: 'ONT',
             status: 'Active'
@@ -141,6 +127,16 @@ const getChains = function() {
             name: 'QTUM',
             symbol: 'QTUM',
             status: 'Future'
+        },
+        {
+            name: 'Raven Coin',
+            symbol: 'RVN',
+            status: 'Active'
+        },
+        {
+            name: 'Ripple',
+            symbol: 'XRP',
+            status: 'Active'
         },
         {
             name: 'Stellar Lumens',
@@ -156,6 +152,11 @@ const getChains = function() {
             name: 'Tezos',
             symbol: 'XTZ',
             status: 'Future'
+        },
+        {
+            name: 'Tron',
+            symbol: 'TRX',
+            status: 'Active'
         },
         {
             name: 'VeChain',
@@ -231,6 +232,8 @@ const getEmptyBlockchains = async() => {
             blockchains["ICX"] = await icx.getEmptyBlockchain();
         } else if(chains[i].symbol === 'NANO') {
             blockchains["NANO"] = await nano.getEmptyBlockchain();
+        } else if(chains[i].symbol === 'DASH') {
+            blockchains["DASH"] = await dash.getEmptyBlockchain();
         }
     }
     return blockchains;
@@ -273,6 +276,8 @@ const getBlockchains = async(toFind) => {
             blockchains["ICX"] = await icx.getBlockchain(toFind);
         } else if(chains[i].symbol === 'NANO') {
             blockchains["NANO"] = await nano.getBlockchain(toFind);
+        } else if(chains[i].symbol === 'DASH') {
+            blockchains["DASH"] = await dash.getBlockchain(toFind);
         }
     }
 
@@ -312,6 +317,8 @@ const getBlockchain = async(chain, toFind) => {
         return await icx.getBlockchain(toFind);
     } else if (chain === "nano") {
         return await nano.getBlockchain(toFind);
+    } else if (chain === "dash") {
+        return await dash.getBlockchain(toFind);
     }
 }
 
@@ -358,6 +365,8 @@ const getTransactions = async(chain, address) => {
         return await icx.getTransactions(address);
     } else if (chain === "nano") {
         return await nano.getTransactions(address);
+    } else if (chain === "dash") {
+        return await dash.getTransactions(address);
     }
 }
 

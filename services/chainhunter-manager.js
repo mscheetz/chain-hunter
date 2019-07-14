@@ -24,41 +24,6 @@ const getChains = function() {
             status: 'Active'
         },
         {
-            name: 'Bitcoin Cash',
-            symbol: 'BCH',
-            status: 'Active'
-        },
-        {
-            name: 'Ethereum',
-            symbol: 'ETH',
-            status: 'Active'
-        },
-        {
-            name: 'Litecoin',
-            symbol: 'LTC',
-            status: 'Active'
-        },
-        {
-            name: 'Neo',
-            symbol: 'NEO',
-            status: 'Active'
-        },
-        {
-            name: 'Raven Coin',
-            symbol: 'RVN',
-            status: 'Active'
-        },
-        {
-            name: 'Ripple',
-            symbol: 'XRP',
-            status: 'Active'
-        },
-        {
-            name: 'Tron',
-            symbol: 'TRX',
-            status: 'Active'
-        },
-        {
             name: 'AION',
             symbol: 'AION',
             status: 'Active'
@@ -69,13 +34,18 @@ const getChains = function() {
             status: 'Active'
         },
         {
-            name: 'Cosmos',
-            symbol: 'ATOM',
-            status: 'Future'
+            name: 'Bitcoin Cash',
+            symbol: 'BCH',
+            status: 'Active'
         },
         {
             name: 'Cardano',
             symbol: 'ADA',
+            status: 'Future'
+        },
+        {
+            name: 'Cosmos',
+            symbol: 'ATOM',
             status: 'Future'
         },
         {
@@ -92,6 +62,11 @@ const getChains = function() {
             name: 'EOSIO',
             symbol: 'EOS',
             status: 'Future'
+        },
+        {
+            name: 'Ethereum',
+            symbol: 'ETH',
+            status: 'Active'
         },
         {
             name: 'Ethereum Classic',
@@ -119,6 +94,11 @@ const getChains = function() {
             status: 'Future'
         },
         {
+            name: 'Litecoin',
+            symbol: 'LTC',
+            status: 'Active'
+        },
+        {
             name: 'Monero',
             symbol: 'XMR',
             status: 'Future'
@@ -134,6 +114,11 @@ const getChains = function() {
             status: 'Future'
         },
         {
+            name: 'Neo',
+            symbol: 'NEO',
+            status: 'Active'
+        },
+        {
             name: 'Ontology',
             symbol: 'ONT',
             status: 'Active'
@@ -142,6 +127,16 @@ const getChains = function() {
             name: 'QTUM',
             symbol: 'QTUM',
             status: 'Future'
+        },
+        {
+            name: 'Raven Coin',
+            symbol: 'RVN',
+            status: 'Active'
+        },
+        {
+            name: 'Ripple',
+            symbol: 'XRP',
+            status: 'Active'
         },
         {
             name: 'Stellar Lumens',
@@ -157,6 +152,11 @@ const getChains = function() {
             name: 'Tezos',
             symbol: 'XTZ',
             status: 'Future'
+        },
+        {
+            name: 'Tron',
+            symbol: 'TRX',
+            status: 'Active'
         },
         {
             name: 'VeChain',

@@ -98,26 +98,36 @@ const getTransaction = async(hash) => {
 }
 
 const buildTransaction = function(txn) {
-    let from = "";
-    let to = "";
-    if(txn.inputs[0].prev_addresses.length > 0) {
-        from = txn.inputs[0].prev_addresses[0];
-    } else if(txn.is_coinbase) {
-        from = "Coinbase";
+    let from = [];
+    let to = [];
+    if(txn.is_coinbase) {
+        from.push("Coinbase");
+    } else {
+        for(let i = 0; i < txn.inputs.length; i++) {
+            txn.inputs[i].prev_addresses.forEach(address => {
+                if(address && from.indexOf(address) <= -1) {
+                    from.push(address);
+                }
+            })
+        }
     }
-    if(txn.outputs[0].addresses.length > 0) {
-        to = txn.outputs[0].addresses[0];
+    for(let i = 0; i < txn.outputs.length; i++) {
+        txn.outputs[i].addresses.forEach(address => {
+            if(address && to.indexOf(address) <= -1) {
+                to.push(address);
+            }
+        })
     }
 
     const transaction = {
-    hash: txn.hash,
-    block: txn.block_height,
-    quantity: txn.outputs_value/100000000,
-    symbol: "BTC",
-    confirmations: txn.confirmations,
-    date: helperSvc.unixToUTC(txn.created_at),
-    from: from,
-    to: to
+        hash: txn.hash,
+        block: txn.block_height,
+        quantity: txn.outputs_value/100000000,
+        symbol: "BTC",
+        confirmations: txn.confirmations,
+        date: helperSvc.unixToUTC(txn.created_at),
+        from: from.join(", "),
+        to: to.join(", ")
     };
 
     return transaction;

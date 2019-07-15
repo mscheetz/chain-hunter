@@ -8,8 +8,7 @@ const getEmptyBlockchain = async() => {
     chain.name = 'Icon';
     chain.symbol = 'ICX';
     chain.hasTokens = false;
-    chain.hasContracts = false;
-    chain.contract = null;
+    chain.hasContracts = true;
     chain.icon = "white/"+ chain.symbol.toLowerCase()  +".svg";
 
     return chain;
@@ -23,14 +22,12 @@ const getBlockchain = async(toFind) => {
     chain.transaction = null;
     chain.contract = null;
     if(address === null) {
-        await delay(1000);
         const transaction = await getTransaction(toFind);
         chain.transaction = transaction;
     }
-    await delay(1000);
-    // const contract = await getContract(toFind);
-    // chain.contract = contract;
-    if(chain.address || chain.transaction/* || chain.contract*/) {
+     const contract = await getContract(toFind);
+     chain.contract = contract;
+    if(chain.address || chain.transaction || chain.contract) {
         chain.icon = "color/"+ chain.symbol.toLowerCase()  +".svg";
     }
 
@@ -43,13 +40,14 @@ const getAddress = async(addressToFind) => {
 
     try{
         const response = await axios.get(url);
-        if((typeof response.data.content === "undefined") || response.data.result !== 200){
+        if(response.data.data === null){
             return null;
         } else {
             const datas = response.data.data;
             const address = {
                 address: datas.address,
-                quantity: datas.balance
+                quantity: datas.balance,
+                tokens: tokenConvert(datas.tokenList)
             };
 
             return address;
@@ -59,21 +57,37 @@ const getAddress = async(addressToFind) => {
     }
 }
 
+const tokenConvert = async(tokens) => {
+    let assets = [];
+
+    tokens.forEach(token => {
+        const asset = {
+            quantity: parseFloat(token.quantity),
+            symbol: token.contractSymbol
+        }
+
+        assets.push(asset);
+    });
+
+    return assets;
+}
+
 const getContract = async(address) => {
-    let endpoint = "/getContractDetailsByContractAddress?searchParam=" + address;
+    let endpoint = "/contract/info?addr=" + address;
     let url = base + endpoint;
 
     try{
         const response = await axios.get(url);
-        if((typeof response.data.content === "undefined") || response.data.content === null || response.data.content.length === 0){
+        if(response.data.data === null) {
             return null;
         } else {
-            const datas = response.data.content[0];
+            const datas = response.data.data;
             const contract = {
-                address: datas.contractAddr,
-                quantity: datas.balance,
-                creator: datas.contractCreatorAddr,
-                contractName: datas.contractName
+                address: datas.address,
+                quantity: null,
+                symbol: datas.symbol,
+                creator: datas.creator,
+                contractName: datas.tokenName
             };
 
             return contract;
@@ -83,29 +97,27 @@ const getContract = async(address) => {
     }
 }
 
-const getAddressTokenContracts = async(address) => {
-    let endpoint = "/getAccountDetails?accountAddress=" + address;
-    let url = base + endpoint;
+const getTransactions = async(address) => {
+    let addressTransactions = await getAddressTransactions(address);
+    let tokenTransactions = await getTokenTransactions(address);
 
-    try{
-        const response = await axios.get(url);
-        if((typeof response.data.content === "undefined") || response.data.content === null || response.data.content.length === 0){
-            return [];
-        } else {
-            const datas = response.data.content[0].tokens;
-            let contracts = [];
-            datas.forEach(data => {
-                contracts.push(data.contractAddr);
-            });
+    if(addressTransactions.length > 0 && tokenTransactions.length > 0) {
+        addressTransactions.forEach(txn => {
+            if(txn.symbol === "CALL") {
+                const tokenTxn = tokenTransactions.find(t => t.hash === txn.hash);
 
-            return contracts;
-        }
-    } catch(error) {
-        return [];
+                if(tokenTxn !== null) {
+                    txn.quantity = tokenTxn.quantity;
+                    txn.symbol = tokenTxn.symbol;
+                }
+            }
+        });
     }
+
+    return addressTransactions;
 }
 
-const getTransactions = async(address) => {
+const getAddressTransactions = async(address) => {
     let endpoint = "/address/txList?address="+ address +"&page=1&count=10";
     let url = base + endpoint;
 
@@ -113,11 +125,35 @@ const getTransactions = async(address) => {
         const response = await axios.get(url);
         if(response.data.data !== null && response.data.data.length > 0) {
             const datas = response.data.data;
-            const transactions = [];
-            const latestBlock = 0;//await getLatestBlock();
+            const transactions = [];            
             if(datas.length > 0) {
+                const latestBlock = await getLatestBlock();
                 datas.forEach(data => {
                     transactions.push(buildTransaction(data, latestBlock));
+                })
+            }
+
+            return transactions;
+        } else {
+            return [];
+        }
+    } catch(error) {
+        return [];
+    }
+}
+
+const getTokenTransactions = async(address) => {
+    let endpoint = "/address/tokenTxList?address="+ address +"&page=1&count=10";
+    let url = base + endpoint;
+
+    try{
+        const response = await axios.get(url);
+        if(response.data.data !== null && response.data.data.length > 0) {
+            const datas = response.data.data;
+            const transactions = [];
+            if(datas.length > 0) {
+                datas.forEach(data => {
+                    transactions.push(buildTokenTransaction(data));
                 })
             }
 
@@ -135,13 +171,12 @@ const getTransaction = async(hash) => {
     let url = base + endpoint;
 
     try{
-        const response = await axios.get(url);
-        if(typeof response.data.content === "undefined" || response.data.result !== 200) {
+        const response = await axios.get(url);        
+        if(response.data.data === null) {
             return null;
         } else {
-            const data = response.data.data;
-            const latestBlock = 0;//await getLatestBlock();
-            const transaction = buildTransactionII(data, latestBlock);
+            const datas = response.data.data;
+            const transaction = buildTransactionII(datas);
 
             return transaction;
         }
@@ -150,47 +185,14 @@ const getTransaction = async(hash) => {
     }
 }
 
-const getTokens = async(address) => {
-    const tokenContracts = await getAddressTokenContracts(address);
-    let tokens = [];
-    for (let i = 0; i < tokenContracts.length; i++) {
-        const contract = tokenContracts[i];
-        token = await getToken(address, contract);
-        if(token !== null) {
-            tokens.push(token);
-        }
-    }
-
-    return tokens;
-}
-
-const getToken = async(address, contract) => {    
-    let endpoint = "/getAccountDetails?accountAddress=" + address + "&tokenAddress=" + contract;
-    let url = base + endpoint;
-
-    try{
-        const response = await axios.get(url);
-        const data = response.data.content[0];
-        let asset = {
-            quantity: helperSvc.commaBigNumber(data.balance.toString()),
-            symbol: aionAddress.tokenSymbol
-        };
-
-        return asset;
-
-    } catch(error) {
-        return null;
-    }
-}
-
 const getLatestBlock = async() => {
-    let endpoint = "/getBlockList?page=0&size=1";
+    let endpoint = "/block/list?page=1&count=1";
     let url = base + endpoint;
 
     try{
         const response = await axios.get(url);
         
-        return response.data.content[0].blockNumber.toString();
+        return response.data.data[0].height.toString();
     } catch(error) {
         return 0;
     }
@@ -201,8 +203,8 @@ const buildTransaction = function(txn, latestBlock) {
         hash: txn.txHash,
         block: txn.height,
         latestBlock: latestBlock,
-        //confirmations: latestBlock - txn.blockNumber,
-        quantity: txn.amount,
+        confirmations: latestBlock - txn.height,
+        quantity: parseFloat(txn.amount),
         symbol: txn.dataType.toUpperCase(),
         date: txn.createDate,
         from: txn.fromAddr,
@@ -212,20 +214,33 @@ const buildTransaction = function(txn, latestBlock) {
     return transaction;
 }
 
-const buildTransactionII = function(txn, latestBlock) {
+const buildTokenTransaction = function(txn) {
+    const transaction = {
+        hash: txn.txHash,
+        quantity: parseFloat(txn.quantity),
+        symbol: txn.contractSymbol,
+        date: txn.createDate,
+        from: txn.fromAddr,
+        to: txn.toAddr,
+    };
+
+    return transaction;
+}
+
+const buildTransactionII = function(txn) {
     let quantity = 0;
     let symbol = "";
     let from = "";
     let to = "";
 
     if(txn.tokenTxList.length > 0){
-        quantity = txn.tokenTxList[0].quantity;
+        quantity = parseFloat(txn.tokenTxList[0].quantity);
         symbol = txn.tokenTxList[0].symbol;
         from = txn.tokenTxList[0].fromAddr;
         to = txn.tokenTxList[0].toAddr;
     } else {
-        quantity = txn.amount;
-        symbol = txn.datatType;
+        quantity = parseFloat(txn.amount);
+        symbol = txn.dataType;
         from = txn.fromAddr;
         to = txn.toAddr;
     }
@@ -233,8 +248,7 @@ const buildTransactionII = function(txn, latestBlock) {
     const transaction = {
         hash: txn.txHash,
         block: txn.height,
-        latestBlock: latestBlock,
-        //confirmations: latestBlock - txn.blockNumber,
+        confirmations: txn.confirmation,
         quantity: quantity,
         symbol: symbol.toUpperCase(),
         date: txn.createDate,
@@ -249,7 +263,8 @@ module.exports = {
     getEmptyBlockchain,
     getBlockchain,
     getAddress,
-    getTokens,
     getTransactions,
-    getTransaction
+    getTransaction,
+    getAddressTransactions,
+    getTokenTransactions
 }

@@ -76,7 +76,7 @@ const getChains = function() {
         {
             name: 'Icon',
             symbol: 'ICX',
-            status: 'Future'
+            status: 'Active'
         },
         {
             name: 'IOST',

@@ -75,7 +75,7 @@ const getContract = async(addressToFind) => {
 
     try {
         const response = await axios.get(url);
-        if((response.data.status === "1" || response.data.message === "OK") && response.data.result !== "0") {            
+        if(response.data.status === "1") {
             const name = response.data.result[0].ContractName;
             let contract = {
                 address: addressToFind,

@@ -97,8 +97,12 @@ const tokenConvert = async(tokens) => {
     tokens.forEach(token => {
         let quantity = helperSvc.exponentialToNumber(token.amount);
         quantity = quantity.toString();
-        asset.quantity = helperSvc.commaBigNumber(quantity);
-        asset.symbol = token.asset_symbol;
+        const asset = {
+            quantity: helperSvc.commaBigNumber(quantity),
+            symbol: token.asset_symbol
+        }
+        // asset.quantity = helperSvc.commaBigNumber(quantity);
+        // asset.symbol = token.asset_symbol;
 
         assets.push(asset);
     });

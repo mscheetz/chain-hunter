@@ -24,6 +24,11 @@ const getChains = function() {
             status: 'Active'
         },
         {
+            name: 'Aeternity',
+            symbol: 'AE',
+            status: 'Future'
+        },
+        {
             name: 'AION',
             symbol: 'AION',
             status: 'Active'

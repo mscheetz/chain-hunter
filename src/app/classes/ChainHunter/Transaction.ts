@@ -4,6 +4,7 @@ export class Transaction{
     hash: string;
     from: string;
     to: string;
+    symbol: string;
     quantity: number;
     date: string;
     confirmations: number;

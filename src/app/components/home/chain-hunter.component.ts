@@ -211,7 +211,7 @@ export class ChainHunterComponent implements OnInit {
         return chain;
     }
     
-    cookieOk(){
+    cookieOk(cookie: boolean){
         this.showNotice = false;
     }
 

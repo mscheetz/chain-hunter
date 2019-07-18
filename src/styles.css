@@ -3,6 +3,10 @@
 	font-weight: bold;
 }
 
+.pull-right {
+	float: none;
+}
+
 .container {
 	width: auto;
 	max-width: 1140px;

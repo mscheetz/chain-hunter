@@ -1,12 +1,12 @@
 const axios = require('axios');
 const helperSvc = require('./helperService.js');
-const base = "https://roma-net.mdw.aepps.com/v2";
+const base = "https://roma-net.mdw.aepps.com";
 const delay = time => new Promise(res=>setTimeout(res,time));
 
 const getEmptyBlockchain = async() => {
     const chain = {};
-    chain.name = 'Bitcoin Cash';
-    chain.symbol = 'BCH';
+    chain.name = 'Aeternity';
+    chain.symbol = 'AE';
     chain.hasTokens = false;
     chain.hasContracts = false;
     chain.icon = "white/"+ chain.symbol.toLowerCase()  +".svg";
@@ -33,7 +33,7 @@ const getBlockchain = async(toFind) => {
 }
 
 const getAddress = async(addressToFind) => {
-    let endpoint = "/accounts/" + addressToFind;
+    let endpoint = "/v2/accounts/" + addressToFind;
     let url = base + endpoint;
 
     try{
@@ -51,7 +51,7 @@ const getAddress = async(addressToFind) => {
 }
 
 const getLatestBlock = async() => {
-    let endpoint = "/key-blocks/current/height";
+    let endpoint = "/v2/key-blocks/current/height";
     let url = base + endpoint;
 
     try{
@@ -63,6 +63,30 @@ const getLatestBlock = async() => {
     }
 }
 
+const getBlock = async(block) => {
+    let endpoint = "/v2/generations/height/" + block;
+    let url = base + endpoint;
+
+    try{
+        const response = await axios.get(url);
+
+        if(typeof response.data.key_block !== "undefined") {
+            return response.data.key_block;
+        }
+        else {
+            return null;
+        }
+    } catch(error) {
+        return null;
+    }
+}
+
+const getBlockTime = async(block) => {
+    const blockInfo = await getBlock(block);
+
+    return blockInfo === null ? 0 : blockInfo.time;
+}
+
 const getTransactions = async(address) => {
     let endpoint = "/middleware/transactions/account/" + address + "?limit=10&page=1";
     let url = base + endpoint;
@@ -72,12 +96,10 @@ const getTransactions = async(address) => {
         if(response.data !== null && response.data.length > 0) {
             const datas = response.data;
             const latestBlock = await getLatestBlock();
-            const transactions = [];
-            if(datas.length > 0) {
-                datas.forEach(data => {
-                    transactions.push(buildTransaction(data, hash, latestBlock));
-                })
-            }
+            let transactions = [];
+            datas.forEach(data => {
+                transactions.push(buildTransaction(data, "", latestBlock, 0));
+            })
 
             return transactions;
         } else {
@@ -89,14 +111,15 @@ const getTransactions = async(address) => {
 }
 
 const getTransaction = async(hash) => {
-    let endpoint = "/transactions/" + hash;
+    let endpoint = "/v2/transactions/" + hash;
     let url = base + endpoint;
 
     try{
-        const response = await axios.get(url);        
-        const data = response.data;
+        const response = await axios.get(url);
+        const datas = response.data;
         const latestBlock = await getLatestBlock();
-        const transaction = buildTransaction(data, hash, latestBlock);
+        const txnBlockTime = await getBlockTime(datas.block_height);
+        const transaction = buildTransaction(datas, hash, latestBlock, txnBlockTime);
 
         return transaction;
     } catch(error) {
@@ -104,15 +127,23 @@ const getTransaction = async(hash) => {
     }
 }
 
-const buildTransaction = function(txn, hash, latestBlock) {
-    const transaction = {
-        hash: hash,
+const buildTransaction = function(txn, hash, latestBlock, blockTime) {
+    let ts = "";
+
+    if(typeof txn.time !== "undefined") {
+        ts = txn.time.toString().substr(0,10);
+    } else if(blockTime > 0){
+        ts = blockTime.toString().substr(0,10);
+    }
+
+    let transaction = {
+        hash: hash === "" ? txn.hash : hash,
         block: txn.block_height,
         latestBlock: latestBlock,
         confirmations: latestBlock - txn.block_height,
-        quantity: txn.amount/1000000000000000000,
+        quantity: txn.tx.amount/1000000000000000000,
         symbol: "AE",
-        //date: helperSvc.unixToUTC(txn.created_at),
+        date: helperSvc.unixToUTC(ts),
         from: txn.tx.sender_id,
         to: txn.tx.recipient_id
     };

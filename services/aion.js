@@ -22,11 +22,9 @@ const getBlockchain = async(toFind) => {
     chain.transaction = null;
     chain.contract = null;
     if(address === null) {
-        await delay(1000);
         const transaction = await getTransaction(toFind);
         chain.transaction = transaction;
     }
-    await delay(1000);
     const contract = await getContract(toFind);
     chain.contract = contract;
     if(chain.address || chain.transaction || chain.contract) {

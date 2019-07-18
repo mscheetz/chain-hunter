@@ -21,7 +21,6 @@ const getBlockchain = async(toFind) => {
     chain.address = address;
     chain.transaction = null;
     if(address === null) {
-        await delay(1000);
         const transaction = await getTransaction(toFind);
         chain.transaction = transaction;
     }

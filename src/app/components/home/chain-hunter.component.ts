@@ -71,8 +71,8 @@ export class ChainHunterComponent implements OnInit {
     }
 
     chainHunt(){
-        this.addyTxn = this.addyTxn.trim();
-        if(this.previousSearch === this.addyTxn || this.addyTxn === "") {
+        this.addyTxn = this.addyTxn.trim();        
+        if(!this.devMode && (this.previousSearch === this.addyTxn || this.addyTxn === "")) {
             return;
         }
         this.huntStatus = 1;
@@ -87,7 +87,6 @@ export class ChainHunterComponent implements OnInit {
         }
         this.notRunning = false;
         this.previousSearch = this.addyTxn;
-        //this.startHunt();
     }
 
     startHunt() {
@@ -185,7 +184,6 @@ export class ChainHunterComponent implements OnInit {
     }
 
     setMap(chain: Blockchain) {
-        //chain = this.getMenuIcon(chain);
         this.map.set(chain.symbol, chain);
     }
 

@@ -21,6 +21,7 @@ import { FooterComponent } from './components/footer/footer.component';
 import { HeaderComponent } from './components/header/header.component';
 import { ActiveChainsComponent } from './components/active-chains/active-chains.component';
 import { CookiesComponent } from './components/cookies/cookies.component';
+import { CookieService } from 'ngx-cookie-service';
 
 @NgModule({
   declarations: [
@@ -49,7 +50,7 @@ import { CookiesComponent } from './components/cookies/cookies.component';
     PanelModule,
     ProgressBarModule
   ],
-  providers: [],
-  bootstrap: [AppComponent]
+  providers: [ CookieService ],
+  bootstrap: [ AppComponent ]
 })
 export class AppModule { }

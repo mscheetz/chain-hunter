@@ -5,6 +5,9 @@ import { HelperService } from 'src/app/services/helper-svc.service';
 import { ChainHunterService } from 'src/app/services/chainHunter-svc.service';
 import { Chain } from 'src/app/classes/ChainHunter/Chain';
 import { DomSanitizer } from '@angular/platform-browser';
+import { CookieData } from 'src/app/classes/ChainHunter/CookieData';
+import { CookieService } from 'ngx-cookie-service';
+import { CookieRequest } from 'src/app/classes/ChainHunter/CookieRequest';
 
 @Component({
     selector: 'chain-hunter',
@@ -33,10 +36,14 @@ export class ChainHunterComponent implements OnInit {
     @Output() huntStatus: number = 0; // 0 = no search yet, 1 = searching, 2 = nothing found, 3 = something found
     devMode: boolean = isDevMode();
     showNotice: boolean = true;
+    cookieData: CookieData = null;
+    cookieName: string = "tch-cookie-cnt";
+    searchLimit: boolean = false;
 
     constructor(private helperService: HelperService,
                 private chainService: ChainHunterService,
-                private domSanitizer: DomSanitizer) {}
+                private domSanitizer: DomSanitizer,
+                private cookieSvc: CookieService) {}
 
     ngOnInit() {
         this.getChains();
@@ -71,6 +78,10 @@ export class ChainHunterComponent implements OnInit {
     }
 
     chainHunt(){
+        this.getCookies();
+        if(this.searchLimit) {
+            return;
+        }
         this.addyTxn = this.addyTxn.trim();        
         if(!this.devMode && (this.previousSearch === this.addyTxn || this.addyTxn === "")) {
             return;
@@ -105,10 +116,48 @@ export class ChainHunterComponent implements OnInit {
         });
     }
 
+    getCookies() {
+        const cookie = this.cookieSvc.get(this.cookieName);
+        if(this.cookieData != null) {
+            this.cookieData = JSON.parse(cookie);
+            let cookieRequests: CookieRequest[] = [];
+            this.cookieData.requests.forEach(req => {
+                const age = this.helperService.getTimestampAge(req.time, "hrs");
+                if(age < 24) {
+                    cookieRequests.push(req);
+                }
+            });
+            this.cookieData.requests = cookieRequests;
+        } else {
+            this.cookieData = new CookieData();
+            this.cookieData.requests = [];
+        }
+        if(this.cookieData.requests.length > 4) {
+            this.searchLimit = true;
+        } else {
+            this.searchLimit = false;
+        }
+    }
+
+    setCookie() {
+        if(this.cookieData == null) {
+            this.cookieData = new CookieData();
+            this.cookieData.requests = [];
+        }
+        let request = new CookieRequest();
+        request.symbols = this.resultsFound;
+        request.time = this.helperService.getUnixTimestamp();
+        this.cookieData.requests.push(request);
+        const expiry = this.helperService.getFutureUnixTimestamp(1, "days");
+
+        this.cookieSvc.set(this.cookieName, JSON.stringify(this.cookieData), expiry);
+    }
+
     checkCompleted() {
         if(this.requestedChains === 0) {
             this.notRunning = true;
             this.huntStatus = this.resultsFound.length === 0 ? 2 : 3;
+            this.setCookie();
         }
     }
 

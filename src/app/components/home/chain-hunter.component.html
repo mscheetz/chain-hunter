@@ -4,10 +4,11 @@
     </div>
     <div *ngIf="!offLine">
         <div *ngIf="notRunning">
+            <p-toast key="search-toast"></p-toast>
             <div class="search-bar pull-right">
                 <span class="ui-float-label">
-                    <input [(ngModel)]="addyTxn" id="addy-txn" type="text" class="search-width" (keyup.enter)="chainHunt()"
-                        pInputText>
+                    <input [(ngModel)]="addyTxn" id="addy-txn" type="text" class="search-width"
+                        (keyup.enter)="chainHunt()" pInputText>
                     <label for="addy-txn">Address/Contract/Hash</label>
                     <button pButton type="button" (click)="chainHunt()" label="Go!" class="ui-button-success"></button>
                 </span>
@@ -21,25 +22,23 @@
         </div>
         <active-chains *ngIf="huntStatus === 0" [activeChains]="activeChains"></active-chains>
         <div *ngIf="huntStatus !== 0">
-            <p-tabMenu 
-                [model]="menuItems" 
-                [activeItem]="activeItem">
+            <p-tabMenu [model]="menuItems" [activeItem]="activeItem">
                 <ng-template pTemplate="item" let-item let-i="index">
                     <div style="position: relative; text-align: center; min-width: 1em">
                         <img src="assets/cryptoicons/{{item.icon}}" title="{{item.label}}" />
                     </div>
                 </ng-template>
             </p-tabMenu>
-            <search-results 
-                [blockchain]="blockchain" 
-                [huntStatus]="huntStatus"
-                [selectedChain]="selectedChain" 
-                [transactionsComplete]="txnsComplete" 
-                [tokensComplete]="tokensComplete"
-                [resultsFound]="resultsFound" 
-                (getTransactions)="getAddressTxns($event)"
-                (getTokens)="getAddressTokens($event)">
+            <search-results [blockchain]="blockchain" [huntStatus]="huntStatus" [selectedChain]="selectedChain"
+                [transactionsComplete]="txnsComplete" [tokensComplete]="tokensComplete" [resultsFound]="resultsFound"
+                (getTransactions)="getAddressTxns($event)" (getTokens)="getAddressTokens($event)">
             </search-results>
+        </div>
+        <div>
+            <div id="amzn-assoc-ad-698f5215-519e-45fe-87ef-c04a8c734a9d"></div>
+            <script async
+                src="//z-na.amazon-adsystem.com/widgets/onejs?MarketPlace=US&adInstanceId=698f5215-519e-45fe-87ef-c04a8c734a9d">
+                </script>
         </div>
         <coming-soon [futureChains]="futureChains">
         </coming-soon>
@@ -49,7 +48,11 @@
             </p-accordionTab>
         </p-accordion>
         <div class="thefoot">
-            <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script> <!-- Chain Hunter Header & Footer --> <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9620472643630147" data-ad-slot="3567793541" data-ad-format="auto" data-full-width-responsive="true"></ins> <script> (adsbygoogle = window.adsbygoogle || []).push({}); </script>
+            <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+            <!-- Chain Hunter Header & Footer --> <ins class="adsbygoogle" style="display:block"
+                data-ad-client="ca-pub-9620472643630147" data-ad-slot="3567793541" data-ad-format="auto"
+                data-full-width-responsive="true"></ins>
+            <script> (adsbygoogle = window.adsbygoogle || []).push({}); </script>
             <footer-component></footer-component>
         </div>
     </div>

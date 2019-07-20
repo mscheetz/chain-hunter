@@ -1,5 +1,5 @@
 import { OnInit, Component, Output, Input, isDevMode } from '@angular/core';
-import { MenuItem } from 'primeng/api';
+import { MenuItem, MessageService } from 'primeng/api';
 import { Blockchain } from 'src/app/classes/ChainHunter/Blockchain';
 import { HelperService } from 'src/app/services/helper-svc.service';
 import { ChainHunterService } from 'src/app/services/chainHunter-svc.service';
@@ -43,7 +43,8 @@ export class ChainHunterComponent implements OnInit {
     constructor(private helperService: HelperService,
                 private chainService: ChainHunterService,
                 private domSanitizer: DomSanitizer,
-                private cookieSvc: CookieService) {}
+                private cookieSvc: CookieService,
+                private messageSvc: MessageService) {}
 
     ngOnInit() {
         this.getChains();
@@ -80,6 +81,14 @@ export class ChainHunterComponent implements OnInit {
     chainHunt(){
         this.getCookies();
         if(this.searchLimit) {
+            this.messageSvc.add(
+                {
+                    key:'search-toast',
+                    severity:'warn', 
+                    summary:'Search Limit', 
+                    detail:'You have exceeded your daily search limit of 5 searches per day. Please come back tomorrow. Unlimited searches coming soon. Follow us on twitter to get all the latest Chain Hunter news',
+                    sticky: true
+                });
             return;
         }
         this.addyTxn = this.addyTxn.trim();        

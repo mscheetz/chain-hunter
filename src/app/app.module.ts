@@ -22,6 +22,9 @@ import { HeaderComponent } from './components/header/header.component';
 import { ActiveChainsComponent } from './components/active-chains/active-chains.component';
 import { CookiesComponent } from './components/cookies/cookies.component';
 import { CookieService } from 'ngx-cookie-service';
+import { MessageService } from 'primeng/api';
+import { ToastModule } from 'primeng/toast';
+import { AccountComponent } from './components/account/account.component';
 
 @NgModule({
   declarations: [
@@ -33,7 +36,8 @@ import { CookieService } from 'ngx-cookie-service';
     FooterComponent,
     HeaderComponent,
     ActiveChainsComponent,
-    CookiesComponent
+    CookiesComponent,
+    AccountComponent
   ],
   imports: [
     BrowserModule,
@@ -48,9 +52,13 @@ import { CookieService } from 'ngx-cookie-service';
     BrowserAnimationsModule,
     ProgressSpinnerModule,
     PanelModule,
-    ProgressBarModule
+    ProgressBarModule,
+    ToastModule
   ],
-  providers: [ CookieService ],
+  providers: [ 
+    CookieService,
+    MessageService
+  ],
   bootstrap: [ AppComponent ]
 })
 export class AppModule { }

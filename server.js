@@ -50,10 +50,8 @@ const inviteCode = '6f85a3f2-027f-41b0-b1f1-298441b29bee';
 app.get('/invite/:code', function(req, res) {
   const code = req.params.code;
   if(code === inviteCode) {
-    console.log('code valid');
     res.cookie(unlimitedCookie, 'You are a god!');
   } else {
-    console.log('code invalid');
     res.clearCookie(unlimitedCookie);
   }
   const baseUrl = req.protocol + "://" + req.get('host');

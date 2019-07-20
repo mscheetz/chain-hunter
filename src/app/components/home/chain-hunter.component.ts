@@ -38,7 +38,9 @@ export class ChainHunterComponent implements OnInit {
     showNotice: boolean = true;
     cookieData: CookieData = null;
     cookieName: string = "tch-cookie-cnt";
+    unlimitedCookie: string = "tch-cookie-unlimited";
     searchLimit: boolean = false;
+    unlimited: boolean = false;
 
     constructor(private helperService: HelperService,
                 private chainService: ChainHunterService,
@@ -126,6 +128,12 @@ export class ChainHunterComponent implements OnInit {
     }
 
     getCookies() {
+        const unlimited = this.cookieSvc.get(this.unlimitedCookie);
+        if(unlimited != null && unlimited !== "") {
+            this.unlimited = true;
+            this.searchLimit = false;
+            return;
+        }
         const cookie = this.cookieSvc.get(this.cookieName);
         if(this.cookieData != null) {
             this.cookieData = JSON.parse(cookie);
@@ -149,6 +157,9 @@ export class ChainHunterComponent implements OnInit {
     }
 
     setCookie() {
+        if(this.unlimited) {
+            return;
+        }
         if(this.cookieData == null) {
             this.cookieData = new CookieData();
             this.cookieData.requests = [];

@@ -1,10 +1,13 @@
 import { OnInit, Component, Output, Input, isDevMode } from '@angular/core';
-import { MenuItem } from 'primeng/api';
+import { MenuItem, MessageService } from 'primeng/api';
 import { Blockchain } from 'src/app/classes/ChainHunter/Blockchain';
 import { HelperService } from 'src/app/services/helper-svc.service';
 import { ChainHunterService } from 'src/app/services/chainHunter-svc.service';
 import { Chain } from 'src/app/classes/ChainHunter/Chain';
 import { DomSanitizer } from '@angular/platform-browser';
+import { CookieData } from 'src/app/classes/ChainHunter/CookieData';
+import { CookieService } from 'ngx-cookie-service';
+import { CookieRequest } from 'src/app/classes/ChainHunter/CookieRequest';
 
 @Component({
     selector: 'chain-hunter',
@@ -33,10 +36,17 @@ export class ChainHunterComponent implements OnInit {
     @Output() huntStatus: number = 0; // 0 = no search yet, 1 = searching, 2 = nothing found, 3 = something found
     devMode: boolean = isDevMode();
     showNotice: boolean = true;
+    cookieData: CookieData = null;
+    cookieName: string = "tch-cookie-cnt";
+    unlimitedCookie: string = "tch-cookie-unlimited";
+    searchLimit: boolean = false;
+    unlimited: boolean = false;
 
     constructor(private helperService: HelperService,
                 private chainService: ChainHunterService,
-                private domSanitizer: DomSanitizer) {}
+                private domSanitizer: DomSanitizer,
+                private cookieSvc: CookieService,
+                private messageSvc: MessageService) {}
 
     ngOnInit() {
         this.getChains();
@@ -71,6 +81,18 @@ export class ChainHunterComponent implements OnInit {
     }
 
     chainHunt(){
+        this.getCookies();
+        if(this.searchLimit) {
+            this.messageSvc.add(
+                {
+                    key:'search-toast',
+                    severity:'warn', 
+                    summary:'Search Limit', 
+                    detail:'You have exceeded your daily search limit of 5 searches per day. Please come back tomorrow. Unlimited searches coming soon. Follow us on twitter to be the first to find out!',
+                    sticky: true
+                });
+            return;
+        }
         this.addyTxn = this.addyTxn.trim();        
         if(!this.devMode && (this.previousSearch === this.addyTxn || this.addyTxn === "")) {
             return;
@@ -105,10 +127,57 @@ export class ChainHunterComponent implements OnInit {
         });
     }
 
+    getCookies() {
+        const unlimited = this.cookieSvc.get(this.unlimitedCookie);
+        if(unlimited != null && unlimited !== "") {
+            this.unlimited = true;
+            this.searchLimit = false;
+            return;
+        }
+        const cookie = this.cookieSvc.get(this.cookieName);
+        if(this.cookieData != null) {
+            this.cookieData = JSON.parse(cookie);
+            let cookieRequests: CookieRequest[] = [];
+            this.cookieData.requests.forEach(req => {
+                const age = this.helperService.getTimestampAge(req.time, "hrs");
+                if(age < 24) {
+                    cookieRequests.push(req);
+                }
+            });
+            this.cookieData.requests = cookieRequests;
+        } else {
+            this.cookieData = new CookieData();
+            this.cookieData.requests = [];
+        }
+        if(this.cookieData.requests.length > 4) {
+            this.searchLimit = true;
+        } else {
+            this.searchLimit = false;
+        }
+    }
+
+    setCookie() {
+        if(this.unlimited) {
+            return;
+        }
+        if(this.cookieData == null) {
+            this.cookieData = new CookieData();
+            this.cookieData.requests = [];
+        }
+        let request = new CookieRequest();
+        request.symbols = this.resultsFound;
+        request.time = this.helperService.getUnixTimestamp();
+        this.cookieData.requests.push(request);
+        const expiry = this.helperService.getFutureUnixTimestamp(1, "days");
+
+        this.cookieSvc.set(this.cookieName, JSON.stringify(this.cookieData), expiry);
+    }
+
     checkCompleted() {
         if(this.requestedChains === 0) {
             this.notRunning = true;
             this.huntStatus = this.resultsFound.length === 0 ? 2 : 3;
+            this.setCookie();
         }
     }
 
@@ -222,5 +291,38 @@ export class ChainHunterComponent implements OnInit {
 
     getStyles() {
         return this.domSanitizer.bypassSecurityTrustHtml(this.styles); 
+    }
+
+    getTopAd() {
+        let adContent = `
+        <div id="amzn-assoc-ad-698f5215-519e-45fe-87ef-c04a8c734a9d"></div>
+        <script async
+            src="//z-na.amazon-adsystem.com/widgets/onejs?MarketPlace=US&adInstanceId=698f5215-519e-45fe-87ef-c04a8c734a9d">
+        </script>`;
+        return this.domSanitizer.bypassSecurityTrustHtml(adContent);
+    }
+
+    getBottomAd() {
+        let adContent = `
+        <div class="alignleft">
+          <script type="text/javascript">
+            amzn_assoc_ad_type = "banner";
+            amzn_assoc_marketplace = "amazon";
+            amzn_assoc_region = "US";
+            amzn_assoc_placement = "assoc_banner_placement_default";
+            amzn_assoc_campaigns = "echodonutkids_2019";
+            amzn_assoc_banner_type = "category";
+            amzn_assoc_p = "48";
+            amzn_assoc_isresponsive = "false";
+            amzn_assoc_banner_id = "0MGAVQMJRAZWAZMEA382";
+            amzn_assoc_width = "728";
+            amzn_assoc_height = "90";
+            amzn_assoc_tracking_id = "cnhntr-20";
+            amzn_assoc_linkid = "20a4f8d68c90734de973b36c43a5e116";
+          </script>
+          <script
+            src="//z-na.amazon-adsystem.com/widgets/q?ServiceVersion=20070822&Operation=GetScript&ID=OneJS&WS=1"></script>
+        </div>`;
+        return this.domSanitizer.bypassSecurityTrustHtml(adContent);
     }
 }

@@ -26,6 +26,54 @@ export class HelperService{
     }
 
     /**
+     * Get current unix timestamp
+     */
+    getUnixTimestamp(): number {
+      const timestamp = Date.now();
+
+      return timestamp;
+    }
+
+    /**
+     * Get future unix timestamp
+     * @param timeOffset offset amount
+     * @param interval time interval
+     */
+    getFutureUnixTimestamp(timeOffset: number, interval: string): number {
+      const timestamp = this.getUnixTimestamp();
+
+      if(interval === "sec"){
+        return timestamp + (timeOffset * 1000);
+      } else if (interval == "min") {
+        return timestamp + (timeOffset * 60 * 1000);
+      } else if (interval == "hrs") {
+        return timestamp + (timeOffset * 60 * 60 * 1000);
+      } else if (interval == "days") {
+        return timestamp + (timeOffset * 24 * 60 * 60 * 1000);
+      }
+    }
+
+    /**
+     * Get age of a timestamp
+     * @param timestamp timestamp to compare
+     * @param interval time interval to return
+     */
+    getTimestampAge(timestamp: number, interval: string): number {
+      const currentTs = this.getUnixTimestamp();
+      const diff = currentTs - timestamp;
+
+      if(interval === "sec"){
+        return diff/1000;
+      } else if (interval == "min") {
+        return diff/60/1000;
+      } else if (interval == "hrs") {
+        return diff/60/60/1000;
+      } else if (interval == "days") {
+        return diff/24/60/60/1000;
+      }
+    }
+
+    /**
      * Convert an exponential value to a number
      * 
      * @param x value to convert

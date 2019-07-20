@@ -1,5 +1,6 @@
 "use strict";
 const express = require('express');
+const cookieParser = require('cookie-parser');
 const app = express();
 const cors = require('cors');
 const bodyParser = require('body-parser');
@@ -39,8 +40,24 @@ app.use(cors(corsOptions));
 app.use(bodyParser.json());
 app.use(compression());
 app.use(helmet());
+app.use(cookieParser());
 
 app.get('*.*', express.static(dist_dir, {maxAge: '1y'}));
+
+const unlimitedCookie = 'tch-cookie-unlimited';
+const inviteCode = '6f85a3f2-027f-41b0-b1f1-298441b29bee';
+
+app.get('/invite/:code', function(req, res) {
+  const code = req.params.code;
+  if(code === inviteCode) {
+    res.cookie(unlimitedCookie, 'You are a god!');
+  } else {
+    res.clearCookie(unlimitedCookie);
+  }
+  const baseUrl = req.protocol + "://" + req.get('host');
+
+  res.redirect(baseUrl);
+})
 
 app.get('/api/*', api);
 

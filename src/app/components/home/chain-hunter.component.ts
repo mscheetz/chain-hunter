@@ -86,7 +86,7 @@ export class ChainHunterComponent implements OnInit {
                     key:'search-toast',
                     severity:'warn', 
                     summary:'Search Limit', 
-                    detail:'You have exceeded your daily search limit of 5 searches per day. Please come back tomorrow. Unlimited searches coming soon. Follow us on twitter to get all the latest Chain Hunter news',
+                    detail:'You have exceeded your daily search limit of 5 searches per day. Please come back tomorrow. Unlimited searches coming soon. Follow us on twitter to be the first to find out!',
                     sticky: true
                 });
             return;
@@ -280,5 +280,38 @@ export class ChainHunterComponent implements OnInit {
 
     getStyles() {
         return this.domSanitizer.bypassSecurityTrustHtml(this.styles); 
+    }
+
+    getTopAd() {
+        let adContent = `
+        <div id="amzn-assoc-ad-698f5215-519e-45fe-87ef-c04a8c734a9d"></div>
+        <script async
+            src="//z-na.amazon-adsystem.com/widgets/onejs?MarketPlace=US&adInstanceId=698f5215-519e-45fe-87ef-c04a8c734a9d">
+        </script>`;
+        return this.domSanitizer.bypassSecurityTrustHtml(adContent);
+    }
+
+    getBottomAd() {
+        let adContent = `
+        <div class="alignleft">
+          <script type="text/javascript">
+            amzn_assoc_ad_type = "banner";
+            amzn_assoc_marketplace = "amazon";
+            amzn_assoc_region = "US";
+            amzn_assoc_placement = "assoc_banner_placement_default";
+            amzn_assoc_campaigns = "echodonutkids_2019";
+            amzn_assoc_banner_type = "category";
+            amzn_assoc_p = "48";
+            amzn_assoc_isresponsive = "false";
+            amzn_assoc_banner_id = "0MGAVQMJRAZWAZMEA382";
+            amzn_assoc_width = "728";
+            amzn_assoc_height = "90";
+            amzn_assoc_tracking_id = "cnhntr-20";
+            amzn_assoc_linkid = "20a4f8d68c90734de973b36c43a5e116";
+          </script>
+          <script
+            src="//z-na.amazon-adsystem.com/widgets/q?ServiceVersion=20070822&Operation=GetScript&ID=OneJS&WS=1"></script>
+        </div>`;
+        return this.domSanitizer.bypassSecurityTrustHtml(adContent);
     }
 }

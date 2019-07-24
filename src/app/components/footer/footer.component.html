@@ -1,10 +1,30 @@
-<div>
-    <div>&copy; 2019</div>
-    <div class="text-muted">The Chain Hunter is brought to you by <a href="http://cryptax.co" target="_blank">Cryptax</a></div>
-    <div>
-        <a title="Follow us on Twitter!" class="twitter-img" href="https://twitter.com/HunterChain" target="_blank"><i class="fa fa-twitter"></i></a>
+<div class="ui-g">
+    <div class="ui-g-3">
+        <a routerLink="/" routerLinkActive="active">
+            <img class="mb-2" src="./assets/ch_dark.png" alt="" width="24" height="24">
+        </a>
+        <small class="d-block text-muted">&copy; 2019</small>        
     </div>
-    <div>
-        <img src="assets/brave-bat-partnership.svg" class="brave-img" title="We support Brave Browse!" />
+    <div class="ui-g-3">
+        <div class="twitter-box">
+            <a title="Follow us on Twitter!" class="twitter-img" href="https://twitter.com/HunterChain" target="_blank">
+                <i class="fa fa-twitter"></i>
+            </a>
+        </div>
+        <div class="border-top brave-box">
+            <a href="https://brave.com/" target="_blank"><img src="assets/brave-bat-partnership.svg"
+                class="brave-img" title="Brave Browse is the preferred browser of Chain Hunter." /></a>
+        </div>
+    </div>
+    <div class="ui-g-3">
+    </div>
+    <div class="ui-g-3">
+        <ul class="list-unstyled text-small mbe-0">
+                <li><a class="text-muted" routerLink="/" routerLinkActive="active">Home</a></li>
+            <li><span class="text-muted link-like" (click)="onLogin()">Login | Register</span></li>
+            <li><a class="text-muted" routerLink="/about" routerLinkActive="active">About</a></li>
+            <!-- <li><a class="text-muted" routerLink="/" routerLinkActive="active">Privacy</a></li> -->
+            <li><a class="text-muted" routerLink="/terms" routerLinkActive="active">Terms</a></li>
+        </ul>
     </div>
 </div>

@@ -1,0 +1,10 @@
+<div class="nav ui-g">
+    <div class="ui-g-12 ui-md-10 ui-lg-10">
+        <a href="/"><img src="./assets/chainhunterstacked.png" class="nav-img" /></a>
+    </div>
+    <div class="ui-g-12 ui-md-2 ui-lg-2">
+        <p-slideMenu #menu [model]="items" [popup]="true" [viewportHeight]="250"></p-slideMenu>
+        <button #btn type="button" styleClass="nav-button" pButton icon="pi pi-bars"
+            (click)="menu.toggle($event)"></button>
+    </div>
+</div>

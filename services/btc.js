@@ -17,8 +17,13 @@ const getEmptyBlockchain = async() => {
 
 const getBlockchain = async(toFind) => {
     const chain = await getEmptyBlockchain();
+    const oneChar = toFind.substr(0, 1);
+    const threeChar = toFind.substr(0, 3);
 
-    const address = await getAddress(toFind);
+    let address = null;
+    if(oneChar === "1" || oneChar === "3" || threeChar === "bc1") {
+        address = await getAddress(toFind);
+    }
     chain.address = address;
     chain.transaction = null;
     if(address === null) {

@@ -3,7 +3,6 @@
         <h3>The Chain Hunter is down for maintenance</h3>
     </div>
     <div *ngIf="!offLine">
-        <!-- <div [innerHtml]="getTopAd()"></div> -->
         <div *ngIf="notRunning">
             <p-toast key="search-toast"></p-toast>
             <div class="search-bar pull-right">
@@ -35,7 +34,6 @@
                 (getTransactions)="getAddressTxns($event)" (getTokens)="getAddressTokens($event)">
             </search-results>
         </div>
-        <!-- <div [innerHtml]="getBottomAd()"></div> -->
         <coming-soon [futureChains]="futureChains">
         </coming-soon>
         <p-accordion *ngIf="devMode">
@@ -43,10 +41,5 @@
                 <samples></samples>
             </p-accordionTab>
         </p-accordion>
-        <div class="thefoot">
-            <footer-component></footer-component>
-        </div>
     </div>
-    <cookies *ngIf="showNotice" (cookiesOk)="cookieOk($event)" class="cookie-box"></cookies>
 </div>
-<!-- <div [innerHTML]="getStyles()"></div> -->

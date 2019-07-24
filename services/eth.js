@@ -21,24 +21,26 @@ const getEmptyBlockchain = async() => {
 const getBlockchain = async(toFind) => {
     const chain = await getEmptyBlockchain();
 
-    const address = await getAddress(toFind);
-    chain.address = address;
-    chain.transaction = null;
-    chain.contract = null;
-    if(address === null) {
-        await delay(1000);
-        const transaction = await getTransaction(toFind);
-        chain.transaction = transaction;
-        if(transaction === null) {
+    if(toFind.substr(0,2) === "0x") {
+        const address = await getAddress(toFind);
+        chain.address = address;
+        chain.transaction = null;
+        chain.contract = null;
+        if(address === null) {
             await delay(1000);
-            const contract = await getContract(toFind);
-            chain.contract = contract;
+            const transaction = await getTransaction(toFind);
+            chain.transaction = transaction;
+            if(transaction === null) {
+                await delay(1000);
+                const contract = await getContract(toFind);
+                chain.contract = contract;
+            }
+        }
+        if(chain.address || chain.transaction || chain.contract) {
+            chain.icon = "color/"+ chain.symbol.toLowerCase()  +".svg";
         }
     }
-    if(chain.address || chain.transaction || chain.contract) {
-        chain.icon = "color/"+ chain.symbol.toLowerCase()  +".svg";
-    }
-
+    
     return chain;
 }
 

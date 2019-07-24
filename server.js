@@ -54,10 +54,25 @@ app.get('/invite/:code', function(req, res) {
   } else {
     res.clearCookie(unlimitedCookie);
   }
+
+  redirectHome(req, res);
+});
+
+app.get('/about', function(req, res) {
+
+  redirectHome(req, res);
+});
+
+app.get('/terms', function(req, res) {
+
+  redirectHome(req, res);
+});
+
+const redirectHome = async(req, res) => {
   const baseUrl = req.protocol + "://" + req.get('host');
 
   res.redirect(baseUrl);
-})
+};
 
 app.get('/api/*', api);
 

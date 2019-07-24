@@ -1,5 +1,4 @@
-import { OnInit, Component } from '@angular/core';
-import { MessageService } from 'primeng/api';
+import { OnInit, Component, Output, EventEmitter } from '@angular/core';
 
 @Component({
     selector: 'account',
@@ -7,21 +6,16 @@ import { MessageService } from 'primeng/api';
     styleUrls: ['./account.component.css']
 })
 
-export class AccountComponent implements OnInit{    
-    constructor(private messageSvc: MessageService) {
+export class AccountComponent implements OnInit{
+    @Output() login: EventEmitter<any> = new EventEmitter();
+    
+    constructor() {
     }
 
     ngOnInit() {        
     }
 
-    login() {
-        this.messageSvc.add(
-            {
-                key:'login-notice-toast',
-                severity:'info', 
-                summary:'Coming Soon', 
-                detail:'Account registrations coming soon. Follow us on twitter to be the first to sign up!',
-                sticky: true
-            });
+    onLogin() {
+        this.login.emit();
     }
 }

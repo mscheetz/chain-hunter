@@ -1,0 +1,21 @@
+.nav {
+    background-color: #e4e5e6;
+    color: #FFF;
+    height: 60px;
+    margin-bottom: 1.5rem;
+}
+
+.nav-title {
+    line-height: 60px;
+    font-size: 1.17em;
+    font-weight: bold;
+}
+
+.nav-img {
+    height: 60px;
+    width: 185px;
+}
+
+.nav-button {
+    background-color: #00AEEF;
+}

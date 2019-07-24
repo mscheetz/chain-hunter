@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 
 @Component({
     selector: 'footer-component',
@@ -7,7 +7,13 @@ import { Component, OnInit } from '@angular/core';
 })
 
 export class FooterComponent implements OnInit {
+    @Output() login: EventEmitter<any> = new EventEmitter();
+    
     constructor() {}
 
     ngOnInit() {}
+
+    onLogin() {
+        this.login.emit();
+    }
 }

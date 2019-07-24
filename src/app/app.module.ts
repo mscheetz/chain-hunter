@@ -25,35 +25,54 @@ import { CookieService } from 'ngx-cookie-service';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { AccountComponent } from './components/account/account.component';
+import { Routes, RouterModule } from '@angular/router';
+import { AboutComponent } from './components/about/about.component';
+import { NavigationComponent } from './components/navigation/navigation.component';
+import { SlideMenuModule } from 'primeng/slidemenu';
+import { TermsComponent } from './components/terms/terms.component';
+
+const appRoutes: Routes = [
+  { path: '', component: ChainHunterComponent },
+  { path: 'about', component: AboutComponent },
+  { path: 'terms', component: TermsComponent }
+]
 
 @NgModule({
   declarations: [
     AppComponent,
+    AboutComponent,
+    AccountComponent,
+    ActiveChainsComponent,
     ChainHunterComponent,
-    SearchResultsComponent,
-    SamplesComponent,
     ComingSoonComponent,
+    CookiesComponent,
     FooterComponent,
     HeaderComponent,
-    ActiveChainsComponent,
-    CookiesComponent,
-    AccountComponent
+    NavigationComponent,
+    SamplesComponent,
+    SearchResultsComponent,
+    TermsComponent
   ],
   imports: [
-    BrowserModule,
+    AccordionModule,
     AppRoutingModule,
+    BrowserAnimationsModule,
+    BrowserModule,
+    ButtonModule,
     FormsModule,
     HttpClientModule,
     InputTextModule,
-    ButtonModule,
-    TabMenuModule,
-    TabViewModule,
-    AccordionModule,
-    BrowserAnimationsModule,
-    ProgressSpinnerModule,
     PanelModule,
     ProgressBarModule,
-    ToastModule
+    ProgressSpinnerModule,
+    SlideMenuModule,
+    TabMenuModule,
+    TabViewModule,
+    ToastModule,
+    RouterModule.forRoot(
+      appRoutes,
+      { enableTracing: true }
+    )
   ],
   providers: [ 
     CookieService,

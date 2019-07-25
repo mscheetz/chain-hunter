@@ -16,6 +16,7 @@ const icx = require('./icx.js');
 const nano = require('./nano.js');
 const dash = require('./dash.js');
 const ae = require('./ae.js');
+const ada = require('./ada.js');
 
 const getChains = function() {
     const chains = [
@@ -47,7 +48,7 @@ const getChains = function() {
         {
             name: 'Cardano',
             symbol: 'ADA',
-            status: 'Future'
+            status: 'Active'
         },
         {
             name: 'Cosmos',
@@ -242,6 +243,8 @@ const getEmptyBlockchains = async() => {
             blockchains["DASH"] = await dash.getEmptyBlockchain();
         } else if(chains[i].symbol === 'AE') {
             blockchains["AE"] = await ae.getEmptyBlockchain();
+        } else if(chains[i].symbol === 'ADA') {
+            blockchains["ADA"] = await ada.getEmptyBlockchain();
         }
     }
     return blockchains;
@@ -288,6 +291,8 @@ const getBlockchains = async(toFind) => {
             blockchains["DASH"] = await dash.getBlockchain(toFind);
         } else if(chains[i].symbol === 'AE') {
             blockchains["AE"] = await ae.getBlockchain(toFind);
+        } else if(chains[i].symbol === 'ADA') {
+            blockchains["ADA"] = await ada.getBlockchain(toFind);
         }
     }
 
@@ -331,6 +336,8 @@ const getBlockchain = async(chain, toFind) => {
         return await dash.getBlockchain(toFind);
     } else if (chain === "ae") {
         return await ae.getBlockchain(toFind);
+    } else if (chain === "ada") {
+        return await ada.getBlockchain(toFind);
     }
 }
 

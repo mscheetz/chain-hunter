@@ -181,6 +181,11 @@ const getChains = function() {
             status: 'Future'
         },
         {
+            name: 'ZelCash',
+            symbol: 'ZEL',
+            status: 'Future'
+        },
+        {
             name: 'Zilliqa',
             symbol: 'ZIL',
             status: 'Future'

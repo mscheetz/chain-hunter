@@ -17,6 +17,7 @@ const nano = require('./nano.js');
 const dash = require('./dash.js');
 const ae = require('./ae.js');
 const ada = require('./ada.js');
+const zel = require('./zel.js');
 
 const getChains = function() {
     const chains = [
@@ -183,7 +184,7 @@ const getChains = function() {
         {
             name: 'ZelCash',
             symbol: 'ZEL',
-            status: 'Future'
+            status: 'Active'
         },
         {
             name: 'Zilliqa',
@@ -250,6 +251,8 @@ const getEmptyBlockchains = async() => {
             blockchains["AE"] = await ae.getEmptyBlockchain();
         } else if(chains[i].symbol === 'ADA') {
             blockchains["ADA"] = await ada.getEmptyBlockchain();
+        } else if(chains[i].symbol === 'ZEL') {
+            blockchains["ZEL"] = await zel.getEmptyBlockchain();
         }
     }
     return blockchains;
@@ -298,6 +301,8 @@ const getBlockchains = async(toFind) => {
             blockchains["AE"] = await ae.getBlockchain(toFind);
         } else if(chains[i].symbol === 'ADA') {
             blockchains["ADA"] = await ada.getBlockchain(toFind);
+        } else if(chains[i].symbol === 'ZEL') {
+            blockchains["ZEL"] = await zel.getBlockchain(toFind);
         }
     }
 
@@ -343,6 +348,8 @@ const getBlockchain = async(chain, toFind) => {
         return await ae.getBlockchain(toFind);
     } else if (chain === "ada") {
         return await ada.getBlockchain(toFind);
+    } else if (chain === "zel") {
+        return await zel.getBlockchain(toFind);
     }
 }
 
@@ -393,6 +400,8 @@ const getTransactions = async(chain, address) => {
         return await dash.getTransactions(address);
     } else if (chain === "ae") {
         return await ae.getTransactions(address);
+    } else if (chain === "zel") {
+        return await zel.getTransactions(address);
     }
 }
 

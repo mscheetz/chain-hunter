@@ -61,7 +61,6 @@ const getTransactions = async(address) => {
         const response = await axios.get(url);
         if(response.data !== null) {
             const datas = response.data.txs;
-            console.log(datas);
             let transactions = [];
             datas.forEach(txn =>{ 
                 transactions.push(buildTransaction(txn));

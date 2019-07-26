@@ -1,6 +1,6 @@
 const axios = require('axios');
 const helperSvc = require('./helperService.js');
-const base = "https://chain.api.btc.com/v3";
+const base = "https://blockchain.info";//"https://chain.api.btc.com/v3";
 const delay = time => new Promise(res=>setTimeout(res,time));
 
 const getEmptyBlockchain = async() => {
@@ -21,6 +21,7 @@ const getBlockchain = async(toFind) => {
     const threeChar = toFind.substr(0, 3);
 
     let address = null;
+
     if(oneChar === "1" || oneChar === "3" || threeChar === "bc1") {
         address = await getAddress(toFind);
     }
@@ -38,17 +39,20 @@ const getBlockchain = async(toFind) => {
 }
 
 const getAddress = async(addressToFind) => {
-    let endpoint = "/address/" + addressToFind;
+    let endpoint = "/rawaddr/" + addressToFind + "?limit=10";
     let url = base + endpoint;
 
     try{
         const response = await axios.get(url);
-        if(response.data.err_no === 0 && response.data.data !== null) {
-            const datas = response.data.data;
-            const address = {
+        if(response.data !== null) {
+            const datas = response.data;
+            let address = {
                 address: datas.address,
-                quantity: datas.balance/100000000
+                quantity: datas.final_balance/100000000
             };
+            const latestblock = await getLatestBlock();
+            const txns = datas.txs.slice(0, 10);
+            address.transactions = getTransactions(txns, latestblock);
 
             return address;
         } else {
@@ -59,7 +63,16 @@ const getAddress = async(addressToFind) => {
     }
 }
 
-const getTransactions = async(address) => {
+const getTransactions = function(txns, latestblock) {
+    let transactions = [];
+    txns.forEach(txn => {
+        transactions.push(buildTransaction(txn, latestblock));
+    });
+
+    return transactions;            
+}
+
+const getTransactionsOG = async(address) => {
     let endpoint = "/address/" + address + "/tx";
     let url = base + endpoint;
 
@@ -83,14 +96,16 @@ const getTransactions = async(address) => {
 }
 
 const getTransaction = async(hash) => {
-    let endpoint = "/tx/" + hash + "?verbose=3";
+    let endpoint = "/rawtx/" + hash;
     let url = base + endpoint;
 
     try{
         const response = await axios.get(url);
-        if(response.data.err_no === 0 && response.data.data !== null) {
-            const data = response.data.data;
-            const transaction = buildTransaction(data);
+        if(response.data !== null) {
+            const data = response.data;
+
+            const latestblock = await getLatestBlock();
+            const transaction = buildTransaction(data, latestblock);
             
             return transaction;
         } else {
@@ -101,35 +116,67 @@ const getTransaction = async(hash) => {
     }
 }
 
-const buildTransaction = function(txn) {
+const getLatestBlock = async() => {
+    let endpoint = "/latestblock";
+    let url = base + endpoint;
+
+    try{
+        const response = await axios.get(url);
+        if(response.data !== null) {
+            const data = response.data;
+
+            return data.height;
+        } else {
+            return 0;
+        }
+    } catch(error) {
+        return 0;
+    }
+}
+
+const buildTransaction = function(txn, latestblock) {
     let from = [];
     let to = [];
-    if(txn.is_coinbase) {
-        from.push("Coinbase");
-    } else {
-        for(let i = 0; i < txn.inputs.length; i++) {
-            txn.inputs[i].prev_addresses.forEach(address => {
-                if(address && from.indexOf(address) <= -1) {
-                    from.push(address);
-                }
-            })
+    let quantity = 0;
+    txn.inputs.forEach(input => {
+        if(typeof input.prev_out !== "undefined") {
+            from.push(input.prev_out.addr);
         }
-    }
-    for(let i = 0; i < txn.outputs.length; i++) {
-        txn.outputs[i].addresses.forEach(address => {
-            if(address && to.indexOf(address) <= -1) {
-                to.push(address);
-            }
-        })
-    }
-
+    });
+    txn.out.forEach(output => {
+        to.push(output.addr);
+        quantity += output.value;
+    });
+    const confirmations = latestblock > 0 ? latestblock - txn.block_height : null;
+    // if(txn.is_coinbase) {
+    //     from.push("Coinbase");
+    // } else {
+    //     txn.inputs.forEach(input => {
+    //         from.push(input.prev_out.addr);
+    //     })
+    //     for(let i = 0; i < txn.inputs.length; i++) {
+    //         txn.inputs[i].prev_addresses.forEach(address => {
+    //             if(address && from.indexOf(address) <= -1) {
+    //                 from.push(address);
+    //             }
+    //         })
+    //     }
+    // }
+    // for(let i = 0; i < txn.outputs.length; i++) {
+    //     txn.outputs[i].addresses.forEach(address => {
+    //         if(address && to.indexOf(address) <= -1) {
+    //             to.push(address);
+    //         }
+    //     })
+    // }
+    
     const transaction = {
         hash: txn.hash,
         block: txn.block_height,
-        quantity: txn.outputs_value/100000000,
+        quantity: quantity/100000000,
         symbol: "BTC",
-        confirmations: txn.confirmations,
-        date: helperSvc.unixToUTC(txn.created_at),
+        confirmations: confirmations,
+        date: helperSvc.unixToUTC(txn.time),
         from: from.join(", "),
         to: to.join(", ")
     };

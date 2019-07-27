@@ -209,3 +209,18 @@ body .ui-accordion .ui-accordion-header:not(.ui-state-disabled).ui-state-active:
 	color: yellow;
 	font-weight: 100;
 }
+
+.top-ad a {
+	display: block;
+	padding-bottom: 1.5rem;
+}
+
+.top-ad a img {
+	display: block;
+	margin: auto;
+}
+
+.cookie-box a {
+	color: #fff;
+	text-decoration: underline;
+}

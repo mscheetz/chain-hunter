@@ -30,6 +30,7 @@ import { AboutComponent } from './components/about/about.component';
 import { NavigationComponent } from './components/navigation/navigation.component';
 import { SlideMenuModule } from 'primeng/slidemenu';
 import { TermsComponent } from './components/terms/terms.component';
+import { TopAdComponent } from './components/top-ad/top-ad.component';
 
 const appRoutes: Routes = [
   { path: '', component: ChainHunterComponent },
@@ -51,7 +52,8 @@ const appRoutes: Routes = [
     NavigationComponent,
     SamplesComponent,
     SearchResultsComponent,
-    TermsComponent
+    TermsComponent,
+    TopAdComponent
   ],
   imports: [
     AccordionModule,

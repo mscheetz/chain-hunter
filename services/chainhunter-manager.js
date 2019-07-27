@@ -62,6 +62,11 @@ const getChains = function() {
             status: 'Active'
         },
         {
+            name: 'Decred',
+            symbol: 'DCR',
+            status: 'Future'
+        },
+        {
             name: 'Dogecoin',
             symbol: 'DOGE',
             status: 'Future'
@@ -162,6 +167,11 @@ const getChains = function() {
             status: 'Future'
         },
         {
+            name: 'Theta',
+            symbol: 'THETA',
+            status: 'Future'
+        },
+        {
             name: 'Tron',
             symbol: 'TRX',
             status: 'Active'
@@ -174,6 +184,11 @@ const getChains = function() {
         {
             name: 'Wanchain',
             symbol: 'WAN',
+            status: 'Future'
+        },
+        {
+            name: 'Waves',
+            symbol: 'WAVES',
             status: 'Future'
         },
         {

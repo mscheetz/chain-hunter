@@ -224,3 +224,9 @@ body .ui-accordion .ui-accordion-header:not(.ui-state-disabled).ui-state-active:
 	color: #fff;
 	text-decoration: underline;
 }
+
+.responsive-img {
+	width: 100%;
+	max-width: 800px;
+	height: auto;
+}

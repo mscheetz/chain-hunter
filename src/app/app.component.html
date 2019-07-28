@@ -5,10 +5,17 @@
   </header>
   <!-- Chain Hunter Login -->
   <account class="login-position" (login)="login()"></account>
-  <top-ad class="top-ad"></top-ad>
-  <!-- Chain Hunter Main -->
-  <div class="main-container">
-    <router-outlet></router-outlet>
+  <div class="ui-g">
+    <div class="ui-g-10">
+      <top-ad class="top-ad"></top-ad>
+      <!-- Chain Hunter Main -->
+      <div class="main-container">
+        <router-outlet></router-outlet>
+      </div>
+    </div>
+    <div class="right-panel ui-g-1">
+      <right-ad class="right-ad"></right-ad>
+    </div>
   </div>
 </div>
 <!-- Chain Hunter Footer -->

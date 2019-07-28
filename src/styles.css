@@ -21,7 +21,7 @@ body {
 .jumbotron {
     padding: 1rem 4rem !important;
     background-color: #e4e5e6;
-    margin-bottom: 1.5rem;
+    margin-bottom: 0.5rem;
 }
 
 .logo-main[_ngcontent-rap-c1] {
@@ -212,7 +212,7 @@ body .ui-accordion .ui-accordion-header:not(.ui-state-disabled).ui-state-active:
 
 .top-ad a {
 	display: block;
-	padding-bottom: 1.5rem;
+	padding-bottom: 0.5rem;
 }
 
 .top-ad a img {

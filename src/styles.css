@@ -247,11 +247,11 @@ body .ui-accordion .ui-accordion-header:not(.ui-state-disabled).ui-state-active:
 	font-weight: 100;
 }
 
-.top-ad a {
+.top-ad a, .bottom-ad a {
 	display: block;
 }
 
-.top-ad a img {
+.top-ad a img, .bottom-ad a img {
 	display: block;
 	margin: auto;
 }

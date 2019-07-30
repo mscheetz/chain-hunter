@@ -32,6 +32,7 @@ import { SlideMenuModule } from 'primeng/slidemenu';
 import { TermsComponent } from './components/terms/terms.component';
 import { TopAdComponent } from './components/top-ad/top-ad.component';
 import { RightAdComponent } from './components/right-ad/right-ad.component';
+import { BottomAdComponent } from './components/bottom-ad/bottom-ad.component';
 
 const appRoutes: Routes = [
   { path: '', component: ChainHunterComponent },
@@ -45,6 +46,7 @@ const appRoutes: Routes = [
     AboutComponent,
     AccountComponent,
     ActiveChainsComponent,
+    BottomAdComponent,
     ChainHunterComponent,
     ComingSoonComponent,
     CookiesComponent,

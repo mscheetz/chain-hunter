@@ -40,7 +40,8 @@ const getAddress = async(addressToFind) => {
         if(response.data) {
             const address = {
                 address: response.data.account,
-                quantity: parseFloat(response.data.xrpBalance)
+                quantity: parseFloat(response.data.xrpBalance),
+                hasTransactions: true
             };
 
             return address;

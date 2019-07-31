@@ -8,4 +8,5 @@ export class Address {
     quantity: number;
     transactions: Transaction[];
     tokens: Asset[];
+    hasTransactions: boolean = true;
 } 

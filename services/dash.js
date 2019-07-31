@@ -42,6 +42,7 @@ const getAddress = async(addressToFind) => {
             const address = {
                 address: datas.addrStr,
                 quantity: datas.balance,
+                hasTransactions: true
             };
 
             return address;

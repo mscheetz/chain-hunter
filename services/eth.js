@@ -59,7 +59,8 @@ const getAddress = async(addressToFind) => {
             }
             let address = {
                 address: addressToFind,
-                quantity: quantity
+                quantity: quantity,
+                hasTransactions: true
             };
 
             return address;

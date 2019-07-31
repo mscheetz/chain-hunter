@@ -42,7 +42,8 @@ const getAddress = async(addressToFind) => {
             let quantity = parseInt(datas.caBalance.getCoin)/1000000;
             let address = {
                 address: datas.caAddress,
-                quantity: quantity
+                quantity: quantity,
+                hasTransactions: true
             };
             const txns = datas.caTxList.slice(0, 10);
             address.transactions = getTransactions(txns);

@@ -2,7 +2,7 @@
 <p-panel header="{{blockchain.symbol}} Address" *ngIf="blockchain.address">
     <h3>{{blockchain.symbol}} Address: {{blockchain.address.address}}</h3>
     <div class="m-bottom-1">Balance: {{blockchain.address.quantity | number}} {{blockchain.symbol}}</div>
-    <p-accordion (onOpen)="onTxnsOpen($event)">
+    <p-accordion *ngIf="blockchain.address.hasTransactions" (onOpen)="onTxnsOpen($event)">
         <p-accordionTab header="Most recent {{blockchain.symbol}} address transactions">
             <div *ngIf="!transactionsComplete">Fetching Transactions...</div>
             <div *ngIf="blockchain.address.transactions !== undefined && blockchain.address.transactions.length === 0">No transactions found</div>

@@ -18,6 +18,7 @@ const dash = require('./dash.js');
 const ae = require('./ae.js');
 const ada = require('./ada.js');
 const zel = require('./zel.js');
+const atom = require('./atom.js');
 
 const getChains = function() {
     const chains = [
@@ -54,7 +55,7 @@ const getChains = function() {
         {
             name: 'Cosmos',
             symbol: 'ATOM',
-            status: 'Future'
+            status: 'Active'
         },
         {
             name: 'Dash',
@@ -268,6 +269,8 @@ const getEmptyBlockchains = async() => {
             blockchains["ADA"] = await ada.getEmptyBlockchain();
         } else if(chains[i].symbol === 'ZEL') {
             blockchains["ZEL"] = await zel.getEmptyBlockchain();
+        } else if(chains[i].symbol === 'ATOM') {
+            blockchains["ATOM"] = await atom.getEmptyBlockchain();
         }
     }
     return blockchains;
@@ -318,6 +321,8 @@ const getBlockchains = async(toFind) => {
             blockchains["ADA"] = await ada.getBlockchain(toFind);
         } else if(chains[i].symbol === 'ZEL') {
             blockchains["ZEL"] = await zel.getBlockchain(toFind);
+        } else if(chains[i].symbol === 'ATOM') {
+            blockchains["ATOM"] = await atom.getBlockchain(toFind);
         }
     }
 
@@ -365,6 +370,8 @@ const getBlockchain = async(chain, toFind) => {
         return await ada.getBlockchain(toFind);
     } else if (chain === "zel") {
         return await zel.getBlockchain(toFind);
+    } else if (chain === "atom") {
+        return await atom.getBlockchain(toFind);
     }
 }
 
@@ -417,6 +424,8 @@ const getTransactions = async(chain, address) => {
         return await ae.getTransactions(address);
     } else if (chain === "zel") {
         return await zel.getTransactions(address);
+    } else if (chain === "atom") {
+        return await atom.getTransactions(address);
     }
 }
 

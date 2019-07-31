@@ -49,6 +49,7 @@ const getAddress = async(addressToFind) => {
         const address = {
             address: datas.address,
             quantity: qty,
+            hasTransactions: true
             //tokens: tokenConvert(datas.balances)
         };
 

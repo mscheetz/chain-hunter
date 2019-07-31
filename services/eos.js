@@ -42,6 +42,7 @@ const getAddress = async(addressToFind) => {
             const address = {
                 address:  address,
                 balance: parseFloat(response.data[0].replace(/\D/g, "")),
+                hasTransactions: true
             };
 
             return address;

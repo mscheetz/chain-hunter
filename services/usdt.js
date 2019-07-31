@@ -51,7 +51,8 @@ const getAddress = async(addressToFind) => {
         if(quantity > 0){
             address = {
                 address: addressToFind,
-                quantity: quantity
+                quantity: quantity,
+                hasTransactions: true
             };
             address.transactions = getTransactions(txns);
         } else {

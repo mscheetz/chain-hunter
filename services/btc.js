@@ -48,7 +48,8 @@ const getAddress = async(addressToFind) => {
             const datas = response.data;
             let address = {
                 address: datas.address,
-                quantity: datas.final_balance/100000000
+                quantity: datas.final_balance/100000000,
+                hasTransactions: true
             };
             const latestblock = await getLatestBlock();
             const txns = datas.txs.slice(0, 10);

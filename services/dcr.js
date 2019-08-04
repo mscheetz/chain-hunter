@@ -1,6 +1,6 @@
 const axios = require('axios');
 const helperSvc = require('./helperService.js');
-const base = "https://mainnet.decred.org/api";
+const base = "https://dcrdata.decred.org/api";//"https://mainnet.decred.org/api";
 const delay = time => new Promise(res=>setTimeout(res,time));
 
 const getEmptyBlockchain = async() => {
@@ -17,10 +17,11 @@ const getEmptyBlockchain = async() => {
 
 const getBlockchain = async(toFind) => {
     const chain = await getEmptyBlockchain();
-    const oneChar = toFind.substr(0, 1);
-    const threeChar = toFind.substr(0, 3);
 
-    let address = await getAddress(toFind);
+    let address = null;
+    if(toFind.substr(0,1) === "D") {
+        address = await getAddress(toFind);
+    }
     chain.address = address;
     chain.transaction = null;
     if(address === null) {
@@ -35,7 +36,7 @@ const getBlockchain = async(toFind) => {
 }
 
 const getAddress = async(addressToFind) => {
-    let endpoint = "/addr/" + addressToFind + "/?noTxList=1";
+    let endpoint = "/address/" + addressToFind + "/totals";
     let url = base + endpoint;
 
     try{
@@ -44,13 +45,10 @@ const getAddress = async(addressToFind) => {
             const datas = response.data;
             let address = {
                 address: addressToFind,
-                quantity: datas.final_balance/100000000,
+                quantity: datas.dcr_unspent,
                 hasTransactions: true
             };
-            const latestblock = await getLatestBlock();
-            const txns = datas.txs.slice(0, 10);
-            address.transactions = getTransactions(txns, latestblock);
-
+            
             return address;
         } else {
             return null;

@@ -10,7 +10,7 @@
                 <li class="address-txn" *ngFor="let txn of blockchain.address.transactions">
                     Transaction Type: {{txn.from.includes(blockchain.address.address) ? 'Send' : 'Receive'}} <br>
                     Hash: {{txn.hash}} <br>
-                    Quantity: {{txn.quantity.toLocaleString()}} {{txn.symbol}}<br>
+                    <span *ngIf="txn.quantity">Quantity: {{txn.quantity.toLocaleString()}} {{txn.symbol}}<br></span>
                     From: {{txn.from}}<br>
                     To: {{txn.to}} <br>
                     Date: {{txn.date}} <br>
@@ -30,7 +30,7 @@
         </p-accordionTab>
     </p-accordion>
 </p-panel>
-<p-panel header="{{blockchain.symbol}} Contract" *ngIf="blockchain.hasContract && blockchain.contract">
+<p-panel header="{{blockchain.symbol}} Contract" *ngIf="blockchain.hasContracts && blockchain.contract">
     <h3>{{blockchain.symbol}} Contract Address: {{blockchain.contract.address}}</h3>
     <p *ngIf="blockchain.contract.quantity">Balance: {{blockchain.contract.quantity | number}} {{blockchain.contract.symbol}}</p>
     <p *ngIf="blockchain.contract.contractName">Contract Name: {{blockchain.contract.contractName}}</p>

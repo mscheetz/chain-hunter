@@ -95,7 +95,7 @@ const getChains = function() {
         {
             name: 'IOST',
             symbol: 'IOST',
-            status: 'Future'
+            status: 'Active'
         },
         {
             name: 'IOTA',

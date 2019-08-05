@@ -1,6 +1,7 @@
 const axios = require('axios');
 const helperSvc = require('./helperService.js');
-const base = "https://www.iostabc.com/api";
+const apiKey = "67de405a0cb8a9e2fe5e33000cf9a88a";
+const base = "https://api.iostabc.com/api/?apikey=" + apiKey;
 const delay = time => new Promise(res=>setTimeout(res,time));
 
 const getEmptyBlockchain = async() => {
@@ -8,7 +9,7 @@ const getEmptyBlockchain = async() => {
     chain.name = 'IOST';
     chain.symbol = 'IOST';
     chain.hasTokens = false;
-    chain.hasContracts = false;
+    chain.hasContracts = true;
     chain.contract = null;
     chain.icon = "white/"+ chain.symbol.toLowerCase()  +".svg";
 
@@ -18,69 +19,64 @@ const getEmptyBlockchain = async() => {
 const getBlockchain = async(toFind) => {
     const chain = await getEmptyBlockchain();
 
-    const address = await getAddress(toFind);
-    chain.address = address;
-    chain.transaction = null;
-    chain.contract = null;
-    if(address === null) {
-        await delay(1000);
-        const transaction = await getTransaction(toFind);
-        chain.transaction = transaction;
-    }
-    await delay(1000);
-    // const contract = await getContract(toFind);
-    // chain.contract = contract;
-    if(chain.address || chain.transaction /*|| chain.contract*/) {
-        chain.icon = "color/"+ chain.symbol.toLowerCase()  +".svg";
+    let address = null;
+    let transaction = null;
+    let contract = null;
+    if(toFind.substr(0, 8) === "Contract"){
+        contract = await getContract(toFind);
+    } else {
+        address = await getAddress(toFind);
+        if(address === null) {
+            await delay(1000);
+            transaction = await getTransaction(toFind);
+        }
     }
 
+    chain.address = address;
+    chain.transaction = transaction;
+    chain.contract = contract;
+
+    if(chain.address || chain.transaction || chain.contract) {
+        chain.icon = "color/"+ chain.symbol.toLowerCase()  +".svg";
+    }
     return chain;
 }
 
 const getAddress = async(addressToFind) => {
-    let endpoint = "/account/coldbank/tokens/" + addressToFind;
+    let endpoint = "&module=account&action=get-account-balance&account=" + addressToFind;
     let url = base + endpoint;
 
     try{
         const response = await axios.get(url);
-        if((typeof response.data.content === "undefined") || response.data.content === null || response.data.content.length === 0){
-            return null;
-        } else {
-            const datas = response.data;
-            let quantity = 0;
-            datas.forEach(data => {
-                if(data.symbol === "iost") {
-                    quantity = data.balance;
-                }
-            })
-            const address = {
-                address: addressToFind,
-                quantity: quantity,
-                hasTransactions: true
-            };
+        const datas = response.data.data;
 
-            return address;
-        }
+        const address = {
+            address: addressToFind,
+            quantity: datas.balance,
+            hasTransactions: true
+        };
+
+        return address;
     } catch(error) {
         return null;
     }
 }
 
 const getContract = async(address) => {
-    let endpoint = "/getContractDetailsByContractAddress?searchParam=" + address;
+    let endpoint = "&module=contract&action=get-contract-detail&contract=" + address;
     let url = base + endpoint;
 
     try{
         const response = await axios.get(url);
-        if((typeof response.data.content === "undefined") || response.data.content === null || response.data.content.length === 0){
+        const datas = response.data.data;
+        if(Object.entries(datas).length === 0 && datas.constructor === Object) {
             return null;
         } else {
-            const datas = response.data.content[0];
             const contract = {
-                address: datas.contractAddr,
-                quantity: datas.balance,
-                creator: datas.contractCreatorAddr,
-                contractName: datas.contractName
+                address: datas.contract_id,
+                creator: datas.publisher,
+                quantity: null,
+                symbol: null,
             };
 
             return contract;
@@ -113,15 +109,15 @@ const getAddressTokenContracts = async(address) => {
 }
 
 const getTransactions = async(address) => {
-    let endpoint = "/account/coldbank/actions?startTime=1554091200000&endTime=1561953600000&status=&type=&page=1&size=10";
+    let endpoint = "&module=account&action=get-account-tx&account=" + address + "&size=10";
     let url = base + endpoint;
 
     try{
         const response = await axios.get(url);
-        if(response.data.content !== null && response.data.content.length > 0) {
-            const datas = response.data.actions;
+        if(response.data.data.transactions !== null && response.data.data.transactions.length > 0) {
+            const datas = response.data.data.transactions;
             const transactions = [];
-            const latestBlock = 0;//await getLatestBlock();
+            const latestBlock = await getLatestBlock();
             if(datas.length > 0) {
                 datas.forEach(data => {
                     transactions.push(buildTransaction(data, latestBlock));
@@ -138,17 +134,18 @@ const getTransactions = async(address) => {
 }
 
 const getTransaction = async(hash) => {
-    let endpoint = "/tx/" + hash;
+    let endpoint = "&module=transaction&action=get-transaction-detail&tx_hash=" + hash;
     let url = base + endpoint;
 
     try{
         const response = await axios.get(url);
-        if(typeof response.data.content === "undefined") {
+        const datas = response.data.data;
+
+        if(Object.entries(datas).length === 0 && datas.constructor === Object) {
             return null;
         } else {
-            const datas = response.data;
-            const latestBlock = 0;//await getLatestBlock();
-            const transaction = buildTransactionII(data.transaction, data.block, latestBlock);
+            const latestBlock = await getLatestBlock();
+            const transaction = buildTransactionII(datas, latestBlock);
 
             return transaction;
         }
@@ -191,47 +188,54 @@ const getToken = async(address, contract) => {
 }
 
 const getLatestBlock = async() => {
-    let endpoint = "/getBlockList?page=0&size=1";
+    let endpoint = "&module=block&action=get-latest-block";
     let url = base + endpoint;
 
     try{
         const response = await axios.get(url);
         
-        return response.data.content[0].blockNumber.toString();
+        return response.data.data.block.number;
     } catch(error) {
         return 0;
     }
 }
 
 const buildTransaction = function(txn, latestBlock) {
+    const block = parseInt(txn.block);
+    const confirmations = latestBlock - block;
+    const datas = JSON.parse(txn.data);
+
     const transaction = {
         hash: txn.tx_hash,
-        block: txn.block,
+        block: block,
         latestBlock: latestBlock,
-        //confirmations: latestBlock - txn.blockNumber,
-        quantity: txn.data[3],
-        symbol: txn.data[0],
+        confirmations: confirmations,
+        quantity: parseFloat(datas[3]),
+        symbol: datas[0].toUpperCase(),
         date: txn.created_at,
-        from: txn.data[1],
-        to: txn.data[2],
+        from: txn.from,
+        to: txn.to,
     };
 
     return transaction;
 }
 
-const buildTransactionII = function(txn, block, latestBlock) {
-    const ts = txn.time.toString().substr(0, 10);
+const buildTransactionII = function(txn, latestBlock) {
+    const block = parseInt(txn.block_number);
+    const confirmations = latestBlock - block;
+    const ts = txn.transaction.time.toString().substr(0, 10);
+    const datas = JSON.parse(txn.transaction.actions[0].data);
 
     const transaction = {
-        hash: txn.hash,
+        hash: txn.transaction.hash,
         block: block,
         latestBlock: latestBlock,
-        //confirmations: latestBlock - txn.blockNumber,
-        quantity: txn.tx_receipt.receipts[0].content[3],
-        symbol: txn.tx_receipt.receipts[0].content[0],
+        confirmations: confirmations,
+        quantity: parseFloat(datas[3]),
+        symbol: datas[0].toUpperCase(),
         date: helperSvc.unixToUTC(parseInt(ts)),
-        from: txn.tx_receipt.receipts[0].content[1],
-        to: txn.tx_receipt.receipts[0].content[2],
+        from: datas[1],
+        to: datas[2],
     };
 
     return transaction;
@@ -243,5 +247,6 @@ module.exports = {
     getAddress,
     getTokens,
     getTransactions,
-    getTransaction
+    getTransaction,
+    getContract
 }

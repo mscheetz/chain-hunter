@@ -3,6 +3,7 @@ const router = express.Router();
 const manager = require('../services/chainhunter-manager');
 const encryptionSvc = require('../services/encryption.js');
 const path = require('path');
+const config = require('../config');
 
 const asyncMiddleware = fn =>
   (req, res, next) => {
@@ -99,8 +100,7 @@ router.get('/api/address/:chain/:address/tokens', asyncMiddleware(async (req, re
 }));
 
 const whitelistUsers = new Map([
-  ['chainhunter-d', 'e2f755b9-3115-4478-947a-69324c03b4c6'],
-  ['chainhunter-p', '4e5896c2-6481-41a5-8fa2-d6cc2f3808a8']]);
+  [config.CHAINHUNTER_USER, config.CHAINHUNTER_TOKEN]]);
 
 errorResponse = function(res, msg = '') {
   if(msg === '') {
@@ -110,9 +110,9 @@ errorResponse = function(res, msg = '') {
 }
 
 headerCheck = function(req) {
-    let ip = req.socket.remoteAddress;
-    let user = req.header('TCH-USER');
-    let message = req.header('TCH-SIGNATURE');
+    const ip = req.socket.remoteAddress;
+    const user = req.header('TCH-USER');
+    const message = req.header('TCH-SIGNATURE');
     let valid = false;
     const timeDiff = 90000;
     let msg = "";
@@ -121,6 +121,7 @@ headerCheck = function(req) {
       || user === "" || message === "") {
       msg = 'poorly formatted request from: '+ ip;
     }
+
     let token = whitelistUsers.get(user);
     if(typeof token === 'undefined' || token === "") {
       msg = 'invalid user';

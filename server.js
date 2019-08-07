@@ -7,6 +7,7 @@ const bodyParser = require('body-parser');
 const compression = require('compression');
 const helmet = require('helmet');
 const api = require('./routes/api');
+const config = require('./config');
 
 const port = process.env.PORT || 3000;
 const dist_dir = 'dist/chain-hunter';
@@ -45,7 +46,7 @@ app.use(cookieParser());
 app.get('*.*', express.static(dist_dir, {maxAge: '1y'}));
 
 const unlimitedCookie = 'tch-cookie-unlimited';
-const inviteCode = '6f85a3f2-027f-41b0-b1f1-298441b29bee';
+const inviteCode = config.INVITE_CODE;
 
 app.get('/invite/:code', function(req, res) {
   const code = req.params.code;

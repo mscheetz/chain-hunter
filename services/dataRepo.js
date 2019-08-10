@@ -12,117 +12,137 @@ const pool = new Pool({
 
 const getAssets = async() => {
     let sql = 'SELECT * FROM assets';
-    db.query(sql, (error, results) => {
-        if(error) {
-            throw error;
-        }
 
-        return results.rows;
-    })
+    try {
+        const res = await pool.query(sql);
+        await pool.end();
+
+        return res.rows;
+    } catch(err) {
+        console.log("Error executing the query: '" + sql +"'");
+    }
 }
 
 const postAsset = async(asset) => {
     let sql = 'INSERT INTO assets ( "assetName", symbol, status, "hasTokens", "hasContracts", "assetId" ) ';
-    sql += 'VALUES ( $1, $2, $3, $4, $5, $6 ) ';
-    pool.query(sql, [asset.assetName, asset.symbol, asset.status, asset.hasTokens, asset.hasContracts, asset.assetId], (error, results) => {
-        if(error) {
-            throw error;
-        }
+    sql += 'VALUES ( $1, $2, $3, $4, $5, $6 )';
 
-        return results.rows;
-    })
+    try {
+        const res = await pool.query(sql, [asset.assetName, asset.symbol, asset.status, asset.hasTokens, asset.hasContracts, asset.assetId]);
+        await pool.end();
+
+        return res.rows[0];
+    } catch(err) {
+        console.log("Error executing the query: '" + sql +"'");
+    }
 }
 
 const getCountryCounts = async() => {
     let sql = 'SELECT * FROM countryCount';
-    pool.query(sql, (error, results) => {
-        if(error) {
-            throw error;
-        }
 
-        return results.rows;
-    })
+    try {
+        const res = await pool.query(sql);
+        await pool.end();
+
+        return res.rows;
+    } catch(err) {
+        console.log("Error executing the query: '" + sql +"'");
+    }
 }
 
 const postCountryCount = async(countryCount) => {
     let sql = 'INSERT INTO countryCount ( country, symbol, count ) ';
-    sql += 'VALUES ( $1, $2, $3 ) ';
-    pool.query(sql, [countryCount.country, countryCount.symbol, countryCount.count], (error, results) => {
-        if(error) {
-            throw error;
-        }
+    sql += 'VALUES ( $1, $2, $3 )';
 
-        return results.rows;
-    })
+    try {
+        const res = await pool.query(sql, [countryCount.country, countryCount.symbol, countryCount.count]);
+        await pool.end();
+
+        return res.rows[0];
+    } catch(err) {
+        console.log("Error executing the query: '" + sql +"'");
+    }
 }
 
 const getDiscountCodes = async() => {
     let sql = 'SELECT * FROM discountCode';
-    pool.query(sql, (error, results) => {
-        if(error) {
-            throw error;
-        }
 
-        return results.rows;
-    })
+    try {
+        const res = await pool.query(sql);
+        await pool.end();
+
+        return res.rows;
+    } catch(err) {
+        console.log("Error executing the query: '" + sql +"'");
+    }
 }
 
 const getDiscountCodeById = async(id) => {
     let sql = 'SELECT * FROM discountCode WHERE code = $1';
-    pool.query(sql, [id], (error, results) => {
-        if(error) {
-            throw error;
-        }
 
-        return results.rows;
-    })
+    try {
+        const res = await pool.query(sql, [id]);
+        await pool.end();
+
+        return res.rows[0];
+    } catch(err) {
+        console.log("Error executing the query: '" + sql +"'");
+    }
 }
 
 const postDiscountCode = async(discount) => {
     let sql = 'INSERT INTO discountCode ( code, "percentOff", "validTil", "usedOn" ) ';
-    sql += 'VALUES ( $1, $2, $3, $4 ) ';
-    pool.query(sql, [discount.code, discount.percentOff, discount.validTil, discount.usedOn], (error, results) => {
-        if(error) {
-            throw error;
-        }
+    sql += 'VALUES ( $1, $2, $3, $4 )';
 
-        return results.rows;
-    })
+    try {
+        const res = await pool.query(sql, [discount.code, discount.percentOff, discount.validTil, discount.usedOn]);
+        await pool.end();
+
+        return res.rows[0];
+    } catch(err) {
+        console.log("Error executing the query: '" + sql +"'");
+    }
 }
 
 const updateDiscountCode = async(discount) => {
     let sql = 'UPDATE discountCode set "usedOn" = $1 ';
-    sql += 'WHERE code = $2 ';
-    pool.query(sql, [discount.usedOn, discount.code], (error, results) => {
-        if(error) {
-            throw error;
-        }
+    sql += 'WHERE code = $2';
 
-        return results.rows;
-    })
+    try {
+        const res = await pool.query(sql, [discount.usedOn, discount.code]);
+        await pool.end();
+
+        return res.rows;
+    } catch(err) {
+        console.log("Error executing the query: '" + sql +"'");
+    }
 }
 
 const getSymbolCounts = async() => {
     let sql = 'SELECT * FROM symbolCount';
-    pool.query(sql, (error, results) => {
-        if(error) {
-            throw error;
-        }
 
-        return results.rows;
-    })
+    try {
+        const res = await pool.query(sql);
+        await pool.end();
+
+        return res.rows;
+    } catch(err) {
+        console.log("Error executing the query: '" + sql +"'");
+    }
 }
 
 const postSymbolCount = async(symbolCount) => {
     let sql = 'INSERT INTO symbolCount ( symbol, count ) ';
     sql += 'VALUES ( $1, $2 ) ';
-    pool.query(sql, [symbolCount.symbol, symbolCount.count], (error, results) => {
-        if(error) {
-            throw error;
-        }
 
-        return results.rows;
-    })
+    try {
+        const res = await pool.query(sql, [symbolCount.symbol, symbolCount.count]);
+        await pool.end();
+
+        return res.rows[0];
+    } catch(err) {
+        console.log("Error executing the query: '" + sql +"'");
+    }
 }
 
 const getUsers = async() => {
@@ -134,43 +154,48 @@ const getUsers = async() => {
 
         return res.rows;
     } catch(err) {
-        console.log('error executing the query');
+        console.log("Error executing the query: '" + sql +"'");
     }
 }
 
 const getUserByEmail = async(email) => {
     let sql = 'SELECT * FROM users WHERE email = $1';
+
     try {
         const res = await pool.query(sql, [email]);
         await pool.end();
 
         return res.rows[0];
     } catch(err) {
-        console.log('error executing the query');
+        console.log("Error executing the query: '" + sql +"'");
     }
 }
 
 const getUserByUserId = async(userId) => {
     let sql = 'SELECT * FROM users WHERE "userId" = $1';
-    pool.query(sql, [userId], (error, results) => {
-        if(error) {
-            throw error;
-        }
 
-        return results.rows;
-    })
+    try {
+        const res = await pool.query(sql, [userId]);
+        await pool.end();
+
+        return res.rows[0];
+    } catch(err) {
+        console.log("Error executing the query: '" + sql +"'");
+    }
 }
 
 const postUser = async(user) => {
     let sql = 'INSERT INTO users ( email, created, "userId", "accountType" ) ';
     sql += 'VALUES ( $1, $2, $3, $4 )';
-    pool.query(sql, [user.email, user.created, user.userId, user.accountType], (error, results) => {
-        if(error) {
-            throw error;
-        }
 
-        return results.rows;
-    })
+    try {
+        const res = await pool.query(sql, [user.email, user.created, user.userId, user.accountType]);
+        await pool.end();
+
+        return res.rows[0];
+    } catch(err) {
+        console.log("Error executing the query: '" + sql +"'");
+    }
 }
 
 module.exports = {

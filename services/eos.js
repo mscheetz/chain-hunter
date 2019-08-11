@@ -8,7 +8,7 @@ const getEmptyBlockchain = async() => {
     chain.symbol = 'EOS';
     chain.hasTokens = false;
     chain.hasContracts = true;
-    chain.icon = "white/"+ chain.symbol.toLowerCase()  +".svg";
+    chain.icon = "white/"+ chain.symbol.toLowerCase()  +".png";
 
     return chain;
 }
@@ -25,7 +25,7 @@ const getBlockchain = async(toFind) => {
         chain.transaction = transaction;
     }
     if(chain.address || chain.transaction) {
-        chain.icon = "color/"+ chain.symbol.toLowerCase()  +".svg";
+        chain.icon = "color/"+ chain.symbol.toLowerCase()  +".png";
     }
 
     return chain;

@@ -1,3 +1,4 @@
+const fs = require('fs');
 
 /**
  * conver unix time to utc time
@@ -23,7 +24,7 @@ const unixToUTC = function(timestamp) {
  */
 const exponentialToNumber = function(x) {
     if (Math.abs(x) < 1.0) {
-        let e = parseInt(x.toString().split('e-')[1]);
+        let e = parseInt(x.toString().toLowerCase().split('e-')[1]);
         if (e) {
             x *= Math.pow(10,e-1);
             x = '0.' + (new Array(e)).join('0') + x.toString().substring(2);
@@ -90,8 +91,55 @@ const commaBigNumber = function(value) {
     return updatedValue + decimals;
 }
 
+/**
+ * Get precision
+ * 
+ * @param decimals decimal places
+ */
 getPrecision = function(decimals) {
     return Math.pow(10, decimals);
+}
+
+/**
+ * Check if an image exists
+ * 
+ * @param iconName name of icon
+*/
+iconExists = function(iconName) {
+    const path = './dist/chain-hunter/assets/cryptoicons/' + iconName;
+
+    try {
+        return fs.existsSync(path);
+    } catch(err) {
+        return false;
+    }
+}
+
+validChains = function(toCheck) {
+    let chains = [];
+
+    if(toCheck.substr(0, 2) === "0x") {
+        chains.push("aion");
+        chains.push("eth");
+    } else if((toCheck.substr(0, 1) === "1" || toCheck.substr(0, 1) === "3" || toCheck.substr(0, 3) === "bc1")
+                && (27 <= toCheck.length <= 34)) {
+        chains.push("btc");
+        chains.push("bch");
+    } else if(toCheck.substr(0,7) === "bitcoin") {
+        chains.push("btc");
+    } else if(toCheck.substr(0,11) === "bitcoincash" 
+                || toCheck.length === 42) {
+        chains.push("bch");
+    } else if(toCheck.substr(0, 6) === "cosmos") {
+        chains.push("atom");
+    } else if(toCheck.substr(0, 3) === "ak_") {
+        chains.push("ae");
+    } else if(toCheck.length === 12) {
+        chains.push("eos");
+    } else if(toCheck.substr(0, 4) === "xrb_" || toCheck.substr(0, 5) === "nano_") {
+        chains.push("nano");
+    } else if(toCheck.substr(0, 3) === "bnb") {
+        chains.push("bnb");
 }
 
 module.exports = {
@@ -99,6 +147,7 @@ module.exports = {
     bigNumberToDecimal,
     exponentialToNumber,
     getPrecision,
-    unixToUTC
+    unixToUTC,
+    iconExists
 }
 

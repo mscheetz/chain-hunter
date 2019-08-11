@@ -1,17 +1,18 @@
 const axios = require('axios');
 const _ = require('lodash');
 const helperSvc = require('./helperService.js');
-const ethplorerBase = "https://ethplorer.io/service/service.php?data=";
+const ethplorerBase = "https://ethplorer.io";
+const ethplorerApiBase = "https://ethplorer.io/service/service.php?data=";
 const delay = time => new Promise(res=>setTimeout(res,time));
 
 const getEmptyBlockchain = async() => {
     const chain = {};
     chain.name = 'Ethereum';
     chain.symbol = 'ETH';
-    chain.hasTokens = false;
+    chain.hasTokens = true;
     chain.hasContracts = true;
     chain.contract = null;
-    chain.icon = "white/"+ chain.symbol.toLowerCase()  +".svg";
+    chain.icon = "white/"+ chain.symbol.toLowerCase()  +".png";
 
     return chain;
 }
@@ -25,18 +26,9 @@ const getBlockchain = async(toFind) => {
         chain.contract = null;
 
         chain = await ethCheck(chain, toFind);
-        if(address === null) {
-            await delay(1000);
-            const transaction = await getTransaction(toFind);
-            chain.transaction = transaction;
-            if(transaction === null) {
-                await delay(1000);
-                const contract = await getContract(toFind);
-                chain.contract = contract;
-            }
-        }
+
         if(chain.address || chain.transaction || chain.contract) {
-            chain.icon = "color/"+ chain.symbol.toLowerCase()  +".svg";
+            chain.icon = "color/"+ chain.symbol.toLowerCase()  +".png";
         }
     }
     
@@ -45,27 +37,32 @@ const getBlockchain = async(toFind) => {
 
 const ethCheck = async(chain, addressToFind) => {
     let endpoint = addressToFind +"&showTx=all";
-    let url = ethplorerBase + endpoint;
+    let url = ethplorerApiBase + endpoint;
 
     try {
         const response = await axios.get(url);
         const datas = response.data;
         if(_.has(datas, 'isContract')) {
+            chain.source = ethplorerBase + "/address/" + addressToFind;
             if(datas.isContract) {
                 chain.contract = createContract(datas.token);
             } else {
+                let quantity = helperSvc.commaBigNumber(datas.balance.toString());
+
                 let address = {
                     address: addressToFind,
-                    quantity: datas.balance,
+                    quantity: quantity,
                     hasTransactions: true
                 }
+                
                 address.tokens = createTokens(datas);
-                address.transactions = createTransactions(datas.transfers);
+                address.transactions = await createTransactions(datas);
                 chain.address = address;
             }
         } else if(_.has(datas, 'tx')) {
+            chain.source = ethplorerBase + "/tx/" + addressToFind;
             if(datas.operations.length > 0) {
-                chain.transaction = createTokenTransaction(datas.operations[0]);
+                chain.transaction = createTokenTransaction(datas);
             } else {
                 chain.transaction = createEthTransaction(datas.tx);                
             }
@@ -77,9 +74,16 @@ const ethCheck = async(chain, addressToFind) => {
 }
 
 const createContract = function(datas) {
+    let quantity = datas.totalSupply.toString();
+
+    if(quantity.toLowerCase().indexOf("e+") >= 0) {
+        quantity = helperSvc.exponentialToNumber(quantity);
+    }
+    quantity = helperSvc.commaBigNumber(quantity);
+    
     const contract = {
         address: datas.address,
-        quantity: datas.totalSupply,
+        quantity: quantity,
         symbol: datas.symbol,
         creator: datas.owner,
         contractName: datas.name
@@ -89,288 +93,149 @@ const createContract = function(datas) {
 }
 
 const createTokens = function(datas) {
-    let tokens = {};
+    let tokens = [];
+    
+    for(const [key, value] of Object.entries(datas.tokens)){
+        let token = {
+            name: value.name,
+            symbol: value.symbol,
+            hasIcon: false,
+            quantity: 0
+        };
+        const balance = datas.balances.find(bal => {
+            return bal.contract === key;
+        });
+
+        if(balance !== undefined) {
+            let qty = balance.balance.toString();
+            if(qty.toLowerCase().indexOf("e+") >= 0) {
+                qty = helperSvc.exponentialToNumber(qty);
+            }
+            qty = parseFloat(qty)/100000000;
+            qty = helperSvc.commaBigNumber(qty.toString());
+            token.quantity = qty;
+        }
+
+        const icon = 'color/' + value.symbol.toLowerCase() + '.png';
+        const iconStatus = helperSvc.iconExists(icon);
+        token.hasIcon = iconStatus;
+
+        tokens.push(token);
+    }
 
     return tokens;
 }
 
 const createEthTransaction = function(datas) {
+    let qty = datas.value.toString();
+    console.log('qty 1', qty);
+    if(qty.toLowerCase().indexOf("e+") >= 0) {
+        qty = helperSvc.exponentialToNumber(qty);
+        console.log('qty 2', qty);
+    }
+    //qty = parseFloat(qty)/100000000;
+    //console.log('qty 3', qty);
+    qty = helperSvc.commaBigNumber(qty.toString());
+    console.log('qty 3', qty);
     const transaction = {
-        hash: datas.transactionHash,
+        hash: datas.hash,
         block: datas.blockNumber,
-        quantity: datas.intValue/100000000,
-        symbol: symbol,
-        confirmations: confirmations,
-        date: helperSvc.unixToUTC(txn.timeStamp),
-        from: txn.from,
-        to: txn.to
+        quantity: qty,
+        symbol: "ETH",
+        confirmations: datas.confirmations,
+        date: helperSvc.unixToUTC(datas.timestamp),
+        from: datas.from,
+        to: datas.to
     };
 
     return transaction;
 }
 
 const createTokenTransaction = function(datas) {
+    let qty = datas.operations[0].value.toString();
+    if(qty.toLowerCase().indexOf("e+") >= 0) {
+        qty = helperSvc.exponentialToNumber(qty);
+    }
+    qty = parseFloat(qty)/100000000;
+    qty = helperSvc.commaBigNumber(qty.toString());
+
     const transaction = {
-        hash: datas.transactionHash,
-        block: datas.blockNumber,
-        quantity: datas.intValue/100000000,
-        symbol: symbol,
-        confirmations: confirmations,
-        date: helperSvc.unixToUTC(txn.timeStamp),
-        from: txn.from,
-        to: txn.to
+        hash: datas.tx.hash,
+        block: datas.tx.blockNumber,
+        quantity: qty,
+        symbol: datas.token.symbol,
+        confirmations: datas.tx.confirmations,
+        date: helperSvc.unixToUTC(datas.tx.timeStamp),
+        from: datas.tx.from,
+        to: datas.tx.to
     };
 
     return transaction;
 }
 
-const createTransactions = function(datas) {
+const createTransactions = async(datas) => {
     let transactions = [];
+    let lastestBlock = 0;    
+
+    for(let i = 0; i < datas.transfers.length; i++){
+        const xfer = datas.transfers[i];
+        const hash = xfer.transactionHash;
+        const block = xfer.blockNumber;     
+        if(lastestBlock === 0){
+            lastestBlock = await getLatestBlock(hash);
+        }
+        const confirmations = lastestBlock > 0 
+                            ? lastestBlock - block
+                            : 0;
+        let qty = xfer.value.toString();
+        if(qty.toLowerCase().indexOf("e+") >= 0) {
+            qty = helperSvc.exponentialToNumber(qty);
+        }
+        qty = parseFloat(qty)/100000000;
+        qty = helperSvc.commaBigNumber(qty.toString());
+
+        let txn = {
+            hash: hash,
+            block: block,
+            quantity: qty,
+            symbol: xfer.isEth ? "ETH" : null,
+            confirmations: confirmations,
+            date: helperSvc.unixToUTC(xfer.timestamp),
+            from: xfer.from,
+            to: xfer.to            
+        };
+
+        if(txn.symbol === null) {
+            const token = datas.tokens[xfer.contract];
+            txn.symbol = token.symbol;
+        }
+
+        transactions.push(txn);
+    }
 
     return transactions;
 }
 
-const getAddress = async(addressToFind) => {
-    let endpoint = "?module=account&action=balance&address="+ addressToFind +"&tag=latest";
-    let url = ethscanBase + endpoint + ethscanKey;
+const getLatestBlock = async(hash) => {
+    let endpoint = hash +"&showTx=all";
+    let url = ethplorerApiBase + endpoint;
 
     try {
         const response = await axios.get(url);
-        if((response.data.status === "1" || response.data.message === "OK") && response.data.result !== "0") {            
-            const balanceFull = response.data.result;
-            let quantity = 0;
-            if(balanceFull !== null && balanceFull !== "0") {
-                const balInt = parseInt(balanceFull);
-                quantity = balInt / Math.pow(10, 18);
-            }
-            let address = {
-                address: addressToFind,
-                quantity: quantity,
-                hasTransactions: true
-            };
-
-            return address;
+        const datas = response.data;
+        if(_.has(datas, 'tx')) {
+            return datas.tx.blockNumber + datas.txn.confirmations;
         } else {
-            return null;
+            return 0;
         }
-    } catch(error) {
-        return null;
-    }
-}
-
-const getContract = async(addressToFind) => {
-    let endpoint = "?module=contract&action=getsourcecode&address="+ addressToFind +"&tag=latest";
-    let url = ethscanBase + endpoint + ethscanKey;
-
-    try {
-        const response = await axios.get(url);
-        if(response.data.status === "1") {
-            const name = response.data.result[0].ContractName;
-            let contract = {
-                address: addressToFind,
-                quantity: null,
-                symbol: null,
-                creator: null,
-                contractName: name
-
-            };
-
-            return contract;
-        } else {
-            return null;
-        }
-    } catch(error) {
-        return null;
-    }
-}
-
-const getAddressTransactions = async(address) => {
-    let endpoint = "?module=account&action=txlistinternal&address=" + address + "&page=1&offset=10&sort=asc";
-    let url = ethscanBase + endpoint + ethscanKey;
-
-    try{
-        const response = await axios.get(url);
-        if(!response.data.error && response.data.result !== null) {
-            let datas = response.data.result.splice(0, 10);
-            const lastestBlock = await getLatestBlock();
-            let blockNos = [];
-            datas.forEach(txn => {
-                txn.lastestBlock = lastestBlock;
-            });
-
-            const transactions = [];
-            
-            if(datas.length > 0) {
-                datas.forEach(data => {
-                    transactions.push(buildTransaction(data));
-                })
-            }
-
-            return transactions;
-        } else {
-            return [];
-        }
-    } catch(error) {
-        return []
-    }
-}
-
-const getAddressTokenTransactions = async(address) => {
-    let endpoint = "?module=account&action=tokentx&address=" + address + "&startblock=0&endblock=999999999&page=1&offset=10&sort=asc";
-    let url = ethscanBase + endpoint + ethscanKey;
-
-    try{
-        const response = await axios.get(url);
-        if(!response.data.error && response.data.result !== null) {
-            const datas = response.data.result.splice(0, 10);
-
-            const transactions = [];
-            
-            if(datas.length > 0) {
-                datas.forEach(data => {
-                    transactions.push(buildTransaction(data));
-                })
-            }
-
-            return transactions;
-        } else {
-            return [];
-        }
-    } catch(error) {
-        return []
-    }
-}
-
-const getTransaction = async(hash) => {
-    let endpoint = "?module=proxy&action=eth_getTransactionByHash&txhash=" + hash;
-    let url = ethscanBase + endpoint + ethscanKey;
-
-    try{
-        const response = await axios.get(url);
-        if(!response.data.error && response.data.result !== null) {
-            let data = response.data.result;
-            data.lastestBlock = await getLatestBlock();
-            const blockData = await getBlock(data.blockNumber);
-            data.timeStamp = blockData.timestamp;
-            const transaction = buildTransaction(data);
-
-            return transaction;
-        } else {
-            return null;
-        }
-    } catch(error) {
-        return null;
-    }
-}
-
-const getTransactions = async(address) => {
-    const transactions = [];
-    const internals = await getAddressTransactions(address);
-    if(internals.length > 0) {
-        internals.forEach(txn => {
-            transactions.push(txn);
-        })
-    }
-    // const tokens = await getAddressTokenTransactions(address);
-    // if(tokens.length > 0) {
-    //     tokens.forEach(txn => {
-    //         transactions.push(txn);
-    //     })
-    // }
-
-    return transactions;
-}
-
-const getTokens = async(address) => {
-    const endpoint = "/getAddressInfo/" + address;
-    const url = ethplorerBase + endpoint + ethplorerKey;
-
-    try{
-        const response = await axios.get(url);
-        const datas = response.data.tokens;
-        const assets = [];
-
-        datas.forEach(token => {
-            let quantity = helperSvc.exponentialToNumber(token.balance);
-            quantity = quantity.toString();
-            assets.push({
-                quantity: helperSvc.commaBigNumber(quantity),
-                symbol: token.tokenInfo.symbol
-            });
-        });
-
-        return assets;
-    } catch(error) {
-        return null;
-    }
-}
-
-const getLatestBlock = async() => {
-    const endpoint = "?module=proxy&action=eth_blockNumber";
-    const url = ethscanBase + endpoint + ethscanKey;
-
-    try{
-        const response = await axios.get(url);
-        return parseInt(response.data.result);
-    } catch(error) {
+        
+    } catch (error) {
         return 0;
     }
-}
-
-const getBlock = async(blockNumber) => {
-    const endpoint = "?module=proxy&action=eth_getBlockByNumber&tag="+ blockNumber +"&boolean=true";
-    const url = ethscanBase + endpoint + ethscanKey;
-
-    try{
-        const response = await axios.get(url);
-        if(!response.data.error && response.data.result !== null) {
-            const data = response.data.result.timestamp;
-            const block = {
-                blockHex: blockNumber,
-                blockNumber: parseInt(blockNumber, 16),
-                timestamp:  parseInt(data)
-            };
-            return block;
-        }
-    } catch(error) {
-        return null;
-    }
-}
-
-const buildTransaction = function(txn) {
-    const decimals = 8;
-    if(txn.hasOwnProperty('tokenDecimal')) {
-        decimals = txn.tokenDecimal; 
-    }
-    const precision = helperSvc.getPrecision(decimals);
-    const symbol = txn.hasOwnProperty('tokenSymbol') 
-                ? txn.tokenSymbol : "ETH";
-    const blockNumber = parseInt(txn.blockNumber);
-    const confirmations = txn.hasOwnProperty('confirmations') 
-                ? txn.confirmations : txn.lastestBlock - blockNumber;
-    const txnQty = txn.hasOwnProperty('value') ? txn.value : txn.value/precision;
-    const quantity = parseInt(txnQty) / Math.pow(10,10);
-
-    const transaction = {
-        hash: txn.hash,
-        block: blockNumber,
-        quantity: quantity,
-        symbol: symbol,
-        confirmations: confirmations,
-        date: helperSvc.unixToUTC(txn.timeStamp),
-        from: txn.from,
-        to: txn.to
-    };
-
-    return transaction;
 }
 
 module.exports = {
     getEmptyBlockchain,
     getBlockchain,
-    getAddress,
-    getAddressTransactions,
-    getTokens,
-    getTransaction,
-    getTransactions
+    ethCheck
 }

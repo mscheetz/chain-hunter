@@ -1,6 +1,6 @@
 const btc = require('./btc.js');
 const bch = require('./bch.js');
-const eth = require('./eth.js');
+const eth = require('./eth2.js');
 const ltc = require('./ltc.js');
 const neo = require('./neo.js');
 const xrp = require('./xrp.js');

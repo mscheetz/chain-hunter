@@ -9,7 +9,7 @@ const getEmptyBlockchain = async() => {
     chain.symbol = 'ICX';
     chain.hasTokens = false;
     chain.hasContracts = true;
-    chain.icon = "white/"+ chain.symbol.toLowerCase()  +".svg";
+    chain.icon = "white/"+ chain.symbol.toLowerCase()  +".png";
 
     return chain;
 }
@@ -28,7 +28,7 @@ const getBlockchain = async(toFind) => {
      const contract = await getContract(toFind);
      chain.contract = contract;
     if(chain.address || chain.transaction || chain.contract) {
-        chain.icon = "color/"+ chain.symbol.toLowerCase()  +".svg";
+        chain.icon = "color/"+ chain.symbol.toLowerCase()  +".png";
     }
 
     return chain;

@@ -1,50 +1,78 @@
 <div *ngIf="blockchain !== null">
-<p-panel header="{{blockchain.symbol}} Address" *ngIf="blockchain.address">
-    <h3>{{blockchain.symbol}} Address: {{blockchain.address.address}}</h3>
-    <div class="m-bottom-1">Balance: {{blockchain.address.quantity | number}} {{blockchain.symbol}}</div>
-    <p-accordion *ngIf="blockchain.address.hasTransactions" (onOpen)="onTxnsOpen($event)">
-        <p-accordionTab header="Most recent {{blockchain.symbol}} address transactions">
-            <div *ngIf="!transactionsComplete">Fetching Transactions...</div>
-            <div *ngIf="blockchain.address.transactions !== undefined && blockchain.address.transactions.length === 0">No transactions found</div>
-            <ul>
-                <li class="address-txn" *ngFor="let txn of blockchain.address.transactions">
-                    Transaction Type: {{txn.from.includes(blockchain.address.address) ? 'Send' : 'Receive'}} <br>
-                    Hash: {{txn.hash}} <br>
-                    <span *ngIf="txn.quantity">Quantity: {{txn.quantity.toLocaleString()}} {{txn.symbol}}<br></span>
-                    From: {{txn.from}}<br>
-                    To: {{txn.to}} <br>
-                    Date: {{txn.date}} <br>
-                    <span *ngIf="txn.confirmations > -1">Confirmations: {{txn.confirmations}}</span>
-                </li>
-            </ul>
-        </p-accordionTab>
-        <p-accordionTab header="{{blockchain.symbol}} Address Tokens" *ngIf="blockchain.hasTokens">
-                <div *ngIf="blockchain.address.tokens !== undefined && blockchain.address.tokens.length === 0">No tokens found</div>
+    <!-- Address Results -->
+    <p-panel header="{{blockchain.symbol}} Address" *ngIf="blockchain.address">
+        <h3>{{blockchain.symbol}} Address: {{blockchain.address.address}}</h3>
+        <div class="m-bottom-1">Balance: {{blockchain.address.quantity}} {{blockchain.symbol}}</div>
+        <p-accordion 
+                *ngIf="blockchain.address.hasTransactions || blockchain.address.hasTokens" 
+                (onOpen)="onTxnsOpen($event)">
+            <!-- Address Transactions -->
+            <p-accordionTab 
+                    header="Most recent {{blockchain.symbol}} address transactions" 
+                    *ngIf="blockchain.address.hasTransactions">
+                <div *ngIf="!transactionsComplete">Fetching Transactions...</div>
+                <div
+                    *ngIf="blockchain.address.transactions !== undefined && blockchain.address.transactions.length === 0">
+                    No transactions found</div>
+                <ul>
+                    <li class="address-txn" *ngFor="let txn of blockchain.address.transactions">
+                        Transaction Type: {{txn.from.includes(blockchain.address.address) ? 'Send' : 'Receive'}} <br>
+                        Hash: {{txn.hash}} <br>
+                        <span *ngIf="txn.quantity">Quantity: {{txn.quantity}} {{txn.symbol}}<br></span>
+                        From: {{txn.from}}<br>
+                        To: {{txn.to}} <br>
+                        Date: {{txn.date}} <br>
+                        <span *ngIf="txn.confirmations > -1">Confirmations: {{txn.confirmations}}</span>
+                    </li>
+                </ul>
+            </p-accordionTab>
+            <!-- Address Tokens -->
+            <p-accordionTab 
+                    header="{{blockchain.symbol}} Address Tokens" 
+                    *ngIf="blockchain.hasTokens">
+                <div *ngIf="blockchain.address.tokens !== undefined && blockchain.address.tokens.length === 0">No tokens
+                    found</div>
                 <div *ngIf="!tokensComplete">Fetching tokens...</div>
                 <ul>
                     <li *ngFor="let asset of blockchain.address.tokens">
-                        Symbol: {{asset.symbol}} <br>
-                        Quantity: {{asset.quantity | number}}
+                        <p *ngIf="asset.name">Name: {{asset.name}}</p>
+                        <p *ngIf="asset.symbol">
+                            Symbol: {{asset.symbol}}
+                            <img *ngIf="asset.hasIcon" src="/assets/cryptoicons/color/{{asset.symbol.toLowerCase()}}.png" />
+                        </p>
+                        <p *ngIf="asset.quantity">Quantity: {{asset.quantity}}</p>
                     </li>
                 </ul>
-        </p-accordionTab>
-    </p-accordion>
-</p-panel>
-<p-panel header="{{blockchain.symbol}} Contract" *ngIf="blockchain.hasContracts && blockchain.contract">
-    <h3>{{blockchain.symbol}} Contract Address: {{blockchain.contract.address}}</h3>
-    <p *ngIf="blockchain.contract.quantity">Balance: {{blockchain.contract.quantity | number}} {{blockchain.contract.symbol}}</p>
-    <p *ngIf="blockchain.contract.contractName">Contract Name: {{blockchain.contract.contractName}}</p>
-    <p *ngIf="blockchain.contract.creator">Creator Address: {{blockchain.contract.creator}}</p>
-</p-panel>
-<p-panel header="{{blockchain.symbol}} Transaction" *ngIf="blockchain.transaction">
-    <h3>{{blockchain.symbol}} Transaction Hash: {{blockchain.transaction.hash}}</h3>
-    <div>Quantity: {{blockchain.transaction.quantity | number}} {{blockchain.transaction.symbol}}</div>
-    <div *ngIf="blockchain.transaction.date">Date: {{blockchain.transaction.date}}</div>
-    <div>From: {{blockchain.transaction.from}}</div>
-    <div>To: {{blockchain.transaction.to}}</div>
-    <div *ngIf="blockchain.transaction.block > 0">Block: {{blockchain.transaction.block}}</div>
-    <div *ngIf="blockchain.transaction.confirmations > -1">Confirmations: {{blockchain.transaction.confirmations}}</div>
-</p-panel>
+            </p-accordionTab>
+        </p-accordion>
+        <div *ngIf="blockchain.source">For more info: <a href="{{blockchain.source}}" target="_blank">{{blockchain.source}}</a></div>
+    </p-panel>
+    <!-- Contract Results -->
+    <p-panel header="{{blockchain.symbol}} Contract" *ngIf="blockchain.hasContracts && blockchain.contract">
+        <h3>{{blockchain.symbol}} Contract Address: {{blockchain.contract.address}}</h3>        
+        <p *ngIf="blockchain.contract.contractName">
+            Contract Name: {{blockchain.contract.contractName}}
+            <img *ngIf="blockchain.contract.symbol" src="/assets/cryptoicons/color/{{blockchain.contract.symbol.toLowerCase()}}.png" />
+        </p>
+        <p *ngIf="blockchain.contract.quantity">
+            Balance: {{blockchain.contract.quantity}} {{blockchain.contract.symbol}}
+        </p>
+        <p *ngIf="blockchain.contract.creator">Creator Address: {{blockchain.contract.creator}}</p>
+        <div *ngIf="blockchain.source">For more info: <a href="{{blockchain.source}}" target="_blank">{{blockchain.source}}</a></div>
+    </p-panel>
+    <!-- Transaction Results -->
+    <p-panel header="{{blockchain.symbol}} Transaction" *ngIf="blockchain.transaction">
+        <h3>{{blockchain.symbol}} Transaction Hash: {{blockchain.transaction.hash}}</h3>
+        <div>Quantity: {{blockchain.transaction.quantity}} {{blockchain.transaction.symbol}}</div>
+        <div *ngIf="blockchain.transaction.date">Date: {{blockchain.transaction.date}}</div>
+        <div>From: {{blockchain.transaction.from}}</div>
+        <div>To: {{blockchain.transaction.to}}</div>
+        <div *ngIf="blockchain.transaction.block > 0">Block: {{blockchain.transaction.block}}</div>
+        <div *ngIf="blockchain.transaction.confirmations > -1">
+            Confirmations: {{blockchain.transaction.confirmations}}
+        </div>
+        <div *ngIf="blockchain.source">For more info: <a href="{{blockchain.source}}" target="_blank">{{blockchain.source}}</a></div>
+    </p-panel>
 </div>
 <p-panel showHeader="false" *ngIf="huntStatus === 1">
     <h3>Searching...</h3>
@@ -56,6 +84,7 @@
     <h3>Select a Blockchain</h3>
     <span>Results found: {{resultsFound.join(', ')}}</span>
 </p-panel>
-<p-panel showHeader="false" *ngIf="(huntStatus === 2 || huntStatus === 3) && selectedChain !== '' && blockchain !== null && !blockchain.address && !blockchain.transaction && !blockchain.contract">
+<p-panel showHeader="false"
+    *ngIf="(huntStatus === 2 || huntStatus === 3) && selectedChain !== '' && blockchain !== null && !blockchain.address && !blockchain.transaction && !blockchain.contract">
     <h3>No {{blockchain.symbol}} Data found</h3>
 </p-panel>

@@ -1,7 +1,8 @@
 const searchType = {
-    address: 1,
-    transaction: 2,
-    contract: 4
+    nothing: 1,
+    address: 2,
+    transaction: 4,
+    contract: 8
 }
 
 module.exports = {

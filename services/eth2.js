@@ -3,6 +3,7 @@ const _ = require('lodash');
 const helperSvc = require('./helperService.js');
 const ethplorerBase = "https://ethplorer.io";
 const ethplorerApiBase = "https://ethplorer.io/service/service.php?data=";
+const enums = require('../classes/enums');
 const delay = time => new Promise(res=>setTimeout(res,time));
 
 const getEmptyBlockchain = async() => {
@@ -25,7 +26,12 @@ const getBlockchain = async(toFind) => {
         chain.transaction = null;
         chain.contract = null;
 
-        chain = await ethCheck(chain, toFind);
+        const searchType = helperSvc.searchType(chain.symbol.toLowerCase(), toFind);
+
+        if(searchType & enums.searchType.nothing) {
+        } else {
+            chain = await ethCheck(chain, toFind);
+        }
 
         if(chain.address || chain.transaction || chain.contract) {
             chain.icon = "color/"+ chain.symbol.toLowerCase()  +".png";
@@ -128,15 +134,12 @@ const createTokens = function(datas) {
 
 const createEthTransaction = function(datas) {
     let qty = datas.value.toString();
-    console.log('qty 1', qty);
     if(qty.toLowerCase().indexOf("e+") >= 0) {
         qty = helperSvc.exponentialToNumber(qty);
-        console.log('qty 2', qty);
     }
-    //qty = parseFloat(qty)/100000000;
-    //console.log('qty 3', qty);
+    
     qty = helperSvc.commaBigNumber(qty.toString());
-    console.log('qty 3', qty);
+
     const transaction = {
         hash: datas.hash,
         block: datas.blockNumber,

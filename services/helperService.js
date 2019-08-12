@@ -1,4 +1,5 @@
 const fs = require('fs');
+const enums = require('../classes/enums');
 
 /**
  * conver unix time to utc time
@@ -96,7 +97,7 @@ const commaBigNumber = function(value) {
  * 
  * @param decimals decimal places
  */
-getPrecision = function(decimals) {
+const getPrecision = function(decimals) {
     return Math.pow(10, decimals);
 }
 
@@ -105,7 +106,7 @@ getPrecision = function(decimals) {
  * 
  * @param iconName name of icon
 */
-iconExists = function(iconName) {
+const iconExists = function(iconName) {
     const path = './dist/chain-hunter/assets/cryptoicons/' + iconName;
 
     try {
@@ -115,31 +116,234 @@ iconExists = function(iconName) {
     }
 }
 
-validChains = function(toCheck) {
+/**
+ * Get valid chains for search string
+ * 
+ * @param searchValue value to check
+ */
+const validChains = function(searchValue) {
     let chains = [];
 
-    if(toCheck.substr(0, 2) === "0x") {
-        chains.push("aion");
-        chains.push("eth");
-    } else if((toCheck.substr(0, 1) === "1" || toCheck.substr(0, 1) === "3" || toCheck.substr(0, 3) === "bc1")
-                && (27 <= toCheck.length <= 34)) {
-        chains.push("btc");
-        chains.push("bch");
-    } else if(toCheck.substr(0,7) === "bitcoin") {
-        chains.push("btc");
-    } else if(toCheck.substr(0,11) === "bitcoincash" 
-                || toCheck.length === 42) {
-        chains.push("bch");
-    } else if(toCheck.substr(0, 6) === "cosmos") {
-        chains.push("atom");
-    } else if(toCheck.substr(0, 3) === "ak_") {
-        chains.push("ae");
-    } else if(toCheck.length === 12) {
-        chains.push("eos");
-    } else if(toCheck.substr(0, 4) === "xrb_" || toCheck.substr(0, 5) === "nano_") {
-        chains.push("nano");
-    } else if(toCheck.substr(0, 3) === "bnb") {
-        chains.push("bnb");
+    if(searchValue.substr(0, 2) === "0x") {
+        chains.push("aion", enums.searchType.address | enums.searchType.contract | enums.searchType.transaction);
+        chains.push("eth", enums.searchType.address | enums.searchType.contract | enums.searchType.transaction);
+        chains.push("icx", enums.searchType.transaction)
+    }
+    if((searchValue.substr(0, 1) === "1" || searchValue.substr(0, 1) === "3" || searchValue.substr(0, 3) === "bc1")
+                && (27 <= searchValue.length <= 34)) {
+        chains.push("btc", enums.searchType.address);
+        chains.push("bch", enums.searchType.address);
+        chains.push("usdt", enums.searchType.address);
+    }
+    if(searchValue.substr(0,7) === "bitcoin") {
+        chains.push("btc", enums.searchType.address);
+    } 
+    if(searchValue.substr(0,11) === "bitcoincash" 
+                || searchValue.length === 42) {
+        chains.push("bch", enums.searchType.address);
+    }
+    if(searchValue.substr(0, 6) === "cosmos") {
+        chains.push("atom", enums.searchType.address);
+    }
+    if(searchValue.substr(0, 3) === "ak_") {
+        chains.push("ae", enums.searchType.address);
+    }
+    if(searchValue.substr(0, 3) === "th_" ) {
+        chains.push("ae", enums.searchType.transaction);
+    }
+    //if(searchValue.length === 12) {
+    //    chains.push("eos", enums.searchType.address);
+    //}
+    if(searchValue.substr(0, 4) === "xrb_" || searchValue.substr(0, 5) === "nano_") {
+        chains.push("nano", enums.searchType.address);
+    }
+    if(searchValue.substr(0, 3) === "bnb") {
+        chains.push("bnb", enums.searchType.address);
+    }
+    if(searchValue.substr(0, 1) === "r") {
+        chains.push("xrp", enums.searchType.address);
+    }
+    if(searchValue.substr(0, 1) === "X") {
+        chains.push("dash", enums.searchType.address);
+        chains.push("xrp", enums.searchType.address);
+    }
+    if(searchValue.substr(0, 1) === "T") {
+        chains.push("trx", enums.searchType.address);
+    }
+    if(searchValue.substr(0, 2) === "hx" && searchValue.length === 42 ) {
+        chains.push("icx", enums.searchType.address);
+    }
+    if(searchValue.substr(0, 2) === "cx" && searchValue.length === 42 ) {
+        chains.push("icx", enums.searchType.contract);
+    }
+    if(searchValue.substr(0, 1) === "A" && searchValue.length === 34 ) {
+        chains.push("neo", enums.searchType.address);
+        chains.push("ont", enums.searchType.address);
+    }
+    if(searchValue.substr(0, 2) === "t1") {
+        chains.push("zel", enums.searchType.address);
+    } //else if(searchValue.substr(0, 1) === "t" && searchValue.length === 36 ) {
+        //chains.push("zec", enums.searchType.address);
+    //}
+    //if(searchValue.substr(0, 1) === "z" && searchValue.length === 96 ) {
+    //    chains.push("zec", enums.searchType.address);
+    //}
+}
+
+/**
+ * Type of search to perform
+ * @param {*} chain chain to search
+ * @param {*} toFind search string
+ */
+const searchType = function(chain, toFind) {
+
+    if((chain === "aion" || chain === "eth") && toFind.substr(0, 2) !== "0x") {
+        return enums.searchType.nothing;
+    }
+    if(toFind.substr(0, 2) === "0x") {
+        if(chain === "aion" || chain === "eth") {
+            return enums.searchType.address | enums.searchType.contract | enums.searchType.transaction;
+        } else if (chain === "icx") {
+            return enums.searchType.transaction;
+        } else if (chain === "neo") {
+            return enums.searchType.contract;
+        } else {
+            return enums.searchType.nothing;
+        }
+    }
+    if(toFind.substr(0,7) === "bitcoincash") {
+        if(chain === "bch") {
+            return enums.searchType.address;
+        } else {
+            return enums.searchType.nothing;
+        }
+    }
+    if(toFind.substr(0,7) === "bitcoin") {
+        if(chain === "btc") {
+            return enums.searchType.address;
+        } else {
+            return enums.searchType.nothing;
+        }
+    }
+    if((toFind.substr(0, 1) === "1" || toFind.substr(0, 1) === "3" || toFind.substr(0, 3) === "bc1")
+                && (27 <= toFind.length <= 34)) {
+        if(chain === "btc" || chain === "bch" || chain === "usdt" || chain == "ltc") {
+            return enums.searchType.address;
+        } else {
+            return enums.searchType.nothing;
+        }
+    }
+    if((toFind.substr(0, 1) === "3" || toFind.substr(0, 1) === "L" || toFind.substr(0, 1) === "M")
+        && toFind.length === 34) {
+        if(chain === "ltc") {
+            return enums.searchType.address;
+        } else {
+            return enums.searchType.nothing;
+        }
+    }
+    if(toFind.substr(0, 6) === "cosmos") {
+        if(chain === "atom") {
+            return enums.searchType.address;
+        } else {
+            return enums.searchType.nothing;
+        }
+    }
+    if(toFind.substr(0, 3) === "ak_") {
+        if(chain === "ae") {
+            return enums.searchType.address;
+        } else {
+            return enums.searchType.nothing;
+        }
+    }
+    if(toFind.substr(0, 3) === "th_" ) {
+        if(chain === "ae") {
+            return enums.searchType.transaction;
+        } else {
+            return enums.searchType.nothing;
+        }
+    }
+    if(toFind.substr(0, 4) === "xrb_" || toFind.substr(0, 5) === "nano_") {
+        if(chain === "nano") {
+            return enums.searchType.address;
+        } else {
+            return enums.searchType.nothing;
+        }
+    }
+    if(toFind.substr(0, 3) === "bnb") {
+        if(chain === "bnb") {
+            return enums.searchType.address;
+        } else {
+            return enums.searchType.nothing;
+        }
+    }
+    if(toFind.substr(0, 1) === "r") {
+        if(chain === "xrp") {
+            return enums.searchType.address;
+        } else {
+            return enums.searchType.transaction | enums.searchType.contract;
+        }
+    }
+    if(toFind.substr(0, 1) === "X") {
+        if(chain === "dash" || chain === "xrp") {
+            return enums.searchType.address;
+        } else {
+            return enums.searchType.transaction | enums.searchType.contract;
+        }
+    }
+    if(toFind.substr(0, 2) === "hx" && toFind.length === 42 ) {
+        if(chain === "icx") {
+            return enums.searchType.address;
+        } else {
+            return enums.searchType.transaction | enums.searchType.contract;
+        }
+    }
+    if(toFind.substr(0, 2) === "cx" && toFind.length === 42 ) {
+        if(chain === "icx") {
+            return enums.searchType.contract;
+        } else {
+            return enums.searchType.transaction | enums.searchType.contract;
+        }
+    }
+    if(toFind.substr(0, 1) === "A" && toFind.length === 34 ) {
+        if(chain === "neo" || chain === "ont") {
+            return enums.searchType.address;
+        } else {
+            return enums.searchType.transaction | enums.searchType.contract;
+        }
+    }
+    if(toFind.substr(0, 2) === "t1") {
+        if(chain === "zel") {
+            return enums.searchType.address;
+        } else {
+            return enums.searchType.transaction | enums.searchType.contract;
+        }
+    }
+    if(toFind.substr(0, 1) === "T") {
+        if(chain === "trx") {
+            return enums.searchType.address;
+        } else {
+            return enums.searchType.transaction | enums.searchType.contract;
+        }
+    }
+    if(toFind.substr(0, 1) === "R") {
+        if(chain === "rvn") {
+            return enums.searchType.address;
+        } else {
+            return enums.searchType.transaction | enums.searchType.contract;
+        }
+    }
+    if(toFind.substr(0, 8) === "Contract") {
+        if(chain === "iost") {
+            return enums.searchType.contract;
+        } else {
+            return enums.searchType.none;
+        }
+    }
+    if((chain === "iost") && toFind.substr(0, 8) !== "Contract") {
+        return enums.searchType.address | enums.searchType.transaction;
+    }
+
+    return enums.searchType.address | enums.searchType.transaction | enums.searchType.contract;
 }
 
 module.exports = {
@@ -148,6 +352,8 @@ module.exports = {
     exponentialToNumber,
     getPrecision,
     unixToUTC,
-    iconExists
+    iconExists,
+    validChains,
+    searchType
 }
 

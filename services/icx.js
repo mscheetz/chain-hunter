@@ -1,6 +1,7 @@
 const axios = require('axios');
 const helperSvc = require('./helperService.js');
 const base = "https://tracker.icon.foundation/v3";
+const enums = require('../classes/enums');
 const delay = time => new Promise(res=>setTimeout(res,time));
 
 const getEmptyBlockchain = async() => {
@@ -17,16 +18,25 @@ const getEmptyBlockchain = async() => {
 const getBlockchain = async(toFind) => {
     const chain = await getEmptyBlockchain();
 
-    const address = await getAddress(toFind);
-    chain.address = address;
-    chain.transaction = null;
-    chain.contract = null;
-    if(address === null) {
-        const transaction = await getTransaction(toFind);
-        chain.transaction = transaction;
+    let address = null; 
+    let transaction = null;
+    let contract = null;
+
+    const searchType = helperSvc.searchType(chain.symbol.toLowerCase(), toFind);
+
+    if(searchType & enums.searchType.address) {
+        address = await getAddress(toFind);
     }
-     const contract = await getContract(toFind);
-     chain.contract = contract;
+    if(searchType & enums.searchType.transaction && address === null) {
+        transaction = await getTransaction(toFind);
+    }
+    if(searchType & enums.searchType.contract) {
+        contract = await getContract(toFind);
+    }
+    chain.address = address;
+    chain.transaction = transaction;
+    chain.contract = contract;
+
     if(chain.address || chain.transaction || chain.contract) {
         chain.icon = "color/"+ chain.symbol.toLowerCase()  +".png";
     }

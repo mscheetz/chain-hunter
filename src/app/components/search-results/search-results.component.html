@@ -45,7 +45,11 @@
                 </ul>
             </p-accordionTab>
         </p-accordion>
-        <div *ngIf="blockchain.source">For more info: <a href="{{blockchain.source}}" target="_blank">{{blockchain.source}}</a></div>
+        <div *ngIf="blockchain.source">
+            <p>
+                For more info: <a href="{{blockchain.source}}" target="_blank">{{blockchain.source}}</a>
+            </p>
+        </div>
     </p-panel>
     <!-- Contract Results -->
     <p-panel header="{{blockchain.symbol}} Contract" *ngIf="blockchain.hasContracts && blockchain.contract">
@@ -58,7 +62,11 @@
             Balance: {{blockchain.contract.quantity}} {{blockchain.contract.symbol}}
         </p>
         <p *ngIf="blockchain.contract.creator">Creator Address: {{blockchain.contract.creator}}</p>
-        <div *ngIf="blockchain.source">For more info: <a href="{{blockchain.source}}" target="_blank">{{blockchain.source}}</a></div>
+        <div *ngIf="blockchain.source">
+            <p>
+                For more info: <a href="{{blockchain.source}}" target="_blank">{{blockchain.source}}</a>
+            </p>
+        </div>
     </p-panel>
     <!-- Transaction Results -->
     <p-panel header="{{blockchain.symbol}} Transaction" *ngIf="blockchain.transaction">
@@ -71,7 +79,11 @@
         <div *ngIf="blockchain.transaction.confirmations > -1">
             Confirmations: {{blockchain.transaction.confirmations}}
         </div>
-        <div *ngIf="blockchain.source">For more info: <a href="{{blockchain.source}}" target="_blank">{{blockchain.source}}</a></div>
+        <div *ngIf="blockchain.source">
+            <p>
+                For more info: <a href="{{blockchain.source}}" target="_blank">{{blockchain.source}}</a>
+            </p>
+        </div>
     </p-panel>
 </div>
 <p-panel showHeader="false" *ngIf="huntStatus === 1">

@@ -100,24 +100,24 @@ router.get('/api/address/:chain/:address/tokens', asyncMiddleware(async (req, re
   }
 }));
 
-router.get('/api/users', asyncMiddleware(async (req, res, next) => {
+// router.get('/api/users', asyncMiddleware(async (req, res, next) => {
 
-  const users = await db.getUsers();
-  if(typeof users === 'undefined' || users.length === 0) {
-    res.status(500).json([]);
-  }
-  res.status(200).json(users);
-}))
+//   const users = await db.getUsers();
+//   if(typeof users === 'undefined' || users.length === 0) {
+//     res.status(500).json([]);
+//   }
+//   res.status(200).json(users);
+// }))
 
-router.get('/api/users/email/:email', asyncMiddleware(async (req, res, next) => {
-  const email = req.params.email;
+// router.get('/api/users/email/:email', asyncMiddleware(async (req, res, next) => {
+//   const email = req.params.email;
   
-  const user = await db.getUserByEmail(email);
-  if(typeof user === 'undefined') {
-    res.status(500).json({});
-  }
-  res.status(200).json(user);
-}))
+//   const user = await db.getUserByEmail(email);
+//   if(typeof user === 'undefined') {
+//     res.status(500).json({});
+//   }
+//   res.status(200).json(user);
+// }))
 
 const whitelistUsers = new Map([
   [config.CHAINHUNTER_USER, config.CHAINHUNTER_TOKEN]]);

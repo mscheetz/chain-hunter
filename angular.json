@@ -41,6 +41,11 @@
                 "glob": "robots.txt",
                 "input": "./",
                 "output": "./"
+              },
+              {
+                "glob": "sitemap.xml",
+                "input": "./",
+                "output": "./"
               }
             ],
             "styles": [
@@ -123,6 +128,11 @@
               },
               {
                 "glob": "robots.txt",
+                "input": "./",
+                "output": "./"
+              },
+              {
+                "glob": "sitemap.xml",
                 "input": "./",
                 "output": "./"
               }

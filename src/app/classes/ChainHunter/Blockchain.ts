@@ -12,7 +12,6 @@ export class Blockchain {
     transaction: Transaction;
     contract: Contract;
     icon: string;
-    source: string;
     hasTokens: boolean = false;
     hasContracts: boolean = false;
 
@@ -20,6 +19,6 @@ export class Blockchain {
         let iconBase = ""; //"/assets/cryptoicons/";
         let property = this.found ? "color" : "white";
 
-        return iconBase + property + "/" + this.symbol.toLowerCase() + ".png";
+        return iconBase + property + "/" + this.symbol.toLowerCase() + ".svg";
     }
 } 

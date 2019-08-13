@@ -273,7 +273,7 @@ export class ChainHunterComponent implements OnInit {
         let iconBase = "";
         let property = chain.address || chain.transaction ? "color" : "white";
 
-        chain.icon = iconBase + property + "/" + chain.symbol.toLowerCase() + ".png";
+        chain.icon = iconBase + property + "/" + chain.symbol.toLowerCase() + ".svg";
 
         return chain;
     }

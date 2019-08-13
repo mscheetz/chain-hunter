@@ -1,7 +1,6 @@
 const axios = require('axios');
 const helperSvc = require('./helperService.js');
 const base = "https://blockchain.info";//"https://chain.api.btc.com/v3";
-const enums = require('../classes/enums');
 const delay = time => new Promise(res=>setTimeout(res,time));
 
 const getEmptyBlockchain = async() => {
@@ -11,30 +10,29 @@ const getEmptyBlockchain = async() => {
     chain.hasTokens = false;
     chain.hasContracts = false;
     chain.contract = null;
-    chain.icon = "white/"+ chain.symbol.toLowerCase()  +".png";
+    chain.icon = "white/"+ chain.symbol.toLowerCase()  +".svg";
 
     return chain;
 }
 
 const getBlockchain = async(toFind) => {
     const chain = await getEmptyBlockchain();
+    const oneChar = toFind.substr(0, 1);
+    const threeChar = toFind.substr(0, 3);
 
-    let address = null; 
-    let transaction = null;
+    let address = null;
 
-    const searchType = helperSvc.searchType(chain.symbol.toLowerCase(), toFind);
-
-    if(searchType & enums.searchType.address) {
+    if(oneChar === "1" || oneChar === "3" || threeChar === "bc1") {
         address = await getAddress(toFind);
     }
-    if(searchType & enums.searchType.transaction && address === null) {
-        transaction = await getTransaction(toFind);
-    }
     chain.address = address;
-    chain.transaction = transaction;
-
+    chain.transaction = null;
+    if(address === null) {
+        const transaction = await getTransaction(toFind);
+        chain.transaction = transaction;
+    }
     if(chain.address || chain.transaction) {
-        chain.icon = "color/"+ chain.symbol.toLowerCase()  +".png";
+        chain.icon = "color/"+ chain.symbol.toLowerCase()  +".svg";
     }
 
     return chain;

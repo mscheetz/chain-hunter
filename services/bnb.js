@@ -2,7 +2,6 @@ const axios = require('axios');
 const helperSvc = require('./helperService.js');
 const base = "https://dex.binance.org/api/v1";
 const base2 = "https://explorer.binance.org/api/v1";
-const enums = require('../classes/enums');
 
 const getEmptyBlockchain = async() => {
     const chain = {};
@@ -11,7 +10,7 @@ const getEmptyBlockchain = async() => {
     chain.hasTokens = false;
     chain.hasContracts = false;
     chain.contract = null;
-    chain.icon = "white/"+ chain.symbol.toLowerCase()  +".png";
+    chain.icon = "white/"+ chain.symbol.toLowerCase()  +".svg";
 
     return chain;
 }
@@ -19,22 +18,15 @@ const getEmptyBlockchain = async() => {
 const getBlockchain = async(toFind) => {
     const chain = await getEmptyBlockchain();
 
-    let address = null; 
-    let transaction = null;
-
-    const searchType = helperSvc.searchType(chain.symbol.toLowerCase(), toFind);
-
-    if(searchType & enums.searchType.address) {
-        address = await getAddress(toFind);
-    }
-    if(searchType & enums.searchType.transaction && address === null) {
-        transaction = await getTransaction(toFind);
-    }
+    const address = await getAddress(toFind);
     chain.address = address;
-    chain.transaction = transaction;
-    
+    chain.transaction = null;
+    if(address === null) {
+        const transaction = await getTransaction(toFind);
+        chain.transaction = transaction;
+    }
     if(chain.address || chain.transaction) {
-        chain.icon = "color/"+ chain.symbol.toLowerCase()  +".png";
+        chain.icon = "color/"+ chain.symbol.toLowerCase()  +".svg";
     }
 
     return chain;

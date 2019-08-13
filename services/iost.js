@@ -2,7 +2,6 @@ const axios = require('axios');
 const helperSvc = require('./helperService.js');
 const apiKey = "67de405a0cb8a9e2fe5e33000cf9a88a";
 const base = "https://api.iostabc.com/api/?apikey=" + apiKey;
-const enums = require('../classes/enums');
 const delay = time => new Promise(res=>setTimeout(res,time));
 
 const getEmptyBlockchain = async() => {
@@ -12,7 +11,7 @@ const getEmptyBlockchain = async() => {
     chain.hasTokens = false;
     chain.hasContracts = true;
     chain.contract = null;
-    chain.icon = "white/"+ chain.symbol.toLowerCase()  +".png";
+    chain.icon = "white/"+ chain.symbol.toLowerCase()  +".svg";
 
     return chain;
 }
@@ -20,28 +19,25 @@ const getEmptyBlockchain = async() => {
 const getBlockchain = async(toFind) => {
     const chain = await getEmptyBlockchain();
 
-    let address = null; 
+    let address = null;
     let transaction = null;
     let contract = null;
-
-    const searchType = helperSvc.searchType(chain.symbol.toLowerCase(), toFind);
-
-    if(searchType & enums.searchType.address) {
-        address = await getAddress(toFind);
-    }
-    if(searchType & enums.searchType.transaction && address === null) {
-        await delay(1000);
-        transaction = await getTransaction(toFind);
-    }
-    if(searchType & enums.searchType.contract) {
+    if(toFind.substr(0, 8) === "Contract"){
         contract = await getContract(toFind);
+    } else {
+        address = await getAddress(toFind);
+        if(address === null) {
+            await delay(1000);
+            transaction = await getTransaction(toFind);
+        }
     }
+
     chain.address = address;
     chain.transaction = transaction;
     chain.contract = contract;
 
     if(chain.address || chain.transaction || chain.contract) {
-        chain.icon = "color/"+ chain.symbol.toLowerCase()  +".png";
+        chain.icon = "color/"+ chain.symbol.toLowerCase()  +".svg";
     }
     return chain;
 }

@@ -13,7 +13,7 @@ const getEmptyBlockchain = async() => {
     chain.hasTokens = false;
     chain.hasContracts = true;
     chain.contract = null;
-    chain.icon = "white/"+ chain.symbol.toLowerCase()  +".png";
+    chain.icon = "white/"+ chain.symbol.toLowerCase()  +".svg";
 
     return chain;
 }
@@ -37,7 +37,7 @@ const getBlockchain = async(toFind) => {
             }
         }
         if(chain.address || chain.transaction || chain.contract) {
-            chain.icon = "color/"+ chain.symbol.toLowerCase()  +".png";
+            chain.icon = "color/"+ chain.symbol.toLowerCase()  +".svg";
         }
     }
     

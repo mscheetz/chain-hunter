@@ -38,8 +38,13 @@
                 "output": "./.well-known/"
               },
               {
-                "glob": "**/*",
-                "input": "./chainhunter.css",
+                "glob": "robots.txt",
+                "input": "./",
+                "output": "./"
+              },
+              {
+                "glob": "sitemap.xml",
+                "input": "./",
                 "output": "./"
               }
             ],
@@ -122,8 +127,13 @@
                 "output": "./.well-known/"
               },
               {
-                "glob": "**/*",
-                "input": "./chainhunter.css",
+                "glob": "robots.txt",
+                "input": "./",
+                "output": "./"
+              },
+              {
+                "glob": "sitemap.xml",
+                "input": "./",
                 "output": "./"
               }
             ],

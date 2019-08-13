@@ -14,6 +14,7 @@ const isProd = environment === 'prod';
 const targetPath = environment === 'dev' 
     ? `./src/environments/environment.ts`
     : `./src/environments/environment.${environment}.ts`;
+
 const envConfigFile = `
 export const environment = {
   production: ${isProd},
@@ -21,6 +22,18 @@ export const environment = {
   token: "${process.env.CHAINHUNTER_TOKEN}" 
 };
 `
+
+if(targetPath !== 'dev') {
+	const devPath = './src/environments/environment.ts';
+	fs.writeFile(devPath, envConfigFile, function (err) {
+	  if (err) {
+	    console.log(err);
+	  }
+
+	  console.log(`Empty ${targetPath} created`);
+	});
+}
+
 fs.writeFile(targetPath, envConfigFile, function (err) {
   if (err) {
     console.log(err);

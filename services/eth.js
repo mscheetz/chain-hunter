@@ -4,6 +4,7 @@ const ethscanBase = "https://api.etherscan.io/api";
 const ethscanKey = "&apikey=YYT6FH7R4K7WK729Z2ZPTC2ZNTK48WEKHG";
 const ethplorerBase = "http://api.ethplorer.io";
 const ethplorerKey = "?apiKey=freekey";
+const enums = require('../classes/enums');
 const delay = time => new Promise(res=>setTimeout(res,time));
 
 const getEmptyBlockchain = async() => {
@@ -20,22 +21,28 @@ const getEmptyBlockchain = async() => {
 
 const getBlockchain = async(toFind) => {
     const chain = await getEmptyBlockchain();
+    let address = null;
+    let transaction = null;
+    let contract = null;
 
     if(toFind.substr(0,2) === "0x") {
-        const address = await getAddress(toFind);
-        chain.address = address;
-        chain.transaction = null;
-        chain.contract = null;
-        if(address === null) {
-            await delay(1000);
-            const transaction = await getTransaction(toFind);
-            chain.transaction = transaction;
-            if(transaction === null) {
-                await delay(1000);
-                const contract = await getContract(toFind);
-                chain.contract = contract;
-            }
+        const searchType = helperSvc.searchType(chain.symbol.toLowerCase(), toFind);
+
+        if(searchType & enums.searchType.address) {
+            address = await getAddress(toFind);
         }
+        if(searchType & enums.searchType.transaction) {
+            transaction = await getTransaction(toFind);
+        }
+        if(searchType & enums.searchType.contract) {
+            await delay(1000);
+            contract = await getContract(toFind);
+        }
+        
+        chain.address = address;
+        chain.transaction = transaction;
+        chain.contract = contract;
+
         if(chain.address || chain.transaction || chain.contract) {
             chain.icon = "color/"+ chain.symbol.toLowerCase()  +".png";
         }

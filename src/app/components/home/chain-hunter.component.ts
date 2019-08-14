@@ -72,7 +72,7 @@ export class ChainHunterComponent implements OnInit {
                 this.futureChains = chains;
                 chains.forEach(chain => {
                     const iconClass = `class="chain-logo-pad"`;
-                    const iconSrc = `src="assets/cryptoicons/color/${chain.symbol.toLowerCase()}.svg"`;
+                    const iconSrc = `src="assets/cryptoicons/color/${chain.symbol.toLowerCase()}.png"`;
                     const iconName = `title="${chain.name}"`;
                     const icon = `<img ${iconClass} ${iconSrc} ${iconName} />`;
                     this.comingSoon += icon;
@@ -273,7 +273,7 @@ export class ChainHunterComponent implements OnInit {
         let iconBase = "";
         let property = chain.address || chain.transaction ? "color" : "white";
 
-        chain.icon = iconBase + property + "/" + chain.symbol.toLowerCase() + ".svg";
+        chain.icon = iconBase + property + "/" + chain.symbol.toLowerCase() + ".png";
 
         return chain;
     }

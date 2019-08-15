@@ -62,9 +62,11 @@ const getAddress = async(addressToFind) => {
                     qty = bal.amount;
                 }
             })
+            const total = helperSvc.commaBigNumber(qty.toString());
+
             const address = {
                 address: datas.address,
-                quantity: qty,
+                quantity: total,
                 tokens: tokenConvert(datas.balance),
                 hasTransactions: true
             };
@@ -110,8 +112,6 @@ const tokenConvert = async(tokens) => {
             quantity: helperSvc.commaBigNumber(quantity),
             symbol: token.asset_symbol
         }
-        // asset.quantity = helperSvc.commaBigNumber(quantity);
-        // asset.symbol = token.asset_symbol;
 
         assets.push(asset);
     });
@@ -129,10 +129,14 @@ const getTransactions = async(address) => {
             const transactions = [];
             if(datas !== null && datas.length > 0) {
                 datas.forEach(data => {
+                    const quantity = parseInt(data.amount);
+                    const total = helperSvc.commaBigNumber(quantity.toString());
+
                     transactions.push({
                         hash: data.txid,
                         block: data.block_height,
-                        quantity: parseInt(data.amount),
+                        quantity: total,
+                        symbol: "NEO",
                         confirmations: data.block_height,
                         date: helperSvc.unixToUTC(data.time),
                         from: data.address_from,
@@ -155,14 +159,14 @@ const getTransaction = async(hash) => {
         const response = await axios.get(url);
         if(response.data !== null) {
             const datas = response.data;
-            let quantity = 0;
+            let quantity = 0.0;
             let symbol = "";
             let from = [];
             let to = [];
             datas.vin.forEach(vin => {
                 const inQty = vin.value;
                 const inQtyNo = helperSvc.exponentialToNumber(inQty.toString());
-                quantity += parseFloat(inQtyNo);
+                quantity += inQtyNo;
                 symbol = vin.asset;
                 if(vin.address_hash && from.indexOf(vin.address_hash) <= -1) {
                     from.push(vin.address_hash);
@@ -173,10 +177,12 @@ const getTransaction = async(hash) => {
                     to.push(vout.address_hash);
                 }
             });
+            const total = helperSvc.commaBigNumber(quantity.toString());
+
             const transaction = {
                 hash: datas.txid,
                 block: datas.block_height,
-                quantity: quantity,
+                quantity: total,
                 symbol: symbol,
                 confirmations: datas.block_height,
                 date: helperSvc.unixToUTC(datas.time),

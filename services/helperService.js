@@ -66,6 +66,35 @@ const bigNumberToDecimal = function(value, decimals) {
 }
 
 /**
+ * Remove trailing 0s at end of a decimal
+ * 
+ * @param {*} value value to scrub
+ */
+const decimalCleanup = function(value) {
+    let val = value.toString();
+    if(val.indexOf(".") > -1) {
+        var chars = val.split('');
+        var startPosition = chars.length - 1;
+        for(var i = startPosition; i >= 0; i--) {
+            if(chars[i] === "0") {
+                chars.splice(i, 1);
+            } else if(chars[i] === "."){
+                chars.splice(i, 1);
+                break;
+            } else {
+                break;
+            }
+        }
+        val = chars.join('');
+        if(val === "0.") {
+            val = "0";
+        }
+    }
+
+    return val;
+}
+
+/**
  * Comma up a big number
  * 
  * @param value value to comma up
@@ -117,428 +146,278 @@ const iconExists = function(iconName) {
 }
 
 /**
- * Get valid chains for search string
- * 
- * @param searchValue value to check
- */
-const validChains = function(searchValue) {
-    let chains = [];
-
-    if(searchValue.substr(0, 2) === "0x") {
-        chains.push("aion", enums.searchType.address | enums.searchType.contract | enums.searchType.transaction);
-        chains.push("eth", enums.searchType.address | enums.searchType.contract | enums.searchType.transaction);
-        chains.push("icx", enums.searchType.transaction)
-    }
-    if((searchValue.substr(0, 1) === "1" || searchValue.substr(0, 1) === "3" || searchValue.substr(0, 3) === "bc1")
-                && (27 <= searchValue.length <= 34)) {
-        chains.push("btc", enums.searchType.address);
-        chains.push("bch", enums.searchType.address);
-        chains.push("usdt", enums.searchType.address);
-    }
-    if(searchValue.substr(0,7) === "bitcoin") {
-        chains.push("btc", enums.searchType.address);
-    } 
-    if(searchValue.substr(0,11) === "bitcoincash" 
-                || searchValue.length === 42) {
-        chains.push("bch", enums.searchType.address);
-    }
-    if(searchValue.substr(0, 6) === "cosmos") {
-        chains.push("atom", enums.searchType.address);
-    }
-    if(searchValue.substr(0, 3) === "ak_") {
-        chains.push("ae", enums.searchType.address);
-    }
-    if(searchValue.substr(0, 3) === "th_" ) {
-        chains.push("ae", enums.searchType.transaction);
-    }
-    //if(searchValue.length === 12) {
-    //    chains.push("eos", enums.searchType.address);
-    //}
-    if(searchValue.substr(0, 4) === "xrb_" || searchValue.substr(0, 5) === "nano_") {
-        chains.push("nano", enums.searchType.address);
-    }
-    if(searchValue.substr(0, 3) === "bnb") {
-        chains.push("bnb", enums.searchType.address);
-    }
-    if(searchValue.substr(0, 1) === "r") {
-        chains.push("xrp", enums.searchType.address);
-    }
-    if(searchValue.substr(0, 1) === "X") {
-        chains.push("dash", enums.searchType.address);
-        chains.push("xrp", enums.searchType.address);
-    }
-    if(searchValue.substr(0, 1) === "T") {
-        chains.push("trx", enums.searchType.address);
-    }
-    if(searchValue.substr(0, 2) === "hx" && searchValue.length === 42 ) {
-        chains.push("icx", enums.searchType.address);
-    }
-    if(searchValue.substr(0, 2) === "cx" && searchValue.length === 42 ) {
-        chains.push("icx", enums.searchType.contract);
-    }
-    if(searchValue.substr(0, 1) === "A" && searchValue.length === 34 ) {
-        chains.push("neo", enums.searchType.address);
-        chains.push("ont", enums.searchType.address);
-    }
-    if(searchValue.substr(0, 2) === "t1") {
-        chains.push("zel", enums.searchType.address);
-    } //else if(searchValue.substr(0, 1) === "t" && searchValue.length === 36 ) {
-        //chains.push("zec", enums.searchType.address);
-    //}
-    //if(searchValue.substr(0, 1) === "z" && searchValue.length === 96 ) {
-    //    chains.push("zec", enums.searchType.address);
-    //}
-}
-
-/**
  * Type of search to perform
  * @param {*} chain chain to search
  * @param {*} toFind search string
  */
 const searchType = function(chain, toFind) {
-console.log(chain + " looking for search type");
     if((chain === "aion" || chain === "eth") && toFind.substr(0, 2) !== "0x") {
-        console.log(chain + " nothing: 1");
         return enums.searchType.nothing;
     }
     if(toFind.substr(0, 2) === "0x") {
         if(chain === "eth") {
             if(toFind.length === 42) {
-                console.log(chain + " address, contract: 2");
                 return enums.searchType.address | enums.searchType.contract;
             } else {
-                console.log(chain + " transaction: 2");
                 return enums.searchType.transaction;
             }
         } else if(chain === "aion") {
             if(toFind.length === 66) {
-                console.log(chain + " address, contract: 2");
-                return enums.searchType.address | enums.searchType.contract;
+                return enums.searchType.address | enums.searchType.transaction | enums.searchType.contract;
             } else {
-                console.log(chain + " transaction: 2");
                 return enums.searchType.transaction;
             }
         } else if (chain === "icx") {
-            console.log(chain + " trx: 3");
             return enums.searchType.transaction;
         } else if (chain === "neo") {
-            console.log(chain + " contract: 4");
             return enums.searchType.contract;
         } else {
-            console.log(chain + " nothing: 5");
             return enums.searchType.nothing;
         }
     }
     if(toFind.substr(0,7) === "bitcoincash") {
         if(chain === "bch") {
-            console.log(chain + " address: 6");
             return enums.searchType.address;
         } else {
-            console.log(chain + " nothing: 7");
             return enums.searchType.nothing;
         }
     }
     if(toFind.substr(0,7) === "bitcoin") {
         if(chain === "btc") {
-            console.log(chain + " address: 8");
             return enums.searchType.address;
         } else {
-            console.log(chain + " nothing: 9");
             return enums.searchType.nothing;
         }
     }
     if(toFind.substr(0, 6) === "cosmos") {
         if(chain === "atom") {
-            console.log(chain + " address: 18");
             return enums.searchType.address;
         } else {
-            console.log(chain + " nothing: 19");
             return enums.searchType.nothing;
         }
     }
     if(toFind.substr(0, 3) === "ak_") {
         if(chain === "ae") {
-            console.log(chain + " address: 22");
             return enums.searchType.address;
         } else {
-            console.log(chain + " nothing: 23");
             return enums.searchType.nothing;
         }
     }
     if(toFind.substr(0, 3) === "th_" ) {
         if(chain === "ae") {
-            console.log(chain + " trx: 24");
             return enums.searchType.transaction;
         } else {
-            console.log(chain + " nothing: 25");
             return enums.searchType.nothing;
         }
     }
     if(toFind.substr(0, 4) === "xrb_" || toFind.substr(0, 5) === "nano_") {
         if(chain === "nano") {
-            console.log(chain + " address: 29");
             return enums.searchType.address;
         } else {
-            console.log(chain + " nothing: 30");
             return enums.searchType.nothing;
         }
     }
     if(toFind.substr(0, 3) === "bnb") {
         if(chain === "bnb") {
-            console.log(chain + " address: 33");
             return enums.searchType.address;
         } else {
-            console.log(chain + " nothing: 34");
             return enums.searchType.nothing;
         }
     }
     if((toFind.substr(0, 1) === "1" || toFind.substr(0, 1) === "3" || toFind.substr(0, 3) === "bc1")
                 && (27 <= toFind.length <= 34)) {
         if(chain === "btc" || chain === "bch" || chain === "usdt" || chain == "ltc") {
-            console.log(chain + " address: 12");
             return enums.searchType.address;
+        } else if(chain === "iost" || chain === "nano") {
+            return enums.searchType.transaction;
         } else {
-            console.log(chain + " nothing: 13");
             return enums.searchType.nothing;
         }
     }
     if((toFind.substr(0, 1) === "3" || toFind.substr(0, 1) === "L" || toFind.substr(0, 1) === "M")
         && toFind.length === 34) {
         if(chain === "ltc") {
-            console.log(chain + " address: 16");
             return enums.searchType.address;
         } else {
-            console.log(chain + " trx, contract: 17");
             return enums.searchType.transaction | enums.searchType.contract;
         }
     }
     if(toFind.substr(0, 2) === "hx" && toFind.length === 42 ) {
         if(chain === "icx") {
-            console.log(chain + " address: 45");
             return enums.searchType.address;
         } else {
-            console.log(chain + " trx, contract: 46");
             return enums.searchType.transaction | enums.searchType.contract;
         }
     }
     if(toFind.substr(0, 2) === "cx" && toFind.length === 42 ) {
         if(chain === "icx") {
-            console.log(chain + " contract: 47");
             return enums.searchType.contract;
         } else {
-            console.log(chain + " trx, contract: 48");
             return enums.searchType.transaction | enums.searchType.contract;
         }
     }
     if(toFind.substr(0, 8) === "Contract") {
         if(chain === "iost") {
-            console.log(chain + " contract: 69");
             return enums.searchType.contract;
         } else {
-            console.log(chain + " nothing: 70");
             return enums.searchType.nothing;
         }
     }
     if(chain === "btc" || chain === "bch" || chain === "usdt"){
         if((toFind.substr(0, 1) === "1" || toFind.substr(0, 1) === "3" || toFind.substr(0, 3) === "bc1")
                     && (27 <= toFind.length <= 34)) {
-            console.log(chain + " address: 10");
             return enums.searchType.address;
         } else {
-            console.log(chain + " trx: 11");
             return enums.searchType.transaction;
         }
     }
     if(chain === "ltc") {
         if((toFind.substr(0, 1) === "3" || toFind.substr(0, 1) === "L" || toFind.substr(0, 1) === "M")
             && toFind.length === 34) {
-                console.log(chain + " address: 14");
             return enums.searchType.address;
         } else {
-            console.log(chain + " trx: 15");
             return enums.searchType.transaction;
         }
     }
     if(chain === "atom") {
         if(toFind.substr(0, 6) === "cosmos") {
-            console.log(chain + " address: 20");
             return enums.searchType.address;
         } else {
-            console.log(chain + " trx: 21");
             return enums.searchType.transaction;
         }
     }
     if(chain === "ae") {
         if(toFind.substr(0, 3) === "ak_") {
-            console.log(chain + " address: 26");
             return enums.searchType.address;
         } else if(toFind.substr(0, 3) === "th_" ) {
-            console.log(chain + " trx: 27");
             return enums.searchType.transaction;
         } else {
-            console.log(chain + " nothing: 28");
             return enums.searchType.nothing;
         }
     }
     if(chain === "nano") {
         if(toFind.substr(0, 4) === "xrb_" || toFind.substr(0, 5) === "nano_") {
-            console.log(chain + " address: 31");
             return enums.searchType.address;
         } else {
-            console.log(chain + " trx: 32");
             return enums.searchType.transaction;
         }
     }
     if(chain === "bnb") {
         if(toFind.substr(0, 3) === "bnb") {
-            console.log(chain + " address: 35");
             return enums.searchType.address;
         } else {
-            console.log(chain + " trx: 36");
             return enums.searchType.transaction;
         }
     }
     if(toFind.substr(0, 1) === "r") {
         if(chain === "xrp") {
-            console.log(chain + " address: 37");
             return enums.searchType.address;
         } else {
-            console.log(chain + " trx, contract: 38");
             return enums.searchType.transaction | enums.searchType.contract;
         }
     }
     if(chain === "xrp") {
         if(toFind.substr(0, 1) === "r") {
-            console.log(chain + " address: 39");
             return enums.searchType.address;
         } else {
-            console.log(chain + " trx, contract: 40");
             return enums.searchType.transaction;
         }
     }
     if(toFind.substr(0, 1) === "X") {
         if(chain === "dash" || chain === "xrp") {
-            console.log(chain + " address: 41");
             return enums.searchType.address;
         } else {
-            console.log(chain + " trx, contract: 42");
             return enums.searchType.transaction | enums.searchType.contract;
         }
     }
     if(chain === "dash" || chain === "xrp") {
         if(toFind.substr(0, 1) === "X") {
-            console.log(chain + " address: 43");
             return enums.searchType.address;
         } else {
-            console.log(chain + " trx, contract: 44");
             return enums.searchType.transaction;
         }
     }
     if(chain === "icx") {
         if(toFind.substr(0, 2) === "hx" && toFind.length === 42 ) {
-            console.log(chain + " address: 49");
             return enums.searchType.address;
         } if(toFind.substr(0, 2) === "cx" && toFind.length === 42 ) {
-            console.log(chain + " contract: 50");
             return enums.searchType.contract;
         } else {
-            console.log(chain + " trx, contract: 51");
             return enums.searchType.transaction;
         }
     }
     if(toFind.substr(0, 1) === "A" && toFind.length === 34 ) {
         if(chain === "neo" || chain === "ont") {
-            console.log(chain + " address: 52");
             return enums.searchType.address;
         } else {
-            console.log(chain + " trx, contract: 53");
             return enums.searchType.transaction | enums.searchType.contract;
         }
     }
     if(chain === "neo" || chain === "ont") {
         if(toFind.substr(0, 1) === "A" && toFind.length === 34 ) {
-            console.log(chain + " address: 54");
             return enums.searchType.address;
         } else {
             if(chain === "neo") {
                 if(toFind.substr(0, 2) === "0x") {
-                    console.log(chain + " contract: 55");
                     return enums.searchType.contract;
                 } else {
-                    console.log(chain + " trx: 56");
                     return enums.searchType.transaction;
                 }
             } else {
-                console.log(chain + " trx, contract: 57");
                 return enums.searchType.transaction | enums.searchType.contract;
             }
         }
     }
     if(toFind.substr(0, 2) === "t1") {
         if(chain === "zel") {
-            console.log(chain + " address: 58");
             return enums.searchType.address;
         } else {
-            console.log(chain + " trx, contract: 59");
             return enums.searchType.transaction | enums.searchType.contract;
         }
     }
     if(chain === "zel") {
         if(toFind.substr(0, 2) === "t1") {
-            console.log(chain + " address: 60");
             return enums.searchType.address;
         } else {
-            console.log(chain + " trx: 61");
             return enums.searchType.transaction;
         }
     }
     if(toFind.substr(0, 1) === "T") {
         if(chain === "trx") {
-            console.log(chain + " address: 62");
             return enums.searchType.address;
         } else {
-            console.log(chain + " trx, contract: 63");
             return enums.searchType.transaction | enums.searchType.contract;
         }
     }
     if(chain === "trx") {
         if(toFind.substr(0, 1) === "T") {
-            console.log(chain + " address: 62");
             return enums.searchType.address;
         } else {
-            console.log(chain + " trx, contract: 64");
             return enums.searchType.transaction | enums.searchType.contract;
         }
     }
     if(toFind.substr(0, 1) === "R") {
         if(chain === "rvn") {
-            console.log(chain + " address: 65");
             return enums.searchType.address;
         } else {
-            console.log(chain + " trx, contract: 66");
             return enums.searchType.transaction | enums.searchType.contract;
         }
     }
     if(chain === "rvn") {
         if(toFind.substr(0, 1) === "R") {
-            console.log(chain + " address: 67");
             return enums.searchType.address;
         } else {
-            console.log(chain + " trx, contract: 68");
             return enums.searchType.transaction;
         }
     }
     if(chain === "iost") {
         if(toFind.substr(0, 8) === "Contract") {
-            console.log(chain + " contract: 71");
             return enums.searchType.contract;
         } else {
-            console.log(chain + " address, tx: 72");
             return enums.searchType.address | enums.searchType.transaction;
         }
     }
 
-    console.log(chain + " all: 73");
     return enums.searchType.address | enums.searchType.transaction | enums.searchType.contract;
 }
 
@@ -548,6 +427,7 @@ module.exports = {
     exponentialToNumber,
     getPrecision,
     unixToUTC,
+    decimalCleanup,
     iconExists,
     validChains,
     searchType

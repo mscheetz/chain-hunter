@@ -48,9 +48,12 @@ const getAddress = async(addressToFind) => {
         if(typeof response.data.error === "undefined") {
             const datas = response.data.account;
             const quantity = helperSvc.bigNumberToDecimal(datas.balance,30);
+            const total = helperSvc.commaBigNumber(quantity.toString());
+            const cleanedTotal = helperSvc.decimalCleanup(total);
+
             const address = {
                 address: addressToFind,
-                quantity: quantity,
+                quantity: cleanedTotal,
                 hasTransactions: true
             };
 
@@ -110,11 +113,13 @@ const getTransaction = async(hash) => {
 
 const buildTransaction = function(txn, account) {
     const quantity = helperSvc.bigNumberToDecimal(txn.amount, 30);
+    const total = helperSvc.commaBigNumber(quantity.toString());
+    const cleanedTotal = helperSvc.decimalCleanup(total);
 
     const transaction = {
         hash: txn.hash,
         block: 0,
-        quantity: quantity,
+        quantity: cleanedTotal,
         symbol: "NANO",
         confirmations: -1,
         date: helperSvc.unixToUTC(txn.timestamp),
@@ -127,11 +132,13 @@ const buildTransaction = function(txn, account) {
 
 const buildTransactionII = function(txn) {
     const quantity = helperSvc.bigNumberToDecimal(txn.amount, 30);
+    const total = helperSvc.commaBigNumber(quantity.toString());
+    const cleanedTotal = helperSvc.decimalCleanup(total);
 
     const transaction = {
         hash: txn.hash,
         block: 0,
-        quantity: quantity,
+        quantity: cleanedTotal,
         symbol: "NANO",
         confirmations: -1,
         date: helperSvc.unixToUTC(txn.timestamp),

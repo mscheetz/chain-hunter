@@ -55,7 +55,7 @@ const getAddress = async(addressToFind) => {
         } else {
             const datas = response.data.content[0];
             const total = helperSvc.commaBigNumber(datas.balance.toString());
-            let cleanedTotal = helperSvc.decimalCleanup(total);
+            const cleanedTotal = helperSvc.decimalCleanup(total);
             const address = {
                 address: datas.address,
                 quantity: cleanedTotal,

@@ -429,7 +429,6 @@ module.exports = {
     unixToUTC,
     decimalCleanup,
     iconExists,
-    validChains,
     searchType
 }
 

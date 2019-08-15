@@ -65,9 +65,11 @@ const getAddress = async(addressToFind) => {
             if(allZeros === datas.length) {
                 return null;
             }
+            const total = helperSvc.commaBigNumber(quantity.toString());
+
             const address = {
                 address: addressToFind,
-                quantity: quantity,
+                quantity: total,
                 hasTransactions: true
             };
 
@@ -90,10 +92,11 @@ const getContract = async(address) => {
             const datas = response.data.result;
             let symbol = datas.ont_sum === "0" ? "ONG" : "ONT";
             let quantity = datas.ont_sum === "0" ? parseFloat(datas.ong_sum) : parseFloat(datas.ont_sum);
+            const total = helperSvc.commaBigNumber(quantity.toString());
 
             const contract = {
                 address: datas.contract_hash,
-                quantity: quantity,
+                quantity: total,
                 symbol: symbol,
                 creator: datas.creator,
                 contractName: datas.name
@@ -236,13 +239,14 @@ const buildTransaction = function(txn, latestBlock) {
             to = xfer.to_address;
         }
     });
+    const total = helperSvc.commaBigNumber(quantity.toString());
 
     const transaction = {
         hash: txn.tx_hash,
         block: txn.block_height,
         latestBlock: latestBlock,
         confirmations: latestBlock - txn.block_height,
-        quantity: quantity,
+        quantity: total,
         symbol: symbol,
         date: helperSvc.unixToUTC(parseInt(ts)),
         from: from,
@@ -268,12 +272,14 @@ const buildTransactionII = function(txn, latestBlock) {
             to = xfer.to_address;
         }
     });
+    const total = helperSvc.commaBigNumber(quantity.toString());
+
     const transaction = {
         hash: txn.tx_hash,
         block: txn.block_height,
         latestBlock: latestBlock,
         confirmations: latestBlock - txn.block_height,
-        quantity: quantity,
+        quantity: total,
         symbol: symbol,
         date: helperSvc.unixToUTC(parseInt(ts)),
         from: from,

@@ -46,10 +46,11 @@ const getAddress = async(addressToFind) => {
         const response = await axios.get(url);
         if(typeof response.data.Right !== "undefined") {
             const datas = response.data.Right;
-            let quantity = parseInt(datas.caBalance.getCoin)/1000000;
+            const quantity = parseInt(datas.caBalance.getCoin)/1000000;
+            const balance = helperSvc.commaBigNumber(quantity.toString());
             let address = {
                 address: datas.caAddress,
-                quantity: quantity,
+                quantity: balance,
                 hasTransactions: true
             };
             const txns = datas.caTxList.slice(0, 10);
@@ -96,15 +97,22 @@ const buildTransaction = function(txn) {
     let from = [];
     let to = [];
     txn.ctbInputs.forEach(input => {
-        from.push(input[0]);
+        if(from.length === 0 || from.indexOf(input[0]) < 0) {
+            from.push(input[0]);
+        }
     })
     txn.ctbOutputs.forEach(output => {
-        to.push(output[0]);
+        if(to.length === 0 || to.indexOf(output[0]) < 0) {
+            to.push(output[0]);
+        }
     })
+
+    const quantity = txn.ctbOutputSum.getCoin/1000000;
+    const total = helperSvc.commaBigNumber(quantity.toString());
 
     let transaction = {
         hash: txn.ctbId,
-        quantity: txn.ctbOutputSum.getCoin/1000000 ,
+        quantity: total,
         symbol: "ADA",
         date: helperSvc.unixToUTC(txn.ctbTimeIssued),
         from: from.join(", "),
@@ -119,18 +127,24 @@ const buildTransactionII = function(txn) {
     let from = [];
     let to = [];
     txn.ctsInputs.forEach(input => {
-        from.push(input[0]);
+        if(from.length === 0 || from.indexOf(input[0]) < 0) {
+            from.push(input[0]);
+        }
     })
     txn.ctsOutputs.forEach(output => {
-        to.push(output[0]);
+        if(to.length === 0 || to.indexOf(output[0]) < 0) {
+            to.push(output[0]);
+        }
     })
 
     let block = txn.ctsBlockEpoch + "." + txn.ctsBlockSlot;
+    const quantity = txn.ctsTotalOutput.getCoin/1000000;
+    const total = helperSvc.commaBigNumber(quantity.toString());
 
     let transaction = {
         hash: txn.ctsId,
         block: parseFloat(block),
-        quantity: txn.ctsTotalOutput.getCoin/1000000 ,
+        quantity: total,
         symbol: "ADA",
         date: helperSvc.unixToUTC(txn.ctsTxTimeIssued),
         from: from.join(", "),

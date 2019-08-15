@@ -4,7 +4,7 @@
         <h3>{{blockchain.symbol}} Address: {{blockchain.address.address}}</h3>
         <div class="m-bottom-1">Balance: {{blockchain.address.quantity}} {{blockchain.symbol}}</div>
         <p-accordion 
-                *ngIf="blockchain.address.hasTransactions || blockchain.address.hasTokens" 
+                *ngIf="blockchain.address.hasTransactions || blockchain.hasTokens" 
                 (onOpen)="onTxnsOpen($event)">
             <!-- Address Transactions -->
             <p-accordionTab 

@@ -4,7 +4,7 @@ const manager = require('../services/chainhunter-manager');
 const encryptionSvc = require('../services/encryption.js');
 const path = require('path');
 const config = require('../config');
-const db = require('../services/dataRepo');
+//const db = require('../services/dataRepo');
 
 const asyncMiddleware = fn =>
   (req, res, next) => {

@@ -5,8 +5,7 @@ export class Transaction{
     from: string;
     to: string;
     symbol: string;
-    icon: string;
-    quantity: string;
+    quantity: number;
     date: string;
     confirmations: number;
     block: number;

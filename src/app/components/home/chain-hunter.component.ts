@@ -72,7 +72,7 @@ export class ChainHunterComponent implements OnInit {
                 this.futureChains = chains;
                 chains.forEach(chain => {
                     const iconClass = `class="chain-logo-pad"`;
-                    const iconSrc = `src="assets/cryptoicons/color/${chain.symbol.toLowerCase()}.svg"`;
+                    const iconSrc = `src="assets/cryptoicons/color/${chain.symbol.toLowerCase()}.png"`;
                     const iconName = `title="${chain.name}"`;
                     const icon = `<img ${iconClass} ${iconSrc} ${iconName} />`;
                     this.comingSoon += icon;

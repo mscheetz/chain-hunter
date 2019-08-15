@@ -45,9 +45,11 @@ const getAddress = async(addressToFind) => {
     try{
         const response = await axios.get(url);
         const datas = response.data;
+        const quantity = datas.balance/1000000000000000000;
+        const total = helperSvc.commaBigNumber(quantity.toString());
         const address = {
             address: datas.id,
-            quantity: datas.balance/1000000000000000000,
+            quantity: total,
             hasTransactions: true
         };
 
@@ -142,13 +144,15 @@ const buildTransaction = function(txn, hash, latestBlock, blockTime) {
     } else if(blockTime > 0){
         ts = blockTime.toString().substr(0,10);
     }
+    const quantity = txn.tx.amount/1000000000000000000;
+    const total = helperSvc.commaBigNumber(quantity.toString());
 
     let transaction = {
         hash: hash === "" ? txn.hash : hash,
         block: txn.block_height,
         latestBlock: latestBlock,
         confirmations: latestBlock - txn.block_height,
-        quantity: txn.tx.amount/1000000000000000000,
+        quantity: total,
         symbol: "AE",
         date: helperSvc.unixToUTC(ts),
         from: txn.tx.sender_id,

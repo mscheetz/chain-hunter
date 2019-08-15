@@ -46,9 +46,12 @@ const getAddress = async(addressToFind) => {
         const response = await axios.get(url);
         if(response.data !== null) {
             const datas = response.data;
+            const quantity = datas.final_balance/100000000;
+            const total = helperSvc.commaBigNumber(quantity.toString());
+
             let address = {
                 address: datas.address,
-                quantity: datas.final_balance/100000000,
+                quantity: total,
                 hasTransactions: true
             };
             const latestblock = await getLatestBlock();
@@ -141,40 +144,25 @@ const buildTransaction = function(txn, latestblock) {
     let quantity = 0;
     txn.inputs.forEach(input => {
         if(typeof input.prev_out !== "undefined") {
-            from.push(input.prev_out.addr);
+            if(from.length === 0 || from.indexOf(input.prev_out.addr) < 0){
+                from.push(input.prev_out.addr);
+            }
         }
     });
     txn.out.forEach(output => {
-        to.push(output.addr);
+        if(to.length === 0 || to.indexOf(output.addr) < 0){
+            to.push(output.addr);
+        }
         quantity += output.value;
     });
     const confirmations = latestblock > 0 ? latestblock - txn.block_height : null;
-    // if(txn.is_coinbase) {
-    //     from.push("Coinbase");
-    // } else {
-    //     txn.inputs.forEach(input => {
-    //         from.push(input.prev_out.addr);
-    //     })
-    //     for(let i = 0; i < txn.inputs.length; i++) {
-    //         txn.inputs[i].prev_addresses.forEach(address => {
-    //             if(address && from.indexOf(address) <= -1) {
-    //                 from.push(address);
-    //             }
-    //         })
-    //     }
-    // }
-    // for(let i = 0; i < txn.outputs.length; i++) {
-    //     txn.outputs[i].addresses.forEach(address => {
-    //         if(address && to.indexOf(address) <= -1) {
-    //             to.push(address);
-    //         }
-    //     })
-    // }
+    const newQuantity = quantity/100000000;
+    const total = helperSvc.commaBigNumber(newQuantity.toString());
     
     const transaction = {
         hash: txn.hash,
         block: txn.block_height,
-        quantity: quantity/100000000,
+        quantity: total,
         symbol: "BTC",
         confirmations: confirmations,
         date: helperSvc.unixToUTC(txn.time),

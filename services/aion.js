@@ -1,6 +1,7 @@
 const axios = require('axios');
 const helperSvc = require('./helperService.js');
 const base = "https://mainnet-api.aion.network/aion/dashboard";
+const enums = require('../classes/enums');
 const delay = time => new Promise(res=>setTimeout(res,time));
 
 const getEmptyBlockchain = async() => {
@@ -17,16 +18,25 @@ const getEmptyBlockchain = async() => {
 const getBlockchain = async(toFind) => {
     const chain = await getEmptyBlockchain();
 
-    const address = await getAddress(toFind);
-    chain.address = address;
-    chain.transaction = null;
-    chain.contract = null;
-    if(address === null) {
-        const transaction = await getTransaction(toFind);
-        chain.transaction = transaction;
+    let address = null;
+    let transaction = null;
+    let contract = null;
+    
+    const searchType = helperSvc.searchType(chain.symbol.toLowerCase(), toFind);
+
+    if(searchType & enums.searchType.address) {
+        address = await getAddress(toFind);
     }
-    const contract = await getContract(toFind);
+    if((searchType & enums.searchType.transaction) && address === null) {
+        transaction = await getTransaction(toFind);
+    }
+    if((searchType & enums.searchType.contract) && transaction === null) {
+        contract = await getContract(toFind);
+    }
+    chain.address = address;
+    chain.transaction = transaction;
     chain.contract = contract;
+    
     if(chain.address || chain.transaction || chain.contract) {
         chain.icon = "color/"+ chain.symbol.toLowerCase()  +".png";
     }
@@ -44,9 +54,11 @@ const getAddress = async(addressToFind) => {
             return null;
         } else {
             const datas = response.data.content[0];
+            const total = helperSvc.commaBigNumber(datas.balance.toString());
+            const cleanedTotal = helperSvc.decimalCleanup(total);
             const address = {
                 address: datas.address,
-                quantity: datas.balance,
+                quantity: cleanedTotal,
                 hasTransactions: true
             };
 
@@ -67,9 +79,11 @@ const getContract = async(address) => {
             return null;
         } else {
             const datas = response.data.content[0];
+            const total = helperSvc.commaBigNumber(datas.balance.toString());
+            const cleanedTotal = helperSvc.decimalCleanup(total);
             const contract = {
                 address: datas.contractAddr,
-                quantity: datas.balance,
+                quantity: cleanedTotal,
                 symbol: "AION",
                 creator: datas.contractCreatorAddr,
                 contractName: datas.contractName
@@ -171,8 +185,10 @@ const getToken = async(address, contract) => {
     try{
         const response = await axios.get(url);
         const data = response.data.content[0];
+        const total = helperSvc.commaBigNumber(datas.balance.toString());
+        const cleanedTotal = helperSvc.decimalCleanup(total);
         let asset = {
-            quantity: helperSvc.commaBigNumber(data.balance.toString()),
+            quantity: cleanedTotal,
             symbol: aionAddress.tokenSymbol
         };
 
@@ -198,13 +214,15 @@ const getLatestBlock = async() => {
 
 const buildTransaction = function(txn, latestBlock) {
     const ts = txn.transactionTimestamp.toString().substr(0, 10);
+    const total = helperSvc.commaBigNumber(txn.value.toString());
+    const cleanedTotal = helperSvc.decimalCleanup(total);
 
     const transaction = {
         hash: "0x" + txn.transactionHash,
         block: txn.blockNumber,
         latestBlock: latestBlock,
         confirmations: latestBlock - txn.blockNumber,
-        quantity: txn.value,
+        quantity: cleanedTotal,
         symbol: "AION",
         date: helperSvc.unixToUTC(parseInt(ts)),
         from: txn.fromAddr,

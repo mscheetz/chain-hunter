@@ -39,9 +39,11 @@ const getAddress = async(addressToFind) => {
         const response = await axios.get(url);
         if(response.data !== null) {
             const datas = response.data;
+            const total = helperSvc.commaBigNumber(datas.balance.toString());
+
             const address = {
                 address: datas.addrStr,
-                quantity: datas.balance,
+                quantity: total,
                 hasTransactions: true
             };
 
@@ -112,12 +114,13 @@ const buildTransaction = function(txn) {
                 }
             }
         });
+        const total = helperSvc.commaBigNumber(txn.valueOut.toString());
 
         let transaction = {};
         transaction.hash = txn.txid;
         transaction.block = txn.blockheight;
         transaction.symbol = "LTC";
-        transaction.quantity = txn.valueOut;
+        transaction.quantity = total;
         transaction.confirmations = txn.confirmations;
         transaction.date = helperSvc.unixToUTC(txn.time);
         transaction.from = from.join(", ");

@@ -66,9 +66,11 @@ const getAddress = async(addressToFind) => {
                 dels += delAmount;
             })
             balance += dels;
+            const total = helperSvc.commaBigNumber(balance.toString());
+
             let address = {
                 address: addressToFind,
-                quantity: balance,
+                quantity: total,
                 hasTransactions: false
             };
 
@@ -136,10 +138,11 @@ const buildSendTransaction = function(txn) {
             }
         })
     })
+    const total = helperSvc.commaBigNumber(quantity.toString());
 
     let transaction = {
         hash: txn.txhash,
-        quantity: quantity,
+        quantity: total,
         block: txn.height,
         //confirmations: txn.confirmations,
         symbol: "ATOM",
@@ -174,10 +177,11 @@ const buildRewardTransaction = function(txn) {
             }
         }
     })
+    const total = helperSvc.commaBigNumber(quantity.toString());
 
     let transaction = {
         hash: txn.txhash,
-        quantity: quantity,
+        quantity: total,
         block: txn.height,
         //confirmations: txn.confirmations,
         symbol: "ATOM",

@@ -183,6 +183,11 @@ const getChains = function() {
             status: 'Future'
         },
         {
+            name: 'Waltonchain',
+            symbol: 'WTC',
+            status: 'Future'
+        },
+        {
             name: 'Wanchain',
             symbol: 'WAN',
             status: 'Future'

@@ -37,10 +37,13 @@ const getAddress = async(addressToFind) => {
 
     try{
         const response = await axios.get(url);
+        const quantity = response.data.balance;
+        const total = helperSvc.commaBigNumber(quantity.toString());
+
         if(response.data) {
             const address = {
                 address: response.data.addrStr,
-                quantity: response.data.balance/100000000,
+                quantity: total,
                 hasTransactions: true
             };
 
@@ -124,15 +127,18 @@ const buildTransaction = function(txn) {
                 }
             });
         }
-        let transaction = {};
-        transaction.hash = txn.txid;
-        transaction.block = txn.blockheight;
-        transaction.quantity = quantity;
-        transaction.symbol = "RVN";
-        transaction.confirmations = txn.confirmations;
-        transaction.date = helperSvc.unixToUTC(txn.blocktime);
-        transaction.from = from.join(", ");
-        transaction.to = to.join(", ");
+        const total = helperSvc.commaBigNumber(quantity.toString());
+
+        let transaction = {
+            hash: txn.txid,
+            block: txn.blockheight,
+            quantity: total,
+            symbol: "RVN",
+            confirmations: txn.confirmations,
+            date: helperSvc.unixToUTC(txn.blocktime),
+            from: from.join(", "),
+            to: to.join(", "),
+        }
         return transaction;
     }
 

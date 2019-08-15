@@ -49,10 +49,11 @@ const getAddress = async(addressToFind) => {
     try{
         const response = await axios.get(url);
         const datas = response.data.data;
+        const total = helperSvc.commaBigNumber(datas.balance.toString());
 
         const address = {
             address: addressToFind,
-            quantity: datas.balance,
+            quantity: total,
             hasTransactions: true
         };
 
@@ -204,13 +205,15 @@ const buildTransaction = function(txn, latestBlock) {
     const block = parseInt(txn.block);
     const confirmations = latestBlock - block;
     const datas = JSON.parse(txn.data);
+    const quantity = parseFloat(datas[3]);
+    const total = helperSvc.commaBigNumber(quantity.toString());
 
     const transaction = {
         hash: txn.tx_hash,
         block: block,
         latestBlock: latestBlock,
         confirmations: confirmations,
-        quantity: parseFloat(datas[3]),
+        quantity: total,
         symbol: datas[0].toUpperCase(),
         date: txn.created_at,
         from: txn.from,
@@ -225,13 +228,15 @@ const buildTransactionII = function(txn, latestBlock) {
     const confirmations = latestBlock - block;
     const ts = txn.transaction.time.toString().substr(0, 10);
     const datas = JSON.parse(txn.transaction.actions[0].data);
+    const quantity = parseFloat(datas[3]);
+    const total = helperSvc.commaBigNumber(quantity.toString());
 
     const transaction = {
         hash: txn.transaction.hash,
         block: block,
         latestBlock: latestBlock,
         confirmations: confirmations,
-        quantity: parseFloat(datas[3]),
+        quantity: total,
         symbol: datas[0].toUpperCase(),
         date: helperSvc.unixToUTC(parseInt(ts)),
         from: datas[1],

@@ -1,7 +1,7 @@
 const axios = require('axios');
 const helperSvc = require('./helperService.js');
 const base = "https://tracker.icon.foundation/v3";
-const delay = time => new Promise(res=>setTimeout(res,time));
+const enums = require('../classes/enums');
 
 const getEmptyBlockchain = async() => {
     const chain = {};
@@ -17,16 +17,25 @@ const getEmptyBlockchain = async() => {
 const getBlockchain = async(toFind) => {
     const chain = await getEmptyBlockchain();
 
-    const address = await getAddress(toFind);
-    chain.address = address;
-    chain.transaction = null;
-    chain.contract = null;
-    if(address === null) {
-        const transaction = await getTransaction(toFind);
-        chain.transaction = transaction;
+    let address = null; 
+    let transaction = null;
+    let contract = null;
+
+    const searchType = helperSvc.searchType(chain.symbol.toLowerCase(), toFind);
+
+    if(searchType & enums.searchType.address) {
+        address = await getAddress(toFind);
     }
-     const contract = await getContract(toFind);
-     chain.contract = contract;
+    if(searchType & enums.searchType.transaction && address === null && toFind.substr(0, 2) === "0x") {
+        transaction = await getTransaction(toFind);
+    }
+    if(searchType & enums.searchType.contract) {
+        contract = await getContract(toFind);
+    }
+    chain.address = address;
+    chain.transaction = transaction;
+    chain.contract = contract;
+
     if(chain.address || chain.transaction || chain.contract) {
         chain.icon = "color/"+ chain.symbol.toLowerCase()  +".png";
     }
@@ -44,9 +53,10 @@ const getAddress = async(addressToFind) => {
             return null;
         } else {
             const datas = response.data.data;
+            const total = helperSvc.commaBigNumber(datas.balance.toString());
             const address = {
                 address: datas.address,
-                quantity: datas.balance,
+                quantity: total,
                 tokens: tokenConvert(datas.tokenList),
                 hasTransactions: true
             };
@@ -62,8 +72,10 @@ const tokenConvert = async(tokens) => {
     let assets = [];
 
     tokens.forEach(token => {
+        const quantity = parseFloat(token.quantity);
+        const total = helperSvc.commaBigNumber(quantity.toString());
         const asset = {
-            quantity: parseFloat(token.quantity),
+            quantity: total,
             symbol: token.contractSymbol
         }
 
@@ -83,10 +95,11 @@ const getContract = async(address) => {
             return null;
         } else {
             const datas = response.data.data;
+            const total = helperSvc.commaBigNumber(datas.balance.toString());
             const contract = {
                 address: datas.address,
-                quantity: null,
-                symbol: datas.symbol,
+                quantity: total,
+                symbol: "ICX",
                 creator: datas.creator,
                 contractName: datas.tokenName
             };
@@ -106,9 +119,9 @@ const getTransactions = async(address) => {
         addressTransactions.forEach(txn => {
             if(txn.symbol === "CALL") {
                 const tokenTxn = tokenTransactions.find(t => t.hash === txn.hash);
-
+                const total = helperSvc.commaBigNumber(tokenTxn.quantity.toString());
                 if(tokenTxn !== null) {
-                    txn.quantity = tokenTxn.quantity;
+                    txn.quantity = total;
                     txn.symbol = tokenTxn.symbol;
                 }
             }
@@ -200,12 +213,15 @@ const getLatestBlock = async() => {
 }
 
 const buildTransaction = function(txn, latestBlock) {
+    const quantity = parseFloat(txn.amount);
+    const total = helperSvc.commaBigNumber(quantity.toString());
+
     const transaction = {
         hash: txn.txHash,
         block: txn.height,
         latestBlock: latestBlock,
         confirmations: latestBlock - txn.height,
-        quantity: parseFloat(txn.amount),
+        quantity: total,
         symbol: txn.dataType.toUpperCase(),
         date: txn.createDate,
         from: txn.fromAddr,
@@ -216,9 +232,12 @@ const buildTransaction = function(txn, latestBlock) {
 }
 
 const buildTokenTransaction = function(txn) {
+    const quantity = parseFloat(txn.quantity);
+    const total = helperSvc.commaBigNumber(quantity.toString());
+
     const transaction = {
         hash: txn.txHash,
-        quantity: parseFloat(txn.quantity),
+        quantity: total,
         symbol: txn.contractSymbol,
         date: txn.createDate,
         from: txn.fromAddr,
@@ -245,12 +264,13 @@ const buildTransactionII = function(txn) {
         from = txn.fromAddr;
         to = txn.toAddr;
     }
+    const total = helperSvc.commaBigNumber(quantity.toString());
 
     const transaction = {
         hash: txn.txHash,
         block: txn.height,
         confirmations: txn.confirmation,
-        quantity: quantity,
+        quantity: total,
         symbol: symbol.toUpperCase(),
         date: txn.createDate,
         from: from,

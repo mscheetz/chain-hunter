@@ -45,10 +45,11 @@ const getAddress = async(addressToFind) => {
                 qty = +balance.free + +balance.frozen + +balance.locked;
             }
         })
+        const total = helperSvc.commaBigNumber(qty.toString());
 
         const address = {
             address: datas.address,
-            quantity: qty,
+            quantity: total,
             hasTransactions: true
             //tokens: tokenConvert(datas.balances)
         };
@@ -83,12 +84,13 @@ const getTransactions = async(address) => {
         const datas = response.data.txArray;
         const transactions = [];
         if(datas !== null && datas.length > 0) {
-            datas.forEach(data => {                
+            datas.forEach(data => {     
+                const total = helperSvc.commaBigNumber(data.value.toString());           
                 transactions.push({
                     hash: data.txHash,
                     block: data.blockHeight,
                     symbol: data.txAsset,
-                    quantity: data.value,
+                    quantity: total,
                     confirmations: -1,
                     date: helperSvc.unixToUTC(data.timeStamp),
                     from: data.fromAddr,
@@ -129,11 +131,13 @@ const getTransaction = async(hash) => {
                     to.push(output.address);
                 }
             });
+            const newQuantity = quantity/100000000;
+            const total = helperSvc.commaBigNumber(newQuantity.toString());
             transaction = {
                 hash: datas.hash,
                 block: parseInt(datas.height),
                 symbol: symbol,
-                quantity: quantity/100000000,
+                quantity: total,
                 from: from.join(", "),
                 to: to.join(", ")
             }

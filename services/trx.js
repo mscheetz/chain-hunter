@@ -45,9 +45,12 @@ const getAddress = async(addressToFind) => {
         if(Object.keys(datas).length === 0 && datas.constructor === Object) {
             return null;
         } else {
+            const quantity = datas.balance/100000000;
+            const total = helperSvc.commaBigNumber(quantity.toString());
+
             const address = {
                 address: datas.address,
-                quantity: datas.balance/100000000,
+                quantity: total,
                 hasTransactions: true
             };
             return address;
@@ -65,9 +68,12 @@ const getContract = async(address) => {
         const response = await axios.get(url);
         if(response.data && response.data.address !== "") {
             const datas = response.address;
+            const quantity = datas.balance/100000000;
+            const total = helperSvc.commaBigNumber(quantity.toString());
+
             const contract = {
                 address: datas.address,
-                quantity: datas.balance/100000000,
+                quantity: total,
                 symbol: "TRX"
             };
             return contract;
@@ -198,10 +204,12 @@ const createAsset = async(token, trx10s = []) => {
         if(trx10s.length > 0) {
             symbol = trx10s[token.name];
         }
-        if(typeof symbol !== 'undefined') {
+        if(typeof symbol !== 'undefined') {            
+            const total = helperSvc.commaBigNumber(token.balance.toString());
+
             asset = {
                 symbol: symbol,
-                quantity: token.balance.toString()
+                quantity: total
             };
         }
     }
@@ -257,10 +265,11 @@ const buildTransaction = function(txn, token) {
     if(token.precision > 0) {
         quantity = quantity / Math.pow(10, token.precision);
     }
+    const total = helperSvc.commaBigNumber(quantity.toString());
     const transaction = {
         hash: txn.hash,
         block: txn.block,
-        quantity: quantity,
+        quantity: total,
         symbol: token.symbol,
         confirmations: -1,
         date: helperSvc.unixToUTC(txn.timestamp),

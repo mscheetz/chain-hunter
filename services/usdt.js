@@ -48,10 +48,13 @@ const getAddress = async(addressToFind) => {
             }
         });
         let address = {};
-        if(quantity > 0){
+        if(quantity > 0) {
+            const total = helperSvc.commaBigNumber(quantity.toString());
+            const cleanedTotal = helperSvc.decimalCleanup(total);
+
             address = {
                 address: addressToFind,
-                quantity: quantity,
+                quantity: cleanedTotal,
                 hasTransactions: true
             };
             address.transactions = getTransactions(txns);
@@ -99,11 +102,14 @@ const getTransaction = async(hash) => {
     }
 }
 
-const buildTransaction = function(txn) {
+const buildTransaction = function(txn) {    
+    const total = helperSvc.commaBigNumber(txn.amount.toString());
+    const cleanedTotal = helperSvc.decimalCleanup(total);
+
     const transaction = {
         hash: txn.txid,
         block: txn.block,
-        quantity: txn.amount,
+        quantity: cleanedTotal,
         symbol: "USDT",
         confirmations: txn.confirmations,
         date: helperSvc.unixToUTC(txn.blocktime),

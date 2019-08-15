@@ -47,9 +47,12 @@ const getAddress = async(addressToFind) => {
         const response = await axios.get(url);
         if(response.data.err_no === 0 && response.data.data !== null) {
             const datas = response.data.data;
+            const quantity = datas.balance/100000000;
+            const total = helperSvc.commaBigNumber(quantity.toString());
+
             const address = {
                 address: datas.address,
-                quantity: datas.balance/100000000,
+                quantity: total,
                 hasTransactions: true
             };
 
@@ -126,11 +129,13 @@ const buildTransaction = function(txn) {
             }
         })
     }
+    const quantity = txn.outputs_value/100000000;
+    const total = helperSvc.commaBigNumber(quantity.toString());
 
     const transaction = {
         hash: txn.hash,
         block: txn.block_height,
-        quantity: txn.outputs_value/100000000,
+        quantity: total,
         symbol: "BCH",
         confirmations: txn.confirmations,
         date: helperSvc.unixToUTC(txn.created_at),

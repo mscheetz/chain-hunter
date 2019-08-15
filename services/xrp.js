@@ -46,9 +46,12 @@ const getAddress = async(addressToFind) => {
     try{
         const response = await axios.get(url);
         if(response.data) {
+            const quantity = parseFloat(response.data.xrpBalance);
+            const total = helperSvc.commaBigNumber(quantity.toString());
+
             const address = {
                 address: response.data.account,
-                quantity: parseFloat(response.data.xrpBalance),
+                quantity: total,
                 hasTransactions: true
             };
 
@@ -71,11 +74,14 @@ const getTransactions = async(address) => {
         const transactions = [];
         if(datas.length > 0) {
             datas.forEach(data => {
+                const quantity = parseInt(data.delivered_amount);
+                const total = helperSvc.commaBigNumber(quantity.toString());
+
                 transactions.push({
                     hash: data.tx_hash,
                     block: data.ledger_index,
                     symbol: "XRP",
-                    quantity: parseInt(data.delivered_amount),
+                    quantity: total,
                     date: data.executed_time,
                     from: data.source,
                     to: data.destination
@@ -97,11 +103,13 @@ const getTransaction = async(hash) => {
         const response = await axios.get(url);
         if(response.data) {
             const data = response.data;
+            const total = helperSvc.commaBigNumber(data.Amount.value.toString());
+
             const transaction = {
                 hash: data.hash,
                 block: data.ledger_index,
                 symbol: data.Amount.currency,
-                quantity: data.Amount.value,
+                quantity: total,
                 date: data.date,
                 from: data.Account,
                 to: data.Destination

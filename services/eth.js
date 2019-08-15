@@ -64,9 +64,10 @@ const getAddress = async(addressToFind) => {
                 const balInt = parseInt(balanceFull);
                 quantity = balInt / Math.pow(10, 18);
             }
+            const total = helperSvc.commaBigNumber(quantity.toString());
             let address = {
                 address: addressToFind,
-                quantity: quantity,
+                quantity: total,
                 hasTransactions: true
             };
 
@@ -192,12 +193,6 @@ const getTransactions = async(address) => {
             transactions.push(txn);
         })
     }
-    // const tokens = await getAddressTokenTransactions(address);
-    // if(tokens.length > 0) {
-    //     tokens.forEach(txn => {
-    //         transactions.push(txn);
-    //     })
-    // }
 
     return transactions;
 }
@@ -272,10 +267,12 @@ const buildTransaction = function(txn) {
     const txnQty = txn.hasOwnProperty('value') ? txn.value : txn.value/precision;
     const quantity = parseInt(txnQty) / Math.pow(10,10);
 
+    const total = helperSvc.commaBigNumber(quantity.toString());
+
     const transaction = {
         hash: txn.hash,
         block: blockNumber,
-        quantity: quantity,
+        quantity: total,
         symbol: symbol,
         confirmations: confirmations,
         date: helperSvc.unixToUTC(txn.timeStamp),

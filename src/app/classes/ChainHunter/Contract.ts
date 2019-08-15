@@ -2,7 +2,7 @@ export class Contract {
     constructor() {}
 
     address: string;
-    quantity: number;
+    quantity: string;
     symbol: string;
     creator: string;
     contractName: string;

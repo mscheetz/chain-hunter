@@ -5,7 +5,7 @@ export class Address {
     constructor() {} 
 
     address: string;
-    quantity: number;
+    quantity: string;
     transactions: Transaction[];
     tokens: Asset[];
     hasTransactions: boolean = true;

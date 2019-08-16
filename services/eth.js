@@ -10,7 +10,7 @@ const getEmptyBlockchain = async() => {
     const chain = {};
     chain.name = 'Ethereum';
     chain.symbol = 'ETH';
-    chain.hasTokens = false;
+    chain.hasTokens = true;
     chain.hasContracts = true;
     chain.contract = null;
     chain.icon = "white/"+ chain.symbol.toLowerCase()  +".png";
@@ -117,7 +117,7 @@ const createTokens = function(datas) {
             if(qty.toLowerCase().indexOf("e+") >= 0) {
                 qty = helperSvc.exponentialToNumber(qty);
             }
-            qty = parseFloat(qty)/100000000;
+            qty = parseFloat(qty)/1000000000000000000;
             qty = helperSvc.commaBigNumber(qty.toString());
             token.quantity = qty;
         }

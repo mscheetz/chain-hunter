@@ -2,6 +2,7 @@ const axios = require('axios');
 const helperSvc = require('./helperService.js');
 const apiKey = "67de405a0cb8a9e2fe5e33000cf9a88a";
 const base = "https://api.iostabc.com/api/?apikey=" + apiKey;
+const enums = require('../classes/enums');
 const delay = time => new Promise(res=>setTimeout(res,time));
 
 const getEmptyBlockchain = async() => {
@@ -18,20 +19,22 @@ const getEmptyBlockchain = async() => {
 
 const getBlockchain = async(toFind) => {
     const chain = await getEmptyBlockchain();
-
     let address = null;
     let transaction = null;
     let contract = null;
-    if(toFind.substr(0, 8) === "Contract"){
-        contract = await getContract(toFind);
-    } else {
-        address = await getAddress(toFind);
-        if(address === null) {
-            await delay(1000);
-            transaction = await getTransaction(toFind);
-        }
-    }
 
+    const searchType = helperSvc.searchType(chain.symbol.toLowerCase(), toFind);
+
+    if(searchType & enums.searchType.address) {
+        address = await getAddress(toFind);
+    }
+    if(searchType & enums.searchType.transaction) {
+        transaction = await getTransaction(toFind);
+    }
+    if(searchType & enums.searchType.contract) {
+        contract = await getContract(toFind);
+    }
+    
     chain.address = address;
     chain.transaction = transaction;
     chain.contract = contract;

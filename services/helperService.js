@@ -225,7 +225,7 @@ const searchType = function(chain, toFind) {
         }
     }
     if((toFind.substr(0, 1) === "1" || toFind.substr(0, 1) === "3" || toFind.substr(0, 3) === "bc1")
-                && (27 <= toFind.length <= 34)) {
+                && (toFind.length >= 27 && toFind.length <= 34)) {
         if(chain === "btc" || chain === "bch" || chain === "usdt" || chain == "ltc") {
             return enums.searchType.address;
         } else if(chain === "iost" || chain === "nano") {

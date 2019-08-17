@@ -277,3 +277,8 @@ body .ui-accordion .ui-accordion-header:not(.ui-state-disabled).ui-state-active:
     width: 120px;
     height: 600px;
 }
+
+.token-format {
+    border: 1px solid rgb(200, 200, 200);
+    border-radius: 15px;
+}

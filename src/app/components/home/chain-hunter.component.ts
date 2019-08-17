@@ -8,6 +8,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { CookieData } from 'src/app/classes/ChainHunter/CookieData';
 import { CookieService } from 'ngx-cookie-service';
 import { CookieRequest } from 'src/app/classes/ChainHunter/CookieRequest';
+import { Asset } from 'src/app/classes/ChainHunter/Asset';
 
 @Component({
     selector: 'chain-hunter',
@@ -41,6 +42,7 @@ export class ChainHunterComponent implements OnInit {
     unlimitedCookie: string = "tch-cookie-unlimited";
     searchLimit: boolean = false;
     unlimited: boolean = false;
+    @Output() tokenContent: string;
 
     constructor(private helperService: HelperService,
                 private chainService: ChainHunterService,
@@ -196,7 +198,49 @@ export class ChainHunterComponent implements OnInit {
         this.chainService.getAddressTokens(symbol, chain.address.address)
             .subscribe(tokens => {
                 chain.address.tokens = tokens;
+                this.buildTokens();
             });
+    }
+
+    buildTokens() {
+        let i = 1;
+        this.tokenContent = ``;
+        this.blockchain.address.tokens.forEach(token => {            
+            this.tokenContent += `<div class="p-col-12 p-md-6 p-lg-4"><div class="box token-format">` + this.getTokenInfo(token) + `</div></div>`;
+            if(i === 3) {
+                i = 1;
+            } else {
+                i++;
+            }
+        });
+
+        while(i < 3) {
+            i++;
+            this.tokenContent += `<div class="p-col-12 p-md-6 p-lg-4"></div>`;
+        }
+    }
+
+    getTokenInfo(token: Asset): string {
+        let info = ``;
+        if(token.name !== null) {
+            info += `<p>Name: ` + token.name + `</p>`;
+        }
+        if(token.symbol !== null || token.hasIcon) {
+            info += `<p>`;
+            if(token.symbol !== null) {
+                info += `Symbol: ` + token.symbol;
+            }
+            if(token.hasIcon) {
+                if(token.symbol !== null) {
+                    info += `&nbsp;&nbsp;`;
+                }
+                info += `<img src="/assets/cryptoicons/color/` + token.symbol.toLowerCase() + `.png" />`;
+            }
+            info += `</p>`;
+        }
+        info += `<p>Quantity: ` + token.quantity + `</p>`;        
+
+        return info;        
     }
 
     calculateIcons() {
@@ -262,8 +306,11 @@ export class ChainHunterComponent implements OnInit {
             this.seeItem = false;
             this.selectedChain = "";
             this.activeItem = null;
-        } else {
+        } else {            
             this.blockchain = this.getBlockchain(symbol);
+            if(this.blockchain.hasTokens && this.blockchain.address.tokens.length > 0) {
+                this.buildTokens();
+            }
             this.seeItem = true;
             this.selectedChain = symbol;            
         }

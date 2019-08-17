@@ -3,6 +3,7 @@ const helperSvc = require('./helperService.js');
 const base = "https://api.neoscan.io/api/main_net";
 const contractBase = "http://151.106.3.178/api";
 const enums = require('../classes/enums');
+const _ = require('lodash');
 
 const getEmptyBlockchain = async() => {
     const chain = {};
@@ -42,7 +43,7 @@ const getBlockchain = async(toFind) => {
     chain.address = address;
     chain.transaction = transaction;
     chain.contract = contract;
-    
+
     if(chain.address || chain.transaction || chain.contract) {
         chain.icon = "color/"+ chain.symbol.toLowerCase()  +".png";
     }
@@ -66,12 +67,13 @@ const getAddress = async(addressToFind) => {
             })
             const total = helperSvc.commaBigNumber(qty.toString());
 
-            const address = {
+            let address = {
                 address: datas.address,
                 quantity: total,
-                tokens: tokenConvert(datas.balance),
                 hasTransactions: true
             };
+            
+            address.tokens = await tokenConvert(datas.balance);
 
             return address;
         } else {
@@ -110,15 +112,21 @@ const tokenConvert = async(tokens) => {
     tokens.forEach(token => {
         let quantity = helperSvc.exponentialToNumber(token.amount);
         quantity = quantity.toString();
-        const asset = {
+        let asset = {
+            name: token.asset,
             quantity: helperSvc.commaBigNumber(quantity),
-            symbol: token.asset_symbol
+            symbol: token.asset_symbol,
+            hasIcon: false
         }
+
+        const icon = 'color/' + asset.symbol.toLowerCase() + '.png';
+        const iconStatus = helperSvc.iconExists(icon);
+        asset.hasIcon = iconStatus;
 
         assets.push(asset);
     });
 
-    return assets;
+    return _.sortBy(assets, 'symbol');
 }
 
 const getTransactions = async(address) => {

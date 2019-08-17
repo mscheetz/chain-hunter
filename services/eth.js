@@ -128,8 +128,8 @@ const createTokens = function(datas) {
 
         tokens.push(token);
     }
-
-    return tokens;
+    
+    return _.sortBy(tokens, 'symbol');
 }
 
 const createEthTransaction = function(datas) {

@@ -117,11 +117,18 @@ const createTokens = function(datas) {
             if(qty.toLowerCase().indexOf("e+") >= 0) {
                 qty = helperSvc.exponentialToNumber(qty);
             }
-            qty = parseFloat(qty)/1000000000000000000;
+            qty = helperSvc.bigNumberToDecimal(qty, value.decimals);
             qty = helperSvc.commaBigNumber(qty.toString());
+            qty = helperSvc.decimalCleanup(qty);
             token.quantity = qty;
         }
 
+        if(token.name === "") {
+            token.name = "Un-named token";
+        }
+        if(token.symbol === "") {
+            token.symbol = "No symbol assigned";
+        }
         const icon = 'color/' + value.symbol.toLowerCase() + '.png';
         const iconStatus = helperSvc.iconExists(icon);
         token.hasIcon = iconStatus;
@@ -129,7 +136,7 @@ const createTokens = function(datas) {
         tokens.push(token);
     }
     
-    return _.sortBy(tokens, 'symbol');
+    return _.sortBy(tokens, 'name');
 }
 
 const createEthTransaction = function(datas) {

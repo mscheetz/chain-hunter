@@ -123,10 +123,17 @@ const tokenConvert = async(tokens) => {
         const iconStatus = helperSvc.iconExists(icon);
         asset.hasIcon = iconStatus;
 
+        if(asset.name === "") {
+            asset.name = "Un-named token";
+        }
+        if(asset.symbol === "") {
+            asset.symbol = "No symbol assigned";
+        }
+
         assets.push(asset);
     });
 
-    return _.sortBy(assets, 'symbol');
+    return _.sortBy(assets, 'name');
 }
 
 const getTransactions = async(address) => {

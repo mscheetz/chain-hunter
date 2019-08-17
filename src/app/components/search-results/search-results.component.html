@@ -33,16 +33,9 @@
                 <div *ngIf="blockchain.address.tokens !== undefined && blockchain.address.tokens.length === 0">No tokens
                     found</div>
                 <div *ngIf="!tokensComplete">Fetching tokens...</div>
-                <ul>
-                    <li *ngFor="let asset of blockchain.address.tokens">
-                        <p *ngIf="asset.name">Name: {{asset.name}}</p>
-                        <p *ngIf="asset.symbol">
-                            Symbol: {{asset.symbol}}
-                            <img *ngIf="asset.hasIcon" src="/assets/cryptoicons/color/{{asset.symbol.toLowerCase()}}.png" />
-                        </p>
-                        <p *ngIf="asset.quantity">Quantity: {{asset.quantity}}</p>
-                    </li>
-                </ul>
+                <div *ngIf="blockchain.address.tokens.length > 0" 
+                    [innerHtml]="tokenContent"
+                    class="p-grid"></div>
             </p-accordionTab>
         </p-accordion>
         <div *ngIf="blockchain.source">

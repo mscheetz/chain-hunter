@@ -31,9 +31,15 @@
                     </div>
                 </ng-template>
             </p-tabMenu>
-            <search-results [blockchain]="blockchain" [huntStatus]="huntStatus" [selectedChain]="selectedChain"
-                [transactionsComplete]="txnsComplete" [tokensComplete]="tokensComplete" [resultsFound]="resultsFound"
-                (getTransactions)="getAddressTxns($event)" (getTokens)="getAddressTokens($event)">
+            <search-results [blockchain]="blockchain" 
+                [huntStatus]="huntStatus" 
+                [selectedChain]="selectedChain"
+                [transactionsComplete]="txnsComplete" 
+                [tokensComplete]="tokensComplete" 
+                [resultsFound]="resultsFound"
+                [tokenContent]="tokenContent"
+                (getTransactions)="getAddressTxns($event)" 
+                (getTokens)="getAddressTokens($event)">
             </search-results>
         </div>
         <coming-soon [futureChains]="futureChains">

@@ -175,7 +175,7 @@ const searchType = function(chain, toFind) {
             return enums.searchType.nothing;
         }
     }
-    if(toFind.substr(0,7) === "bitcoincash") {
+    if(toFind.substr(0,11) === "bitcoincash") {
         if(chain === "bch") {
             return enums.searchType.address;
         } else {
@@ -263,9 +263,14 @@ const searchType = function(chain, toFind) {
             return enums.searchType.nothing;
         }
     }
+    if((toFind.substr(0, 1) === "q" || toFind.substr(0, 1)) && toFind.length === 42){
+        if(chain === "bch") {
+            return enums.searchType.address;
+        }
+    }
     if(chain === "btc" || chain === "bch" || chain === "usdt"){
         if((toFind.substr(0, 1) === "1" || toFind.substr(0, 1) === "3" || toFind.substr(0, 3) === "bc1")
-                    && (27 <= toFind.length <= 34)) {
+            && (toFind.length >= 27 && toFind.length <= 34)) {
             return enums.searchType.address;
         } else {
             return enums.searchType.transaction;

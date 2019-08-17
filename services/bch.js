@@ -1,6 +1,7 @@
 const axios = require('axios');
 const helperSvc = require('./helperService.js');
 const base = "https://bch-chain.api.btc.com/v3";
+const convertBase = "https://bch.btc.com/tools"
 const enums = require('../classes/enums');
 const delay = time => new Promise(res=>setTimeout(res,time));
 
@@ -19,9 +20,13 @@ const getBlockchain = async(toFind) => {
     const chain = await getEmptyBlockchain();
     let address = null;
     let transaction = null;
+
     const searchType = helperSvc.searchType(chain.symbol.toLowerCase(), toFind);
 
     if(searchType & enums.searchType.address) {
+        if(toFind.substr(0, 1) === "q" || toFind.substr(0, 1) === "p" || toFind.substr(0, 11) === "bitcoincash") {
+            toFind = await addressConvert(toFind);
+        }
         address = await getAddress(toFind);
     }
     if(searchType & enums.searchType.transaction) {
@@ -36,6 +41,22 @@ const getBlockchain = async(toFind) => {
     }
 
     return chain;
+}
+
+const addressConvert = async(address) => {
+    let endpoint = "/bch-addr-convert?address=" + address;
+    let url = convertBase + endpoint;
+
+    try{
+        const response = await axios.get(url);
+        if(response.data.err_no === 0) {
+            return response.data.data.base58;
+        } else {
+            return null;
+        }
+    } catch(err) {
+        return null;
+    }
 }
 
 const getAddress = async(addressToFind) => {

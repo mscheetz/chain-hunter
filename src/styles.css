@@ -280,5 +280,6 @@ body .ui-accordion .ui-accordion-header:not(.ui-state-disabled).ui-state-active:
 
 .token-format {
     border: 1px solid rgb(200, 200, 200);
-    border-radius: 15px;
+	border-radius: 8px;
+	padding: 0.5em;
 }

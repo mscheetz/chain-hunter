@@ -314,6 +314,13 @@ const searchType = function(chain, toFind) {
             return enums.searchType.transaction;
         }
     }
+    if(chain === "dcr") {
+        if(toFind.substr(0, 1) === "D") {
+            return enums.searchType.address;
+        } else {
+            return enums.searchType.transaction;
+        }
+    }
     if(toFind.substr(0, 1) === "r") {
         if(chain === "xrp") {
             return enums.searchType.address;

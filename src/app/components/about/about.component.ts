@@ -31,11 +31,11 @@ export class AboutComponent implements OnInit{
         for(const [key, value] of Object.entries(this.blockchains)) {
             this.chains.push(value);
         }
-        Array.from(this.blockchains.values()).forEach(value => {
-            this.chains.push(value);
-        })
-        this.blockchains.forEach((value: Blockchain, key: string) => {
-            this.chains.push(value);
-        });
+        //Array.from(this.blockchains.values()).forEach(value => {
+        //    this.chains.push(value);
+        //})
+        //this.blockchains.forEach((value: Blockchain, key: string) => {
+        //    this.chains.push(value);
+        //});
     }
 }

@@ -59,19 +59,9 @@ app.get('/invite/:code', function(req, res) {
   redirectHome(req, res);
 });
 
-app.get('/about', function(req, res) {
-
-  redirectHome(req, res);
-});
-
-app.get('/terms', function(req, res) {
-
-  redirectHome(req, res);
-});
-
-const redirectHome = async(req, res) => {
-  const baseUrl = req.protocol + "://" + req.get('host');
-
+const redirectHome = async(path, req, res) => {
+  let baseUrl = req.protocol + "://" + req.get('host');
+  
   res.redirect(baseUrl);
 };
 
@@ -80,6 +70,10 @@ app.get('/api/*', api);
 app.get('/', function (req, res) {
   res.status(200).sendFile(`/`, {root: dist_dir});
 });
+
+app.all('*', function(req, res) {
+  res.status(200).sendFile(`/`, {root: dist_dir});
+})
 
 app.set('port', port);
 

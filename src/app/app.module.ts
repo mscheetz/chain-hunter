@@ -33,6 +33,7 @@ import { TermsComponent } from './components/terms/terms.component';
 import { TopAdComponent } from './components/top-ad/top-ad.component';
 import { RightAdComponent } from './components/right-ad/right-ad.component';
 import { BottomAdComponent } from './components/bottom-ad/bottom-ad.component';
+import { TableModule } from 'primeng/table';
 
 const appRoutes: Routes = [
   { path: '', component: ChainHunterComponent },
@@ -72,13 +73,11 @@ const appRoutes: Routes = [
     ProgressBarModule,
     ProgressSpinnerModule,
     SlideMenuModule,
+    TableModule,
     TabMenuModule,
     TabViewModule,
     ToastModule,
-    RouterModule.forRoot(
-      appRoutes,
-      { enableTracing: true }
-    )
+    RouterModule.forRoot(appRoutes)
   ],
   providers: [ 
     CookieService,

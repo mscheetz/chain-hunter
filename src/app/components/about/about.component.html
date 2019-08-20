@@ -1,4 +1,38 @@
-<h3>About</h3>
+<h2>About</h2>
+<h3>Multi-Blockchain Explorer</h3>
+<div>
+    <p>After repeating the arduous task of checking multiple explorer websites to track down address or transaction details.</p>
+    <p>The brain-child behind The Chain Hunter decided enough was enough and The Chain Hunter was created!</p>
+    <p>The Chain Hunter was built to ease this effort and make a one-stop shop for you all your blockchain querying needs.</p>
+    <h3>Currently supported by The Chain Hunter:</h3>
+    <p-table [value]="chains">
+        <ng-template pTemplate="header">
+            <tr>
+                <th rowspan="2">Name</th>
+                <th rowspan="2">Symbol</th>
+                <th rowspan="2">Logo</th>
+                <th colspan="4">Chain Hunter Supports</th>
+            </tr>
+            <tr>
+                <th>Addresses</th>
+                <th>Transactions</th>
+                <th>Tokens</th>
+                <th>Contracts</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-chain>
+            <tr>
+                <td><h4>{{chain.name}}</h4></td>
+                <td><h4>{{chain.symbol}}</h4></td>
+                <td><img src="assets/cryptoicons/color/{{chain.symbol.toLowerCase()}}.png" title="{{chain.name}} logo" /></td>
+                <td><h4>X</h4></td>
+                <td><h4>X</h4></td>
+                <td><h4>{{chain.hasTokens ? 'X' : ''}}</h4></td>
+                <td><h4>{{chain.hasContracts ? 'X' : ''}}</h4></td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>
 <div>
     <div>
         <p>Chain Hunter was developed using:</p>

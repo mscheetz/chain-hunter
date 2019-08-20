@@ -1,6 +1,7 @@
 const axios = require('axios');
 const helperSvc = require('./helperService.js');
-const base = "https://dcrdata.decred.org/api";//"https://mainnet.decred.org/api";
+const base = "https://mainnet.decred.org/api";//"https://dcrdata.decred.org/api";
+const enums = require('../classes/enums');
 const delay = time => new Promise(res=>setTimeout(res,time));
 
 const getEmptyBlockchain = async() => {
@@ -17,17 +18,20 @@ const getEmptyBlockchain = async() => {
 
 const getBlockchain = async(toFind) => {
     const chain = await getEmptyBlockchain();
-
     let address = null;
-    if(toFind.substr(0,1) === "D") {
+    let transaction = null;
+
+    const searchType = helperSvc.searchType(chain.symbol.toLowerCase(), toFind);
+
+    if(searchType & enums.searchType.address) {
         address = await getAddress(toFind);
     }
-    chain.address = address;
-    chain.transaction = null;
-    if(address === null) {
-        const transaction = await getTransaction(toFind);
-        chain.transaction = transaction;
+    if(searchType & enums.searchType.transaction) {
+        transaction = await getTransaction(toFind);
     }
+    
+    chain.address = address;
+    chain.transaction = transaction;
     if(chain.address || chain.transaction) {
         chain.icon = "color/"+ chain.symbol.toLowerCase()  +".png";
     }
@@ -36,18 +40,21 @@ const getBlockchain = async(toFind) => {
 }
 
 const getAddress = async(addressToFind) => {
-    let endpoint = "/address/" + addressToFind + "/totals";
+    let endpoint = "/addr/" + addressToFind + "/?noTxList=1";
     let url = base + endpoint;
 
     try{
         const response = await axios.get(url);
         if(response.data !== null) {
-            const datas = response.data;
+            const datas = response.data;            
             let address = {
                 address: addressToFind,
-                quantity: datas.dcr_unspent,
                 hasTransactions: true
             };
+            
+            const balance = helperSvc.commaBigNumber(datas.balance.toString());
+
+            address.quantity = balance;
             
             return address;
         } else {
@@ -58,35 +65,22 @@ const getAddress = async(addressToFind) => {
     }
 }
 
-const getTransactions = function(txns, latestblock) {
-    let transactions = [];
-    txns.forEach(txn => {
-        transactions.push(buildTransaction(txn, latestblock));
-    });
-
-    return transactions;            
-}
-
-const getTransactionsOG = async(address) => {
-    let endpoint = "/address/" + address + "/tx";
+const getTransactions = async(address) => {
+    let endpoint = "/txs?" + address + "&pageNum=0";
     let url = base + endpoint;
-
+    
     try{
         const response = await axios.get(url);
-        if(response.data.err_no === 0 && response.data.data !== null) {
-            const datas = response.data.data.list.splice(0, 10);
-            const transactions = [];
-            if(datas.length > 0) {
-                datas.forEach(data => {
-                    transactions.push(buildTransaction(data));
-                })
-            }
-            return transactions;
+        if(response.data !== null) {
+            const data = response.data;
+            const transaction = buildTransactions(data);
+            
+            return transaction;
         } else {
-            return [];
+            return null;
         }
     } catch(error) {
-        return [];
+        return null;
     }
 }
 
@@ -99,8 +93,7 @@ const getTransaction = async(hash) => {
         if(response.data !== null) {
             const data = response.data;
 
-            const latestblock = await getLatestBlock();
-            const transaction = buildTransaction(data, latestblock);
+            const transaction = buildTransaction(data);
             
             return transaction;
         } else {
@@ -111,44 +104,44 @@ const getTransaction = async(hash) => {
     }
 }
 
-const getLatestBlock = async() => {
-    let endpoint = "/latestblock";
-    let url = base + endpoint;
+const buildTransactions = function(txns) {
+    let transactions = [];
 
-    try{
-        const response = await axios.get(url);
-        if(response.data !== null) {
-            const data = response.data;
-
-            return data.height;
-        } else {
-            return 0;
-        }
-    } catch(error) {
-        return 0;
+    if(txns.length > 0) {
+        txns.forEach(txn => {
+            transactions.push(buildTransaction(txn));
+        });
     }
+
+    return transactions;            
 }
 
-const buildTransaction = function(txn, latestblock) {
+const buildTransaction = function(txn) {
     let from = [];
     let to = [];
+    
     txn.vin.forEach(input => {
-        if(from.indexOf(input.addr) === -1){
-            from.push(input.addr);
+        if(typeof input.addr !== undefined) {
+            if(from.indexOf(input.addr) === -1){
+                from.push(input.addr);
+            }
         }
     });
     txn.vout.forEach(output => {
-        output.scriptPubKey.addresses.forEach(address =>{
-            if(to.indexOf(address) === -1){
-                to.push(address);
-            }
-        });
+        if(typeof output.scriptPubKey.addresses !== undefined) {
+            output.scriptPubKey.addresses.forEach(address =>{
+                if(to.indexOf(address) === -1){
+                    to.push(address);
+                }
+            });
+        }
     });
-
+    const quantity = helperSvc.commaBigNumber(txn.valueOut.toString());
+console.log(quantity);
     const transaction = {
         hash: txn.txid,
         block: txn.blockheight,
-        quantity: txn.valueOut,
+        quantity: quantity,
         symbol: "DCR",
         confirmations: txn.confirmations,
         date: helperSvc.unixToUTC(txn.time),

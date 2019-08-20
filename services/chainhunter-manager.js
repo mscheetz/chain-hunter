@@ -6,6 +6,7 @@ const bch = require('./bch.js');
 const bnb = require('./bnb.js');
 const btc = require('./btc.js');
 const dash = require('./dash.js');
+const dcr = require('./dcr.js');
 const eos = require('./eos.js');
 const eth = require('./eth.js');
 const icx = require('./icx.js');
@@ -276,6 +277,8 @@ const getEmptyBlockchains = async() => {
             blockchains["ZEL"] = await zel.getEmptyBlockchain();
         } else if(chains[i].symbol === 'ATOM') {
             blockchains["ATOM"] = await atom.getEmptyBlockchain();
+        // } else if(chains[i].symbol === 'DCR') {
+        //     blockchains["DCR"] = await dcr.getEmptyBlockchain();
         }
     }
     return blockchains;
@@ -328,6 +331,8 @@ const getBlockchains = async(toFind) => {
             blockchains["ZEL"] = await zel.getBlockchain(toFind);
         } else if(chains[i].symbol === 'ATOM') {
             blockchains["ATOM"] = await atom.getBlockchain(toFind);
+        // } else if(chains[i].symbol === 'DCR') {
+        //     blockchains["DCR"] = await dcr.getBlockchain(toFind);
         }
     }
 
@@ -377,6 +382,8 @@ const getBlockchain = async(chain, toFind) => {
         return await zel.getBlockchain(toFind);
     } else if (chain === "atom") {
         return await atom.getBlockchain(toFind);
+    // } else if (chain === "dcr") {
+    //     return await dcr.getBlockchain(toFind);
     }
 }
 
@@ -431,6 +438,8 @@ const getTransactions = async(chain, address) => {
         return await zel.getTransactions(address);
     } else if (chain === "atom") {
         return await atom.getTransactions(address);
+    // } else if (chain === "dcr") {
+    //     return await dcr.getTransactions(address);
     }
 }
 

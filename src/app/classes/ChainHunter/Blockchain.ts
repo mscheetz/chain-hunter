@@ -12,6 +12,7 @@ export class Blockchain {
     transaction: Transaction;
     contract: Contract;
     icon: string;
+    type: string;
     source: string = null;
     hasTokens: boolean = false;
     hasContracts: boolean = false;

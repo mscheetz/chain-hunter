@@ -9,6 +9,7 @@ const getEmptyBlockchain = async() => {
     chain.symbol = 'ICX';
     chain.hasTokens = false;
     chain.hasContracts = true;
+    chain.type = enums.blockchainType.PROTOCOL;
     chain.icon = "white/"+ chain.symbol.toLowerCase()  +".png";
 
     return chain;

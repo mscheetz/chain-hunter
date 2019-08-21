@@ -9,6 +9,7 @@ const getEmptyBlockchain = async() => {
     chain.symbol = 'TRX';
     chain.hasTokens = false;
     chain.hasContracts = true;
+    chain.type = enums.blockchainType.GAMING;
     chain.icon = "white/"+ chain.symbol.toLowerCase()  +".png";
 
     return chain;

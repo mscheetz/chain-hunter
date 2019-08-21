@@ -11,6 +11,7 @@ const getEmptyBlockchain = async() => {
     chain.symbol = 'NEO';
     chain.hasTokens = true;
     chain.hasContracts = true;
+    chain.type = enums.blockchainType.PROTOCOL;
     chain.icon = "white/"+ chain.symbol.toLowerCase()  +".png";
 
     return chain;

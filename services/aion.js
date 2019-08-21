@@ -10,6 +10,7 @@ const getEmptyBlockchain = async() => {
     chain.symbol = 'AION';
     chain.hasTokens = false;
     chain.hasContracts = true;
+    chain.type = enums.blockchainType.PROTOCOL;
     chain.icon = "white/"+ chain.symbol.toLowerCase()  +".png";
 
     return chain;

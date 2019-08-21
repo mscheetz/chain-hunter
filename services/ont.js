@@ -10,6 +10,7 @@ const getEmptyBlockchain = async() => {
     chain.symbol = 'ONT';
     chain.hasTokens = false;
     chain.hasContracts = true;
+    chain.type = enums.blockchainType.ENTERPRISE;
     chain.icon = "white/"+ chain.symbol.toLowerCase()  +".png";
 
     return chain;

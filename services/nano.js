@@ -10,6 +10,7 @@ const getEmptyBlockchain = async() => {
     chain.symbol = 'NANO';
     chain.hasTokens = false;
     chain.hasContracts = false;
+    chain.type = enums.blockchainType.PAYMENT;
     chain.icon = "white/"+ chain.symbol.toLowerCase()  +".png";
 
     return chain;

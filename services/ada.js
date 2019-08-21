@@ -10,6 +10,7 @@ const getEmptyBlockchain = async() => {
     chain.symbol = 'ADA';
     chain.hasTokens = false;
     chain.hasContracts = false;
+    chain.type = enums.blockchainType.PROTOCOL;
     chain.icon = "white/"+ chain.symbol.toLowerCase()  +".png";
 
     return chain;

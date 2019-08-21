@@ -1,3 +1,6 @@
+/**
+ * Search types
+ */
 const searchType = {
     nothing: 1,
     address: 2,
@@ -5,6 +8,30 @@ const searchType = {
     contract: 8
 }
 
+/**
+ * Blockchain types
+ * from https://steemitimages.com/p/JvFFVmatwWHRfvmtd53nmEJ94xpKydwmbSC5H5svBACH7z9fCvxPj3CUpU5kRMqxvo3QmGpg9v2A69xAuWstsksJTeppQPZHkdEz9cKdbch8TSxpsm43E3KokjEFFRqzaREev4uQqU?format=match&mode=fit&width=640
+ * and
+ * https://coinnewstelegraph.com/wp-content/uploads/2018/06/cryptocurrency-periodic-table-chart-9-types-of-blockchain-assets-categories.jpg
+ */
+const blockchainType = {
+    PAYMENT : 'Payment',
+    PROTOCOL : 'Protocol',
+    STORAGE : 'Storage',
+    PLATFORM : 'Platform',
+    PRIVACY : 'Privacy',
+    COMPUTATION : 'Computation',
+    STABLECOIN : 'Stable Coin',
+    EXCHANGE : 'Exchange',
+    STREAMING : 'Streaming',
+    CONTENT : 'Content',
+    ENTERPRISE : 'Enterprise',
+    GAMING : 'Gaming',
+    SOCIAL : 'Social',
+    IOT : 'IoT'
+}
+
 module.exports = {
-    searchType
+    searchType,
+    blockchainType
 }

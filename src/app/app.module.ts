@@ -34,11 +34,13 @@ import { TopAdComponent } from './components/top-ad/top-ad.component';
 import { RightAdComponent } from './components/right-ad/right-ad.component';
 import { BottomAdComponent } from './components/bottom-ad/bottom-ad.component';
 import { TableModule } from 'primeng/table';
+import { BlockchainInfoComponent } from './components/blockchain-info/blockchain-info.component';
 
 const appRoutes: Routes = [
   { path: '', component: ChainHunterComponent },
   { path: 'about', component: AboutComponent },
-  { path: 'terms', component: TermsComponent }
+  { path: 'terms', component: TermsComponent },
+  { path: 'info', component: BlockchainInfoComponent }
 ]
 
 @NgModule({
@@ -47,6 +49,7 @@ const appRoutes: Routes = [
     AboutComponent,
     AccountComponent,
     ActiveChainsComponent,
+    BlockchainInfoComponent,
     BottomAdComponent,
     ChainHunterComponent,
     ComingSoonComponent,

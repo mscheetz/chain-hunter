@@ -11,6 +11,7 @@ const getEmptyBlockchain = async() => {
     chain.hasTokens = false;
     chain.hasContracts = false;
     chain.contract = null;
+    chain.type = enums.blockchainType.STABLECOIN;
     chain.icon = "white/"+ chain.symbol.toLowerCase()  +".png";
 
     return chain;

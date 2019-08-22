@@ -56,11 +56,9 @@ export class ChainHunterComponent implements OnInit {
         this.updateMenuItems();
     }
 
-    nullOut(){
-        this.resultsFound = [];
-        this.calculateIcons();
-    }
-
+    /**
+     * Get active and future blockchains
+     */
     getChains() {
         this.chainService.getActiveChains()
             .subscribe(chains => {
@@ -82,6 +80,9 @@ export class ChainHunterComponent implements OnInit {
             });
     }
 
+    /**
+     * Start hunting
+     */
     chainHunt(){
         this.getCookies();
         if(this.searchLimit) {
@@ -113,6 +114,45 @@ export class ChainHunterComponent implements OnInit {
         this.previousSearch = this.addyTxn;
     }
 
+    /**
+     * Null out elements
+     */
+    nullOut(){
+        this.resultsFound = [];
+        this.updateMenuItems();
+    }
+
+    /**
+     * Build map of empty blockchain objects
+     */
+    buildMap(){
+        this.chainService.getEmptyBlockchains()
+            .subscribe(map => {
+                this.map = new Map<string, Blockchain>();
+                Object.keys(map).forEach(e => {
+                    this.map.set(e, map[e]);
+                });
+                this.setBlockchainIcons();
+                this.startHunt();
+            });
+    }
+
+    /**
+     * Clear out the current map of blockchains
+     */
+    clearMap() {
+        this.map.forEach((chain, key) => {
+            chain.address = null;
+            chain.transaction = null;
+            chain.icon = chain.icon.replace('color', 'white');
+        });
+        this.updateMenuItems();
+        this.startHunt();
+    }
+
+    /**
+     * Get results for blockchains
+     */
     startHunt() {
         this.requestedChains = this.map.size;
         this.map.forEach((value: Blockchain, key: string) => {
@@ -123,12 +163,15 @@ export class ChainHunterComponent implements OnInit {
                     if(chain.address || chain.transaction || chain.contract) {
                         this.resultsFound.push(chain.name);
                     }
-                    this.calculateIcons();
+                    this.updateMenuItems();
                     this.checkCompleted();
                 })
         });
     }
 
+    /**
+     * Read cookies for search counts
+     */
     getCookies() {
         const unlimited = this.cookieSvc.get(this.unlimitedCookie);
         if(unlimited != null && unlimited !== "") {
@@ -158,6 +201,9 @@ export class ChainHunterComponent implements OnInit {
         }
     }
 
+    /**
+     * Set cookie for search counts
+     */
     setCookie() {
         if(this.unlimited) {
             return;
@@ -175,6 +221,9 @@ export class ChainHunterComponent implements OnInit {
         this.cookieSvc.set(this.cookieName, JSON.stringify(this.cookieData), expiry);
     }
 
+    /**
+     * Check if search is complete
+     */
     checkCompleted() {
         if(this.requestedChains === 0) {
             this.notRunning = true;
@@ -183,6 +232,11 @@ export class ChainHunterComponent implements OnInit {
         }
     }
 
+    /**
+     * Get Address transactions
+     * 
+     * @param symbol Blockchain symbol
+     */
     getAddressTxns(symbol: string): any {
         this.txnsComplete = false;
         let chain = this.getBlockchain(symbol);
@@ -193,6 +247,11 @@ export class ChainHunterComponent implements OnInit {
             });
     }
 
+    /**
+     * Get Address tokens
+     * 
+     * @param symbol Blockchain symbol
+     */
     getAddressTokens(symbol: string): any {
         let chain = this.getBlockchain(symbol);
         this.chainService.getAddressTokens(symbol, chain.address.address)
@@ -202,6 +261,9 @@ export class ChainHunterComponent implements OnInit {
             });
     }
 
+    /**
+     * Build token display
+     */
     buildTokens() {
         let i = 1;
         this.tokenContent = ``;
@@ -220,6 +282,11 @@ export class ChainHunterComponent implements OnInit {
         }
     }
 
+    /**
+     * Get token information to display
+     * 
+     * @param token Token object
+     */
     getTokenInfo(token: Asset): string {
         let info = ``;
         if(token.name !== null) {
@@ -243,10 +310,9 @@ export class ChainHunterComponent implements OnInit {
         return info;        
     }
 
-    calculateIcons() {
-        this.updateMenuItems();
-    }
-
+    /**
+     * Update menu icons based on search results
+     */
     updateMenuItems() {
         this.menuItems = [];
        // this.huntStatus = this.addyTxn === undefined ? 0 : this.notRunning ? 2 : 1;
@@ -262,28 +328,9 @@ export class ChainHunterComponent implements OnInit {
         });
     }
 
-    buildMap(){
-        this.chainService.getEmptyBlockchains()
-            .subscribe(map => {
-                this.map = new Map<string, Blockchain>();
-                Object.keys(map).forEach(e => {
-                    this.map.set(e, map[e]);
-                });
-                this.setBlockchainIcons();
-                this.startHunt();
-            });
-    }
-
-    clearMap() {
-        this.map.forEach((chain, key) => {
-            chain.address = null;
-            chain.transaction = null;
-            chain.icon = chain.icon.replace('color', 'white');
-        });
-        this.updateMenuItems();
-        this.startHunt();
-    }
-
+    /**
+     * Set icons
+     */
     setBlockchainIcons() {
         this.map.forEach((value: Blockchain, key: string) => {
             value = this.getMenuIcon(value);
@@ -291,15 +338,31 @@ export class ChainHunterComponent implements OnInit {
         });
     }
 
+    /**
+     * Get a given blockchain
+     * 
+     * @param symbol Blockchain symbol
+     */
     getBlockchain(symbol: string): Blockchain {
         let chain = this.map.get(symbol);
         return chain;
     }
 
+    /**
+     * Set blockchain in the map
+     * 
+     * @param chain Blockchain object
+     */
     setMap(chain: Blockchain) {
         this.map.set(chain.symbol, chain);
     }
 
+    /**
+     * Show a given blockchain search result
+     * 
+     * @param symbol Blockchain symbol
+     * @param event event object
+     */
     showItem(symbol: string, event: any) {
         if(this.seeItem && this.selectedChain === symbol) {
             this.blockchain = null;

@@ -2,5 +2,9 @@
 export const environment = {
   production: true,
   user: "",
-  token: "" 
+  token: "",
+  btc: "",
+  eth: "",
+  nano: "",
+  rvn: ""
 };

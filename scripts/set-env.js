@@ -23,7 +23,7 @@ export const environment = {
   btc: "${process.env.BTC}",
   eth: "${process.env.ETH}",
   nano: "${process.env.NANO}",
-  rvn: "${process.env.RVN}", 
+  rvn: "${process.env.RVN}"
 };
 `
 

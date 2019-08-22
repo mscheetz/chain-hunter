@@ -3,8 +3,6 @@
         <ng-template pTemplate="header">
             <tr>
                 <th rowspan="2">Name</th>
-                <th rowspan="2">Symbol</th>
-                <th rowspan="2">Logo</th>
                 <th rowspan="2">Type</th>
                 <th colspan="4">Chain Hunter Supports</th>
             </tr>
@@ -17,9 +15,15 @@
         </ng-template>
         <ng-template pTemplate="body" let-chain>
             <tr>
-                <td><h4>{{chain.name}}</h4></td>
-                <td><h4>{{chain.symbol}}</h4></td>
-                <td><img src="assets/cryptoicons/color/{{chain.symbol.toLowerCase()}}.png" title="{{chain.name}} logo" /></td>
+                <td>
+                    <h4>
+                        <img src="assets/cryptoicons/color/{{chain.symbol.toLowerCase()}}.png" 
+                             style="vertical-align: middle" 
+                             title="{{chain.name}} logo" />
+                        &nbsp;
+                        <span>{{chain.name}} - ({{chain.symbol}})</span>
+                    </h4>
+                </td>
                 <td><h4>{{chain.type}}</h4></td>
                 <td class="center"><h4>X</h4></td>
                 <td class="center"><h4>X</h4></td>

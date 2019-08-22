@@ -1,4 +1,5 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { environment } from 'src/environments/environment';
 
 @Component({
     selector: 'footer-component',
@@ -35,13 +36,13 @@ export class FooterComponent implements OnInit {
     getQrCode(symbol: string) {
         this.symbol = symbol;
         if(this.symbol === "BTC") {
-            this.address = "36ZZ78NYGtvhQCcSRRG7311MoxZDJkCzob";
+            this.address = environment.btc;
         } else if(this.symbol === "ETH") {
-            this.address = "0x996C94D629037027dA38d5Ae94B24DC3f29B5030";
+            this.address = environment.eth;
         } else if(this.symbol === "NANO") {
-            this.address = "nano_15ai3x9tenfiu7md74baxtdg94sqjjuz9kqxzo1o81usjzphrhxx4ukxp4an";
+            this.address = environment.nano;
         } else if(this.symbol === "RVN") {
-            this.address = "RBmSaX6SADW6MLmU7j3d5BNM6aGrGnnCXQ";
+            this.address = environment.rvn;
         }
         this.donateType = "Donate with " + this.symbol + "!";
         this.showQRCode = true;

@@ -16,6 +16,9 @@ export class AppComponent {
     this.showNotice = false;
   }
   
+  /**
+   * Login to account
+   */
   login() {
     this.messageSvc.add(
         {
@@ -25,5 +28,18 @@ export class AppComponent {
             detail:'Account registrations coming soon. Follow us on twitter to be the first to sign up!',
             sticky: true
         });
-}
+  }
+
+  /**
+   * Alert message
+   */
+  notification(message: string) {
+    this.messageSvc.add(
+        {
+            key:'notification-toast',
+            severity:'success', 
+            detail:message,
+            life: 3000
+        });
+  }
 }

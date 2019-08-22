@@ -19,7 +19,11 @@ const envConfigFile = `
 export const environment = {
   production: ${isProd},
   user: "${process.env.CHAINHUNTER_USER}",
-  token: "${process.env.CHAINHUNTER_TOKEN}" 
+  token: "${process.env.CHAINHUNTER_TOKEN}",
+  btc: "${process.env.BTC}",
+  eth: "${process.env.ETH}",
+  nano: "${process.env.NANO}",
+  rvn: "${process.env.RVN}", 
 };
 `
 

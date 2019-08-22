@@ -23,7 +23,8 @@
 </div>
 <!-- Chain Hunter Footer -->
 <div class="footer">
-  <footer-component (login)="login()"></footer-component>
+  <footer-component (login)="login()" (notification)="notification($event)"></footer-component>
 </div>
 <!-- Chain Hunter Cookie notice -->
 <cookies *ngIf="showNotice" (cookiesOk)="cookieOk($event)" class="cookie-box"></cookies>
+<p-toast key="notification-toast"></p-toast>

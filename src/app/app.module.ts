@@ -35,6 +35,8 @@ import { RightAdComponent } from './components/right-ad/right-ad.component';
 import { BottomAdComponent } from './components/bottom-ad/bottom-ad.component';
 import { TableModule } from 'primeng/table';
 import { BlockchainInfoComponent } from './components/blockchain-info/blockchain-info.component';
+import { DialogModule } from 'primeng/dialog';
+import { NgxQRCodeModule } from 'node_modules/ngx-qrcode2';
 
 const appRoutes: Routes = [
   { path: '', component: ChainHunterComponent },
@@ -69,9 +71,11 @@ const appRoutes: Routes = [
     BrowserAnimationsModule,
     BrowserModule,
     ButtonModule,
+    DialogModule,
     FormsModule,
     HttpClientModule,
     InputTextModule,
+    NgxQRCodeModule,
     PanelModule,
     ProgressBarModule,
     ProgressSpinnerModule,

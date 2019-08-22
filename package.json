@@ -46,6 +46,7 @@
     "helmet": "^3.18.0",
     "lodash": "^4.17.15",
     "ngx-cookie-service": "^2.2.0",
+    "ngx-qrcode2": "0.0.9",
     "pg": "^7.12.0",
     "primeflex": "^1.0.0-rc.1",
     "primeicons": "^2.0.0",

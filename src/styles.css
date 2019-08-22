@@ -283,3 +283,19 @@ body .ui-accordion .ui-accordion-header:not(.ui-state-disabled).ui-state-active:
 	border-radius: 8px;
 	padding: 0.5em;
 }
+
+.donate-button {
+	font-size: 11px!important;
+    width: 75px;
+    border: #c7c6c6 1px solid!important;
+	margin-bottom: 1px!important;
+	color: #6c757d!important;
+}
+
+.align-center {
+	text-align: center;
+}
+
+.top-pad-0 {
+	padding-top: 0em !important;
+}

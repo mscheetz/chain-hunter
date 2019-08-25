@@ -15,3 +15,7 @@ li {
 li:nth-child(odd) {
     background-color: #eff0f1;
 }
+
+.word-break {
+    word-wrap: break-word;
+}

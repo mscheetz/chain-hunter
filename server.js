@@ -59,7 +59,7 @@ app.get('/invite/:code', function(req, res) {
   redirectHome(req, res);
 });
 
-const redirectHome = async(path, req, res) => {
+const redirectHome = async(req, res) => {
   let baseUrl = req.protocol + "://" + req.get('host');
   
   res.redirect(baseUrl);

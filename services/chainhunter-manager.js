@@ -18,6 +18,7 @@ const ont = require('./ont.js');
 const rvn = require('./rvn.js');
 const trx = require('./trx.js');
 const usdt = require('./usdt.js');
+const vet = require('./vet.js');
 const xrp = require('./xrp.js');
 const zel = require('./zel.js');
 
@@ -181,7 +182,7 @@ const getChains = function() {
         {
             name: 'VeChain',
             symbol: 'VET',
-            status: 'Future'
+            status: 'Active'
         },
         {
             name: 'Waltonchain',
@@ -277,6 +278,8 @@ const getEmptyBlockchains = async() => {
             blockchains["ZEL"] = await zel.getEmptyBlockchain();
         } else if(chains[i].symbol === 'ATOM') {
             blockchains["ATOM"] = await atom.getEmptyBlockchain();
+        } else if(chains[i].symbol === 'VET') {
+            blockchains["VET"] = await vet.getEmptyBlockchain();
         // } else if(chains[i].symbol === 'DCR') {
         //     blockchains["DCR"] = await dcr.getEmptyBlockchain();
         }
@@ -331,6 +334,8 @@ const getBlockchains = async(toFind) => {
             blockchains["ZEL"] = await zel.getBlockchain(toFind);
         } else if(chains[i].symbol === 'ATOM') {
             blockchains["ATOM"] = await atom.getBlockchain(toFind);
+        } else if(chains[i].symbol === 'VET') {
+            blockchains["VET"] = await vet.getBlockchain(toFind);
         // } else if(chains[i].symbol === 'DCR') {
         //     blockchains["DCR"] = await dcr.getBlockchain(toFind);
         }
@@ -382,6 +387,8 @@ const getBlockchain = async(chain, toFind) => {
         return await zel.getBlockchain(toFind);
     } else if (chain === "atom") {
         return await atom.getBlockchain(toFind);
+    } else if (chain === "vet") {
+        return await vet.getBlockchain(toFind);
     // } else if (chain === "dcr") {
     //     return await dcr.getBlockchain(toFind);
     }
@@ -394,6 +401,8 @@ const getTokens = async(chain, address) => {
         return await aion.getTokens(address);
     } else if (chain === "trx") {
         return await trx.getTokens(address);
+    } else if (chain === "vet") {
+        return await vet.getTokens(address);
     }
 }
 
@@ -438,6 +447,8 @@ const getTransactions = async(chain, address) => {
         return await zel.getTransactions(address);
     } else if (chain === "atom") {
         return await atom.getTransactions(address);
+    } else if (chain === "vet") {
+        return await vet.getTransactions(address);
     // } else if (chain === "dcr") {
     //     return await dcr.getTransactions(address);
     }

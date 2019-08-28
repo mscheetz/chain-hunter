@@ -151,7 +151,8 @@ const iconExists = function(iconName) {
  * @param {*} toFind search string
  */
 const searchType = function(chain, toFind) {
-    if((chain === "aion" || chain === "eth") && toFind.substr(0, 2) !== "0x") {
+    if((chain === "aion" || chain === "eth" || chain === "vet") 
+        && toFind.substr(0, 2) !== "0x") {
         return enums.searchType.nothing;
     }
     if(toFind.substr(0, 2) === "0x") {
@@ -171,6 +172,12 @@ const searchType = function(chain, toFind) {
             return enums.searchType.transaction;
         } else if (chain === "neo") {
             return enums.searchType.contract;
+        } else if (chain === "vet") {
+            if(toFind.length === 42) {
+                return enums.searchType.address;
+            } else {
+                return enums.searchType.transaction;
+            }
         } else {
             return enums.searchType.nothing;
         }

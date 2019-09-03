@@ -3,12 +3,13 @@ const helperSvc = require('./helperService.js');
 const base = "https://explorer.ont.io/v2";
 const enums = require('../classes/enums');
 const delay = time => new Promise(res=>setTimeout(res,time));
+const tokenTypes = [ 'native', 'oep4', 'oep5', 'oep8'];
 
 const getEmptyBlockchain = async() => {
     const chain = {};
     chain.name = 'Ontology';
     chain.symbol = 'ONT';
-    chain.hasTokens = false;
+    chain.hasTokens = true;
     chain.hasContracts = true;
     chain.type = enums.blockchainType.ENTERPRISE;
     chain.icon = "white/"+ chain.symbol.toLowerCase()  +".png";
@@ -115,22 +116,52 @@ const getContract = async(address) => {
     }
 }
 
-const getAddressTokenContracts = async(address) => {
-    let endpoint = "/getAccountDetails?accountAddress=" + address;
+const getAddressTokens = async(address, tokenIndex) => {
+    let endpoint = "/addresses/" + address + "/"+ tokenTypes[tokenIndex] +"/balances";
     let url = base + endpoint;
 
     try{
         const response = await axios.get(url);
-        if((typeof response.data.content === "undefined") || response.data.content === null || response.data.content.length === 0){
-            return [];
-        } else {
-            const datas = response.data.content[0].tokens;
-            let contracts = [];
-            datas.forEach(data => {
-                contracts.push(data.contractAddr);
-            });
+        if(response.data.code === 0){
+            const datas = response.data.result;
+            let allZeros = 0;
+            let assets = [];
+            datas.forEach(token => {
+                if(token.balance === '0') {
+                    allZeros++;
+                } else if(token.asset_name !== "ont") {
+                    const quantity = token.balance;
+                    const total = helperSvc.commaBigNumber(quantity.toString());
+                    const name = token.asset_name === "waitboundong" 
+                                    ? "Wait Bound ONG"
+                                    : token.asset_name === "unboundong"
+                                        ? "Unbound ONG"
+                                        : token.asset_name.toUpperCase();
+                    const symbol = token.asset_name === "waitboundong" 
+                                    ? "ONG"
+                                    : token.asset_name === "unboundong"
+                                        ? "ONG"
+                                        : token.asset_name.toUpperCase();
 
-            return contracts;
+                    const asset = {                        
+                        quantity: total,
+                        symbol: symbol,
+                        name: name
+                    };
+                    const icon = 'color/' + asset.symbol.toLowerCase() + '.png';
+                    const iconStatus = helperSvc.iconExists(icon);
+                    asset.hasIcon = iconStatus;
+
+                    assets.push(asset);
+                }
+            })
+            if(allZeros === datas.length) {
+                return [];
+            }
+
+            return assets;
+        } else {
+            return [];
         }
     } catch(error) {
         return [];
@@ -169,9 +200,16 @@ const getTransaction = async(hash) => {
     try{
         const response = await axios.get(url);
         if(response.data.code === 0) {
-            const datas = response.data.result;
-            const latestBlock = await getLatestBlock();
-            const transaction = buildTransactionII(datas, latestBlock);
+            let transaction = null;
+            if(response.data.Action === "getsmartcodeeventbyhash") {
+                transaction = {
+
+                }
+            } else {
+                const datas = response.data.result;            
+                const latestBlock = await getLatestBlock();
+                transaction = buildTransactionII(datas, latestBlock);
+            }
 
             return transaction;
         } else {
@@ -183,36 +221,16 @@ const getTransaction = async(hash) => {
 }
 
 const getTokens = async(address) => {
-    const tokenContracts = await getAddressTokenContracts(address);
     let tokens = [];
-    for (let i = 0; i < tokenContracts.length; i++) {
-        const contract = tokenContracts[i];
-        token = await getToken(address, contract);
-        if(token !== null) {
-            tokens.push(token);
-        }
+    for(let i = 0; i < 4; i++) {
+        let assets = await getAddressTokens(address, i);
+
+        assets.forEach(asset => {
+            tokens.push(asset);
+        });
     }
 
     return tokens;
-}
-
-const getToken = async(address, contract) => {    
-    let endpoint = "/getAccountDetails?accountAddress=" + address + "&tokenAddress=" + contract;
-    let url = base + endpoint;
-
-    try{
-        const response = await axios.get(url);
-        const data = response.data.content[0];
-        let asset = {
-            quantity: helperSvc.commaBigNumber(data.balance.toString()),
-            symbol: aionAddress.tokenSymbol
-        };
-
-        return asset;
-
-    } catch(error) {
-        return null;
-    }
 }
 
 const getLatestBlock = async() => {
@@ -235,12 +253,21 @@ const buildTransaction = function(txn, latestBlock) {
     let symbol = "";
     let from = "";
     let to = "";
+    const fee = txn.fee;
     txn.transfers.forEach(xfer => {
-        quantity = parseInt(xfer.amount);
-        if(quantity > 0) {
-            symbol = xfer.asset_name.toUpperCase();
-            from = xfer.from_address;
-            to = xfer.to_address;
+        let valid = false;
+        if(xfer.asset_name === "ong" && xfer.amount !== fee){
+            valid = true;
+        } else if (xfer.asset_name !== "ong") {
+            valid = true;
+        }
+        if(valid) {
+            quantity = parseFloat(xfer.amount);
+            if(quantity > 0) {
+                symbol = xfer.asset_name.toUpperCase();
+                from = xfer.from_address;
+                to = xfer.to_address;
+            }
         }
     });
     const total = helperSvc.commaBigNumber(quantity.toString());

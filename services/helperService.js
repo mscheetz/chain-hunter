@@ -328,6 +328,15 @@ const searchType = function(chain, toFind) {
             return enums.searchType.transaction;
         }
     }
+    if(chain === "qtum") {
+        if(toFind.length == 64) {
+            return enums.searchType.transaction;
+        } else if (toFind.length == 40) {
+            return enums.searchType.contract;
+        } else if (toFind.substr(0, 1) === "Q") {
+            return enums.searchType.address;
+        }
+    }
     if(toFind.substr(0, 1) === "r") {
         if(chain === "xrp") {
             return enums.searchType.address;

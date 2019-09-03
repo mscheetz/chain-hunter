@@ -75,10 +75,14 @@ const tokenConvert = async(tokens) => {
     tokens.forEach(token => {
         const quantity = parseFloat(token.quantity);
         const total = helperSvc.commaBigNumber(quantity.toString());
-        const asset = {
+        let asset = {
             quantity: total,
             symbol: token.contractSymbol
         }
+        const icon = 'color/' + token.contractSymbol.toLowerCase() + '.png';
+        const iconStatus = helperSvc.iconExists(icon);
+        asset.hasIcon = iconStatus;
+
 
         assets.push(asset);
     });
@@ -97,13 +101,16 @@ const getContract = async(address) => {
         } else {
             const datas = response.data.data;
             const total = helperSvc.commaBigNumber(datas.balance.toString());
-            const contract = {
+            let contract = {
                 address: datas.address,
                 quantity: total,
                 symbol: "ICX",
                 creator: datas.creator,
                 contractName: datas.tokenName
             };
+            const icon = 'color/' + contract.symbol.toLowerCase() + '.png';
+            const iconStatus = helperSvc.iconExists(icon);
+            contract.hasIcon = iconStatus;
 
             return contract;
         }

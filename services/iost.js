@@ -77,12 +77,15 @@ const getContract = async(address) => {
         if(Object.entries(datas).length === 0 && datas.constructor === Object) {
             return null;
         } else {
-            const contract = {
+            let contract = {
                 address: datas.contract_id,
                 creator: datas.publisher,
                 quantity: null,
                 symbol: null,
             };
+            const icon = 'color/' + contract.symbol.toLowerCase() + '.png';
+            const iconStatus = helperSvc.iconExists(icon);
+            contract.hasIcon = iconStatus;
 
             return contract;
         }

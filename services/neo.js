@@ -93,13 +93,16 @@ const getContract = async(addressToFind) => {
         const response = await axios.get(url);        
         const datas = response.data;
 
-        const contract = {
+        let contract = {
             address: addressToFind,
             quantity: null,
             symbol: null,
             creator: datas.author,
             contractName: datas.name
         };
+        const icon = 'color/' + contract.symbol.toLowerCase() + '.png';
+        const iconStatus = helperSvc.iconExists(icon);
+        contract.hasIcon = iconStatus;
 
         return contract;
     } catch(error) {

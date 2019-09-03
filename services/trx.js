@@ -80,11 +80,15 @@ const getContract = async(address) => {
             const quantity = datas.balance/100000000;
             const total = helperSvc.commaBigNumber(quantity.toString());
 
-            const contract = {
+            let contract = {
                 address: datas.address,
                 quantity: total,
                 symbol: "TRX"
             };
+            const icon = 'color/' + contract.symbol.toLowerCase() + '.png';
+            const iconStatus = helperSvc.iconExists(icon);
+            contract.hasIcon = iconStatus;
+            
             return contract;
         } else {
             return null;

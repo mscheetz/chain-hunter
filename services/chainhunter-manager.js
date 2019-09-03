@@ -15,6 +15,7 @@ const ltc = require('./ltc.js');
 const nano = require('./nano.js');
 const neo = require('./neo.js');
 const ont = require('./ont.js');
+const qtum = require('./qtum.js');
 const rvn = require('./rvn.js');
 const trx = require('./trx.js');
 const usdt = require('./usdt.js');
@@ -125,6 +126,11 @@ const getChains = function() {
             status: 'Active'
         },
         {
+            name: 'Neblio',
+            symbol: 'NEBL',
+            status: 'Future'
+        },
+        {
             name: 'NEM',
             symbol: 'XEM',
             status: 'Future'
@@ -142,7 +148,7 @@ const getChains = function() {
         {
             name: 'QTUM',
             symbol: 'QTUM',
-            status: 'Future'
+            status: 'Active'
         },
         {
             name: 'Raven Coin',
@@ -280,6 +286,8 @@ const getEmptyBlockchains = async() => {
             blockchains["ATOM"] = await atom.getEmptyBlockchain();
         } else if(chains[i].symbol === 'VET') {
             blockchains["VET"] = await vet.getEmptyBlockchain();
+        } else if(chains[i].symbol === 'QTUM') {
+            blockchains["QTUM"] = await qtum.getEmptyBlockchain();
         // } else if(chains[i].symbol === 'DCR') {
         //     blockchains["DCR"] = await dcr.getEmptyBlockchain();
         }
@@ -336,6 +344,8 @@ const getBlockchains = async(toFind) => {
             blockchains["ATOM"] = await atom.getBlockchain(toFind);
         } else if(chains[i].symbol === 'VET') {
             blockchains["VET"] = await vet.getBlockchain(toFind);
+        } else if(chains[i].symbol === 'QTUM') {
+            blockchains["QTUM"] = await qtum.getBlockchain(toFind);
         // } else if(chains[i].symbol === 'DCR') {
         //     blockchains["DCR"] = await dcr.getBlockchain(toFind);
         }
@@ -389,6 +399,8 @@ const getBlockchain = async(chain, toFind) => {
         return await atom.getBlockchain(toFind);
     } else if (chain === "vet") {
         return await vet.getBlockchain(toFind);
+    } else if (chain === "qtum") {
+        return await qtum.getBlockchain(toFind);
     // } else if (chain === "dcr") {
     //     return await dcr.getBlockchain(toFind);
     }
@@ -403,6 +415,10 @@ const getTokens = async(chain, address) => {
         return await trx.getTokens(address);
     } else if (chain === "vet") {
         return await vet.getTokens(address);
+    } else if (chain === "qtum") {
+        return await qtum.getTokens(address);
+    } else if (chain === "ont") {
+        return await ont.getTokens(address);
     }
 }
 
@@ -449,6 +465,8 @@ const getTransactions = async(chain, address) => {
         return await atom.getTransactions(address);
     } else if (chain === "vet") {
         return await vet.getTransactions(address);
+    } else if (chain === "qtum") {
+        return await qtum.getTransactions(address);
     // } else if (chain === "dcr") {
     //     return await dcr.getTransactions(address);
     }

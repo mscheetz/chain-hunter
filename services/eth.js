@@ -88,13 +88,16 @@ const createContract = function(datas) {
     }
     quantity = helperSvc.commaBigNumber(quantity);
     
-    const contract = {
+    let contract = {
         address: datas.address,
         quantity: quantity,
         symbol: datas.symbol,
         creator: datas.owner,
         contractName: datas.name
     };
+    const icon = 'color/' + contract.symbol.toLowerCase() + '.png';
+    const iconStatus = helperSvc.iconExists(icon);
+    contract.hasIcon = iconStatus;
 
     return contract;
 }

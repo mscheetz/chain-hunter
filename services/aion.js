@@ -82,13 +82,16 @@ const getContract = async(address) => {
             const datas = response.data.content[0];
             const total = helperSvc.commaBigNumber(datas.balance.toString());
             const cleanedTotal = helperSvc.decimalCleanup(total);
-            const contract = {
+            let contract = {
                 address: datas.contractAddr,
                 quantity: cleanedTotal,
                 symbol: "AION",
                 creator: datas.contractCreatorAddr,
                 contractName: datas.contractName
             };
+            const icon = 'color/' + contract.symbol.toLowerCase() + '.png';
+            const iconStatus = helperSvc.iconExists(icon);
+            contract.hasIcon = iconStatus;
 
             return contract;
         }

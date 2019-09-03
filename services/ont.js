@@ -95,13 +95,16 @@ const getContract = async(address) => {
             let quantity = datas.ont_sum === "0" ? parseFloat(datas.ong_sum) : parseFloat(datas.ont_sum);
             const total = helperSvc.commaBigNumber(quantity.toString());
 
-            const contract = {
+            let contract = {
                 address: datas.contract_hash,
                 quantity: total,
                 symbol: symbol,
                 creator: datas.creator,
                 contractName: datas.name
             };
+            const icon = 'color/' + contract.symbol.toLowerCase() + '.png';
+            const iconStatus = helperSvc.iconExists(icon);
+            contract.hasIcon = iconStatus;
 
             return contract;
         } else {

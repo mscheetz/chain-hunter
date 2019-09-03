@@ -299,7 +299,7 @@ const getTokenTransaction = async(hash, latestBlock) => {
 }
 
 const buildTokenTransaction = function(txn, details, latestBlock) {
-    const quantity = "??";//getBalance(txn.totalValue);
+    const quantity = "Token Transfer";//getBalance(txn.totalValue);
     const ts = helperSvc.unixToUTC(txn.timestamp)
     const detail = details.find(d => d.address === txn.contractAddress);
     const confirmations = latestBlock > 0 ? (latestBlock - txn.block) : null;

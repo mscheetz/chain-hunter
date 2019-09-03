@@ -3,12 +3,13 @@ const helperSvc = require('./helperService.js');
 const base = "https://dex.binance.org/api/v1";
 const base2 = "https://explorer.binance.org/api/v1";
 const enums = require('../classes/enums');
+const _ = require('lodash');
 
 const getEmptyBlockchain = async() => {
     const chain = {};
     chain.name = 'Binance Coin';
     chain.symbol = 'BNB';
-    chain.hasTokens = false;
+    chain.hasTokens = true;
     chain.hasContracts = false;
     chain.contract = null;
     chain.type = enums.blockchainType.EXCHANGE;
@@ -59,8 +60,8 @@ const getAddress = async(addressToFind) => {
         const address = {
             address: datas.address,
             quantity: total,
-            hasTransactions: true
-            //tokens: tokenConvert(datas.balances)
+            hasTransactions: true,
+            tokens: await tokenConvert(datas.balances)
         };
 
         return address;
@@ -69,19 +70,53 @@ const getAddress = async(addressToFind) => {
     }
 }
 
-const tokenConvert = function(tokens) {
+const tokenConvert = async(tokens) =>{
     let assets = [];
+    let defs = await tokenDefs();
 
     tokens.forEach(token => {
-        let asset = new Asset();
         let quantity = +token.free + +token.frozen + +token.locked;
-        asset.quantity = helperSvc.commaBigNumber(quantity.toString());
-        asset.symbol = token.symbol;
+        let def = defs.find(d => d.bnbSymbol === token.symbol);
 
-        assets.push(asset);
+        if(def !== undefined) {
+            let asset = {
+                quantity: helperSvc.commaBigNumber(quantity.toString()),
+                symbol: def.symbol,
+                name: def.name + " (" + def.bnbSymbol + ")"
+            }
+            const icon = 'color/' + asset.symbol.toLowerCase() + '.png';
+            const iconStatus = helperSvc.iconExists(icon);
+            asset.hasIcon = iconStatus;
+
+            assets.push(asset);
+        }
     });
 
-    return assets;
+    return _.sortBy(assets, 'name');
+}
+
+const tokenDefs = async() => {
+    let endpoint = "/tokens";
+    let url = base + endpoint;
+
+    try{
+        const response = await axios.get(url);
+        const datas = response.data;
+        let defs = [];
+        datas.forEach(data => {
+            let def = {
+                name: data.name,
+                bnbSymbol: data.symbol,
+                symbol: data.original_symbol
+            };
+
+            defs.push(def);
+        });
+
+        return defs;
+    } catch(error) {
+        return [];
+    }
 }
 
 const getTransactions = async(address) => {

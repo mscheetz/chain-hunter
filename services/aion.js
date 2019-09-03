@@ -8,7 +8,7 @@ const getEmptyBlockchain = async() => {
     const chain = {};
     chain.name = 'AION';
     chain.symbol = 'AION';
-    chain.hasTokens = false;
+    chain.hasTokens = true;
     chain.hasContracts = true;
     chain.type = enums.blockchainType.PROTOCOL;
     chain.icon = "white/"+ chain.symbol.toLowerCase()  +".png";
@@ -103,7 +103,7 @@ const getContract = async(address) => {
 const getAddressTokenContracts = async(address) => {
     let endpoint = "/getAccountDetails?accountAddress=" + address;
     let url = base + endpoint;
-
+    
     try{
         const response = await axios.get(url);
         if((typeof response.data.content === "undefined") || response.data.content === null || response.data.content.length === 0){
@@ -170,6 +170,7 @@ const getTransaction = async(hash) => {
 
 const getTokens = async(address) => {
     const tokenContracts = await getAddressTokenContracts(address);
+
     let tokens = [];
     for (let i = 0; i < tokenContracts.length; i++) {
         const contract = tokenContracts[i];
@@ -185,16 +186,25 @@ const getTokens = async(address) => {
 const getToken = async(address, contract) => {    
     let endpoint = "/getAccountDetails?accountAddress=" + address + "&tokenAddress=" + contract;
     let url = base + endpoint;
-
+    
     try{
         const response = await axios.get(url);
-        const data = response.data.content[0];
-        const total = helperSvc.commaBigNumber(datas.balance.toString());
+        const datas = response.data.content[0];
+        const contr = datas.tokens.find(t => t.contractAddr === contract);
+        const decimals = contr.tokenDecimal;
+        const qty = datas.balance.length > decimals 
+                    ? helperSvc.bigNumberToDecimal(datas.balance, decimals)
+                    : datas.balance;
+        const total = helperSvc.commaBigNumber(qty.toString());
         const cleanedTotal = helperSvc.decimalCleanup(total);
         let asset = {
             quantity: cleanedTotal,
-            symbol: aionAddress.tokenSymbol
+            symbol: datas.tokenSymbol,
+            name: datas.tokenName
         };
+        const icon = 'color/' + asset.symbol.toLowerCase() + '.png';
+        const iconStatus = helperSvc.iconExists(icon);
+        asset.hasIcon = iconStatus;
 
         return asset;
 

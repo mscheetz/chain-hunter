@@ -33,7 +33,7 @@
                 <div *ngIf="blockchain.address.tokens !== undefined && blockchain.address.tokens.length === 0">No tokens
                     found</div>
                 <div *ngIf="!tokensComplete">Fetching tokens...</div>
-                <div *ngIf="blockchain.address.tokens.length > 0" 
+                <div *ngIf="blockchain.address.tokens !== undefined && blockchain.address.tokens.length > 0" 
                     [innerHtml]="tokenContent"
                     class="p-grid"></div>
             </p-accordionTab>
@@ -49,7 +49,7 @@
         <h3 class="word-break">{{blockchain.symbol}} Contract Address: {{blockchain.contract.address}}</h3>        
         <p *ngIf="blockchain.contract.contractName">
             Contract Name: {{blockchain.contract.contractName}}
-            <img *ngIf="blockchain.contract.symbol" src="/assets/cryptoicons/color/{{blockchain.contract.symbol.toLowerCase()}}.png" />
+            <img *ngIf="blockchain.contract.symbol && blockchain.contract.hasIcon" src="/assets/cryptoicons/color/{{blockchain.contract.symbol.toLowerCase()}}.png" />
         </p>
         <p *ngIf="blockchain.contract.quantity">
             Balance: {{blockchain.contract.quantity}} {{blockchain.contract.symbol}}

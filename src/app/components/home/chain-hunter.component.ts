@@ -30,8 +30,8 @@ export class ChainHunterComponent implements OnInit {
     menuItems: MenuItem[];
     selectedChain: string = "";
     @Output() txnsComplete: boolean = true;
+    @Output() tokensComplete: boolean = true;
     previousSearch: string = "";
-    tokensComplete: boolean = true;
     requestedChains: number = 0;
     @Output() resultsFound: string[] = [];
     @Output() huntStatus: number = 0; // 0 = no search yet, 1 = searching, 2 = nothing found, 3 = something found
@@ -253,9 +253,11 @@ export class ChainHunterComponent implements OnInit {
      * @param symbol Blockchain symbol
      */
     getAddressTokens(symbol: string): any {
+        this.tokensComplete = false;
         let chain = this.getBlockchain(symbol);
         this.chainService.getAddressTokens(symbol, chain.address.address)
             .subscribe(tokens => {
+                this.tokensComplete = true;
                 chain.address.tokens = tokens;
                 this.buildTokens();
             });
@@ -371,7 +373,11 @@ export class ChainHunterComponent implements OnInit {
             this.activeItem = null;
         } else {            
             this.blockchain = this.getBlockchain(symbol);
-            if(this.blockchain.hasTokens && this.blockchain.address.tokens.length > 0) {
+            if(this.blockchain.hasTokens 
+                && this.blockchain.address !== null 
+                && (typeof this.blockchain.address.tokens !== "undefined") 
+                && this.blockchain.address.tokens !== null 
+                && this.blockchain.address.tokens.length > 0) {
                 this.buildTokens();
             }
             this.seeItem = true;

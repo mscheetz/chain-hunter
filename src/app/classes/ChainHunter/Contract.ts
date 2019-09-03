@@ -6,4 +6,5 @@ export class Contract {
     symbol: string;
     creator: string;
     contractName: string;
+    hasIcon: boolean = false;
 } 

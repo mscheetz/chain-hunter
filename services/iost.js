@@ -94,29 +94,6 @@ const getContract = async(address) => {
     }
 }
 
-const getAddressTokenContracts = async(address) => {
-    let endpoint = "/getAccountDetails?accountAddress=" + address;
-    let url = base + endpoint;
-console.log('url', url);
-    try{
-        const response = await axios.get(url);
-        console.log(response.data);
-        if((typeof response.data.content === "undefined") || response.data.content === null || response.data.content.length === 0){
-            return [];
-        } else {
-            const datas = response.data.content[0].tokens;
-            let contracts = [];
-            datas.forEach(data => {
-                contracts.push(data.contractAddr);
-            });
-
-            return contracts;
-        }
-    } catch(error) {
-        return [];
-    }
-}
-
 const getTransactions = async(address) => {
     let endpoint = "&module=account&action=get-account-tx&account=" + address + "&size=10";
     let url = base + endpoint;

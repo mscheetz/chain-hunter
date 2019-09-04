@@ -61,7 +61,7 @@ const getAddress = async(addressToFind) => {
                 tokens: await tokenConvert(datas.tokenList),
                 hasTransactions: true
             };
-console.log(address);
+
             return address;
         }
     } catch(error) {

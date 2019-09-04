@@ -22,6 +22,7 @@ const usdt = require('./usdt.js');
 const vet = require('./vet.js');
 const xrp = require('./xrp.js');
 const zel = require('./zel.js');
+const nebl = require('./nebl.js');
 
 const getChains = function() {
     const chains = [
@@ -128,7 +129,7 @@ const getChains = function() {
         {
             name: 'Neblio',
             symbol: 'NEBL',
-            status: 'Future'
+            status: 'Active'
         },
         {
             name: 'NEM',
@@ -288,6 +289,8 @@ const getEmptyBlockchains = async() => {
             blockchains["VET"] = await vet.getEmptyBlockchain();
         } else if(chains[i].symbol === 'QTUM') {
             blockchains["QTUM"] = await qtum.getEmptyBlockchain();
+        } else if(chains[i].symbol === 'NEBL') {
+            blockchains["NEBL"] = await nebl.getEmptyBlockchain();
         // } else if(chains[i].symbol === 'DCR') {
         //     blockchains["DCR"] = await dcr.getEmptyBlockchain();
         }
@@ -346,6 +349,8 @@ const getBlockchains = async(toFind) => {
             blockchains["VET"] = await vet.getBlockchain(toFind);
         } else if(chains[i].symbol === 'QTUM') {
             blockchains["QTUM"] = await qtum.getBlockchain(toFind);
+        } else if(chains[i].symbol === 'NEBL') {
+            blockchains["NEBL"] = await nebl.getBlockchain(toFind);
         // } else if(chains[i].symbol === 'DCR') {
         //     blockchains["DCR"] = await dcr.getBlockchain(toFind);
         }
@@ -401,6 +406,8 @@ const getBlockchain = async(chain, toFind) => {
         return await vet.getBlockchain(toFind);
     } else if (chain === "qtum") {
         return await qtum.getBlockchain(toFind);
+    } else if (chain === "nebl") {
+        return await nebl.getBlockchain(toFind);
     // } else if (chain === "dcr") {
     //     return await dcr.getBlockchain(toFind);
     }
@@ -467,6 +474,8 @@ const getTransactions = async(chain, address) => {
         return await vet.getTransactions(address);
     } else if (chain === "qtum") {
         return await qtum.getTransactions(address);
+    } else if (chain === "nebl") {
+        return await nebl.getTransactions(address);
     // } else if (chain === "dcr") {
     //     return await dcr.getTransactions(address);
     }

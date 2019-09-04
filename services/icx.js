@@ -7,7 +7,7 @@ const getEmptyBlockchain = async() => {
     const chain = {};
     chain.name = 'Icon';
     chain.symbol = 'ICX';
-    chain.hasTokens = false;
+    chain.hasTokens = true;
     chain.hasContracts = true;
     chain.type = enums.blockchainType.PROTOCOL;
     chain.icon = "white/"+ chain.symbol.toLowerCase()  +".png";
@@ -58,10 +58,10 @@ const getAddress = async(addressToFind) => {
             const address = {
                 address: datas.address,
                 quantity: total,
-                tokens: tokenConvert(datas.tokenList),
+                tokens: await tokenConvert(datas.tokenList),
                 hasTransactions: true
             };
-
+console.log(address);
             return address;
         }
     } catch(error) {
@@ -77,12 +77,12 @@ const tokenConvert = async(tokens) => {
         const total = helperSvc.commaBigNumber(quantity.toString());
         let asset = {
             quantity: total,
-            symbol: token.contractSymbol
+            symbol: token.contractSymbol,
+            name: token.contractName
         }
         const icon = 'color/' + token.contractSymbol.toLowerCase() + '.png';
         const iconStatus = helperSvc.iconExists(icon);
         asset.hasIcon = iconStatus;
-
 
         assets.push(asset);
     });

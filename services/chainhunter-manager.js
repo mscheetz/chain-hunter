@@ -426,6 +426,8 @@ const getTokens = async(chain, address) => {
         return await qtum.getTokens(address);
     } else if (chain === "ont") {
         return await ont.getTokens(address);
+    } else if (chain === "iost") {
+        return await iost.getTokens(address);
     }
 }
 

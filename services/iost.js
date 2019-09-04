@@ -9,7 +9,7 @@ const getEmptyBlockchain = async() => {
     const chain = {};
     chain.name = 'IOST';
     chain.symbol = 'IOST';
-    chain.hasTokens = false;
+    chain.hasTokens = true;
     chain.hasContracts = true;
     chain.contract = null;
     chain.type = enums.blockchainType.PLATFORM;
@@ -97,9 +97,10 @@ const getContract = async(address) => {
 const getAddressTokenContracts = async(address) => {
     let endpoint = "/getAccountDetails?accountAddress=" + address;
     let url = base + endpoint;
-
+console.log('url', url);
     try{
         const response = await axios.get(url);
+        console.log(response.data);
         if((typeof response.data.content === "undefined") || response.data.content === null || response.data.content.length === 0){
             return [];
         } else {
@@ -162,33 +163,31 @@ const getTransaction = async(hash) => {
     }
 }
 
-const getTokens = async(address) => {
-    const tokenContracts = await getAddressTokenContracts(address);
-    let tokens = [];
-    for (let i = 0; i < tokenContracts.length; i++) {
-        const contract = tokenContracts[i];
-        token = await getToken(address, contract);
-        if(token !== null) {
-            tokens.push(token);
-        }
-    }
-
-    return tokens;
-}
-
-const getToken = async(address, contract) => {    
-    let endpoint = "/getAccountDetails?accountAddress=" + address + "&tokenAddress=" + contract;
+const getTokens = async(address, contract) => {    
+    let endpoint = "&module=account&action=get-token-list&account=" + address;
     let url = base + endpoint;
-
+    
     try{
         const response = await axios.get(url);
-        const data = response.data.content[0];
-        let asset = {
-            quantity: helperSvc.commaBigNumber(data.balance.toString()),
-            symbol: aionAddress.tokenSymbol
-        };
+        const datas = response.data.data;
+        let assets = [];
 
-        return asset;
+        for(let i = 0; i < datas.tokens.length; i++) {
+            const qty = helperSvc.commaBigNumber(datas.tokens[i].balance.toString());
+
+            let asset = {
+                quantity: qty,
+                symbol: datas.tokens[i].symbol,
+                name: datas.tokens[i].symbol
+            };
+            const icon = 'color/' + asset.symbol.toLowerCase() + '.png';
+            const iconStatus = helperSvc.iconExists(icon);
+            asset.hasIcon = iconStatus;
+            
+            assets.push(asset);
+        }
+
+        return assets;
 
     } catch(error) {
         return null;

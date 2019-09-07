@@ -107,11 +107,17 @@ router.get('/api/address/:chain/:address/tokens', asyncMiddleware(async (req, re
   } else {
   	const chain = req.params.chain.toLowerCase();
     const address = req.params.address;
-    const result = await manager.getTokens(chain, address);
+    try {
+      const result = await manager.getTokens(chain, address);
 
-    await updateSearchResult(headerMsg.ip, req.ipInfo, chain, "addressTokens");
+      await updateSearchResult(headerMsg.ip, req.ipInfo, chain, "addressTokens");
 
-  	res.status(200).json(result);
+      res.status(200).json(result);
+    } catch(err) {
+      console.log("get token error: '"+ req.originalUrl +"'")
+      console.log('err', err);
+      res.status(500);
+    }
   }
 }));
 

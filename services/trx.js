@@ -179,23 +179,26 @@ const getTransaction = async(hash) => {
 }
 
 const getTokens = async(address) => {
-    const addyTokens = await getAddressTokens(address);
     let tokens = [];
-    addyTokens["20"].forEach(token => {
-        const asset = createAsset(token);
-        if(asset !== null) {
-            tokens.push(asset);
-        }
-    });
-    const trx10Tokens = await db.getTrxTokens();
-    addyTokens["10"].forEach(token => {
-        const trx10Token = trx10Tokens.find(t => t.id === token.name)
-        if(trx10Token !== undefined) {
-            const asset = createAsset(token, trx10Token);
-            tokens.push(asset);
-        }
-    });
-    
+    try {
+        const addyTokens = await getAddressTokens(address);
+        addyTokens["20"].forEach(token => {
+            const asset = createAsset(token);
+            if(asset !== null) {
+                tokens.push(asset);
+            }
+        });
+        const trx10Tokens = await db.getTrxTokens();
+        addyTokens["10"].forEach(token => {
+            const trx10Token = trx10Tokens.find(t => t.id === token.name)
+            if(trx10Token !== undefined) {
+                const asset = createAsset(token, trx10Token);
+                tokens.push(asset);
+            }
+        });
+    } catch(err) {
+        console.log('err', err);        
+    }
     return tokens;
 }
 

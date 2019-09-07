@@ -2,6 +2,13 @@ const fs = require('fs');
 const enums = require('../classes/enums');
 
 /**
+ * Get current unix timestamp
+ */
+const getUnixTS = function() {
+    return Date.now();
+}
+
+/**
  * conver unix time to utc time
  * 
  * @param timestamp Unix timestamp
@@ -464,6 +471,7 @@ const searchType = function(chain, toFind) {
 }
 
 module.exports = {
+    getUnixTS,
     commaBigNumber,
     bigNumberToDecimal,
     exponentialToNumber,

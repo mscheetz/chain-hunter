@@ -2,12 +2,13 @@ const axios = require('axios');
 const helperSvc = require('./helperService.js');
 const base = "https://apilist.tronscan.org/api";
 const enums = require('../classes/enums');
+const db = require('./dataRepo');
 
 const getEmptyBlockchain = async() => {
     const chain = {};
     chain.name = 'Tron';
     chain.symbol = 'TRX';
-    chain.hasTokens = false;
+    chain.hasTokens = true;
     chain.hasContracts = true;
     chain.type = enums.blockchainType.GAMING;
     chain.icon = "white/"+ chain.symbol.toLowerCase()  +".png";
@@ -104,8 +105,8 @@ const getAddressTokens = async(address) => {
 
     try{
         const response = await axios.get(url);
-        if(response.data.address) {
-            const datas = response.address;
+        if(response.data) {
+            const datas = response.data;
             let tokens = [];
             tokens["10"] = datas.tokenBalances;
             tokens["20"] = datas.trc20token_balances;
@@ -186,46 +187,49 @@ const getTokens = async(address) => {
             tokens.push(asset);
         }
     });
-    let trx10Complete = false;
-    let trx10s = [];
-    let page = 1;
-    while(!trx10Complete) {
-        const limit = 200;
-        let trx10s = await getTrx10Tokens(limit, page);
-        trx10s.data.forEach(token => {
-            trx10s[token.tokenID.toString()] = token.abbr;
-        })
-
-        if((page * limit) >= trx10s.totalAll) {
-            trx10Complete = true;  
-        } else {
-            page++;
-        }
-    }
+    const trx10Tokens = await db.getTrxTokens();
     addyTokens["10"].forEach(token => {
-        const asset = createAsset(token, trx10s);
-        tokens.push(asset);
+        const trx10Token = trx10Tokens.find(t => t.id === token.name)
+        if(trx10Token !== undefined) {
+            const asset = createAsset(token, trx10Token);
+            tokens.push(asset);
+        }
     });
-
+    
     return tokens;
 }
 
-const createAsset = async(token, trx10s = []) => {
-    let asset = null;
-    if((typeof token.symbol !== 'undefined') && token.symbol !== null && token.symbol !== "" && token.name !== "_"){
-        let symbol = token.symbol;
-        if(trx10s.length > 0) {
-            symbol = trx10s[token.name];
+const createAsset = function(token, trx10Token = null) {
+    let symbol = "";
+    let name = "";
+    let balance = 0;
+    if(trx10Token !== null) {
+        symbol = trx10Token.symbol;
+        name = trx10Token.name;
+        balance = parseFloat(token.balance);
+        if(trx10Token.precision > 0) {
+            balance = balance / trx10Token.precision;
         }
-        if(typeof symbol !== 'undefined') {            
-            const total = helperSvc.commaBigNumber(token.balance.toString());
-
-            asset = {
-                symbol: symbol,
-                quantity: total
-            };
+    } else {
+        symbol = token.symbol;
+        name = token.name;
+        balance = parseFloat(token.balance);
+        if(token.decimals > 0) {
+            balance = balance / token.decimals;
         }
     }
+    const total = helperSvc.commaBigNumber(balance.toString());
+
+    let asset = {
+        symbol: symbol,
+        name: name,
+        quantity: total
+    };
+    
+    const icon = 'color/' + asset.symbol.toLowerCase() + '.png';
+    const iconStatus = helperSvc.iconExists(icon);
+    asset.hasIcon = iconStatus;
+
     return asset;
 }
 
@@ -253,22 +257,35 @@ const getTrx10Token = async(id) => {
     }
 }
 
-const getTrx10Tokens = async(limit, page) => {
-    let start = page == 1 ? 0 : ((page - 1) * limit) + 1;
-    let endpoint = "/token?sort=-name&limit="+ limit +"&start="+ start;
+const getTrx10Tokens = async(page) => {
+    const limit = 2000;
+//    let start = page == 1 ? 0 : ((page - 1) * limit) + 1;
+    let endpoint = "/token?sort=-name&limit="+ limit +"&start="+ page;
     let url = base + endpoint;
 
     try{
         const response = await axios.get(url);
-        if(response.hash) {
-            const transaction = buildTransaction(response);
+        const datas = response.data.data;
 
-            return transaction;
-        } else {
-            return null;
+        let tokens = [];
+
+        if(datas.length > 0) {
+            datas.forEach(data => {
+                let token = {
+                    id: data.tokenID,
+                    name: data.name,
+                    symbol: data.abbr,
+                    icon: data.imgUrl,
+                    owner: data.ownerAddress,
+                    precision: data.precision
+                };
+                tokens.push(token);
+            });
         }
+
+        return tokens;
     } catch(error) {
-        return null;
+        return [];
     }
 
 }
@@ -293,11 +310,40 @@ const buildTransaction = function(txn, token) {
     return transaction;
 }
 
+const buildTrxTokens = async() => {
+    let getTokens = true;
+    let i = 0;
+    let trxTokens = await db.getTrxTokens();
+    while(getTokens) {
+        console.log("getting token page: '" + i + "'.");
+        const tokens = await getTrx10Tokens(i);
+        console.log(trxTokens.length + ' trx tokens in db.');
+        if(tokens.length > 0) {
+            console.log("db id 1: '" + trxTokens[0].id + "' api id 1: '" + tokens[0].id + "'");
+            console.log(tokens.length + ' trx tokens found.');
+            const newTokens = tokens.filter(({ id: id1 }) => !trxTokens.some(({ id: id2}) => parseInt(id2) === id1));
+            if(newTokens.length > 0) {
+                console.log(newTokens.length + ' new tokens found.');
+                // console.log('trxTokens', trxTokens);
+                // console.log('tokens', tokens);
+                await db.postTrxTokens(newTokens);
+                trxTokens = trxTokens.concat(newTokens);
+            }
+        } else {
+            getTokens = false;
+        }
+        i++;
+    }
+
+    return [];
+}
+
 module.exports = {
     getEmptyBlockchain,
     getBlockchain,
     getAddress,
     getTokens,
     getTransactions,
-    getTransaction
+    getTransaction,
+    buildTrxTokens
 }

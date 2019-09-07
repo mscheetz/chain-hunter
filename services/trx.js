@@ -3,6 +3,7 @@ const helperSvc = require('./helperService.js');
 const base = "https://apilist.tronscan.org/api";
 const enums = require('../classes/enums');
 const db = require('./dataRepo');
+const _ = require('lodash');
 
 const getEmptyBlockchain = async() => {
     const chain = {};
@@ -55,8 +56,9 @@ const getAddress = async(addressToFind) => {
         if(Object.keys(datas).length === 0 && datas.constructor === Object) {
             return null;
         } else {
-            const quantity = datas.balance/100000000;
-            const total = helperSvc.commaBigNumber(quantity.toString());
+            const quantity = helperSvc.bigNumberToDecimal(datas.balance.toString(), 6);
+            const totalCommad = helperSvc.commaBigNumber(quantity.toString());
+            const total = helperSvc.decimalCleanup(totalCommad);
 
             const address = {
                 address: datas.address,
@@ -197,31 +199,32 @@ const getTokens = async(address) => {
             }
         });
     } catch(err) {
-        console.log('err', err);        
+        //console.log('err', err);
     }
-    return tokens;
+    return tokens.length > 0 
+            ? _.sortBy(tokens, 'name')
+            : tokens;
 }
 
 const createAsset = function(token, trx10Token = null) {
     let symbol = "";
     let name = "";
     let balance = 0;
+    let decimals = 6;
     if(trx10Token !== null) {
         symbol = trx10Token.symbol;
         name = trx10Token.name;
-        balance = parseFloat(token.balance);
-        if(trx10Token.precision > 0) {
-            balance = balance / trx10Token.precision;
-        }
+        balance = token.balance.toString();
+        decimals = trx10Token.precision > 0 ? trx10Token.precision : 6;
     } else {
         symbol = token.symbol;
         name = token.name;
-        balance = parseFloat(token.balance);
-        if(token.decimals > 0) {
-            balance = balance / token.decimals;
-        }
+        balance = token.balance;        
+        decimals = token.decimals > 0 ? token.decimals : 6;
     }
-    const total = helperSvc.commaBigNumber(balance.toString());
+    balance = helperSvc.bigNumberToDecimal(balance, decimals);
+    const totalCommad = helperSvc.commaBigNumber(balance.toString());
+    const total = helperSvc.decimalCleanup(totalCommad);
 
     let asset = {
         symbol: symbol,

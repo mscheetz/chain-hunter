@@ -2,6 +2,7 @@
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const app = express();
+const expressip = require('express-ip');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const compression = require('compression');
@@ -28,6 +29,8 @@ const forceSSL = function() {
 }
 
 app.use(forceSSL());
+
+app.use(expressip().getIpInfoMiddleware);
 
 var corsOptions = {
   origin: function(origin, callback) {

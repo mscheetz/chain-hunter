@@ -238,6 +238,65 @@ const getFutureChains = function() {
     return chains.filter(c => c.status === 'Future');
 }
 
+const getEmptyBlockchain = async(chain) => {
+    let blockchain = {};
+    if(chain === 'btc') {
+        blockchain =  await btc.getEmptyBlockchain();
+    } else if(chain === 'bch') {
+        blockchain =  await bch.getEmptyBlockchain();
+    } else if(chain === 'eth') {
+        blockchain =  await eth.getEmptyBlockchain();
+    } else if(chain === 'ltc') {
+        blockchain =  await ltc.getEmptyBlockchain();
+    } else if(chain === 'xrp') {
+        blockchain =  await xrp.getEmptyBlockchain();
+    } else if(chain === 'neo') {
+        blockchain =  await neo.getEmptyBlockchain();
+    } else if(chain === 'rvn') {
+        blockchain =  await rvn.getEmptyBlockchain();
+    } else if(chain === 'bnb') {
+        blockchain =  await bnb.getEmptyBlockchain();
+    } else if(chain === 'aion') {
+        blockchain =  await aion.getEmptyBlockchain();
+    } else if(chain === 'eos') {
+        blockchain =  await eos.getEmptyBlockchain();
+    } else if(chain === 'trx') {
+        blockchain =  await trx.getEmptyBlockchain();
+    } else if(chain === 'ont') {
+        blockchain =  await ont.getEmptyBlockchain();
+    } else if(chain === 'usddt') {
+        blockchain =  await usdt.getEmptyBlockchain();
+    } else if(chain === 'iost') {
+        blockchain =  await iost.getEmptyBlockchain();
+    } else if(chain === 'icx') {
+        blockchain =  await icx.getEmptyBlockchain();
+    } else if(chain === 'nano') {
+        blockchain =  await nano.getEmptyBlockchain();
+    } else if(chain === 'dash') {
+        blockchain =  await dash.getEmptyBlockchain();
+    } else if(chain === 'ae') {
+        blockchain =  await ae.getEmptyBlockchain();
+    } else if(chain === 'ada') {
+        blockchain =  await ada.getEmptyBlockchain();
+    } else if(chain === 'zel') {
+        blockchain =  await zel.getEmptyBlockchain();
+    } else if(chain === 'atom') {
+        blockchain =  await atom.getEmptyBlockchain();
+    } else if(chain === 'vet') {
+        blockchain =  await vet.getEmptyBlockchain();
+    } else if(chain === 'qtum') {
+        blockchain =  await qtum.getEmptyBlockchain();
+    } else if(chain === 'nebl') {
+        blockchain =  await nebl.getEmptyBlockchain();
+    }
+    
+    blockchain.address = null;
+    blockchain.contract = null;
+    blockchain.transaction = null;
+
+    return blockchain;
+}
+
 const getEmptyBlockchains = async() => {
     let blockchains = {};
     const chains = getActiveChains();
@@ -487,6 +546,7 @@ module.exports = {
     getChains,
     getActiveChains,
     getFutureChains,
+    getEmptyBlockchain,
     getEmptyBlockchains,
     getBlockchains,
     getBlockchain,

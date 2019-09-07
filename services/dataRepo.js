@@ -174,7 +174,7 @@ const postUser = async(user) => {
 }
 
 const getSearchResults = async() => {
-    let sql = 'SELECT * FROM searchResults';
+    let sql = 'SELECT * FROM public."searchResults"';
 
     try {
         const res = await pool.query(sql);
@@ -187,11 +187,11 @@ const getSearchResults = async() => {
 }
 
 const postSearchResult = async(searchResult) => {
-    console.log('searchResult', searchResult);
     let sql = 'INSERT INTO public."searchResults" ( country, region, city, metro, timezone, chain, "searchType", "searchAt" ) ';
     sql += 'VALUES ( $1, $2, $3, $4, $5, $6, $7, $8 )';
     pool.query(sql, 
-        [ searchResult.country, 
+        [ 
+            searchResult.country, 
             searchResult.region, 
             searchResult.city, 
             searchResult.metro,
@@ -207,6 +207,47 @@ const postSearchResult = async(searchResult) => {
 
         return true;
     })
+}
+
+const getTrxTokens = async() => {
+    let sql = 'SELECT * FROM public."trxTokens"';
+
+    try {
+        const res = await pool.query(sql);
+        //await pool.end();
+
+        return res.rows;
+    } catch(err) {
+        console.log('error executing the query');
+    }
+}
+
+const postTrxTokens = async(tokens) => {
+    let response = false;
+    for(let i = 0; i < tokens.length; i++) {
+        response = await postTrxToken(tokens[i]);
+    }
+
+    return response;
+}
+
+const postTrxToken = async(token) => {
+    let sql = 'INSERT INTO public."trxTokens" ( id, name, symbol, "precision" ) ';
+    sql += 'VALUES ( $1, $2, $3, $4 )';
+    pool.query(sql, 
+        [ 
+            token.id, 
+            token.name, 
+            token.symbol, 
+            token.precision
+        ], (error, results) => {
+            if(error) {
+                console.log('error executing the query', sql);
+                console.log('error', error);
+            }
+    
+            return true;
+        })
 }
 
 module.exports = {
@@ -225,5 +266,7 @@ module.exports = {
     getUsers,
     postUser,
     getSearchResults,
-    postSearchResult
+    postSearchResult,
+    getTrxTokens,
+    postTrxTokens
 }

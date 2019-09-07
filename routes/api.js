@@ -4,7 +4,8 @@ const manager = require('../services/chainhunter-manager');
 const encryptionSvc = require('../services/encryption.js');
 const path = require('path');
 const config = require('../config');
-//const db = require('../services/dataRepo');
+const db = require('../services/dataRepo');
+const helperSvc = require('../services/helperService');
 
 const asyncMiddleware = fn =>
   (req, res, next) => {
@@ -70,6 +71,16 @@ router.get('/api/blockchain/:chain/:toFind', asyncMiddleware(async (req, res, ne
     const toFind = req.params.toFind;
     const result = await manager.getBlockchain(chain, toFind);
 
+    if(result.address || result.contract || result.transaction) {
+      if(result.address) {
+        await updateSearchResult(req.ipInfo, chain, "address");
+      } else if(result.contract) {
+        await updateSearchResult(req.ipInfo, chain, "contract");
+      } else if(result.transaction) {
+        await updateSearchResult(req.ipInfo, chain, "transaction");
+      }
+    }
+
   	res.status(200).json(result);
   }
 }));
@@ -82,6 +93,8 @@ router.get('/api/address/:chain/:address/txs', asyncMiddleware(async (req, res, 
     const chain = req.params.chain.toLowerCase();
     const address = req.params.address;
     const result = await manager.getTransactions(chain, address);
+
+    await updateSearchResult(req.ipInfo, chain, "addressTransactions");
 
 	  res.status(200).json(result);
   }
@@ -96,9 +109,33 @@ router.get('/api/address/:chain/:address/tokens', asyncMiddleware(async (req, re
     const address = req.params.address;
     const result = await manager.getTokens(chain, address);
 
+    await updateSearchResult(req.ipInfo, chain, "addressTokens");
+
   	res.status(200).json(result);
   }
 }));
+
+/**
+ * Update search results table in database
+ * @param {*} ipInfo ip information
+ * @param {*} chain chain with results
+ * @param {*} type type of results
+ */
+const updateSearchResult = async(ipInfo, chain, type) => {
+
+  let searchResult = {
+    country: ipInfo.country, 
+    region: ipInfo.region, 
+    city: ipInfo.city, 
+    metro: ipInfo.metro,
+    timezone: ipInfo.timezone, 
+    chain: chain,
+    searchAt: helperSvc.getUnixTS(),
+    searchType: type
+  };
+  await db.postSearchResult(searchResult);
+
+}
 
 // router.get('/api/users', asyncMiddleware(async (req, res, next) => {
 
@@ -159,7 +196,7 @@ headerCheck = function(req) {
         msg = "server: '"+ timestamp +"' is not '"+ decryptedTs +"'";
       }
     }
-    return { status: valid, message: msg };
+    return { status: valid, message: msg, ip: ip };
 };
 
 

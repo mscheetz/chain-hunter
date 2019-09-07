@@ -2,7 +2,6 @@ const axios = require('axios');
 const helperSvc = require('./helperService.js');
 const base = "https://explorer.qtum.org/insight-api";
 const enums = require('../classes/enums');
-const delay = time => new Promise(res=>setTimeout(res,time));
 
 const getEmptyBlockchain = async() => {
     const chain = {};
@@ -50,7 +49,7 @@ const getAddress = async(addressToFind) => {
     let url = base + endpoint;
 
     try{
-        const response = await axios.get(url);
+        const response = await axios.get(url, { timeout: 5000 });
         if(response.data !== null) {
             const datas = response.data;
             const total = helperSvc.commaBigNumber(datas.balance.toString());
@@ -75,7 +74,7 @@ const getTokens = async(address) => {
     let url = base + endpoint;
 
     try{
-        const response = await axios.get(url);
+        const response = await axios.get(url, { timeout: 5000 });
         if(response.data !== null && response.data.length > 0) {
             const datas = response.data;
             
@@ -114,7 +113,7 @@ const getTransactions = async(address) => {
     let url = base + endpoint;
 
     try{
-        const response = await axios.get(url);
+        const response = await axios.get(url, { timeout: 5000 });
         if(response.data !== null) {
             const datas = response.data.txs;
             let transactions = [];
@@ -137,7 +136,8 @@ const getContract = async(addressToFind) => {
     let url = base + endpoint;
 
     try{
-        const response = await axios.get(url);
+        const response = await axios.get(url, { timeout: 5000 });
+
         if(response.data !== null) {
             const datas = response.data;
             const quantity = helperSvc.commaBigNumber(datas.total_supply.toString());
@@ -166,7 +166,8 @@ const getTransaction = async(hash) => {
     let url = base + endpoint;
 
     try{
-        const response = await axios.get(url);
+        const response = await axios.get(url, { timeout: 5000 });
+        
         if(response.data !== null) {
             const datas = response.data;
             const transaction = await buildTransaction(datas);

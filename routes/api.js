@@ -73,11 +73,11 @@ router.get('/api/blockchain/:chain/:toFind', asyncMiddleware(async (req, res, ne
 
     if(result.address || result.contract || result.transaction) {
       if(result.address) {
-        await updateSearchResult(req.ipInfo, chain, "address");
+        await updateSearchResult(headerMsg.ip, req.ipInfo, chain, "address");
       } else if(result.contract) {
-        await updateSearchResult(req.ipInfo, chain, "contract");
+        await updateSearchResult(headerMsg.ip, req.ipInfo, chain, "contract");
       } else if(result.transaction) {
-        await updateSearchResult(req.ipInfo, chain, "transaction");
+        await updateSearchResult(headerMsg.ip, req.ipInfo, chain, "transaction");
       }
     }
 
@@ -94,7 +94,7 @@ router.get('/api/address/:chain/:address/txs', asyncMiddleware(async (req, res, 
     const address = req.params.address;
     const result = await manager.getTransactions(chain, address);
 
-    await updateSearchResult(req.ipInfo, chain, "addressTransactions");
+    await updateSearchResult(headerMsg.ip, req.ipInfo, chain, "addressTransactions");
 
 	  res.status(200).json(result);
   }
@@ -109,7 +109,7 @@ router.get('/api/address/:chain/:address/tokens', asyncMiddleware(async (req, re
     const address = req.params.address;
     const result = await manager.getTokens(chain, address);
 
-    await updateSearchResult(req.ipInfo, chain, "addressTokens");
+    await updateSearchResult(headerMsg.ip, req.ipInfo, chain, "addressTokens");
 
   	res.status(200).json(result);
   }
@@ -117,44 +117,27 @@ router.get('/api/address/:chain/:address/tokens', asyncMiddleware(async (req, re
 
 /**
  * Update search results table in database
+ * @param {*} ipAddress ip address
  * @param {*} ipInfo ip information
  * @param {*} chain chain with results
  * @param {*} type type of results
  */
-const updateSearchResult = async(ipInfo, chain, type) => {
+const updateSearchResult = async(ipAddress, ipInfo, chain, type) => {
 
-  let searchResult = {
-    country: ipInfo.country, 
-    region: ipInfo.region, 
-    city: ipInfo.city, 
-    metro: ipInfo.metro,
-    timezone: ipInfo.timezone, 
-    chain: chain,
-    searchAt: helperSvc.getUnixTS(),
-    searchType: type
-  };
-  await db.postSearchResult(searchResult);
-
+  if(ipAddress !== "::1") {
+    let searchResult = {
+      country: ipInfo.country, 
+      region: ipInfo.region, 
+      city: ipInfo.city, 
+      metro: ipInfo.metro,
+      timezone: ipInfo.timezone, 
+      chain: chain,
+      searchAt: helperSvc.getUnixTS(),
+      searchType: type
+    };
+    await db.postSearchResult(searchResult);
+  }
 }
-
-// router.get('/api/users', asyncMiddleware(async (req, res, next) => {
-
-//   const users = await db.getUsers();
-//   if(typeof users === 'undefined' || users.length === 0) {
-//     res.status(500).json([]);
-//   }
-//   res.status(200).json(users);
-// }))
-
-// router.get('/api/users/email/:email', asyncMiddleware(async (req, res, next) => {
-//   const email = req.params.email;
-  
-//   const user = await db.getUserByEmail(email);
-//   if(typeof user === 'undefined') {
-//     res.status(500).json({});
-//   }
-//   res.status(200).json(user);
-// }))
 
 const whitelistUsers = new Map([
   [config.CHAINHUNTER_USER, config.CHAINHUNTER_TOKEN]]);
@@ -196,6 +179,7 @@ headerCheck = function(req) {
         msg = "server: '"+ timestamp +"' is not '"+ decryptedTs +"'";
       }
     }
+    
     return { status: valid, message: msg, ip: ip };
 };
 

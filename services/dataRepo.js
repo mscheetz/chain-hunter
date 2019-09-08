@@ -178,7 +178,7 @@ const getSearchResults = async() => {
 
     try {
         const res = await pool.query(sql);
-        await pool.end();
+        //await pool.end();
 
         return res.rows;
     } catch(err) {

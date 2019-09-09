@@ -6,11 +6,23 @@
                 <th rowspan="2">Type</th>
                 <th colspan="4">Chain Hunter Supports</th>
             </tr>
-            <tr>
-                <th>Addresses</th>
-                <th>Transactions</th>
-                <th>Tokens</th>
-                <th>Contracts</th>
+            <tr class="tr-base">
+                <th class="mq-wrapper">
+                    <div class="wide mq-container th-mq-base">Addresses</div>
+                    <div class="narrow mq-container th-mq-base" title="Addresses">Addy</div>
+                </th>
+                <th class="mq-wrapper">
+                    <div class="wide mq-container th-mq-base">Transactions</div>
+                    <div class="narrow mq-container th-mq-base" title="Transactions">Txn</div>
+                </th>
+                <th class="mq-wrapper">
+                    <div class="wide mq-container th-mq-base">Tokens</div>
+                    <div class="narrow mq-container th-mq-base" title="Tokens">Tkn</div>
+                </th>
+                <th class="mq-wrapper">
+                    <div class="wide mq-container th-mq-base">Contracts</div>
+                    <div class="narrow mq-container th-mq-base" title="Contracts">K</div>
+                </th>
             </tr>
         </ng-template>
         <ng-template pTemplate="body" let-chain>
@@ -21,10 +33,16 @@
                              style="vertical-align: middle" 
                              title="{{chain.name}} logo" />
                         &nbsp;
-                        <span>{{chain.name}} - ({{chain.symbol}})</span>
+                        <div class="mq-wrapper">
+                            <div class="wide mq-container">{{chain.name}} - ({{chain.symbol}})</div>
+                            <div class="narrow mq-container">{{chain.symbol}}</div>
+                        </div>
                     </h4>
                 </td>
-                <td><h4>{{chain.type}}</h4></td>
+                <td class="mq-wrapper">
+                    <div class="wide mq-container mq-center"><h4>{{chain.type}}</h4></div>
+                    <div class="narrow mq-container mq-center"><h4 title="{{chain.type}}">{{getAbreviatedType(chain.type)}}</h4></div>
+                </td>
                 <td class="center"><h4>X</h4></td>
                 <td class="center"><h4>X</h4></td>
                 <td class="center"><h4>{{chain.hasTokens ? 'X' : ''}}</h4></td>

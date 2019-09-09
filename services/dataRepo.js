@@ -130,7 +130,6 @@ const getUsers = async() => {
 
     try {
         const res = await pool.query(sql);
-        await pool.end();
 
         return res.rows;
     } catch(err) {
@@ -142,7 +141,6 @@ const getUserByEmail = async(email) => {
     let sql = 'SELECT * FROM users WHERE email = $1';
     try {
         const res = await pool.query(sql, [email]);
-        await pool.end();
 
         return res.rows[0];
     } catch(err) {
@@ -178,7 +176,6 @@ const getSearchResults = async() => {
 
     try {
         const res = await pool.query(sql);
-        //await pool.end();
 
         return res.rows;
     } catch(err) {
@@ -214,7 +211,6 @@ const getTrxTokens = async() => {
 
     try {
         const res = await pool.query(sql);
-        //await pool.end();
 
         return res.rows;
     } catch(err) {

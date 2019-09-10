@@ -2,10 +2,8 @@ const express = require('express');
 const router = express.Router();
 const manager = require('../services/chainhunter-manager');
 const encryptionSvc = require('../services/encryption.js');
-const path = require('path');
 const config = require('../config');
-const db = require('../services/dataRepo');
-const helperSvc = require('../services/helperService');
+const dataSvc = require('../services/dataIntegrationService');
 
 const asyncMiddleware = fn =>
   (req, res, next) => {
@@ -72,13 +70,16 @@ router.get('/api/blockchain/:chain/:toFind', asyncMiddleware(async (req, res, ne
     const result = await manager.getBlockchain(chain, toFind);
 
     if(result.address || result.contract || result.transaction) {
+      let updateType = "";
       if(result.address) {
-        await updateSearchResult(headerMsg.ip, req.ipInfo, chain, "address");
+        updateType = "address";
       } else if(result.contract) {
-        await updateSearchResult(headerMsg.ip, req.ipInfo, chain, "contract");
+        updateType = "contract";
       } else if(result.transaction) {
-        await updateSearchResult(headerMsg.ip, req.ipInfo, chain, "transaction");
+        updateType = "transaction";
       }
+
+      await dataSvc.updateSearchResult(headerMsg.ip, req.ipInfo, chain, updateType);      
     }
 
   	res.status(200).json(result);
@@ -94,7 +95,7 @@ router.get('/api/address/:chain/:address/txs', asyncMiddleware(async (req, res, 
     const address = req.params.address;
     const result = await manager.getTransactions(chain, address);
 
-    await updateSearchResult(headerMsg.ip, req.ipInfo, chain, "addressTransactions");
+    await dataSvc.updateSearchResult(headerMsg.ip, req.ipInfo, chain, "addressTransactions");
 
 	  res.status(200).json(result);
   }
@@ -106,44 +107,83 @@ router.get('/api/address/:chain/:address/tokens', asyncMiddleware(async (req, re
     errorResponse(res);
   } else {
   	const chain = req.params.chain.toLowerCase();
-    const address = req.params.address;
-    try {
-      const result = await manager.getTokens(chain, address);
+    const address = req.params.address;    
+    const result = await manager.getTokens(chain, address);
 
-      await updateSearchResult(headerMsg.ip, req.ipInfo, chain, "addressTokens");
+    await dataSvc.updateSearchResult(headerMsg.ip, req.ipInfo, chain, "addressTokens");
 
-      res.status(200).json(result);
-    } catch(err) {
-      console.log("get token error: '"+ req.originalUrl +"'")
-      console.log('err', err);
-      res.status(500);
-    }
+    res.status(200).json(result);
   }
 }));
 
-/**
- * Update search results table in database
- * @param {*} ipAddress ip address
- * @param {*} ipInfo ip information
- * @param {*} chain chain with results
- * @param {*} type type of results
- */
-const updateSearchResult = async(ipAddress, ipInfo, chain, type) => {
+router.get('/api/results/country', asyncMiddleware(async (req, res, next) => {
+  const headerMsg = headerCheck(req);
+  if(!headerMsg.status) {
+    errorResponse(res);
+  } else {
+    const results = await dataSvc.getResultsByCountry();
 
-  if(ipAddress !== "::1") {
-    let searchResult = {
-      country: ipInfo.country, 
-      region: ipInfo.region, 
-      city: ipInfo.city, 
-      metro: ipInfo.metro,
-      timezone: ipInfo.timezone, 
-      chain: chain,
-      searchAt: helperSvc.getUnixTS(),
-      searchType: type
-    };
-    await db.postSearchResult(searchResult);
+    res.status(200).json(results);
   }
-}
+}));
+
+router.get('/api/results/country/:country/region', asyncMiddleware(async (req, res, next) => {
+  const headerMsg = headerCheck(req);
+  if(!headerMsg.status) {
+    errorResponse(res);
+  } else {
+    const country = req.params.country;
+    const results = await dataSvc.getResultsByRegion(country);
+
+    res.status(200).json(results);
+  }
+}));
+
+router.get('/api/results/country/:country/region/:region/city', asyncMiddleware(async (req, res, next) => {
+  const headerMsg = headerCheck(req);
+  if(!headerMsg.status) {
+    errorResponse(res);
+  } else {
+    const country = req.params.country;
+    const region = req.params.region;
+    const results = await dataSvc.getResultsByCity(country, region);
+
+    res.status(200).json(results);
+  }
+}));
+
+router.get('/api/results/region', asyncMiddleware(async (req, res, next) => {
+  const headerMsg = headerCheck(req);
+  if(!headerMsg.status) {
+    errorResponse(res);
+  } else {
+    const results = await dataSvc.getResultsByRegion();
+
+    res.status(200).json(results);
+  }
+}));
+
+router.get('/api/results/city', asyncMiddleware(async (req, res, next) => {
+  const headerMsg = headerCheck(req);
+  if(!headerMsg.status) {
+    errorResponse(res);
+  } else {
+    const results = await dataSvc.getResultsByCity();
+
+    res.status(200).json(results);
+  }
+}));
+
+router.get('/api/results/timezone', asyncMiddleware(async (req, res, next) => {
+  const headerMsg = headerCheck(req);
+  if(!headerMsg.status) {
+    errorResponse(res);
+  } else {
+    const results = await dataSvc.getResultsByTimezone();
+
+    res.status(200).json(results);
+  }
+}));
 
 const whitelistUsers = new Map([
   [config.CHAINHUNTER_USER, config.CHAINHUNTER_TOKEN]]);

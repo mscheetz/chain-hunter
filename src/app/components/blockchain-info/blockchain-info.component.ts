@@ -34,4 +34,36 @@ export class BlockchainInfoComponent implements OnInit {
           this.chains.push(value);
       }
   }
+
+  getAbreviatedType(type: string): string {
+    if(type === "Payment") {
+      return "PAY";
+    } else if ( type === "Protocol" ) {
+      return "PROT";
+    } else if ( type === "Platform" ) {
+      return "PLAT";
+    } else if ( type === "Storage" ) {
+      return "STO";
+    } else if ( type === "Privacy" ) {
+      return "PRIV";
+    } else if ( type === "Computation" ) {
+      return "COMP";
+    } else if ( type === "Stable Coin" ) {
+      return "SC";
+    } else if ( type === "Exchange" ) {
+      return "EXCH";
+    } else if ( type === "Streaming" ) {
+      return "STR";
+    } else if ( type === "Content" ) {
+      return "CONT";
+    } else if ( type === "Enterprise" ) {
+      return "ENT";
+    } else if ( type === "Gaming" ) {
+      return "GA";
+    } else if ( type === "Social" ) {
+      return "SOC";
+    } else if ( type === "IoT" ) {
+      return "IoT";
+    }
+  }
 }

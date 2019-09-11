@@ -1,4 +1,5 @@
 const db = require('./dataRepo');
+const helperSvc = require('./helperService.js')
 
 /**
  * Update search results table in database

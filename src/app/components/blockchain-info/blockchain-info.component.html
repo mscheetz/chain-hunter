@@ -21,25 +21,25 @@
         <ng-template pTemplate="header">
             <tr>
                 <th rowspan="2">Name</th>
-                <th rowspan="2">Type</th>
-                <th colspan="4">Chain Hunter Supports</th>
+                <th rowspan="2" style="width: 14%;">Type</th>
+                <th colspan="4" style="width: 60%;">Chain Hunter Supports</th>
             </tr>
             <tr>
                 <th>
                     <span *ngIf="screenWidth > 768">Addresses</span>
-                    <span *ngIf="screenWidth <= 768" (click)="addy.toggle($event)">Addy</span>
+                    <u *ngIf="screenWidth <= 768" class="dotted" (click)="addy.toggle($event)">Addy</u>
                 </th>
                 <th>
                     <span *ngIf="screenWidth > 768">Transactions</span>
-                    <span *ngIf="screenWidth <= 768" (click)="txn.toggle($event)">Txn</span>
+                    <u *ngIf="screenWidth <= 768" class="dotted" (click)="txn.toggle($event)">Txn</u>
                 </th>
                 <th>
                     <span *ngIf="screenWidth > 768">Tokens</span>
-                    <span *ngIf="screenWidth <= 768" (click)="tkn.toggle($event)">Tkn</span>
+                    <u *ngIf="screenWidth <= 768" class="dotted" (click)="tkn.toggle($event)">Tkn</u>
                 </th>
                 <th>
                     <span *ngIf="screenWidth > 768">Contracts</span>
-                    <span *ngIf="screenWidth <= 768" (click)="k.toggle($event)">K</span>
+                    <u *ngIf="screenWidth <= 768" class="dotted" (click)="k.toggle($event)">K</u>
                 </th>
             </tr>
         </ng-template>
@@ -52,12 +52,12 @@
                              title="{{chain.name}} logo" />
                         &nbsp;
                         <span *ngIf="screenWidth > 768">{{chain.name}} - ({{chain.symbol}})</span>
-                        <span *ngIf="screenWidth <= 768" (click)="selectChain($event, chain.name, chainName)">{{chain.symbol}}</span>
+                        <u *ngIf="screenWidth <= 768" class="dotted" (click)="selectChain($event, chain.name, chainName)">{{chain.symbol}}</u>
                     </h4>
                 </td>
                 <td>
-                    <h4 *ngIf="screenWidth > 768">{{chain.type}}</h4>
-                    <h4 *ngIf="screenWidth <= 768" (click)="selectType($event, chain, chainType)">{{getAbreviatedType(chain.type)}}</h4>
+                    <h4 *ngIf="screenWidth > 768" class="center">{{chain.type}}</h4>
+                    <h4 *ngIf="screenWidth <= 768" class="center" (click)="selectType($event, chain, chainType)"><u class="dotted">{{getAbreviatedType(chain.type)}}</u></h4>
                 </td>
                 <td class="center"><h4>X</h4></td>
                 <td class="center"><h4>X</h4></td>

@@ -2,43 +2,11 @@ tr > th, .center {
     text-align: center;
 }
 
-.tr-base {
-    height: 36px;
-}
-
-.th-mq-base {
-    top: 7px !important;
-}
-
-.mq-wrapper {
-    position: relative;
-}
-
-.wide {    
-    visibility: visible;
-}
-
-.narrow {
-    visibility: hidden;
-}
-
-.mq-container {
-    position: absolute;
-    right: 0;
-    width: 100%;
-    top: 0;
-}
-
-.mq-center {
+.center {
     text-align: center;
 }
 
-@media(max-width: 768px){
-    .wide {
-        visibility: hidden;
-    }
-    
-    .narrow {
-        visibility: visible;
-    }
+.dotted {
+    border-bottom: 1px dotted black;
+    text-decoration: none;
 }

@@ -37,6 +37,7 @@ import { TableModule } from 'primeng/table';
 import { BlockchainInfoComponent } from './components/blockchain-info/blockchain-info.component';
 import { DialogModule } from 'primeng/dialog';
 import { NgxQRCodeModule } from 'node_modules/ngx-qrcode2';
+import { OverlayPanelModule } from 'primeng/overlaypanel';
 
 const appRoutes: Routes = [
   { path: '', component: ChainHunterComponent },
@@ -76,6 +77,7 @@ const appRoutes: Routes = [
     HttpClientModule,
     InputTextModule,
     NgxQRCodeModule,
+    OverlayPanelModule,
     PanelModule,
     ProgressBarModule,
     ProgressSpinnerModule,

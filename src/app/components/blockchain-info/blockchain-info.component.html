@@ -1,4 +1,22 @@
 <h2>Blockchains Currently Supported by The Chain Hunter</h2>
+<p-overlayPanel #addy>
+    Addresses
+</p-overlayPanel>
+<p-overlayPanel #txn>
+    Transactions
+</p-overlayPanel>
+<p-overlayPanel #tkn>
+    Tokens
+</p-overlayPanel>
+<p-overlayPanel #k>
+    Contracts
+</p-overlayPanel>
+<p-overlayPanel #chainName>
+    {{selectedChain}}
+</p-overlayPanel>
+<p-overlayPanel #chainType>
+    {{selectedChainType}}
+</p-overlayPanel>
     <p-table [value]="chains">
         <ng-template pTemplate="header">
             <tr>
@@ -6,22 +24,22 @@
                 <th rowspan="2">Type</th>
                 <th colspan="4">Chain Hunter Supports</th>
             </tr>
-            <tr class="tr-base">
-                <th class="mq-wrapper">
-                    <div class="wide mq-container th-mq-base">Addresses</div>
-                    <div class="narrow mq-container th-mq-base" title="Addresses">Addy</div>
+            <tr>
+                <th>
+                    <span *ngIf="screenWidth > 768">Addresses</span>
+                    <span *ngIf="screenWidth <= 768" (click)="addy.toggle($event)">Addy</span>
                 </th>
-                <th class="mq-wrapper">
-                    <div class="wide mq-container th-mq-base">Transactions</div>
-                    <div class="narrow mq-container th-mq-base" title="Transactions">Txn</div>
+                <th>
+                    <span *ngIf="screenWidth > 768">Transactions</span>
+                    <span *ngIf="screenWidth <= 768" (click)="txn.toggle($event)">Txn</span>
                 </th>
-                <th class="mq-wrapper">
-                    <div class="wide mq-container th-mq-base">Tokens</div>
-                    <div class="narrow mq-container th-mq-base" title="Tokens">Tkn</div>
+                <th>
+                    <span *ngIf="screenWidth > 768">Tokens</span>
+                    <span *ngIf="screenWidth <= 768" (click)="tkn.toggle($event)">Tkn</span>
                 </th>
-                <th class="mq-wrapper">
-                    <div class="wide mq-container th-mq-base">Contracts</div>
-                    <div class="narrow mq-container th-mq-base" title="Contracts">K</div>
+                <th>
+                    <span *ngIf="screenWidth > 768">Contracts</span>
+                    <span *ngIf="screenWidth <= 768" (click)="k.toggle($event)">K</span>
                 </th>
             </tr>
         </ng-template>
@@ -33,15 +51,13 @@
                              style="vertical-align: middle" 
                              title="{{chain.name}} logo" />
                         &nbsp;
-                        <div class="mq-wrapper">
-                            <div class="wide mq-container">{{chain.name}} - ({{chain.symbol}})</div>
-                            <div class="narrow mq-container">{{chain.symbol}}</div>
-                        </div>
+                        <span *ngIf="screenWidth > 768">{{chain.name}} - ({{chain.symbol}})</span>
+                        <span *ngIf="screenWidth <= 768" (click)="selectChain($event, chain.name, chainName)">{{chain.symbol}}</span>
                     </h4>
                 </td>
-                <td class="mq-wrapper">
-                    <div class="wide mq-container mq-center"><h4>{{chain.type}}</h4></div>
-                    <div class="narrow mq-container mq-center"><h4 title="{{chain.type}}">{{getAbreviatedType(chain.type)}}</h4></div>
+                <td>
+                    <h4 *ngIf="screenWidth > 768">{{chain.type}}</h4>
+                    <h4 *ngIf="screenWidth <= 768" (click)="selectType($event, chain, chainType)">{{getAbreviatedType(chain.type)}}</h4>
                 </td>
                 <td class="center"><h4>X</h4></td>
                 <td class="center"><h4>X</h4></td>

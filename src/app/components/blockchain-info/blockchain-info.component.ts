@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { ChainHunterService } from 'src/app/services/chainHunter-svc.service';
 import { Blockchain } from 'src/app/classes/ChainHunter/Blockchain';
+import { OverlayPanel } from 'primeng/overlaypanel';
 
 @Component({
   selector: 'blockchain-info',
@@ -11,6 +12,9 @@ import { Blockchain } from 'src/app/classes/ChainHunter/Blockchain';
 export class BlockchainInfoComponent implements OnInit {
   blockchains: Map<string, Blockchain> = new Map<string, Blockchain>();
   chains: Blockchain[] = [];
+  screenWidth: any;
+  selectedChain: string;
+  selectedChainType: string;
 
   constructor(private chainService: ChainHunterService,
               private titleService: Title) {
@@ -18,7 +22,14 @@ export class BlockchainInfoComponent implements OnInit {
   }
 
   ngOnInit() { 
-      this.getChains();       
+      this.getChains();
+      this.screenWidth = window.innerWidth;
+  }
+
+  @HostListener('window:resize', ['$event'])
+
+  onResize(event) {
+    this.screenWidth = window.innerWidth;
   }
 
   getChains() {
@@ -33,6 +44,16 @@ export class BlockchainInfoComponent implements OnInit {
       for(const [key, value] of Object.entries(this.blockchains)) {
           this.chains.push(value);
       }
+  }
+
+  selectChain(event, name: string, overlayPanel: OverlayPanel) {
+    this.selectedChain = name;
+    overlayPanel.toggle(event);
+  }
+
+  selectType(event, chain: Blockchain, overlayPanel: OverlayPanel) {
+    this.selectedChainType = chain.type;
+    overlayPanel.toggle(event);
   }
 
   getAbreviatedType(type: string): string {

@@ -31,7 +31,23 @@ const blockchainType = {
     IOT : 'IoT'
 }
 
+const transactionType = {
+    TRANSFER : 'Transfer',
+    CONTRACT: 'Contract',
+    FEE : 'Fee',
+    STAKING : 'Staking',
+    MINING : 'Mining',
+    CHANGETRUST : 'Change Trust',
+    PAYMENT : 'Payment',
+    TRADE : 'Trade',
+    CREDIT : 'Credit',
+    TRUSTREMOVED : 'Trustline Removed',
+    TRUSTCREATED : 'Trustline Created',
+    MANAGEOFFER : 'Manage Offer'
+}
+
 module.exports = {
     searchType,
-    blockchainType
+    blockchainType,
+    transactionType
 }

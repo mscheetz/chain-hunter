@@ -14,15 +14,16 @@ const iost = require('./iost.js');
 const ltc = require('./ltc.js');
 const nano = require('./nano.js');
 const neo = require('./neo.js');
+const nebl = require('./nebl.js');
 const ont = require('./ont.js');
 const qtum = require('./qtum.js');
 const rvn = require('./rvn.js');
 const trx = require('./trx.js');
 const usdt = require('./usdt.js');
 const vet = require('./vet.js');
+const xlm = require('./xlm.js');
 const xrp = require('./xrp.js');
 const zel = require('./zel.js');
-const nebl = require('./nebl.js');
 
 const getChains = function() {
     const chains = [
@@ -164,7 +165,7 @@ const getChains = function() {
         {
             name: 'Stellar Lumens',
             symbol: 'XLM',
-            status: 'Future'
+            status: 'Active'
         },
         {
             name: 'Tether',
@@ -288,6 +289,8 @@ const getEmptyBlockchain = async(chain) => {
         blockchain =  await qtum.getEmptyBlockchain();
     } else if(chain === 'nebl') {
         blockchain =  await nebl.getEmptyBlockchain();
+    } else if(chain === 'xlm') {
+        blockchain =  await xlm.getEmptyBlockchain();
     }
     
     blockchain.address = null;
@@ -350,6 +353,8 @@ const getEmptyBlockchains = async() => {
             blockchains["QTUM"] = await qtum.getEmptyBlockchain();
         } else if(chains[i].symbol === 'NEBL') {
             blockchains["NEBL"] = await nebl.getEmptyBlockchain();
+        } else if(chains[i].symbol === 'XLM') {
+            blockchains["XLM"] = await xlm.getEmptyBlockchain();
         // } else if(chains[i].symbol === 'DCR') {
         //     blockchains["DCR"] = await dcr.getEmptyBlockchain();
         }
@@ -410,6 +415,8 @@ const getBlockchains = async(toFind) => {
             blockchains["QTUM"] = await qtum.getBlockchain(toFind);
         } else if(chains[i].symbol === 'NEBL') {
             blockchains["NEBL"] = await nebl.getBlockchain(toFind);
+        } else if(chains[i].symbol === 'XLM') {
+            blockchains["XLM"] = await xlm.getBlockchain(toFind);
         // } else if(chains[i].symbol === 'DCR') {
         //     blockchains["DCR"] = await dcr.getBlockchain(toFind);
         }
@@ -467,6 +474,8 @@ const getBlockchain = async(chain, toFind) => {
         return await qtum.getBlockchain(toFind);
     } else if (chain === "nebl") {
         return await nebl.getBlockchain(toFind);
+    } else if (chain === "xlm") {
+        return await xlm.getBlockchain(toFind);
     // } else if (chain === "dcr") {
     //     return await dcr.getBlockchain(toFind);
     }
@@ -537,6 +546,8 @@ const getTransactions = async(chain, address) => {
         return await qtum.getTransactions(address);
     } else if (chain === "nebl") {
         return await nebl.getTransactions(address);
+    } else if (chain === "xlm") {
+        return await xlm.getTransactions(address);
     // } else if (chain === "dcr") {
     //     return await dcr.getTransactions(address);
     }

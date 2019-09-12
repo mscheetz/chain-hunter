@@ -466,6 +466,20 @@ const searchType = function(chain, toFind) {
             return enums.searchType.transaction;
         }
     }
+    if(toFind.substr(0, 1) === "G" && toFind.length === 56) {
+        if(chain === "xlm") {
+            return enums.searchType.address;
+        } else {
+            return enums.searchType.transaction | enums.searchType.contract;
+        }
+    }
+    if(chain === "xlm") {
+        if(toFind.substr(0, 1) === "G" && toFind.length === 56) {
+            return enums.searchType.address;
+        } else {
+            return enums.searchType.transaction;
+        }
+    }
 
     return enums.searchType.address | enums.searchType.transaction | enums.searchType.contract;
 }

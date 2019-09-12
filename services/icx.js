@@ -80,7 +80,7 @@ const tokenConvert = async(tokens) => {
             symbol: token.contractSymbol,
             name: token.contractName
         }
-        const icon = 'color/' + token.contractSymbol.toLowerCase() + '.png';
+        const icon = 'color/' + asset.symbol.toLowerCase() + '.png';
         const iconStatus = helperSvc.iconExists(icon);
         asset.hasIcon = iconStatus;
 

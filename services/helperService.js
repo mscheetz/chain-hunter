@@ -1,5 +1,6 @@
 const fs = require('fs');
 const enums = require('../classes/enums');
+const _ = require('lodash');
 
 /**
  * Get current unix timestamp
@@ -150,6 +151,109 @@ const iconExists = function(iconName) {
     } catch(err) {
         return false;
     }
+}
+
+const getIO = function(symbol, io, isInput = true) {
+    let quantity = 0;
+    let addresses = [];
+    let icon = "";
+    if(isInput) {
+        quantity = io.prev_out.value;
+        addresses.push(io.prev_out.addr);
+    } else {
+        quantity = io.value;
+        addresses.push(io.addr);
+    }
+    const newQuantity = quantity/100000000;
+
+    const data = {
+        addresses: addresses,
+        quantity: newQuantity,
+        symbol: symbol,
+        icon: icon
+    }
+
+    return data;
+}
+
+const cleanIO = function(ios) {
+    let addyMap = [];
+    ios.forEach(io => {
+        let data = null;
+        if(typeof io.quantity !== 'undefined') {
+            data = {
+                symbol: io.symbol,
+                quantity: io.quantity
+            }
+            if(typeof io.icon !== 'undefined') {
+                data.icon = io.icon;
+            }            
+        }
+        for(let i = 0; i < io.addresses.length; i++) {
+            let thisAddress = io.addresses[i];
+            
+            let datas = [];
+            if(!(thisAddress in addyMap)) {
+                addyMap[thisAddress] = datas;
+            }
+            datas = addyMap[thisAddress];
+            if(data !== null) {
+                datas.push(data);
+            }
+            addyMap[thisAddress] = datas;
+        }
+    })
+    
+    let ioDatas = [];
+    
+    Object.keys(addyMap).forEach(function(address){
+        if(addyMap[address].length === 0) {
+            let addys = [];
+            addys.push(address);
+            let data = {
+                addresses: addys
+            };
+            ioDatas.push(data);
+        } else {
+            let symbols = addyMap[address].map(a => a.symbol);
+            symbols = _.uniq(symbols);
+            
+            for(let i = 0; i < symbols.length; i++) {
+                let quants = addyMap[address].filter(a => a.symbol === symbols[i]);
+                let quantity = 0;
+                let icon = "";
+                let iconExists = false;
+                for(let j = 0; j < quants.length; j++) {
+                    if(typeof quants[j].icon !== 'undefined') {
+                        icon = quants[j].icon;
+                        iconExists = true;
+                    }
+                    let thisQuantity = 0;
+                    if(_.isString(quants[j].quantity)) {
+                        const thisQuant = quants[j].quantity.replace(",", "");
+                        thisQuantity = parseFloat(thisQuant);
+                    } else {
+                        thisQuantity = quants[j].quantity;
+                    }
+                    quantity += thisQuantity;
+                }
+                const totalQuantity = commaBigNumber(quantity.toString());
+                let addys = [];
+                addys.push(address);
+                let data = {
+                    addresses: addys,
+                    symbol: symbols[i],
+                    quantity: totalQuantity
+                };
+                if(iconExists) {
+                    data.icon = icon;
+                }
+                ioDatas.push(data);
+            }
+        }
+    });
+
+    return ioDatas;
 }
 
 /**
@@ -485,6 +589,8 @@ const searchType = function(chain, toFind) {
 }
 
 module.exports = {
+    getIO,
+    cleanIO,
     getUnixTS,
     commaBigNumber,
     bigNumberToDecimal,

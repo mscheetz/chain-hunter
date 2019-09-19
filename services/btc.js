@@ -59,7 +59,7 @@ const getAddress = async(addressToFind) => {
             };
             const latestblock = await getLatestBlock();
             const txns = datas.txs.slice(0, 10);
-            address.transactions = getTransactions(txns, latestblock);
+            address.transactions = getTransactions(txns, latestblock, datas.address);
 
             return address;
         } else {
@@ -70,10 +70,47 @@ const getAddress = async(addressToFind) => {
     }
 }
 
-const getTransactions = function(txns, latestblock) {
+const getTransactions = function(txns, latestblock, address) {
     let transactions = [];
     txns.forEach(txn => {
-        transactions.push(buildTransaction(txn, latestblock));
+        let transaction = buildTransaction(txn, latestblock);
+        let inout = "";
+        let quantity = "";
+        let symbol = "";
+        transaction.froms.forEach(from => {
+            for(let i = 0; i < from.addresses.length; i++) {
+                if(from.addresses[i] === address) {
+                    quantity = from.quantity;
+                    symbol = from.symbol;
+                    inout = "Sender";
+                    break;
+                }
+            }
+        });
+        if(inout === "") {
+            inout = "Receiver";
+            transaction.tos.forEach(to => {
+                for(let i = 0; i < to.addresses.length; i++) {
+                    if(to.addresses[i] === address) {
+                        quantity = to.quantity;
+                        symbol = to.symbol;
+                        break;
+                    }
+                }
+            });
+        }
+        transaction.inout = inout;
+        if(inout === "Receiver") {
+            transaction.ios = transaction.froms;
+        } else {            
+            transaction.ios = transaction.tos;
+        }
+        
+        transaction.froms = [];
+        transaction.tos = [];
+        transaction.quantity = quantity;
+        transaction.symbol = symbol;
+        transactions.push(transaction);
     });
 
     return transactions;            
@@ -142,6 +179,43 @@ const getLatestBlock = async() => {
 }
 
 const buildTransaction = function(txn, latestblock) {
+    let froms = [];
+    let tos = [];
+    txn.inputs.forEach(input => {
+        let from = null;
+        if(typeof input.prev_out === "undefined") {
+            from = {
+                addresses: ["coinbase"]
+            }
+        } else {
+            from = helperSvc.getIO("BTC", input, true);
+        }
+        froms.push(from);
+    });
+    txn.out.forEach(output => {
+        const to = helperSvc.getIO("BTC", output, false);
+        tos.push(to);
+    });
+
+    const fromDatas = helperSvc.cleanIO(froms);
+    const toDatas = helperSvc.cleanIO(tos);
+    
+    const confirmations = latestblock > 0 ? latestblock - txn.block_height : null;
+    
+    const transaction = {
+        type: enums.transactionType.TRANSFER,
+        hash: txn.hash,
+        block: txn.block_height,
+        confirmations: confirmations,
+        date: helperSvc.unixToUTC(txn.time),
+        froms: fromDatas,
+        tos: toDatas
+    };
+
+    return transaction;
+}
+
+const buildTransactionOG = function(txn, latestblock) {
     let from = [];
     let to = [];
     let quantity = 0;
@@ -163,6 +237,7 @@ const buildTransaction = function(txn, latestblock) {
     const total = helperSvc.commaBigNumber(newQuantity.toString());
     
     const transaction = {
+        type: enums.transactionType.TRANSFER,
         hash: txn.hash,
         block: txn.block_height,
         quantity: total,

@@ -110,6 +110,16 @@ export class ChainHunterService{
         return this.onGet<Asset[]>(url);
     }
 
+    /**
+     * Capture an empty search
+     */
+    emptySearch(): Observable<boolean>{
+        let endpoint: string = "/api/empty";
+        let url: string = this.baseUrl + endpoint;
+
+        return this.onGet<boolean>(url);
+    }
+
     onGet<T>(url: string): Observable<T> {
         let headers = {
             'TCH-USER': this.user,

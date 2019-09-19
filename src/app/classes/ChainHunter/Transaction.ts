@@ -1,3 +1,5 @@
+import { IO } from './IO';
+
 export class Transaction{
     constructor () {}
 
@@ -10,4 +12,9 @@ export class Transaction{
     confirmations: number;
     block: number;
     latestBlock: number;
+    froms: IO[];
+    tos: IO[];
+    ios: IO[];
+    type: string;
+    inout: string;
 } 

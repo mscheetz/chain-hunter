@@ -228,6 +228,12 @@ export class ChainHunterComponent implements OnInit {
         if(this.requestedChains === 0) {
             this.notRunning = true;
             this.huntStatus = this.resultsFound.length === 0 ? 2 : 3;
+            if(this.resultsFound.length === 0) {
+                this.chainService.emptySearch()
+                    .subscribe(res => {
+                        return;
+                    });
+            }
             this.setCookie();
         }
     }

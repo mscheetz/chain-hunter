@@ -116,6 +116,17 @@ router.get('/api/address/:chain/:address/tokens', asyncMiddleware(async (req, re
   }
 }));
 
+router.get('/api/empty', asyncMiddleware(async (req, res, next) => {
+  const headerMsg = headerCheck(req);
+  if(!headerMsg.status) {
+    errorResponse(res);
+  } else {
+    await dataSvc.updateSearchResult(headerMsg.ip, req.ipInfo, "none", "empty");
+
+    res.status(200).json(true);
+  }
+}));
+
 router.get('/api/results/country', asyncMiddleware(async (req, res, next) => {
   const headerMsg = headerCheck(req);
   if(!headerMsg.status) {

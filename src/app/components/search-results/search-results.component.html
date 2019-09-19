@@ -10,19 +10,17 @@
             <p-accordionTab 
                     header="Most recent {{blockchain.symbol}} address transactions" 
                     *ngIf="blockchain.address.hasTransactions">
-                <div *ngIf="!transactionsComplete">Fetching Transactions...</div>
+                <div *ngIf="!transactionsComplete">
+                    Fetching Transactions <i class="fa fa-cog fa-2x fa-spin" style="color: #464a4e;"></i>
+                </div>
                 <div
                     *ngIf="blockchain.address.transactions !== undefined && blockchain.address.transactions.length === 0">
                     No transactions found</div>
                 <ul>
                     <li class="address-txn" *ngFor="let txn of blockchain.address.transactions">
-                        Transaction Type: {{txn.from.includes(blockchain.address.address) ? 'Send' : 'Receive'}} <br>
-                        Hash: {{txn.hash}} <br>
-                        <span *ngIf="txn.quantity">Quantity: {{txn.quantity}} {{txn.symbol}}<br></span>
-                        From: {{txn.from}}<br>
-                        To: {{txn.to}} <br>
-                        Date: {{txn.date}} <br>
-                        <span *ngIf="txn.confirmations > -1">Confirmations: {{txn.confirmations}}</span>
+                        <transaction [transaction]="txn" 
+                                     [address]="blockchain.address.address"
+                                     [showHash]="true"></transaction>
                     </li>
                 </ul>
             </p-accordionTab>
@@ -64,14 +62,9 @@
     <!-- Transaction Results -->
     <p-panel header="{{blockchain.symbol}} Transaction" *ngIf="blockchain.transaction">
         <h3 class="word-break">{{blockchain.symbol}} Transaction Hash: {{blockchain.transaction.hash}}</h3>
-        <div>Quantity: {{blockchain.transaction.quantity}} {{blockchain.transaction.symbol}}</div>
-        <div *ngIf="blockchain.transaction.date">Date: {{blockchain.transaction.date}}</div>
-        <div>From: {{blockchain.transaction.from}}</div>
-        <div>To: {{blockchain.transaction.to}}</div>
-        <div *ngIf="blockchain.transaction.block > 0">Block: {{blockchain.transaction.block}}</div>
-        <div *ngIf="blockchain.transaction.confirmations > -1">
-            Confirmations: {{blockchain.transaction.confirmations}}
-        </div>
+        <transaction [transaction]="blockchain.transaction"
+                     [address]=""
+                     [showHash]="false"></transaction>
         <div *ngIf="blockchain.source">
             <p>
                 For more info: <a href="{{blockchain.source}}" target="_blank">{{blockchain.source}}</a>

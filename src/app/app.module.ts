@@ -38,6 +38,7 @@ import { BlockchainInfoComponent } from './components/blockchain-info/blockchain
 import { DialogModule } from 'primeng/dialog';
 import { NgxQRCodeModule } from 'node_modules/ngx-qrcode2';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
+import { TransactionComponent } from './components/transaction/transaction.component';
 
 const appRoutes: Routes = [
   { path: '', component: ChainHunterComponent },
@@ -64,7 +65,8 @@ const appRoutes: Routes = [
     SamplesComponent,
     SearchResultsComponent,
     TermsComponent,
-    TopAdComponent
+    TopAdComponent,
+    TransactionComponent
   ],
   imports: [
     AccordionModule,

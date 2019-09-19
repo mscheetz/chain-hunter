@@ -78,6 +78,20 @@ const getTransactions = async(address) => {
             let transactions = [];
             for(let i = 0; i < txns.length; i++){
                 const txn = await getTransaction(txns[i].addresses);
+                let inout = "";
+                txn.froms.forEach(from => {
+                    for(let i = 0; i < from.addresses.length; i++) {
+                        if(from.addresses[i] === address) {
+                            inout = "Sender";
+                            break;
+                        }
+                    }
+                });
+                if(inout === "") {
+                    inout = "Receiver";
+                }
+                txn.inout = inout;
+
                 transactions.push(txn);
             }
             return transactions;
@@ -105,7 +119,7 @@ const getTransaction = async(hash) => {
     }
 }
 
-const getTransactionSource = async(hash) => {
+const getTransactionSource = async(hash, tos) => {
     let endpoint = "/api/getrawtransaction?txid=" + hash + "&decrypt=1";
     let url = base + endpoint;
     
@@ -113,21 +127,117 @@ const getTransactionSource = async(hash) => {
         const response = await axios.get(url);
         const datas = response.data;
         
-        let source = [];
+        let sources = [];
         for(let i = 0; i < datas.vout.length; i++) {
             if(_.has(datas.vout[i].scriptPubKey, 'addresses')){
-                datas.vout[i].scriptPubKey.addresses.forEach(address => {
-                    if(address && source.indexOf(address) <= -1) {
-                        source.push(address);
-                    }
-                });
+                const out = datas.vout[i];
+                let source = getIOs(out, tos);
+
+                source = validateIO(source, sources);
+
+                if(source !== null) {
+                    sources.push(source);
+                }
             }
         }
-
-        return source;
+        
+        return sources;
     } catch(error) {
+        return [];
+    }
+}
+
+const validateIO = function(io, ios) {
+    let valid = true;
+    if(io === null) {
+        valid = false;
+    } else if(ios.length === 0) {
+        valid = true;
+    } else {
+        ios.forEach(src => {
+            for(let j = 0; j < src.addresses.length; j++) {
+                for(let k = 0; k < io.addresses.length; k++) {
+                    if(io.addresses[k] === src.addresses[j]) {
+                        valid = false;
+                        break;
+                    }
+                }
+            }
+        });
+    }
+    
+    return valid ? io : null;
+}
+
+const getIOs = function(io, tos = null) {
+    if(typeof io.scriptPubKey.addresses === 'undefined') {
         return null;
     }
+    let quantity = io.value;
+    let symbol = "NEBL";
+    let icon = null;
+    let addresses = io.scriptPubKey.addresses;
+    let skipIO = false;
+    let toSymbols = tos === null ? [] : tos.map(t => t.symbol);
+    let toAddresses = [];
+    if(tos !== null) {
+        tos.forEach(to => {
+            for(let i = 0; i < to.addresses.length; i++) {
+                toAddresses.push(to.addresses[i]);
+            }
+        })
+    }
+    if(toAddresses.length > 0) {
+        let addyFound = false;
+        toAddresses.forEach(address => {
+            for(let i = 0; i < addresses.length; i++) {
+                if(address === addresses[i]) {
+                    addyFound = true;
+                }
+            }
+        })
+        if(!addyFound) {
+            skipIO = true;
+        }
+    }
+
+    if(skipIO) {
+        return null;
+    }
+
+    if(io.tokens.length > 0) {
+        quantity = 0;        
+        io.tokens.forEach(token => {
+            quantity += parseFloat(token.amount);
+            symbol = token.metadataOfIssuance.data.tokenName;
+            
+            if(tos !== null && toSymbols.indexOf(symbol) < 0) {
+                skipIO = true;
+            }
+            if(token.metadataOfIssuance.data.urls.length > 0) {
+                for(let i = 0; i > token.metadataOfIssuance.data.urls.length; i++) {
+                    if(token.metadataOfIssuance.data.urls[i].name === "icon") {
+                        icon = token.metadataOfIssuance.data.urls[i].url;
+                    }
+                }
+            }
+        });
+    }
+
+    if (skipIO) {
+        return null;
+    }
+
+    const total = helperSvc.commaBigNumber(quantity.toString());
+
+    const source = {
+        addresses: addresses,
+        quantity: total,
+        symbol: symbol,
+        icon: icon
+    }    
+
+    return source;
 }
 
 const getBlockHeight = async(hash) => {
@@ -145,65 +255,90 @@ const getBlockHeight = async(hash) => {
 }
 
 const buildTransaction = async(txn) => {
-    let from = [];
-    let to = [];
-    let quantity = 0;
-    let symbol = "";
-    let sources = [];
-    if(txn.ntp1) {
-        for(let i =0; i < txn.vin.length; i++) {
-            if(sources.length === 0 && txn.vin[i].tokens.length > 0) {
-                sources = await getTransactionSource(txn.vin[i].txid);
-            }
-        }
-    } else {
-        sources = await getTransactionSource(txn.vin[0].txid);
-        symbol = "NEBL";
-    }
-    
-    if(sources !== null && sources.length > 0) {
-        sources.forEach(src => {
-            if(from.length == 0 || from.indexOf(src) < 0){
-                from.push(src);
-            }
-        });
-    }
-
+    let froms = [];
+    let tos = [];
     for(let i = 0; i < txn.vout.length; i++) {
-        if(txn.ntp1) {
-            txn.vout[i].tokens.forEach(token => {
-                quantity += parseFloat(token.amount);
-                if(symbol === "") {
-                    symbol = token.metadataOfIssuance.data.tokenName;
-                }
-            });
-        } else {
-            quantity += txn.vout[i].value;
-        }
-        if(typeof txn.vout[i].scriptPubKey.addresses !== undefined) {
-            txn.vout[i].scriptPubKey.addresses.forEach(address => {
-                if(address && to.indexOf(address) <= -1) {
-                    to.push(address);
-                }
-            });
+        const to = getIOs(txn.vout[i]);
+        if(to !== null) {
+            tos.push(to);
         }
     }
 
-    const total = helperSvc.commaBigNumber(quantity.toString());
+    for(let i =0; i < txn.vin.length; i++) {
+        const from = await getTransactionSource(txn.vin[i].txid, tos);
+        from.forEach(fr => {
+            froms.push(fr);
+        })
+    }
+
+    const toDatas = helperSvc.cleanIO(tos);
+    const fromDatas = helperSvc.cleanIO(froms);
+
     const block = await getBlockHeight(txn.blockhash);
 
     let transaction = {
+        type: enums.transactionType.TRANSFER,
         hash: txn.txid,
-        quantity: total,
         block: block,
         confirmations: txn.confirmations,
-        symbol: symbol,
         date: helperSvc.unixToUTC(txn.time),
-        from: from.join(", "),
-        to: to.join(", ")
+        froms: fromDatas,
+        tos: toDatas
     };
 
     return transaction;
+}
+
+const cleanIO = function(ios) {
+    
+    let addyMap = [];
+    ios.forEach(io => {
+        let data = {
+            symbol: io.symbol,
+            quantity: io.quantity,
+            icon: io.icon
+        }
+        for(let i = 0; i < io.addresses.length; i++) {
+            let thisAddress = io.addresses[i];
+            
+            let datas = [];
+            if(!(thisAddress in addyMap)) {
+                addyMap[thisAddress] = datas;
+            }
+            datas = addyMap[thisAddress];
+            datas.push(data);
+            addyMap[thisAddress] = datas;
+        }
+    })
+    let ioDatas = [];
+    
+    Object.keys(addyMap).forEach(function(address){
+        let symbols = addyMap[address].map(a => a.symbol);
+        symbols = _.uniq(symbols);
+        
+        for(let i = 0; i < symbols.length; i++) {
+            let quants = addyMap[address].filter(a => a.symbol === symbols[i]);
+            let quantity = 0;
+            let icon = "";
+            for(let j = 0; j < quants.length; j++) {
+                icon = quants[j].icon;
+                const thisQuant = quants[j].quantity.replace(",", "");
+                quantity += parseFloat(thisQuant);
+            }
+            const totalQuantity = helperSvc.commaBigNumber(quantity.toString());
+            let addys = [];
+            addys.push(address);
+            let data = {
+                addresses: addys,
+                symbol: symbols[i],
+                quantity: totalQuantity,
+                icon: icon
+            };
+            ioDatas.push(data);
+        }
+    });
+
+    return ioDatas;
 }
 
 module.exports = {

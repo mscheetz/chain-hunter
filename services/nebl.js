@@ -77,20 +77,8 @@ const getTransactions = async(address) => {
             const txns = response.data.last_txs.slice(0, 5);
             let transactions = [];
             for(let i = 0; i < txns.length; i++){
-                const txn = await getTransaction(txns[i].addresses);
-                let inout = "";
-                txn.froms.forEach(from => {
-                    for(let i = 0; i < from.addresses.length; i++) {
-                        if(from.addresses[i] === address) {
-                            inout = "Sender";
-                            break;
-                        }
-                    }
-                });
-                if(inout === "") {
-                    inout = "Receiver";
-                }
-                txn.inout = inout;
+                let txn = await getTransaction(txns[i].addresses);
+                txn = helperSvc.inoutCalculation(address, txn);
 
                 transactions.push(txn);
             }

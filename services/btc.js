@@ -72,7 +72,7 @@ const getAddress = async(addressToFind) => {
 const getTransactions = function(txns, latestblock, address) {
     let transactions = [];
     txns.forEach(txn => {
-        let transaction = buildTransaction(txn, latestblock);        
+        let transaction = buildTransaction(txn, latestblock);
         transaction = helperSvc.inoutCalculation(address, transaction);
         
         transactions.push(transaction);

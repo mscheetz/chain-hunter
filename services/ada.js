@@ -56,7 +56,7 @@ const getAddress = async(addressToFind) => {
                 hasTransactions: true
             };
             const txns = datas.caTxList.slice(0, 10);
-            address.transactions = getTransactions(txns);
+            address.transactions = getTransactions(address.address, txns);
 
             return address;
         } else {
@@ -67,12 +67,17 @@ const getAddress = async(addressToFind) => {
     }
 }
 
-const getTransactions = function(txns) {
+const getTransactions = function(address, txns) {
     let transactions = [];
-    txns.forEach(txn => {
-        transactions.push(buildTransaction(txn));
-    });
+    txns.forEach(txn => {        
+        let transaction = buildTransaction(txn);
+        //console.log('transaction 1', transaction);
+        transaction = helperSvc.inoutCalculation(address, transaction);
+        //console.log('transaction 2', transaction);
 
+        transactions.push(transaction);
+    });
+    
     return transactions;            
 }
 
@@ -84,9 +89,13 @@ const getTransaction = async(hash) => {
         const response = await axios.get(url);
         if(typeof response.data.Right !== "undefined") {
             const datas = response.data.Right;
+            try{
             const transaction = buildTransactionII(datas);
 
             return transaction;
+            } catch(err) {
+                console.log(err);
+            }
         } else {
             return null;
         }
@@ -96,29 +105,49 @@ const getTransaction = async(hash) => {
 }
 
 const buildTransaction = function(txn) {
-    let from = [];
-    let to = [];
+    let froms = [];
+    let tos = [];
+    const symbol = "ADA";
+
     txn.ctbInputs.forEach(input => {
-        if(from.length === 0 || from.indexOf(input[0]) < 0) {
-            from.push(input[0]);
+        let i = 0;
+        let address = "";
+        let quantity = 0;
+        for(const [key, value] of Object.entries(input)) {
+            if(i === 0) {
+                address = value;
+            } else if (i === 1) {
+                quantity = value.getCoin/1000000;
+            }
+            i++;
         }
+        let from = helperSvc.getSimpleIO(symbol, address, quantity);
+        froms.push(from);
     })
     txn.ctbOutputs.forEach(output => {
-        if(to.length === 0 || to.indexOf(output[0]) < 0) {
-            to.push(output[0]);
+        let i = 0;
+        let address = "";
+        let quantity = 0;
+        for(const [key, value] of Object.entries(output)) {
+            if(i === 0) {
+                address = value;
+            } else if (i === 1) {
+                quantity = value.getCoin/1000000;
+            }
+            i++;
         }
+        let to = helperSvc.getSimpleIO(symbol, address, quantity);
+        tos.push(to);
     })
 
-    const quantity = txn.ctbOutputSum.getCoin/1000000;
-    const total = helperSvc.commaBigNumber(quantity.toString());
+    const fromData = helperSvc.cleanIO(froms);
+    const toData = helperSvc.cleanIO(tos);
 
     let transaction = {
         hash: txn.ctbId,
-        quantity: total,
-        symbol: "ADA",
         date: helperSvc.unixToUTC(txn.ctbTimeIssued),
-        from: from.join(", "),
-        to: to.join(", ")
+        froms: fromData,
+        tos: toData
     };
 
     return transaction;
@@ -126,31 +155,71 @@ const buildTransaction = function(txn) {
 
 
 const buildTransactionII = function(txn) {
-    let from = [];
-    let to = [];
+    let froms = [];
+    let tos = [];
+    const symbol = "ADA";
+
     txn.ctsInputs.forEach(input => {
-        if(from.length === 0 || from.indexOf(input[0]) < 0) {
-            from.push(input[0]);
+        console.log('input', input);
+        let i = 0;
+        let address = "";
+        let quantity = 0;
+        for(const [key, value] of Object.entries(input)) {
+            if(i === 0) {
+                address = value;
+            } else if (i === 1) {
+                quantity = value.getCoin/1000000;
+            }
+            i++;
         }
+        let from = helperSvc.getSimpleIO(symbol, address, quantity);
+        froms.push(from);
     })
     txn.ctsOutputs.forEach(output => {
-        if(to.length === 0 || to.indexOf(output[0]) < 0) {
-            to.push(output[0]);
+        console.log('output', output);
+        let i = 0;
+        let address = "";
+        let quantity = 0;
+        for(const [key, value] of Object.entries(output)) {
+            if(i === 0) {
+                address = value;
+            } else if (i === 1) {
+                quantity = value.getCoin/1000000;
+            }
+            i++;
         }
+        let to = helperSvc.getSimpleIO(symbol, address, quantity);
+        tos.push(to);
     })
+    // let from = [];
+    // let to = [];
+    // txn.ctsInputs.forEach(input => {
+    //     if(from.length === 0 || from.indexOf(input[0]) < 0) {
+    //         from.push(input[0]);
+    //     }
+    // })
+    // txn.ctsOutputs.forEach(output => {
+    //     if(to.length === 0 || to.indexOf(output[0]) < 0) {
+    //         to.push(output[0]);
+    //     }
+    // })
 
+    const fromData = helperSvc.cleanIO(froms);
+    const toData = helperSvc.cleanIO(tos);
     let block = txn.ctsBlockEpoch + "." + txn.ctsBlockSlot;
-    const quantity = txn.ctsTotalOutput.getCoin/1000000;
-    const total = helperSvc.commaBigNumber(quantity.toString());
+    // const quantity = txn.ctsTotalOutput.getCoin/1000000;
+    // const total = helperSvc.commaBigNumber(quantity.toString());
 
     let transaction = {
         hash: txn.ctsId,
         block: parseFloat(block),
-        quantity: total,
-        symbol: "ADA",
+        // quantity: total,
+        // symbol: "ADA",
         date: helperSvc.unixToUTC(txn.ctsTxTimeIssued),
-        from: from.join(", "),
-        to: to.join(", ")
+        froms: fromData,
+        tos: toData
+        // from: from.join(", "),
+        // to: to.join(", ")
     };
 
     return transaction;

@@ -97,7 +97,10 @@ const getTransactions = async(address) => {
             const transactions = [];
             if(datas.length > 0) {
                 datas.forEach(data => {
-                    transactions.push(buildTransaction(data));
+                    let transaction = buildTransaction(data);
+                    transaction = helperSvc.inoutCalculation(address, transaction);
+
+                    transactions.push(transaction);
                 })
             }
 
@@ -130,38 +133,38 @@ const getTransaction = async(hash) => {
 }
 
 const buildTransaction = function(txn) {
-    let from = [];
-    let to = [];
-    if(txn.is_coinbase) {
-        from.push("Coinbase");
-    } else {
-        for(let i = 0; i < txn.inputs.length; i++) {
-            txn.inputs[i].prev_addresses.forEach(address => {
-                if(address && from.indexOf(address) <= -1) {
-                    from.push(address);
-                }
-            })
-        }
-    }
-    for(let i = 0; i < txn.outputs.length; i++) {
-        txn.outputs[i].addresses.forEach(address => {
-            if(address && to.indexOf(address) <= -1) {
-                to.push(address);
+    let froms = [];
+    let tos = [];
+    const symbol = "BCH";
+    txn.inputs.forEach(input => {
+        let from = null;
+        if(txn.is_coinbase){
+            from = {
+                addresses: ["coinbase"]
             }
-        })
-    }
-    const quantity = txn.outputs_value/100000000;
-    const total = helperSvc.commaBigNumber(quantity.toString());
+        } else {
+            const quantity = input.prev_value/100000000;
+            from = helperSvc.getSimpleIOAddresses(symbol, input.prev_addresses, quantity);
+        }
+        froms.push(from);
+    });
+    txn.outputs.forEach(output => {
+        const quantity = output.value/100000000;
+        const to = helperSvc.getSimpleIOAddresses(symbol, output.addresses, quantity);
+        tos.push(to);
+    })
+
+    const fromDatas = helperSvc.cleanIO(froms);
+    const toDatas = helperSvc.cleanIO(tos);
 
     const transaction = {
+        type: enums.transactionType.TRANSFER,
         hash: txn.hash,
         block: txn.block_height,
-        quantity: total,
-        symbol: "BCH",
         confirmations: txn.confirmations,
         date: helperSvc.unixToUTC(txn.created_at),
-        from: from.join(", "),
-        to: to.join(", ")
+        froms: fromDatas,
+        tos: toDatas
     };
 
     return transaction;

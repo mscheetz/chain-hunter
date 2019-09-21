@@ -71,9 +71,7 @@ const getTransactions = function(address, txns) {
     let transactions = [];
     txns.forEach(txn => {        
         let transaction = buildTransaction(txn);
-        //console.log('transaction 1', transaction);
         transaction = helperSvc.inoutCalculation(address, transaction);
-        //console.log('transaction 2', transaction);
 
         transactions.push(transaction);
     });
@@ -89,13 +87,10 @@ const getTransaction = async(hash) => {
         const response = await axios.get(url);
         if(typeof response.data.Right !== "undefined") {
             const datas = response.data.Right;
-            try{
+            
             const transaction = buildTransactionII(datas);
 
             return transaction;
-            } catch(err) {
-                console.log(err);
-            }
         } else {
             return null;
         }
@@ -144,6 +139,7 @@ const buildTransaction = function(txn) {
     const toData = helperSvc.cleanIO(tos);
 
     let transaction = {
+        type: enums.transactionType.TRANSFER,
         hash: txn.ctbId,
         date: helperSvc.unixToUTC(txn.ctbTimeIssued),
         froms: fromData,
@@ -160,7 +156,6 @@ const buildTransactionII = function(txn) {
     const symbol = "ADA";
 
     txn.ctsInputs.forEach(input => {
-        console.log('input', input);
         let i = 0;
         let address = "";
         let quantity = 0;
@@ -176,7 +171,6 @@ const buildTransactionII = function(txn) {
         froms.push(from);
     })
     txn.ctsOutputs.forEach(output => {
-        console.log('output', output);
         let i = 0;
         let address = "";
         let quantity = 0;
@@ -191,35 +185,18 @@ const buildTransactionII = function(txn) {
         let to = helperSvc.getSimpleIO(symbol, address, quantity);
         tos.push(to);
     })
-    // let from = [];
-    // let to = [];
-    // txn.ctsInputs.forEach(input => {
-    //     if(from.length === 0 || from.indexOf(input[0]) < 0) {
-    //         from.push(input[0]);
-    //     }
-    // })
-    // txn.ctsOutputs.forEach(output => {
-    //     if(to.length === 0 || to.indexOf(output[0]) < 0) {
-    //         to.push(output[0]);
-    //     }
-    // })
 
     const fromData = helperSvc.cleanIO(froms);
     const toData = helperSvc.cleanIO(tos);
     let block = txn.ctsBlockEpoch + "." + txn.ctsBlockSlot;
-    // const quantity = txn.ctsTotalOutput.getCoin/1000000;
-    // const total = helperSvc.commaBigNumber(quantity.toString());
 
     let transaction = {
+        type: enums.transactionType.TRANSFER,
         hash: txn.ctsId,
         block: parseFloat(block),
-        // quantity: total,
-        // symbol: "ADA",
         date: helperSvc.unixToUTC(txn.ctsTxTimeIssued),
         froms: fromData,
         tos: toData
-        // from: from.join(", "),
-        // to: to.join(", ")
     };
 
     return transaction;

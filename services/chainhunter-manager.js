@@ -23,6 +23,7 @@ const usdt = require('./usdt.js');
 const vet = require('./vet.js');
 const xlm = require('./xlm.js');
 const xrp = require('./xrp.js');
+const xtz = require('./xtz.js');
 const zel = require('./zel.js');
 
 const getChains = function() {
@@ -175,7 +176,7 @@ const getChains = function() {
         {
             name: 'Tezos',
             symbol: 'XTZ',
-            status: 'Future'
+            status: 'Active'
         },
         {
             name: 'Theta',
@@ -291,6 +292,8 @@ const getEmptyBlockchain = async(chain) => {
         blockchain =  await nebl.getEmptyBlockchain();
     } else if(chain === 'xlm') {
         blockchain =  await xlm.getEmptyBlockchain();
+    } else if(chain === 'xtz') {
+        blockchain =  await xtz.getEmptyBlockchain();
     }
     
     blockchain.address = null;
@@ -355,6 +358,8 @@ const getEmptyBlockchains = async() => {
             blockchains["NEBL"] = await nebl.getEmptyBlockchain();
         } else if(chains[i].symbol === 'XLM') {
             blockchains["XLM"] = await xlm.getEmptyBlockchain();
+        } else if(chains[i].symbol === 'XTZ') {
+            blockchains["XTZ"] = await xtz.getEmptyBlockchain();
         // } else if(chains[i].symbol === 'DCR') {
         //     blockchains["DCR"] = await dcr.getEmptyBlockchain();
         }
@@ -417,6 +422,8 @@ const getBlockchains = async(toFind) => {
             blockchains["NEBL"] = await nebl.getBlockchain(toFind);
         } else if(chains[i].symbol === 'XLM') {
             blockchains["XLM"] = await xlm.getBlockchain(toFind);
+        } else if(chains[i].symbol === 'XTZ') {
+            blockchains["XTZ"] = await xtz.getBlockchain(toFind);
         // } else if(chains[i].symbol === 'DCR') {
         //     blockchains["DCR"] = await dcr.getBlockchain(toFind);
         }
@@ -476,6 +483,8 @@ const getBlockchain = async(chain, toFind) => {
         return await nebl.getBlockchain(toFind);
     } else if (chain === "xlm") {
         return await xlm.getBlockchain(toFind);
+    } else if (chain === "xtz") {
+        return await xtz.getBlockchain(toFind);
     // } else if (chain === "dcr") {
     //     return await dcr.getBlockchain(toFind);
     }
@@ -548,6 +557,8 @@ const getTransactions = async(chain, address) => {
         return await nebl.getTransactions(address);
     } else if (chain === "xlm") {
         return await xlm.getTransactions(address);
+    } else if (chain === "xtz") {
+        return await xtz.getTransactions(address);
     // } else if (chain === "dcr") {
     //     return await dcr.getTransactions(address);
     }

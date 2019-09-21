@@ -1,6 +1,10 @@
 <div *ngIf="showHash">Transaction Hash: {{transaction.hash}}</div>
-<div *ngIf="transaction.inout">Transaction Type: {{transaction.inout}}</div>
-<div *ngIf="transaction.from">Transaction Type: {{transaction.from.includes(address) ? 'Sender' : 'Receiver'}}</div>
+<div *ngIf="transaction.type">
+  <div>Transaction Type: {{transaction.type}}</div>
+  <div *ngIf="transaction.inout">Direction: {{transaction.inout}}</div>
+</div>
+<div *ngIf="!transaction.type && transaction.inout">Transaction Type: {{transaction.inout}}</div>
+<div *ngIf="!transaction.type && !transaction.inout && transaction.from">Transaction Type: {{transaction.from.includes(address) ? 'Sender' : 'Receiver'}}</div>
 <div *ngIf="transaction.quantity && transaction.symbol">
   Quantity: {{ transaction.quantity }}
   {{ transaction.symbol }}

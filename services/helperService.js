@@ -153,7 +153,35 @@ const iconExists = function(iconName) {
     }
 }
 
-const getIO = function(symbol, io, isInput = true) {
+/**
+ * Get IO from a simple chain
+ * @param {*} symbol symbol of chain
+ * @param {*} address address of io
+ * @param {*} quantity quantity of io
+ */
+const getSimpleIO = function(symbol, address, quantity) {
+    let addresses = [];
+    addresses.push(address);
+    let icon = "";
+
+    const data = {
+        addresses: addresses,
+        quantity: quantity,
+        symbol: symbol,
+        icon: icon
+    }
+
+    return data;
+}
+
+/**
+ * Get IO from a detailed chain
+ * @param {string} symbol symbol of chain
+ * @param {any} io in/out to parse
+ * @param {boolean} isInput is input or output
+ * @param {number} divisor number to divide quantity by
+ */
+const getIO = function(symbol, io, isInput = true, divisor = 100000000) {
     let quantity = 0;
     let addresses = [];
     let icon = "";
@@ -164,7 +192,7 @@ const getIO = function(symbol, io, isInput = true) {
         quantity = io.value;
         addresses.push(io.addr);
     }
-    const newQuantity = quantity/100000000;
+    const newQuantity = quantity/divisor;
 
     const data = {
         addresses: addresses,
@@ -176,6 +204,10 @@ const getIO = function(symbol, io, isInput = true) {
     return data;
 }
 
+/**
+ * Clean up IOs
+ * @param {any[]} ios array of ios
+ */
 const cleanIO = function(ios) {
     let addyMap = [];
     ios.forEach(io => {
@@ -584,11 +616,35 @@ const searchType = function(chain, toFind) {
             return enums.searchType.transaction;
         }
     }
+    if((toFind.substr(0, 2) === "KT" || toFind.substr(0, 2) === "tz") && toFind.length === 36) {
+        if(chain === "xtz") {
+            return enums.searchType.address;
+        } else {
+            return enums.searchType.transaction | enums.searchType.contract;
+        }
+    }
+    if(toFind.substr(0, 1) === "o" && toFind.length == 51) {
+        if(chain === "xtz") {
+            return enums.searchType.transaction;
+        } else {
+            return enums.searchType.transaction | enums.searchType.contract;
+        }
+    }
+    if(chain === "xtz") {
+        if((toFind.substr(0, 2) === "KT" || toFind.substr(0, 2) === "tz") && toFind.length === 36) {
+            return enums.searchType.address;
+        } else if (toFind.substr(0, 1) === "o" && toFind.length == 51) {
+            return enums.searchType.transaction;
+        } else {
+            return enums.searchType.nothing;
+        }
+    }
 
     return enums.searchType.address | enums.searchType.transaction | enums.searchType.contract;
 }
 
 module.exports = {
+    getSimpleIO,
     getIO,
     cleanIO,
     getUnixTS,

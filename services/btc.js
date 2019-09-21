@@ -1,8 +1,7 @@
 const axios = require('axios');
 const helperSvc = require('./helperService.js');
-const base = "https://blockchain.info";//"https://chain.api.btc.com/v3";
+const base = "https://blockchain.info";
 const enums = require('../classes/enums');
-const delay = time => new Promise(res=>setTimeout(res,time));
 
 const getEmptyBlockchain = async() => {
     const chain = {};
@@ -73,70 +72,13 @@ const getAddress = async(addressToFind) => {
 const getTransactions = function(txns, latestblock, address) {
     let transactions = [];
     txns.forEach(txn => {
-        let transaction = buildTransaction(txn, latestblock);
-        let inout = "";
-        let quantity = "";
-        let symbol = "";
-        transaction.froms.forEach(from => {
-            for(let i = 0; i < from.addresses.length; i++) {
-                if(from.addresses[i] === address) {
-                    quantity = from.quantity;
-                    symbol = from.symbol;
-                    inout = "Sender";
-                    break;
-                }
-            }
-        });
-        if(inout === "") {
-            inout = "Receiver";
-            transaction.tos.forEach(to => {
-                for(let i = 0; i < to.addresses.length; i++) {
-                    if(to.addresses[i] === address) {
-                        quantity = to.quantity;
-                        symbol = to.symbol;
-                        break;
-                    }
-                }
-            });
-        }
-        transaction.inout = inout;
-        if(inout === "Receiver") {
-            transaction.ios = transaction.froms;
-        } else {            
-            transaction.ios = transaction.tos;
-        }
+        let transaction = buildTransaction(txn, latestblock);        
+        transaction = helperSvc.inoutCalculation(address, transaction);
         
-        transaction.froms = [];
-        transaction.tos = [];
-        transaction.quantity = quantity;
-        transaction.symbol = symbol;
         transactions.push(transaction);
     });
 
     return transactions;            
-}
-
-const getTransactionsOG = async(address) => {
-    let endpoint = "/address/" + address + "/tx";
-    let url = base + endpoint;
-
-    try{
-        const response = await axios.get(url);
-        if(response.data.err_no === 0 && response.data.data !== null) {
-            const datas = response.data.data.list.splice(0, 10);
-            const transactions = [];
-            if(datas.length > 0) {
-                datas.forEach(data => {
-                    transactions.push(buildTransaction(data));
-                })
-            }
-            return transactions;
-        } else {
-            return [];
-        }
-    } catch(error) {
-        return [];
-    }
 }
 
 const getTransaction = async(hash) => {
@@ -210,42 +152,6 @@ const buildTransaction = function(txn, latestblock) {
         date: helperSvc.unixToUTC(txn.time),
         froms: fromDatas,
         tos: toDatas
-    };
-
-    return transaction;
-}
-
-const buildTransactionOG = function(txn, latestblock) {
-    let from = [];
-    let to = [];
-    let quantity = 0;
-    txn.inputs.forEach(input => {
-        if(typeof input.prev_out !== "undefined") {
-            if(from.length === 0 || from.indexOf(input.prev_out.addr) < 0){
-                from.push(input.prev_out.addr);
-            }
-        }
-    });
-    txn.out.forEach(output => {
-        if(to.length === 0 || to.indexOf(output.addr) < 0){
-            to.push(output.addr);
-        }
-        quantity += output.value;
-    });
-    const confirmations = latestblock > 0 ? latestblock - txn.block_height : null;
-    const newQuantity = quantity/100000000;
-    const total = helperSvc.commaBigNumber(newQuantity.toString());
-    
-    const transaction = {
-        type: enums.transactionType.TRANSFER,
-        hash: txn.hash,
-        block: txn.block_height,
-        quantity: total,
-        symbol: "BTC",
-        confirmations: confirmations,
-        date: helperSvc.unixToUTC(txn.time),
-        from: from.join(", "),
-        to: to.join(", ")
     };
 
     return transaction;

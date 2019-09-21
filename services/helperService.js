@@ -175,6 +175,25 @@ const getSimpleIO = function(symbol, address, quantity) {
 }
 
 /**
+ * Get IO from a simple chain with address array
+ * @param {*} symbol symbol of chain
+ * @param {*} addresses address of io
+ * @param {*} quantity quantity of io
+ */
+const getSimpleIOAddresses = function(symbol, addresses, quantity) {
+    let icon = "";
+
+    const data = {
+        addresses: addresses,
+        quantity: quantity,
+        symbol: symbol,
+        icon: icon
+    }
+
+    return data;
+}
+
+/**
  * Get IO from a detailed chain
  * @param {string} symbol symbol of chain
  * @param {any} io in/out to parse
@@ -286,6 +305,53 @@ const cleanIO = function(ios) {
     });
 
     return ioDatas;
+}
+
+/**
+ * InOut calculation for address transaction
+ * 
+ * @param {*} address address searching for
+ * @param {*} transaction transaction data
+ */
+const inoutCalculation = function(address, transaction) {
+    let inout = "";
+    let quantity = "";
+    let symbol = "";
+    transaction.froms.forEach(from => {
+        for(let i = 0; i < from.addresses.length; i++) {
+            if(from.addresses[i] === address) {
+                quantity = from.quantity;
+                symbol = from.symbol;
+                inout = "Sender";
+                break;
+            }
+        }
+    });
+    if(inout === "") {
+        inout = "Receiver";
+        transaction.tos.forEach(to => {
+            for(let i = 0; i < to.addresses.length; i++) {
+                if(to.addresses[i] === address) {
+                    quantity = to.quantity;
+                    symbol = to.symbol;
+                    break;
+                }
+            }
+        });
+    }
+    transaction.inout = inout;
+    if(inout === "Receiver") {
+        transaction.ios = transaction.froms;
+    } else {            
+        transaction.ios = transaction.tos;
+    }
+    
+    transaction.froms = [];
+    transaction.tos = [];
+    transaction.quantity = quantity;
+    transaction.symbol = symbol;
+
+    return transaction;
 }
 
 /**
@@ -645,8 +711,10 @@ const searchType = function(chain, toFind) {
 
 module.exports = {
     getSimpleIO,
+    getSimpleIOAddresses,
     getIO,
     cleanIO,
+    inoutCalculation,
     getUnixTS,
     commaBigNumber,
     bigNumberToDecimal,

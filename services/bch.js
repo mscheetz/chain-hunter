@@ -3,7 +3,6 @@ const helperSvc = require('./helperService.js');
 const base = "https://bch-chain.api.btc.com/v3";
 const convertBase = "https://bch.btc.com/tools"
 const enums = require('../classes/enums');
-const delay = time => new Promise(res=>setTimeout(res,time));
 
 const getEmptyBlockchain = async() => {
     const chain = {};

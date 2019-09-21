@@ -2,7 +2,6 @@ const axios = require('axios');
 const helperSvc = require('./helperService.js');
 const base = "https://roma-net.mdw.aepps.com";
 const enums = require('../classes/enums');
-const delay = time => new Promise(res=>setTimeout(res,time));
 
 const getEmptyBlockchain = async() => {
     const chain = {};
@@ -109,7 +108,10 @@ const getTransactions = async(address) => {
             const latestBlock = await getLatestBlock();
             let transactions = [];
             datas.forEach(data => {
-                transactions.push(buildTransaction(data, "", latestBlock, 0));
+                let transaction = buildTransaction(data, "", latestBlock, 0);
+                transaction = helperSvc.inoutCalculation(address, transaction);
+
+                transactions.push(transaction);
             })
 
             return transactions;
@@ -140,25 +142,35 @@ const getTransaction = async(hash) => {
 
 const buildTransaction = function(txn, hash, latestBlock, blockTime) {
     let ts = "";
+    let froms = [];
+    let tos = [];
+    const symbol = "AE";
+
+    const quantity = txn.tx.amount/1000000000000000000;
+    const from = helperSvc.getSimpleIO(symbol, txn.tx.sender_id, quantity);
+    froms.push(from);
+    const to = helperSvc.getSimpleIO(symbol, txn.tx.recipient_id, quantity);
+    tos.push(to);
+
+    const fromData = helperSvc.cleanIO(froms);
+    const toData = helperSvc.cleanIO(tos);
 
     if(typeof txn.time !== "undefined") {
         ts = txn.time.toString().substr(0,10);
     } else if(blockTime > 0){
         ts = blockTime.toString().substr(0,10);
     }
-    const quantity = txn.tx.amount/1000000000000000000;
     const total = helperSvc.commaBigNumber(quantity.toString());
 
     let transaction = {
+        type: enums.transactionType.TRANSFER,
         hash: hash === "" ? txn.hash : hash,
         block: txn.block_height,
         latestBlock: latestBlock,
         confirmations: latestBlock - txn.block_height,
-        quantity: total,
-        symbol: "AE",
         date: helperSvc.unixToUTC(ts),
-        from: txn.tx.sender_id,
-        to: txn.tx.recipient_id
+        froms: fromData,
+        tos: toData
     };
 
     return transaction;

@@ -32,8 +32,10 @@
       <ng-template pTemplate="body" let-from>
         <tr>
           <td>
-            {{from.addresses.join(",")}}<br>
-            {{from.quantity}} {{from.symbol}}
+            <!-- {{from.addresses.join(",")}}<br>
+            {{from.quantity}} {{from.symbol}} -->
+            <div class="word-break">{{from.addresses.join(",")}}</div>
+            <div>{{from.quantity}} {{from.symbol}}</div>
           </td>
         </tr>
       </ng-template>
@@ -49,8 +51,8 @@
       <ng-template pTemplate="body" let-to>
         <tr>
           <td>
-            {{to.addresses.join(",")}}<br>
-            {{to.quantity}} {{to.symbol}}
+            <div class="word-break">{{to.addresses.join(",")}}</div>
+            <div>{{to.quantity}} {{to.symbol}}</div>
           </td>
         </tr>
       </ng-template>

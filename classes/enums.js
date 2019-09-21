@@ -43,7 +43,11 @@ const transactionType = {
     CREDIT : 'Credit',
     TRUSTREMOVED : 'Trustline Removed',
     TRUSTCREATED : 'Trustline Created',
-    MANAGEOFFER : 'Manage Offer'
+    MANAGEOFFER : 'Manage Offer',
+    ENDORSEMENT : 'Endorsement',
+    DELEGATION : 'Delegation',
+    ORIGINATION : 'Origination',
+    ACTIVATION : 'Activation'
 }
 
 module.exports = {

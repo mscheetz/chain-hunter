@@ -15,6 +15,12 @@
 <div *ngIf="transaction.block > 0">
   Block: {{ transaction.block }}
 </div>
+<div *ngIf="transaction.success && transaction.success === 'success'">
+  Status: <span class="success">Success</span>
+</div>
+<div *ngIf="transaction.success && transaction.success === 'fail'">
+  Status: <span class="failure">Failure</span>
+</div>
 <div *ngIf="transaction.confirmations > -1">
   Confirmations: {{ transaction.confirmations }}
 </div>

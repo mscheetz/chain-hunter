@@ -43,11 +43,12 @@
         </div>
     </p-panel>
     <!-- Contract Results -->
-    <p-panel header="{{blockchain.symbol}} Contract" *ngIf="blockchain.hasContracts && blockchain.contract">
-        <h3 class="word-break">{{blockchain.symbol}} Contract Address: {{blockchain.contract.address}}</h3>        
+    <p-panel header="{{blockchain.symbol}} {{blockchain.symbol === 'ATOM' ? 'Validator' : 'Contract'}}" *ngIf="blockchain.hasContracts && blockchain.contract">
+        <h3 class="word-break">{{blockchain.symbol}} {{blockchain.symbol === 'ATOM' ? 'Validator' : 'Contract'}} Address: {{blockchain.contract.address}}</h3>        
         <p *ngIf="blockchain.contract.contractName">
-            Contract Name: {{blockchain.contract.contractName}}
-            <img *ngIf="blockchain.contract.symbol && blockchain.contract.hasIcon" src="/assets/cryptoicons/color/{{blockchain.contract.symbol.toLowerCase()}}.png" />
+            Name: {{blockchain.contract.contractName}}
+            <img *ngIf="blockchain.contract.icon" src="{{blockchain.contract.icon}}" style="height: 30px; width: 30px; border-radius: 50%;" />
+            <img *ngIf="!blockchain.contract.icon && blockchain.contract.symbol && blockchain.contract.hasIcon" src="/assets/cryptoicons/color/{{blockchain.contract.symbol.toLowerCase()}}.png" />
         </p>
         <p *ngIf="blockchain.contract.quantity">
             Balance: {{blockchain.contract.quantity}} {{blockchain.contract.symbol}}
@@ -73,6 +74,12 @@
     </p-panel>
 </div>
 <p-panel showHeader="false" *ngIf="huntStatus === 1">
+    <!-- <div style="height: 6em; vertical-align: middle;">
+        <h1 class="ml4">
+            <span class="letters letters-1">The Hunt</span>
+            <span class="letters letters-2">Is On!</span>
+        </h1>
+    </div> -->
     <h3>Searching...</h3>
 </p-panel>
 <p-panel showHeader="false" *ngIf="huntStatus === 2 && selectedChain === ''">

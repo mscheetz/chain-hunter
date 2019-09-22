@@ -47,7 +47,8 @@ const transactionType = {
     ENDORSEMENT : 'Endorsement',
     DELEGATION : 'Delegation',
     ORIGINATION : 'Origination',
-    ACTIVATION : 'Activation'
+    ACTIVATION : 'Activation',
+    REWARD : 'Reward'
 }
 
 module.exports = {

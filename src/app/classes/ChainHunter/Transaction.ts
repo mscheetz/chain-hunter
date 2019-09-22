@@ -17,4 +17,5 @@ export class Transaction{
     ios: IO[];
     type: string;
     inout: string;
+    success: string;
 } 

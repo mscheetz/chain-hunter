@@ -405,6 +405,13 @@ const searchType = function(chain, toFind) {
             return enums.searchType.nothing;
         }
     }
+    if(toFind.substr(0, 9) === "cosmosval") {
+        if(chain === "atom") {
+            return enums.searchType.contract;
+        } else {
+            return enums.searchType.nothing;
+        }
+    }
     if(toFind.substr(0, 6) === "cosmos") {
         if(chain === "atom") {
             return enums.searchType.address;
@@ -501,7 +508,9 @@ const searchType = function(chain, toFind) {
         }
     }
     if(chain === "atom") {
-        if(toFind.substr(0, 6) === "cosmos") {
+        if(toFind.substr(0, 9) === "cosmosval") {
+            return enums.searchType.contract;
+        } else if(toFind.substr(0, 6) === "cosmos") {
             return enums.searchType.address;
         } else {
             return enums.searchType.transaction;

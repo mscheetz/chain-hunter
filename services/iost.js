@@ -72,7 +72,7 @@ const getContract = async(address) => {
     let url = base + endpoint;
 
     try{
-        const response = await axios.get(url);
+        const response = await axios.get(url, { timeout: 5000 });
         const datas = response.data.data;
         if(Object.entries(datas).length === 0 && datas.constructor === Object) {
             return null;

@@ -26,10 +26,10 @@
 </div>
 <div *ngIf="transaction.from">From: {{ transaction.from }}</div>
 <div *ngIf="transaction.to">To: {{ transaction.to }}</div>
-<div *ngIf="transaction.froms && transaction.froms.length > 0 && transaction.tos && transaction.tos.length > 0" 
+<div *ngIf="transaction.froms && transaction.tos && (transaction.froms.length > 0 || transaction.tos.length > 0)" 
   class="p-grid">
   <div class="p-sm-6">
-    <p-table [value]="transaction.froms">
+    <p-table *ngIf="transaction.froms.length > 0" [value]="transaction.froms">
       <ng-template pTemplate="header">
         <tr>
           <th>IN</th>
@@ -48,7 +48,7 @@
     </p-table>
   </div>
   <div class="p-sm-6">
-    <p-table [value]="transaction.tos">
+    <p-table *ngIf="transaction.tos.length > 0" [value]="transaction.tos">
       <ng-template pTemplate="header">
         <tr>
           <th>OUT</th>

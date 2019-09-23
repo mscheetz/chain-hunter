@@ -128,24 +128,60 @@ const getTransactions = async(address) => {
         const datas = response.data.txArray;
         const transactions = [];
         if(datas !== null && datas.length > 0) {
-            datas.forEach(data => {     
-                const total = helperSvc.commaBigNumber(data.value.toString());           
-                transactions.push({
+            for(let i = 0; i < datas.length; i++) {
+                const data = datas[i];
+                
+                let froms = [];
+                let tos = [];
+                const symbol = (typeof data.txQuoteAsset !== "undefined") ? data.txQuoteAsset : data.txAsset;
+                const quantity = data.value;
+                let type = getTransactionType(data.txType);
+                const from = helperSvc.getSimpleIO(symbol, data.fromAddr, quantity);
+                froms.push(from);
+                if(type === enums.transactionType.TRANSFER) {
+                    const to = helperSvc.getSimpleIO(symbol, data.toAddr, quantity);
+                    tos.push(to);
+                }
+
+                const fromData = helperSvc.cleanIO(froms);
+                const toData = helperSvc.cleanIO(tos);
+
+                let transaction = {
+                    type: type,
                     hash: data.txHash,
                     block: data.blockHeight,
-                    symbol: data.txAsset,
-                    quantity: total,
                     confirmations: -1,
-                    date: helperSvc.unixToUTC(data.timeStamp),
-                    from: data.fromAddr,
-                    to: data.toAddr
-                });
-            })
+                    date: helperSvc.unixToUTC(data.timeStamp/1000),
+                    froms: fromData,
+                    tos: toData
+                };
+                if(type !== enums.transactionType.TRANSFER) {
+                    transaction.symbol = symbol;
+                    transaction.quantity = quantity;
+                }
+
+                if(transaction.type === enums.transactionType.TRANSFER) {
+                    transaction = helperSvc.inoutCalculation(address, transaction);
+                } 
+
+                transactions.push(transaction);
+            }
         }
         return transactions;
     } catch(error) {
         return [];
     }
+}
+
+const getTransactionType = function(transactionType){
+    let type = enums.transactionType.TRANSFER;
+    if(transactionType === "NEW_ORDER") {
+        type = enums.transactionType.NEW_ORDER;
+    } else if (transactionType === "CANCEL_ORDER") {
+        type = enums.transactionType.CANCEL_ORDER;
+    }
+
+    return type;
 }
 
 const getTransaction = async(hash) => {
@@ -157,33 +193,40 @@ const getTransaction = async(hash) => {
         const datas = response.data;
         let transaction = null;
         if(datas !== null) {
-            let from = [];
-            let to = [];
-            let quantity = 0;
-            let symbol = "";
+            let froms = [];
+            let tos = [];
+            let timestamp = "";
+            let type = enums.transactionType.TRANSFER;
+            const trxDetail = await getTrxDetail(datas.height, hash);
+            
+            if(trxDetail !== null) {
+                return trxDetail;
+            }
             datas.tx.value.msg[0].value.inputs.forEach(input => {
-                if(input.address && from.indexOf(input.address) <= -1) {
-                    from.push(input.address);
-                }
-                quantity += +input.coins[0].amount;
-                if(symbol === ""){
-                    symbol = input.coins[0].denom;
+                for(let i = 0; i < input.coins.length; i++){
+                    const coin = input.coins[i];
+                    const quantity = parseFloat(coin.amount)/100000000;
+                    const from = helperSvc.getSimpleIO(coin.denom, input.address, quantity);
+                    froms.push(from);
                 }
             });
             datas.tx.value.msg[0].value.outputs.forEach(output => {
-                if(output.address && to.indexOf(output.address) <= -1) {
-                    to.push(output.address);
+                for(let i = 0; i < output.coins.length; i++){
+                    const coin = output.coins[i];
+                    const quantity = parseFloat(coin.amount)/100000000;
+                    const to = helperSvc.getSimpleIO(coin.denom, output.address, quantity);
+                    tos.push(to);
                 }
             });
-            const newQuantity = quantity/100000000;
-            const total = helperSvc.commaBigNumber(newQuantity.toString());
+            const fromData = helperSvc.cleanIO(froms);
+            const toData = helperSvc.cleanIO(tos);
             transaction = {
+                type: type,
                 hash: datas.hash,
                 block: parseInt(datas.height),
-                symbol: symbol,
-                quantity: total,
-                from: from.join(", "),
-                to: to.join(", ")
+                date: timestamp,
+                froms: fromData,
+                tos: toData
             }
         }
 
@@ -192,6 +235,58 @@ const getTransaction = async(hash) => {
         return null;
     }
 }
+
+const getTrxDetail = async(block, hash) => {
+    let endpoint = "/transactions-in-block/" + block;
+    let url = base + endpoint;
+
+    try{
+        const response = await axios.get(url);
+        if(typeof response.data.blockHeight !== "undefined") {
+            const datas = response.data.tx;
+            let transaction = null;
+            datas.forEach(txn => {
+                if(txn.txHash === hash){
+                    transaction = txn;
+                }
+            });
+            if(transaction !== null) {
+                let froms = [];
+                let tos = [];
+                let symbol = transaction.txAsset;
+                const type = getTransactionType(transaction.txType);
+                if(type !== enums.transactionType.TRANSFER) {
+                    symbol = "BNB";
+                }
+                const from = helperSvc.getSimpleIO(symbol, transaction.fromAddr, transaction.value);
+                froms.push(from);
+                if(transaction.toAddr !== null) {
+                    const to = helperSvc.getSimpleIO(symbol, transaction.toAddr, transaction.value);
+                    tos.push(to);
+                }
+                const fromData = helperSvc.cleanIO(froms);
+                const toData = helperSvc.cleanIO(tos);
+                let txn = {
+                    type: type,
+                    hash: transaction.txHash,
+                    block: transaction.blockHeight,
+                    date: transaction.timeStamp,
+                    froms: fromData,
+                    tos: toData
+                }
+                
+                return txn;
+            }
+
+            return transaction;
+        } else {
+            return null;
+        }
+    } catch(error) {
+        return null;
+    }
+}
+
 
 module.exports = {
     getEmptyBlockchain,

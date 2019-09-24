@@ -83,13 +83,11 @@ const getContract = async(address) => {
                 quantity: null,
                 symbol: null,
             };
-            const icon = 'color/' + contract.symbol.toLowerCase() + '.png';
-            const iconStatus = helperSvc.iconExists(icon);
-            contract.hasIcon = iconStatus;
 
             return contract;
         }
     } catch(error) {
+        console.log(error);
         return null;
     }
 }

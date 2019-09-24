@@ -50,7 +50,6 @@ const ethCheck = async(chain, addressToFind) => {
         const response = await axios.get(url);
         const datas = response.data;
         if(_.has(datas, 'isContract')) {
-            //chain.source = ethplorerBase + "/address/" + addressToFind;
             if(datas.isContract) {
                 chain.contract = createContract(datas.token);
             } else {
@@ -63,11 +62,10 @@ const ethCheck = async(chain, addressToFind) => {
                 }
                 
                 address.tokens = createTokens(datas);
-                address.transactions = await createTransactions(datas);
+                address.transactions = await createTransactions(datas, addressToFind);
                 chain.address = address;
             }
         } else if(_.has(datas, 'tx')) {
-            //chain.source = ethplorerBase + "/tx/" + addressToFind;
             if(datas.operations.length > 0) {
                 chain.transaction = createTokenTransaction(datas);
             } else {
@@ -145,56 +143,82 @@ const createTokens = function(datas) {
 
 const createEthTransaction = function(datas) {
     let qty = datas.value.toString();
+    let froms = [];
+    let tos = [];
+    const symbol = "ETH";
     if(qty.toLowerCase().indexOf("e+") >= 0) {
         qty = helperSvc.exponentialToNumber(qty);
     }
-    
-    qty = helperSvc.commaBigNumber(qty.toString());
+    const from = helperSvc.getSimpleIO(symbol, datas.from, qty);
+    froms.push(from);
+    const to = helperSvc.getSimpleIO(symbol, datas.to, qty);
+    tos.push(to);
 
+    const fromData = helperSvc.cleanIO(froms);
+    const toData = helperSvc.cleanIO(tos);
+    
     const transaction = {
+        type: enums.transactionType.TRANSFER,
         hash: datas.hash,
         block: datas.blockNumber,
-        quantity: qty,
-        symbol: "ETH",
         confirmations: datas.confirmations,
         date: helperSvc.unixToUTC(datas.timestamp),
-        from: datas.from,
-        to: datas.to
+        froms: fromData,
+        tos: toData,
+        success: datas.success ? 'success' : 'fail'
     };
 
     return transaction;
 }
 
 const createTokenTransaction = function(datas) {
+    let froms = [];
+    let tos = [];
     let qty = datas.operations[0].value.toString();
     if(qty.toLowerCase().indexOf("e+") >= 0) {
         qty = helperSvc.exponentialToNumber(qty);
     }
-    qty = parseFloat(qty)/100000000;
-    qty = helperSvc.commaBigNumber(qty.toString());
+    const decimals = datas.operations[0].token.decimals;
+    qty = helperSvc.bigNumberToDecimal(qty, decimals);
+    const from = helperSvc.getSimpleIO(datas.token.symbol, datas.tx.from, qty);
+    froms.push(from);
+    const to = helperSvc.getSimpleIO(datas.token.symbol, datas.tx.to, qty);
+    tos.push(to);
+
+    const fromData = helperSvc.cleanIO(froms);
+    const toData = helperSvc.cleanIO(tos);
 
     const transaction = {
+        type: enums.transactionType.TRANSFER,
         hash: datas.tx.hash,
         block: datas.tx.blockNumber,
-        quantity: qty,
-        symbol: datas.token.symbol,
         confirmations: datas.tx.confirmations,
-        date: helperSvc.unixToUTC(datas.tx.timeStamp),
-        from: datas.tx.from,
-        to: datas.tx.to
+        date: helperSvc.unixToUTC(datas.tx.timestamp),
+        froms: fromData,
+        tos: toData,
+        success: datas.tx.success ? 'success' : 'fail'
     };
 
     return transaction;
 }
 
-const createTransactions = async(datas) => {
+const createTransactions = async(datas, address) => {
     let transactions = [];
     let lastestBlock = 0;    
 
     for(let i = 0; i < datas.transfers.length; i++){
+        let froms = [];
+        let tos = [];
         const xfer = datas.transfers[i];
         const hash = xfer.transactionHash;
-        const block = xfer.blockNumber;     
+        const block = xfer.blockNumber;
+        let symbol = "ETH";
+        let decimals = 0;
+        if(!xfer.isEth){
+            const token = datas.tokens[xfer.contract];
+            symbol = token.symbol;
+            decimals = token.decimals;
+        }
         if(lastestBlock === 0){
             lastestBlock = await getLatestBlock(hash);
         }
@@ -205,24 +229,28 @@ const createTransactions = async(datas) => {
         if(qty.toLowerCase().indexOf("e+") >= 0) {
             qty = helperSvc.exponentialToNumber(qty);
         }
-        qty = parseFloat(qty)/100000000;
-        qty = helperSvc.commaBigNumber(qty.toString());
+        if(symbol !== "ETH" ) {
+            qty = helperSvc.bigNumberToDecimal(qty, decimals);
+        }
+        const from = helperSvc.getSimpleIO(symbol, xfer.from, qty);
+        froms.push(from);
+        const to = helperSvc.getSimpleIO(symbol, xfer.to, qty);
+        tos.push(to);
+
+        const fromData = helperSvc.cleanIO(froms);
+        const toData = helperSvc.cleanIO(tos);
 
         let txn = {
+            type: enums.transactionType.TRANSFER,
             hash: hash,
             block: block,
-            quantity: qty,
-            symbol: xfer.isEth ? "ETH" : null,
             confirmations: confirmations,
             date: helperSvc.unixToUTC(xfer.timestamp),
-            from: xfer.from,
-            to: xfer.to            
+            froms: fromData,
+            tos: toData
         };
 
-        if(txn.symbol === null) {
-            const token = datas.tokens[xfer.contract];
-            txn.symbol = token.symbol;
-        }
+        txn = helperSvc.inoutCalculation(address, txn);
 
         transactions.push(txn);
     }

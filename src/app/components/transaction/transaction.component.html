@@ -41,7 +41,7 @@
             <!-- {{from.addresses.join(",")}}<br>
             {{from.quantity}} {{from.symbol}} -->
             <div class="word-break">{{from.addresses.join(",")}}</div>
-            <div>{{from.quantity}} {{from.symbol}}</div>
+            <div *ngIf="from.symbol !== null">{{from.quantity}} {{from.symbol}}</div>
           </td>
         </tr>
       </ng-template>
@@ -58,7 +58,7 @@
         <tr>
           <td>
             <div class="word-break">{{to.addresses.join(",")}}</div>
-            <div>{{to.quantity}} {{to.symbol}}</div>
+            <div *ngIf="to.symbol !== null">{{to.quantity}} {{to.symbol}}</div>
           </td>
         </tr>
       </ng-template>

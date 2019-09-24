@@ -75,7 +75,11 @@ const getTransactions = async(address) => {
             const transactions = [];
             if(datas.length > 0) {
                 datas.forEach(data => {
-                    transactions.push(buildTransaction(data));
+                    let transaction = buildTransaction(data);
+
+                    transaction = helperSvc.inoutCalculation(address, transaction);
+
+                    transactions.push(transaction);
                 })
             }
 
@@ -108,31 +112,27 @@ const getTransaction = async(hash) => {
 }
 
 const buildTransaction = function(txn) {
-    let from = [];
-    let to = [];
+    let froms = [];
+    let tos = [];
+    const symbol = "DASH";
     txn.vin.forEach(input => {
-        if(input.addr && from.indexOf(input.addr) <= -1) {
-            from.push(input.addr);
-        }
+        const from = helperSvc.getSimpleIO(symbol, input.addr, input.value);
+        froms.push(from);
     });
-    for(let i = 0; i < txn.vout.length; i++) {
-        txn.vout[i].scriptPubKey.addresses.forEach(address => {
-            if(address && to.indexOf(address) <= -1) {
-                to.push(address);
-            }
-        })
-    }
-    const total = helperSvc.commaBigNumber(txn.valueOut.toString());
+    txn.vout.forEach(output => {
+        const to = helperSvc.getSimpleIOAddresses(symbol, output.scriptPubKey.addresses, output.value);
+        tos.push(to);
+    })
+    const fromData = helperSvc.cleanIO(froms);
+    const toData = helperSvc.cleanIO(tos);
 
     const transaction = {
         hash: txn.txid,
         block: txn.blockheight,
-        quantity: total,
-        symbol: "DASH",
         confirmations: txn.confirmations,
         date: helperSvc.unixToUTC(txn.time),
-        from: from.join(", "),
-        to: to.join(", ")
+        froms: fromData,
+        tos: toData
     };
 
     return transaction;

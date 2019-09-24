@@ -2,6 +2,7 @@ const axios = require('axios');
 const helperSvc = require('./helperService.js');
 const base = "https://tracker.icon.foundation/v3";
 const enums = require('../classes/enums');
+const _ = require('lodash');
 
 const getEmptyBlockchain = async() => {
     const chain = {};
@@ -125,14 +126,20 @@ const getTransactions = async(address) => {
 
     if(addressTransactions.length > 0 && tokenTransactions.length > 0) {
         addressTransactions.forEach(txn => {
-            if(txn.symbol === "CALL") {
-                const tokenTxn = tokenTransactions.find(t => t.hash === txn.hash);
-                const total = helperSvc.commaBigNumber(tokenTxn.quantity.toString());
-                if(tokenTxn !== null) {
-                    txn.quantity = total;
-                    txn.symbol = tokenTxn.symbol;
+            let hasCall = false;
+            for(let i = 0; i < txn.froms.length; i++) {
+                if(txn.froms[i].symbol === "CALL") {
+                    hasCall = true;
+                    break;
                 }
             }
+
+            if(hasCall) {
+                const tokenTxn = tokenTransactions.find(t => t.hash === txn.hash);
+                txn.froms = tokenTxn.froms;
+                txn.tos = tokenTxn.tos;
+            }
+            txn = helperSvc.inoutCalculation(address, txn);
         });
     }
 
@@ -151,7 +158,11 @@ const getAddressTransactions = async(address) => {
             if(datas.length > 0) {
                 const latestBlock = await getLatestBlock();
                 datas.forEach(data => {
-                    transactions.push(buildTransaction(data, latestBlock));
+                    let transaction = buildTransaction(data, latestBlock);
+
+                    //transaction = helperSvc.inoutCalculation(address, transaction);
+
+                    transactions.push(transaction);
                 })
             }
 
@@ -221,35 +232,59 @@ const getLatestBlock = async() => {
 }
 
 const buildTransaction = function(txn, latestBlock) {
-    const quantity = parseFloat(txn.amount);
-    const total = helperSvc.commaBigNumber(quantity.toString());
+    let froms = [];
+    let tos = [];
+    const from = helperSvc.getSimpleIO(txn.dataType.toUpperCase(), txn.fromAddr, txn.amount);
+    froms.push(from);
+    const to = helperSvc.getSimpleIO(txn.dataType.toUpperCase(), txn.toAddr, txn.amount);
+    tos.push(to);
+
+    const fromData = helperSvc.cleanIO(froms);
+    const toData = helperSvc.cleanIO(tos);
+    // const quantity = parseFloat(txn.amount);
+    // const total = helperSvc.commaBigNumber(quantity.toString());
 
     const transaction = {
+        type: enums.transactionType.TRANSFER,
         hash: txn.txHash,
         block: txn.height,
         latestBlock: latestBlock,
         confirmations: latestBlock - txn.height,
-        quantity: total,
-        symbol: txn.dataType.toUpperCase(),
+        // quantity: total,
+        // symbol: txn.dataType.toUpperCase(),
         date: txn.createDate,
-        from: txn.fromAddr,
-        to: txn.toAddr,
+        froms: fromData,
+        tos: toData
+        // from: txn.fromAddr,
+        // to: txn.toAddr,
     };
 
     return transaction;
 }
 
 const buildTokenTransaction = function(txn) {
-    const quantity = parseFloat(txn.quantity);
-    const total = helperSvc.commaBigNumber(quantity.toString());
+    let froms = [];
+    let tos = [];
+    const from = helperSvc.getSimpleIO(txn.contractSymbol, txn.fromAddr, txn.quantity);
+    froms.push(from);
+    const to = helperSvc.getSimpleIO(txn.contractSymbol, txn.toAddr, txn.quantity);
+    tos.push(to);
+
+    const fromData = helperSvc.cleanIO(froms);
+    const toData = helperSvc.cleanIO(tos);
+    // const quantity = parseFloat(txn.quantity);
+    // const total = helperSvc.commaBigNumber(quantity.toString());
 
     const transaction = {
+        type: enums.transactionType.TRANSFER,
         hash: txn.txHash,
-        quantity: total,
-        symbol: txn.contractSymbol,
+        // quantity: total,
+        // symbol: txn.contractSymbol,
         date: txn.createDate,
-        from: txn.fromAddr,
-        to: txn.toAddr,
+        froms: fromData, 
+        tos: toData
+        // from: txn.fromAddr,
+        // to: txn.toAddr,
     };
 
     return transaction;
@@ -258,31 +293,45 @@ const buildTokenTransaction = function(txn) {
 const buildTransactionII = function(txn) {
     let quantity = 0;
     let symbol = "";
-    let from = "";
-    let to = "";
+    let fromAddress = "";
+    let toAddress = "";
+    let type = enums.transactionType.TRANSFER;
 
     if(txn.tokenTxList.length > 0){
         quantity = parseFloat(txn.tokenTxList[0].quantity);
-        symbol = txn.tokenTxList[0].symbol;
-        from = txn.tokenTxList[0].fromAddr;
-        to = txn.tokenTxList[0].toAddr;
+        symbol = txn.tokenTxList[0].symbol.toUpperCase();
+        fromAddress = txn.tokenTxList[0].fromAddr;
+        toAddress = txn.tokenTxList[0].toAddr;
     } else {
         quantity = parseFloat(txn.amount);
-        symbol = txn.dataType;
-        from = txn.fromAddr;
-        to = txn.toAddr;
+        symbol = txn.dataType.toUpperCase();
+        fromAddress = txn.fromAddr;
+        toAddress = txn.toAddr;
     }
-    const total = helperSvc.commaBigNumber(quantity.toString());
+    if(txn.dataString.indexOf('giveReward') >= 0) {
+        type = enums.transactionType.REWARD;
+        symbol = null;
+        quantity = 0;
+    }
+    let froms = [];
+    let tos = [];
+    const from = helperSvc.getSimpleIO(symbol, fromAddress, quantity);
+    froms.push(from);
+    const to = helperSvc.getSimpleIO(symbol, toAddress, quantity);
+    tos.push(to);
+
+    const fromData = helperSvc.cleanIO(froms);
+    const toData = helperSvc.cleanIO(tos);
 
     const transaction = {
+        type: type,
         hash: txn.txHash,
         block: txn.height,
         confirmations: txn.confirmation,
-        quantity: total,
-        symbol: symbol.toUpperCase(),
         date: txn.createDate,
-        from: from,
-        to: to,
+        froms: fromData,
+        tos: toData,
+        success: txn.status === "Success" ? "success" : "fail"
     };
 
     return transaction;

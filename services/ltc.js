@@ -75,7 +75,10 @@ const getTransactions = async(address) => {
         const transactions = [];
         if(datas.length > 0) {
             datas.forEach(data => {
-                const txn = buildTransaction(data);
+                let txn = buildTransaction(data);
+
+                txn = helperSvc.inoutCalculation(address, txn);
+
                 transactions.push(txn);
             })
         }
@@ -106,34 +109,31 @@ const getTransaction = async(hash) => {
 
 const buildTransaction = function(txn) {
     if(txn != null) {
-        let from = [];
-        let to = [];
+        let froms = [];
+        let tos = [];
+        const symbol = "LTC";
         txn.vin.forEach(vin => {
-            if(vin.addr && from.indexOf(vin.addr) <= -1) {
-                from.push(vin.addr);
-            }
+            const from = helperSvc.getSimpleIO(symbol, vin.addr, vin.value);
+            froms.push(from);
         });
         txn.vout.forEach(vout => {
             if(vout.scriptPubKey && vout.scriptPubKey.addresses ) {
-                for(var i = 0; i < vout.scriptPubKey.addresses.length; i++) {
-                    toAddy = vout.scriptPubKey.addresses[i];
-                    if(to.indexOf(toAddy) <= -1) {
-                        to.push(toAddy);
-                    }
-                }
+                const to = helperSvc.getSimpleIOAddresses(symbol, vout.scriptPubKey.addresses, vout.value);
+                tos.push(to);
             }
         });
-        const total = helperSvc.commaBigNumber(txn.valueOut.toString());
+        const fromData = helperSvc.cleanIO(froms);
+        const toData = helperSvc.cleanIO(tos);
 
-        let transaction = {};
-        transaction.hash = txn.txid;
-        transaction.block = txn.blockheight;
-        transaction.symbol = "LTC";
-        transaction.quantity = total;
-        transaction.confirmations = txn.confirmations;
-        transaction.date = helperSvc.unixToUTC(txn.time);
-        transaction.from = from.join(", ");
-        transaction.to = to.join(", ");
+        let transaction = {
+            type: enums.transactionType.TRANSFER,
+            hash: txn.txid,
+            block: txn.blockheight,
+            confirmations: txn.confirmations,
+            date: helperSvc.unixToUTC(txn.time),
+            froms: fromData,
+            tos: toData
+        };
 
         return transaction;
     }

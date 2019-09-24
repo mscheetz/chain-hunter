@@ -106,7 +106,11 @@ const getTransactions = async(address) => {
             const latestBlock = await getLatestBlock();
             if(datas.length > 0) {
                 datas.forEach(data => {
-                    transactions.push(buildTransaction(data, latestBlock));
+                    let transaction = buildTransaction(data, latestBlock);
+
+                    transaction = helperSvc.inoutCalculation(address, transaction);
+
+                    transactions.push(transaction);
                 })
             }
 
@@ -154,7 +158,7 @@ const getTokens = async(address, contract) => {
 
             let asset = {
                 quantity: qty,
-                symbol: datas.tokens[i].symbol,
+                symbol: datas.tokens[i].symbol.toUpperCase(),
                 name: datas.tokens[i].symbol
             };
             const icon = 'color/' + asset.symbol.toLowerCase() + '.png';
@@ -189,18 +193,27 @@ const buildTransaction = function(txn, latestBlock) {
     const confirmations = latestBlock - block;
     const datas = JSON.parse(txn.data);
     const quantity = parseFloat(datas[3]);
-    const total = helperSvc.commaBigNumber(quantity.toString());
+    const symbol = datas[0].toUpperCase();
+    let froms = [];
+    let tos = [];
+    const from = helperSvc.getSimpleIO(symbol, txn.from, quantity);
+    froms.push(from);
+    const to = helperSvc.getSimpleIO(symbol, txn.to, quantity);
+    tos.push(to);
+
+    const fromData = helperSvc.cleanIO(froms);
+    const toData = helperSvc.cleanIO(tos);
 
     const transaction = {
+        type: enums.transactionType.TRANSFER,
         hash: txn.tx_hash,
         block: block,
         latestBlock: latestBlock,
         confirmations: confirmations,
-        quantity: total,
-        symbol: datas[0].toUpperCase(),
         date: txn.created_at,
-        from: txn.from,
-        to: txn.to,
+        froms: fromData,
+        tos: toData,
+        success: txn.status_code === "SUCCESS" ? "success" : "fail"
     };
 
     return transaction;
@@ -212,18 +225,27 @@ const buildTransactionII = function(txn, latestBlock) {
     const ts = txn.transaction.time.toString().substr(0, 10);
     const datas = JSON.parse(txn.transaction.actions[0].data);
     const quantity = parseFloat(datas[3]);
-    const total = helperSvc.commaBigNumber(quantity.toString());
+    const symbol = datas[0].toUpperCase();
+    let froms = [];
+    let tos = [];
+    const from = helperSvc.getSimpleIO(symbol, datas[1], quantity);
+    froms.push(from);
+    const to = helperSvc.getSimpleIO(symbol, datas[2], quantity);
+    tos.push(to);
+
+    const fromData = helperSvc.cleanIO(froms);
+    const toData = helperSvc.cleanIO(tos);
 
     const transaction = {
+        type: enums.transactionType.TRANSFER,
         hash: txn.transaction.hash,
         block: block,
         latestBlock: latestBlock,
         confirmations: confirmations,
-        quantity: total,
-        symbol: datas[0].toUpperCase(),
         date: helperSvc.unixToUTC(parseInt(ts)),
-        from: datas[1],
-        to: datas[2],
+        froms: fromData,
+        tos: toData,
+        success: txn.transaction.tx_receipt.status_code === "SUCCESS" ? "success" : "fail"
     };
 
     return transaction;

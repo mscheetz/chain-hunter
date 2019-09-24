@@ -79,7 +79,11 @@ const getTransactions = async(address) => {
             const transactions = [];
             if(datas.length > 0) {
                 datas.forEach(data => {
-                    transactions.push(buildTransaction(data, address));
+                    let transaction = buildTransaction(data, address);
+
+                    transaction = helperSvc.inoutCalculation(address, transaction);
+
+                    transactions.push(transaction);
                 })
             }
 
@@ -113,38 +117,55 @@ const getTransaction = async(hash) => {
 }
 
 const buildTransaction = function(txn, account) {
+    let froms = [];
+    let tos = [];
+    const symbol = "NANO";
+    const fromAddress = txn.subtype === "send" ? txn.account : account;
+    const toAddress = txn.subtype === "send" ? account : txn.account;
     const quantity = helperSvc.bigNumberToDecimal(txn.amount, 30);
-    const total = helperSvc.commaBigNumber(quantity.toString());
-    const cleanedTotal = helperSvc.decimalCleanup(total);
+    const from = helperSvc.getSimpleIO(symbol, fromAddress, quantity);
+    froms.push(from);
+    const to = helperSvc.getSimpleIO(symbol, toAddress, quantity);
+    tos.push(to);
+    const fromData = helperSvc.cleanIO(froms);
+    const toData = helperSvc.cleanIO(tos);
 
     const transaction = {
+        type: enums.transactionType.TRANSFER,
         hash: txn.hash,
         block: 0,
-        quantity: cleanedTotal,
-        symbol: "NANO",
         confirmations: -1,
-        date: helperSvc.unixToUTC(txn.timestamp),
-        from: txn.subtype === "send" ? txn.account : account,
-        to: txn.subtype === "send" ? account : txn.account
+        date: helperSvc.unixToUTC(txn.timestamp.substring(0, 10)),
+        froms: fromData,
+        tos: toData
     };
 
     return transaction;
 }
 
 const buildTransactionII = function(txn) {
+    let froms = [];
+    let tos = [];
+    const symbol = "NANO";
+    const fromAddress = txn.subtype === "send" ? txn.block_account : txn.source_account;
+    const toAddress = txn.contents.link_as_account;
     const quantity = helperSvc.bigNumberToDecimal(txn.amount, 30);
-    const total = helperSvc.commaBigNumber(quantity.toString());
-    const cleanedTotal = helperSvc.decimalCleanup(total);
+    const from = helperSvc.getSimpleIO(symbol, fromAddress, quantity);
+    froms.push(from);
+    const to = helperSvc.getSimpleIO(symbol, toAddress, quantity);
+    tos.push(to);
+    const fromData = helperSvc.cleanIO(froms);
+    const toData = helperSvc.cleanIO(tos);
 
     const transaction = {
+        type: enums.transactionType.TRANSFER,
         hash: txn.hash,
         block: 0,
-        quantity: cleanedTotal,
-        symbol: "NANO",
         confirmations: -1,
-        date: helperSvc.unixToUTC(txn.timestamp),
-        from: txn.subtype === "send" ? txn.block_account : txn.source_account,
-        to: txn.contents.link_as_account
+        date: helperSvc.unixToUTC(txn.timestamp.substring(0, 10)),
+        froms: fromData,
+        tos: toData,
+        success: txn.confirmed ? "success" : "fail"
     };
 
     return transaction;

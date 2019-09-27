@@ -143,7 +143,7 @@ const getAddressTokens = async(address, tokenIndex) => {
                                         ? "ONG"
                                         : token.asset_name.toUpperCase();
 
-                    const asset = {                        
+                    const asset = {
                         quantity: total,
                         symbol: symbol,
                         name: name
@@ -180,7 +180,11 @@ const getTransactions = async(address) => {
             const latestBlock = await getLatestBlock();
             if(datas.length > 0) {
                 datas.forEach(data => {
-                    transactions.push(buildTransaction(data, latestBlock));
+                    let transaction = buildTransaction(data, latestBlock);
+
+                    transaction = helperSvc.inoutCalculation(address, transaction);
+
+                    transactions.push(transaction);
                 })
             }
 
@@ -249,10 +253,8 @@ const getLatestBlock = async() => {
 const buildTransaction = function(txn, latestBlock) {
     const ts = txn.tx_time.toString().substr(0, 10);
 
-    let quantity = 0;
-    let symbol = "";
-    let from = "";
-    let to = "";
+    let froms = [];
+    let tos = [];
     const fee = txn.fee;
     txn.transfers.forEach(xfer => {
         let valid = false;
@@ -262,26 +264,24 @@ const buildTransaction = function(txn, latestBlock) {
             valid = true;
         }
         if(valid) {
-            quantity = parseFloat(xfer.amount);
-            if(quantity > 0) {
-                symbol = xfer.asset_name.toUpperCase();
-                from = xfer.from_address;
-                to = xfer.to_address;
-            }
+            const from = helperSvc.getSimpleIO(xfer.asset_name.toUpperCase(), xfer.from_address, xfer.amount);
+            froms.push(from);
+            const to = helperSvc.getSimpleIO(xfer.asset_name.toUpperCase(), xfer.to_address, xfer.amount);
+            tos.push(to);
         }
     });
-    const total = helperSvc.commaBigNumber(quantity.toString());
+    
+    const fromData = helperSvc.cleanIO(froms);
+    const toData = helperSvc.cleanIO(tos);
 
     const transaction = {
         hash: txn.tx_hash,
         block: txn.block_height,
         latestBlock: latestBlock,
         confirmations: latestBlock - txn.block_height,
-        quantity: total,
-        symbol: symbol,
         date: helperSvc.unixToUTC(parseInt(ts)),
-        from: from,
-        to: to,
+        froms: fromData,
+        tos: toData
     };
 
     return transaction;
@@ -290,31 +290,26 @@ const buildTransaction = function(txn, latestBlock) {
 const buildTransactionII = function(txn, latestBlock) {
     const ts = txn.tx_time.toString().substr(0, 10);
 
-    let quantity = 0;
-    let symbol = "";
-    let from = "";
-    let to = "";
+    let froms = [];
+    let tos = [];
     txn.detail.transfers.forEach(xfer => {
-        const xferQty = parseInt(xfer.amount);
-        if(xferQty > 0 && xfer.description !== "gasconsume" && from === "") {
-            quantity = xferQty;
-            symbol = xfer.asset_name.toUpperCase();
-            from = xfer.from_address;
-            to = xfer.to_address;
-        }
+        const from = helperSvc.getSimpleIO(xfer.asset_name.toUpperCase(), xfer.from_address, xfer.amount);
+        froms.push(from);
+        const to = helperSvc.getSimpleIO(xfer.asset_name.toUpperCase(), xfer.to_address, xfer.amount);
+        tos.push(to);
     });
-    const total = helperSvc.commaBigNumber(quantity.toString());
+    
+    const fromData = helperSvc.cleanIO(froms);
+    const toData = helperSvc.cleanIO(tos);
 
     const transaction = {
         hash: txn.tx_hash,
         block: txn.block_height,
         latestBlock: latestBlock,
         confirmations: latestBlock - txn.block_height,
-        quantity: total,
-        symbol: symbol,
         date: helperSvc.unixToUTC(parseInt(ts)),
-        from: from,
-        to: to,
+        froms: fromData,
+        tos: toData
     };
 
     return transaction;

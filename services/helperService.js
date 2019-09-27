@@ -380,7 +380,7 @@ const searchType = function(chain, toFind) {
         } else if (chain === "icx") {
             return enums.searchType.transaction;
         } else if (chain === "neo") {
-            return enums.searchType.contract;
+            return enums.searchType.transaction | enums.searchType.contract;
         } else if (chain === "vet") {
             if(toFind.length === 42) {
                 return enums.searchType.address;
@@ -603,15 +603,7 @@ const searchType = function(chain, toFind) {
         if(toFind.substr(0, 1) === "A" && toFind.length === 34 ) {
             return enums.searchType.address;
         } else {
-            if(chain === "neo") {
-                if(toFind.substr(0, 2) === "0x") {
-                    return enums.searchType.contract;
-                } else {
-                    return enums.searchType.transaction;
-                }
-            } else {
-                return enums.searchType.transaction | enums.searchType.contract;
-            }
+            return enums.searchType.transaction | enums.searchType.contract;
         }
     }
     if(toFind.substr(0, 2) === "t1") {

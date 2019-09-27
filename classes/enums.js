@@ -51,6 +51,7 @@ const transactionType = {
     REWARD : 'Reward',
     CANCEL_ORDER : 'Cancel Order',
     NEW_ORDER : 'Place Order',
+    CLAIM : 'Gas Claim'
 }
 
 module.exports = {

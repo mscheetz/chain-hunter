@@ -205,7 +205,7 @@ const getTransactions = async(address) => {
         if(response.data !== null && response.data.transactions.length > 0) {
             const datas = response.data.transactions;
             const latestBlock = await getLatestBlock();
-            const transactions = buildTransactions(datas, latestBlock);
+            const transactions = buildTransactions(datas, latestBlock, address);
 
             return transactions;
         } else {
@@ -216,11 +216,13 @@ const getTransactions = async(address) => {
     }
 }
 
-const buildTransactions = function(txns, latestBlock) {
+const buildTransactions = function(txns, latestBlock, address) {
     let transactions = [];
 
     txns.forEach(txn => {
-        const transaction = buildTransaction(txn, latestBlock);
+        let transaction = buildTransaction(txn, latestBlock);
+
+        transaction = helperSvc.inoutCalculation(address, transaction);
 
         transactions.push(transaction);
     })
@@ -231,23 +233,27 @@ const buildTransactions = function(txns, latestBlock) {
 const buildTransaction = function(txn, latestBlock) {
     const quantity = getBalance(txn.totalValue);
     const ts = helperSvc.unixToUTC(txn.timestamp)
-    let to = [];
+    let froms = [];
+    let tos = [];
+    const symbol = "VET";
+    const from = helperSvc.getSimpleIO(symbol, txn.origin, quantity);
+    froms.push(from);
     txn.clauses.forEach(clause => {
-        if(to.indexOf(clause.to) < 0 || to.length === 0) {
-            to.push(clause.to);
-        }
+        const to = helperSvc.getSimpleIO(symbol, clause.to, quantity);
+        tos.push(to);
     });
+    const fromData = helperSvc.cleanIO(froms);
+    const toData = helperSvc.cleanIO(tos);
     const confirmations = latestBlock > 0 ? (latestBlock - txn.block) : null;
 
     let transaction = {
+        type: enums.transactionType.TRANSFER,
         hash: txn.id,
         block: txn.block,
         confirmations: confirmations,
-        quantity: quantity,
-        symbol: "VET",
         date: ts,
-        from: txn.origin,
-        to: to.join(", ")
+        froms: fromData,
+        tos: toData
     };
 
     return transaction;
@@ -305,7 +311,8 @@ const buildTokenTransaction = function(txn, details, latestBlock) {
     const confirmations = latestBlock > 0 ? (latestBlock - txn.block) : null;
 
     let transaction = {
-        hash: txn.id,
+        type: enums.transactionType.TRANSFER,
+        hash: txn.transaction.id,
         block: txn.block,
         confirmations: confirmations,
         quantity: quantity,

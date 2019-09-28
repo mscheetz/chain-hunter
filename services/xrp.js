@@ -29,7 +29,7 @@ const getBlockchain = async(toFind) => {
     if(searchType & enums.searchType.transaction) {
         transaction = await getTransaction(toFind);
     }
-    
+
     chain.address = address;
     chain.transaction = transaction;
 
@@ -75,18 +75,11 @@ const getTransactions = async(address) => {
         const transactions = [];
         if(datas.length > 0) {
             datas.forEach(data => {
-                const quantity = parseInt(data.delivered_amount);
-                const total = helperSvc.commaBigNumber(quantity.toString());
+                let transaction = buildTransaction(data);
 
-                transactions.push({
-                    hash: data.tx_hash,
-                    block: data.ledger_index,
-                    symbol: "XRP",
-                    quantity: total,
-                    date: data.executed_time,
-                    from: data.source,
-                    to: data.destination
-                });
+                transaction = helperSvc.inoutCalculation(address, transaction);
+
+                transactions.push(transaction);
             })
         }
 
@@ -94,6 +87,30 @@ const getTransactions = async(address) => {
     } catch(error) {
         return [];
     }
+}
+
+const buildTransaction = function(txn) {
+    let froms = [];
+    let tos = [];
+    const symbol = "XRP";
+    const from = helperSvc.getSimpleIO(symbol, txn.source, txn.delivered_amount);
+    froms.push(from);
+    const to = helperSvc.getSimpleIO(symbol, txn.destination, txn.delivered_amount);
+    tos.push(to);
+
+    const fromData = helperSvc.cleanIO(froms);
+    const toData = helperSvc.cleanIO(tos);
+
+    let transaction = {
+        type: enums.transactionType.TRANSFER,
+        hash: txn.tx_hash,
+        block: txn.ledger_index,
+        date: txn.executed_time,
+        froms: fromData,
+        tos: toData
+    };
+
+    return transaction;
 }
 
 const getTransaction = async(hash) => {
@@ -104,18 +121,9 @@ const getTransaction = async(hash) => {
         const response = await axios.get(url);
         if(response.data) {
             const data = response.data;
-            const total = helperSvc.commaBigNumber(data.Amount.value.toString());
 
-            const transaction = {
-                hash: data.hash,
-                block: data.ledger_index,
-                symbol: data.Amount.currency,
-                quantity: total,
-                date: data.date,
-                from: data.Account,
-                to: data.Destination
-            };
-            
+            const transaction = buildTransactionII(data);
+
             return transaction;
         } else {
             return null;
@@ -123,6 +131,30 @@ const getTransaction = async(hash) => {
     } catch(error) {
         return null;
     }
+}
+
+const buildTransactionII = function(txn) {
+    let froms = [];
+    let tos = [];
+    const symbol = txn.Amount.currency;
+    const from = helperSvc.getSimpleIO(symbol, txn.Account, txn.Amount.value);
+    froms.push(from);
+    const to = helperSvc.getSimpleIO(symbol, txn.Destination, txn.Amount.value);
+    tos.push(to);
+
+    const fromData = helperSvc.cleanIO(froms);
+    const toData = helperSvc.cleanIO(tos);
+
+    let transaction = {
+        type: enums.transactionType.TRANSFER,
+        hash: txn.hash,
+        block: txn.ledger_index,
+        date: txn.date,
+        froms: fromData,
+        tos: toData
+    };
+
+    return transaction;
 }
 
 module.exports = {

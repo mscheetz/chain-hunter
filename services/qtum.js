@@ -1,7 +1,8 @@
 const axios = require('axios');
 const helperSvc = require('./helperService.js');
-const base = "https://explorer.qtum.org/insight-api";
+const base = "https://qtum.info/api/";
 const enums = require('../classes/enums');
+const divisor = 100000000;
 
 const getEmptyBlockchain = async() => {
     const chain = {};
@@ -45,117 +46,115 @@ const getBlockchain = async(toFind) => {
 }
 
 const getAddress = async(addressToFind) => {
-    let endpoint = "/addr/" + addressToFind + "/?noTxList=1";
+    let endpoint = "/address/" + addressToFind;
     let url = base + endpoint;
 
     try{
         const response = await axios.get(url, { timeout: 5000 });
-        if(response.data !== null) {
-            const datas = response.data;
-            const total = helperSvc.commaBigNumber(datas.balance.toString());
 
-            let address = {
-                address: datas.addrStr,
-                quantity: total,
-                hasTransactions: true
-            };
-
-            return address;
-        } else {
-            return null;
-        }
-    } catch(error) {
-        return null;
-    }
-}
-
-const getTokens = async(address) => {
-    let endpoint = "/erc20/balances?balanceAddress=" + address;
-    let url = base + endpoint;
-
-    try{
-        const response = await axios.get(url, { timeout: 5000 });
-        if(response.data !== null && response.data.length > 0) {
-            const datas = response.data;
-            
-            const tokens = convertTokens(datas);
-            return tokens;
-        } else {
-            return null;
-        }
-    } catch(error) {
-        return null;
-    }
-}
-
-const convertTokens = function(tokens){
-    let assets = [];
-
-    tokens.forEach(token => {
-        const quantity = parseFloat(token.amount) / 100000000;
+        const datas = response.data;
+        const quantity = parseInt(datas.balance)/divisor;
         const total = helperSvc.commaBigNumber(quantity.toString());
-        let asset = {
-            quantity: total,
-            symbol: token.contract.symbol,
-            name: token.contract.name
-        }
-        const icon = 'color/' + asset.symbol.toLowerCase() + '.png';
-        const iconStatus = helperSvc.iconExists(icon);
-        asset.hasIcon = iconStatus;
+        const cleanedTotal = helperSvc.decimalCleanup(total);
+        const tokens = buildTokens(datas);
+        
+        let address = {
+            address: addressToFind,
+            quantity: cleanedTotal,
+            hasTransactions: true,
+            tokens: tokens
+        };
 
-        assets.push(asset);
-    });
+        return address;
+    } catch(error) {
+        return null;
+    }
+}
+
+const buildTokens = function(datas) {
+    let assets = [];
+    if(datas.qrc20Balances.length > 0) {
+        datas.qrc20Balances.forEach(bal => {
+            const quantity = helperSvc.bigNumberToDecimal(bal.balance, bal.decimals);
+            const total = helperSvc.commaBigNumber(quantity);
+            const cleanedTotal = helperSvc.decimalCleanup(total);
+            let asset = {
+                quantity: cleanedTotal,
+                symbol: bal.symbol,
+                name: bal.name
+            }
+            const icon = 'color/' + asset.symbol.toLowerCase() + '.png';
+            const iconStatus = helperSvc.iconExists(icon);
+            asset.hasIcon = iconStatus;
+
+            assets.push(asset);
+        });
+    }
+    if(datas.qrc721Balances.length > 0) {
+        datas.qrc721Balances.forEach(bal => {
+            const quantity = helperSvc.bigNumberToDecimal(bal.balance, bal.decimals);
+            const total = helperSvc.commaBigNumber(quantity);
+            const cleanedTotal = helperSvc.decimalCleanup(total);
+            let asset = {
+                quantity: cleanedTotal,
+                symbol: bal.symbol,
+                name: bal.name
+            }
+            const icon = 'color/' + asset.symbol.toLowerCase() + '.png';
+            const iconStatus = helperSvc.iconExists(icon);
+            asset.hasIcon = iconStatus;
+
+            assets.push(asset);
+        })
+    }
     return assets;
 }
 
 const getTransactions = async(address) => {
-    let endpoint = "/txs?address=" + address + "&pageNum=0";
+    let endpoint = "/address/" + address + "/txs?limit=10&offset=0";
     let url = base + endpoint;
 
     try{
         const response = await axios.get(url, { timeout: 5000 });
-        if(response.data !== null) {
-            const datas = response.data.txs;
-            let transactions = [];
-            for(let i = 0; i < datas.length; i++) {
-                const transaction = await buildTransaction(datas[i]);
-                transactions.push(transaction);
-            }
-            
-            return transactions;
-        } else {
-            return null;
+
+        const datas = response.data.transactions;
+        let transactions = [];
+        for(let i = 0; i < datas.length; i++) {
+            let transaction = await getTransaction(datas[i]);
+
+            transaction = helperSvc.inoutCalculation(address, transaction);
+
+            transactions.push(transaction);
         }
+        
+        return transactions;
     } catch(error) {
         return null;
     }
 }
 
 const getContract = async(addressToFind) => {
-    let endpoint = "/qrc20/" + addressToFind;
+    let endpoint = "/contract/" + addressToFind;
     let url = base + endpoint;
 
     try{
         const response = await axios.get(url, { timeout: 5000 });
 
-        if(response.data !== null) {
-            const datas = response.data;
-            const quantity = helperSvc.commaBigNumber(datas.total_supply.toString());
-            
-            let contract = {
-                address: datas.contract_address,
-                quantity: quantity,
-                symbol: datas.symbol,
-                contractName: datas.name
-            };
-            const icon = 'color/' + contract.symbol.toLowerCase() + '.png';
-            const iconStatus = helperSvc.iconExists(icon);
-            contract.hasIcon = iconStatus;
+        const datas = response.data;
+        const supply = helperSvc.bigNumberToDecimal(datas.qrc20.totalSupply, datas.qrc20.decimals);
+        const quantity = helperSvc.commaBigNumber(supply.toString());
+        
+        let contract = {
+            address: datas.address,
+            quantity: quantity,
+            symbol: datas.qrc20.symbol,
+            contractName: datas.qrc20.name
+        };
+        const icon = 'color/' + contract.symbol.toLowerCase() + '.png';
+        const iconStatus = helperSvc.iconExists(icon);
+        contract.hasIcon = iconStatus;
 
-            return contract;
-        } else {
-            return null;
-        }
+        return contract;
     } catch(error) {
         return null;
     }
@@ -168,53 +167,58 @@ const getTransaction = async(hash) => {
     try{
         const response = await axios.get(url, { timeout: 5000 });
         
-        if(response.data !== null) {
-            const datas = response.data;
-            const transaction = await buildTransaction(datas);
+        const datas = response.data;
 
-            return transaction;
-        } else {
-            return null;
-        }
+        const transaction = await buildTransaction(datas);
+
+        return transaction;
     } catch(error) {
         return null;
     }
 }
 
 const buildTransaction = async(txn) => {
-    let total = helperSvc.commaBigNumber(txn.valueOut.toString());
-    let symbol = "QTUM";
-    if(txn.isqrc20Transfer) {
-        let contract = await getContract(txn.receipt[0].contractAddress);
-        total = "Token Transfer";
-        symbol = contract.symbol;
+    const symbol = "QTUM";
+    let froms = [];
+    let tos = [];
+    let type = enums.transactionType.TRANSFER;
+    if(typeof txn.qrc20TokenTransfers !== 'undefined') {
+        txn.qrc20TokenTransfers.forEach(xfer => {
+            const value = helperSvc.bigNumberToDecimal(xfer.value, xfer.decimals);
+            const from = helperSvc.getSimpleIO(xfer.symbol, xfer.from, value);
+            froms.push(from);
+            const to = helperSvc.getSimpleIO(xfer.symbol, xfer.to, value);
+            tos.push(to);
+        })
     }
-    let from = [];
-    let to = [];
-    txn.vin.forEach(input => {
-        if(from.indexOf(input.addr) <= -1) {
-            from.push(input.addr);
-        }
+    txn.inputs.forEach(input => {
+        const value = parseFloat(input.value)/divisor;
+        const from = helperSvc.getSimpleIO(symbol, input.address, value);
+        froms.push(from);
     })
-    for(let i = 0; i < txn.vout.length; i++) {
-        if(typeof txn.vout[i].scriptPubKey.addresses !== "undefined") {
-            txn.vout[i].scriptPubKey.addresses.forEach(address => {
-                if(address && (to.length === 0 || to.indexOf(address) <= -1)) {
-                    to.push(address);
-                }
-            })
+    txn.outputs.forEach(output => {
+        if(output.scriptPubKey.type === "evm_call"){
+            type = enums.transactionType.CONTRACT;
         }
-    }
+        if(typeof output.address !== "undefined" && output.value !== "0") {
+            const value = parseFloat(output.value)/divisor;
+            const to = helperSvc.getSimpleIO(symbol, output.address, value);
+            tos.push(to);
+        }
+    });
+
+    const fromData = helperSvc.cleanIO(froms);
+    const toData = helperSvc.cleanIO(tos);
+    const date = (typeof txn.timestamp !== 'undefined') && txn.timestamp > 0 ? helperSvc.unixToUTC(txn.timestamp) : 'new transaction';
 
     let transaction = {
-        hash: txn.txid,
-        quantity: total,
-        block: txn.blockheight,
+        type: type,
+        hash: txn.hash,
+        block: txn.blockHeight,
         confirmations: txn.confirmations,
-        symbol: symbol,
-        date: helperSvc.unixToUTC(txn.time),
-        from: from.join(", "),
-        to: to.join(", ")
+        date: date,
+        froms: fromData,
+        tos: toData
     };
 
     return transaction;
@@ -224,7 +228,6 @@ module.exports = {
     getEmptyBlockchain,
     getBlockchain,
     getAddress,
-    getTokens,
     getTransactions,
     getContract,
     getTransaction

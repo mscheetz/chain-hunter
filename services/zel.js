@@ -75,7 +75,11 @@ const getTransactions = async(address) => {
             const datas = response.data.txs;
             let transactions = [];
             datas.forEach(txn =>{ 
-                transactions.push(buildTransaction(txn));
+                let transaction = buildTransaction(txn);
+
+                transaction = helperSvc.inoutCalculation(address, transaction);
+
+                transactions.push(transaction);
             });
 
             return transactions;
@@ -107,29 +111,35 @@ const getTransaction = async(hash) => {
 }
 
 const buildTransaction = function(txn) {
-    let from = [];
-    let to = [];
-    txn.vin.forEach(input => {
-        from.push(input.addr);
-    })
-    for(let i = 0; i < txn.vout.length; i++) {
-        txn.vout[i].scriptPubKey.addresses.forEach(address => {
-            if(address && to.indexOf(address) <= -1) {
-                to.push(address);
-            }
+    let froms = [];
+    let tos = [];
+    const symobl = "ZEL";
+    if(txn.isCoinBase) {        
+        const from = {
+            addresses: ["coinbase"]
+        }
+        froms.push(from);
+    } else {
+        txn.vin.forEach(input => {
+            const from = helperSvc.getSimpleIO(symobl, input.addr, input.value);
+            froms.push(from);
         })
     }
-    const total = helperSvc.commaBigNumber(txn.valueOut.toString());
+    txn.vout.forEach(output => {
+        const to = helperSvc.getSimpleIOAddresses(symobl, output.scriptPubKey.addresses, output.value);
+        tos.push(to);
+    })
+    const fromData = helperSvc.cleanIO(froms);
+    const toData = helperSvc.cleanIO(tos);
 
     let transaction = {
+        type: enums.transactionType.TRANSFER,
         hash: txn.txid,
-        quantity: total,
         block: txn.blockheight,
         confirmations: txn.confirmations,
-        symbol: "ZEL",
         date: helperSvc.unixToUTC(txn.time),
-        from: from.join(", "),
-        to: to.join(", ")
+        froms: fromData,
+        tos: toData
     };
 
     return transaction;

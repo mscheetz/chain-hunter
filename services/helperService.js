@@ -27,6 +27,14 @@ const unixToUTC = function(timestamp) {
 }
 
 /**
+ * Get a big number with N 0s
+ * @param {*} zeros Number of zeros
+ */
+const getBigNumber = function(zeros) {
+    return Math.pow(10,parseInt(zeros));
+}
+
+/**
  * Convert an exponential value to a number
  * 
  * @param x value to convert
@@ -719,6 +727,7 @@ module.exports = {
     getUnixTS,
     commaBigNumber,
     bigNumberToDecimal,
+    getBigNumber,
     exponentialToNumber,
     getPrecision,
     unixToUTC,

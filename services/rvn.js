@@ -76,7 +76,11 @@ const getTransactions = async(address) => {
             const transactions = [];
             if(datas.length > 0) {
                 datas.forEach(data => {
-                    transactions.push(buildTransaction(data));
+                    let transaction = buildTransaction(data);
+
+                    transaction = helperSvc.inoutCalculation(address, transaction);
+
+                    transactions.push(transaction);
                 })
             }
             return transactions;
@@ -108,45 +112,31 @@ const getTransaction = async(hash) => {
 
 const buildTransaction = function(txn) {
     if(txn != null) {
-        let from = [];
-        let to = [];
-        let quantity = 0;
-        let manyAddresses = false;
-        if(txn.vin.length > 5) {
-            from.push(txn.vin.length + ' incoming addresses');
-            manyAddresses = true;
-        }
+        let froms = [];
+        let tos = [];
+        const symbol = "RVN";
         txn.vin.forEach(vin => {
-            if(vin.addr && from.indexOf(vin.addr) <= -1 && !manyAddresses) {
-                from.push(vin.addr);
-            }
-            quantity += +vin.value;
+            const from = helperSvc.getSimpleIO(symbol, vin.addr, vin.value);
+            froms.push(from);
         });
-        if(txn.vout.length > 5) {
-            to.push(txn.vout.length + ' outgoing addresses');
-        } else {
-            txn.vout.forEach(vout => {
-                if(vout.scriptPubKey && vout.scriptPubKey.addresses ) {
-                    for(var i = 0; i < vout.scriptPubKey.addresses.length; i++) {
-                        toAddy = vout.scriptPubKey.addresses[i];
-                        if(to.indexOf(toAddy) <= -1) {
-                            to.push(toAddy);
-                        }
-                    }
-                }
-            });
-        }
-        const total = helperSvc.commaBigNumber(quantity.toString());
+        txn.vout.forEach(out => {
+            if(out.scriptPubKey && out.scriptPubKey.addresses ) {
+                const to = helperSvc.getSimpleIOAddresses(symbol, out.scriptPubKey.addresses, out.value);
+                tos.push(to);
+            }
+        });
+
+        const fromData = helperSvc.cleanIO(froms);
+        const toData = helperSvc.cleanIO(tos);
 
         let transaction = {
+            type: enums.transactionType.TRANSFER,
             hash: txn.txid,
             block: txn.blockheight,
-            quantity: total,
-            symbol: "RVN",
             confirmations: txn.confirmations,
             date: helperSvc.unixToUTC(txn.blocktime),
-            from: from.join(", "),
-            to: to.join(", "),
+            froms: fromData,
+            tos: toData
         }
         return transaction;
     }

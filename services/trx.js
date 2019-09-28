@@ -140,7 +140,11 @@ const getTransactions = async(address) => {
                     token = await getTrx10Token(tokenId);
                     tokens.push(token);
                 }
-                transactions.push(buildTransaction(data, token));
+                let transaction = buildTransaction(data, token);
+
+                transaction = helperSvc.inoutCalculation(address, transaction);
+
+                transactions.push(transaction);
             }
         }
 
@@ -265,7 +269,6 @@ const getTrx10Token = async(id) => {
 
 const getTrx10Tokens = async(page) => {
     const limit = 2000;
-//    let start = page == 1 ? 0 : ((page - 1) * limit) + 1;
     let endpoint = "/token?sort=-name&limit="+ limit +"&start="+ page;
     let url = base + endpoint;
 
@@ -301,16 +304,24 @@ const buildTransaction = function(txn, token) {
     if(token.precision > 0) {
         quantity = quantity / Math.pow(10, token.precision);
     }
-    const total = helperSvc.commaBigNumber(quantity.toString());
+    let froms = [];
+    let tos = [];
+    const from = helperSvc.getSimpleIO(token.symbol, txn.ownerAddress, quantity);
+    froms.push(from);
+    const to = helperSvc.getSimpleIO(token.symbol, txn.toAddress, quantity);
+    tos.push(to);
+
+    const fromData = helperSvc.cleanIO(froms);
+    const toData = helperSvc.cleanIO(tos);
+
     const transaction = {
+        type: enums.transactionType.TRANSFER,
         hash: txn.hash,
         block: txn.block,
-        quantity: total,
-        symbol: token.symbol,
         confirmations: -1,
         date: helperSvc.unixToUTC(txn.timestamp),
-        from: txn.ownerAddress,
-        to: txn.toAddress
+        froms: fromData,
+        tos: toData
     };
 
     return transaction;

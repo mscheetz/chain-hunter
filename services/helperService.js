@@ -291,10 +291,18 @@ const cleanIO = function(ios) {
                     if(_.isString(quants[j].quantity)) {
                         const thisQuant = quants[j].quantity.replace(",", "");
                         thisQuantity = parseFloat(thisQuant);
+                        if(thisQuantity.toString().indexOf('e') >= 0) {
+                            thisQuantity = exponentialToNumber(thisQuantity);
+                        }
                     } else {
                         thisQuantity = quants[j].quantity;
                     }
-                    quantity += thisQuantity;
+                    if(quantity === 0) {
+                        quantity = thisQuantity;
+                    } else {
+                        quantity = +quantity + +thisQuantity;
+                    }
+                    //quantity += +thisQuantity;
                 }
                 const totalQuantity = commaBigNumber(quantity.toString());
                 let addys = [];

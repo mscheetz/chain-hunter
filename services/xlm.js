@@ -98,7 +98,9 @@ const getTransactions = async(address) => {
         const transactions = [];
         if(datas.length > 0) {
             for(let i = 0; i < datas.length; i++){
-                const transaction = await buildTransaction(datas[i], latestBlock);
+                let transaction = await buildTransaction(datas[i], latestBlock, address);
+
+                transaction = helperSvc.inoutCalculation(address, transaction);
 
                 transactions.push(transaction);
             }
@@ -140,8 +142,8 @@ const getLatestBlock = async() => {
     }
 }
 
-const getOperations = async(hash) => {
-    let endpoint = "/transactions/" + hash + "/operations";
+const getOperations = async(hash, address = null) => {
+    let endpoint = "/transactions/" + hash + "/operations?limit=200";
     let url = base + endpoint;
 
     try{
@@ -149,9 +151,11 @@ const getOperations = async(hash) => {
         const datas = response.data._embedded.records;
         let operations = [];
         datas.forEach(data => {
-            let operation = buildOperation(data);
+            let operation = buildOperation(data, address);
 
-            operations.push(operation);
+            if(operation !== null) {
+                operations.push(operation);
+            }
         })
 
         return operations;
@@ -160,84 +164,110 @@ const getOperations = async(hash) => {
     }
 }
 
-const buildOperation = function(op) {
+const buildOperation = function(op, address = null) {
     let quantity = "0";
-    let from = "";
-    let to = "";
-    if((typeof op.amount !== 'undefined')) {
-        quantity = op.amount;
-        from = op.from;
-        to = op.to;
-    } else if((typeof op.limit !== 'undefined')) {
-        quantity = op.limit;
-        from = op.trustor;
-        to = op.trustee;
-    }
-    const total = helperSvc.commaBigNumber(quantity);
-    const cleanedTotal = helperSvc.decimalCleanup(total);
+    let fromAddress = "";
+    let toAddress = "";
+    let froms = [];
+    let tos = [];
     let symbol = "XLM";
     if((typeof op.asset_type === 'undefined') && (typeof op.selling_asset_code !== 'undefined')) {
         symbol = op.selling_asset_code;
-    } else if (op.asset_type !== "native") {
-        symbol = op.asset_type;
+    } else if((typeof op.asset_type === 'undefined') && (typeof op.buying_asset_code !== 'undefined')) {
+        symbol = op.buying_asset_code;
+    } else if ((typeof op.asset_type !== 'undefined') && op.asset_type !== "native") {
+        symbol = op.asset_code;
     }
-    let type = enums.transactionType.PAYMENT
-    if(op.type === "manage_offer") {
-        type = enums.transactionType.MANAGEOFFER;
-    } else if(op.type === "trade") {
-        type = enums.transactionType.TRADE;
-    } else if(op.type === "change_trust") {
-        type = enums.transactionType.CHANGETRUST;
-    } else if(op.type === "account_credited") {
-        type = enums.transactionType.CREDIT;
-    } else if(op.type === "trustline_removed") {
-        type = enums.transactionType.TRUSTREMOVED;
-    } else if(op.type === "trustline_created") {
-        type = enums.transactionType.TRUSTCREATED;
+    if((typeof op.amount !== 'undefined')) {
+        quantity = op.amount;
+    } else if((typeof op.limit !== 'undefined')) {
+        quantity = op.limit;
+    } else {
+        quantity = op.starting_balance;
     }
+    if(typeof op.from !== 'undefined') {
+        fromAddress = op.from;
+    } else if (typeof op.trustor !== 'undefined') {
+        fromAddress = op.trustor;
+    } else if (typeof op.source_account !== 'undefined') {
+        fromAddress = op.source_account;
+    }
+    if(typeof op.to !== 'undefined') {
+        toAddress = op.to;
+    } else if (typeof op.trustee !== 'undefined') {
+        toAddress = op.trustee;
+    } else if (typeof op.account !== 'undefined') {
+        toAddress = op.account;
+    } else if (typeof op.selling_asset_issuer !== 'undefined') {
+        toAddress = op.selling_asset_issuer;
+    } else if (typeof op.buying_asset_issuer !== 'undefined') {
+        toAddress = op.buying_asset_issuer;
+    }
+    let operation = null;
 
-    let operation = {
-        type: type,
-        symbol: symbol,
-        quantity: cleanedTotal,
-        from: from,
-        to: to
-    };
+    if(address === null || (address === fromAddress || address === toAddress)){
+        const from = helperSvc.getSimpleIO(symbol, fromAddress, quantity);
+        froms.push(from);
+        const to = helperSvc.getSimpleIO(symbol, toAddress, quantity);
+        tos.push(to);
+        
+        const fromData = helperSvc.cleanIO(froms);
+        const toData = helperSvc.cleanIO(tos);
+        
+        let type = enums.transactionType.PAYMENT
+        if(op.type === "manage_offer") {
+            type = enums.transactionType.MANAGEOFFER;
+        } else if(op.type === "manage_buy_offer") {
+            type = enums.transactionType.MANAGEBUYOFFER;
+        } else if(op.type === "trade") {
+            type = enums.transactionType.TRADE;
+        } else if(op.type === "change_trust") {
+            type = enums.transactionType.CHANGETRUST;
+        } else if(op.type === "account_credited") {
+            type = enums.transactionType.CREDIT;
+        } else if(op.type === "trustline_removed") {
+            type = enums.transactionType.TRUSTREMOVED;
+        } else if(op.type === "trustline_created") {
+            type = enums.transactionType.TRUSTCREATED;
+        } else if(op.type === "create_account") {
+            type = enums.transactionType.CREATE_ACCOUNT;
+        }
 
+        operation = {
+            type: type,
+            froms: fromData,
+            tos: toData,
+        };
+    }
     return operation;
 }
 
-const buildTransaction = async(txn, latestBlock) => {
-    const operations = await getOperations(txn.id);
-    let symbol = "";
-    let quantity = "";
-    let from = "";
-    let to = "";
-    if(operations.length === 1) {
-        const op = operations[0];
-        symbol = op.symbol;
-        quantity = op.quantity;
-        from = op.from;
-        to = op.to;
-    } else {
-        quantity = "Multiple operations"
-        const froms = operations.map(o => o.from);
-        from = froms.join(", ");
-        const tos = operations.map(o => o.to);
-        to = tos.join(", ");
+const buildTransaction = async(txn, latestBlock, address = null) => {
+    const operations = await getOperations(txn.id, address);    
+    let froms = [];
+    let tos = [];
+    let type = null;
+    
+    if(operations !== null) {
+        operations.forEach(op => {
+            if(type === null) {
+                type = op.type;
+            }
+            froms.push(...op.froms);
+            tos.push(...op.tos);
+        })
     }
     
     const confirmations = latestBlock - txn.ledger;
 
     const transaction = {
+        type: type,
         hash: txn.hash,
         block: txn.ledger,
         confirmations: confirmations,
-        quantity: quantity,
-        symbol: symbol,
         date: txn.created_at,
-        from: from,
-        to: to
+        froms: froms,
+        tos: tos
     };
 
     return transaction;

@@ -6,7 +6,7 @@ const delay = time => new Promise(res=>setTimeout(res,time));
 
 const getEmptyBlockchain = async() => {
     const chain = {};
-    chain.name = 'Tether';
+    chain.name = 'Tether (Omni)';
     chain.symbol = 'USDT';
     chain.hasTokens = false;
     chain.hasContracts = false;
@@ -68,7 +68,7 @@ const getAddress = async(addressToFind) => {
                 quantity: cleanedTotal,
                 hasTransactions: true
             };
-            address.transactions = getTransactions(txns);
+            address.transactions = getTransactions(txns, addressToFind);
         } else {
             address = null;
         }
@@ -79,13 +79,17 @@ const getAddress = async(addressToFind) => {
     }
 }
 
-const getTransactions = function(txns) {
+const getTransactions = function(txns, address) {
     let txnCount = 0;
     let transactions = [];
     txns.forEach(txn => {
         if(txnCount < 10){
             if(txn.propertyname === "TetherUS"){
-                transactions.push(buildTransaction(txn));
+                let transaction = buildTransaction(txn);
+
+                transaction = helperSvc.inoutCalculation(address, transaction);
+
+                transactions.push(transaction);
 
                 txnCount++;
             }
@@ -116,16 +120,28 @@ const getTransaction = async(hash) => {
 const buildTransaction = function(txn) {    
     const total = helperSvc.commaBigNumber(txn.amount.toString());
     const cleanedTotal = helperSvc.decimalCleanup(total);
+    const symbol = "USDT";
+    let froms = [];
+    let tos = [];
+    const from = helperSvc.getSimpleIO(symbol, txn.sendingaddress, txn.amount);
+    froms.push(from);
+    const to = helperSvc.getSimpleIO(symbol, txn.referenceaddress, txn.amount);
+    tos.push(to);
+
+    const fromData = helperSvc.cleanIO(froms);
+    const toData = helperSvc.cleanIO(tos);
 
     const transaction = {
         hash: txn.txid,
         block: txn.block,
-        quantity: cleanedTotal,
-        symbol: "USDT",
+        // quantity: cleanedTotal,
+        // symbol: "USDT",
         confirmations: txn.confirmations,
         date: helperSvc.unixToUTC(txn.blocktime),
-        from: txn.sendingaddress,
-        to: txn.referenceaddress
+        froms: fromData,
+        tos: toData
+        // from: txn.sendingaddress,
+        // to: txn.referenceaddress
     };
 
     return transaction;

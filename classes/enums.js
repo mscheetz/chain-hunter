@@ -44,6 +44,7 @@ const transactionType = {
     TRUSTREMOVED : 'Trustline Removed',
     TRUSTCREATED : 'Trustline Created',
     MANAGEOFFER : 'Manage Offer',
+    MANAGEBUYOFFER : 'Manage Buy Offer',
     ENDORSEMENT : 'Endorsement',
     DELEGATION : 'Delegation',
     ORIGINATION : 'Origination',
@@ -51,7 +52,8 @@ const transactionType = {
     REWARD : 'Reward',
     CANCEL_ORDER : 'Cancel Order',
     NEW_ORDER : 'Place Order',
-    CLAIM : 'Gas Claim'
+    CLAIM : 'Gas Claim',
+    CREATE_ACCOUNT : 'Create Account'
 }
 
 module.exports = {

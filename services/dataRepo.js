@@ -11,7 +11,7 @@ const pool = new Pool({
 });
 
 const getAssets = async() => {
-    let sql = 'SELECT * FROM assets';
+    let sql = 'SELECT * FROM public.assets';
     db.query(sql, (error, results) => {
         if(error) {
             throw error;
@@ -22,7 +22,7 @@ const getAssets = async() => {
 }
 
 const postAsset = async(asset) => {
-    let sql = 'INSERT INTO assets ( "assetName", symbol, status, "hasTokens", "hasContracts", "assetId" ) ';
+    let sql = 'INSERT INTO public.assets ( "assetName", symbol, status, "hasTokens", "hasContracts", "assetId" ) ';
     sql += 'VALUES ( $1, $2, $3, $4, $5, $6 ) ';
     pool.query(sql, [asset.assetName, asset.symbol, asset.status, asset.hasTokens, asset.hasContracts, asset.assetId], (error, results) => {
         if(error) {
@@ -34,7 +34,7 @@ const postAsset = async(asset) => {
 }
 
 const getCountryCounts = async() => {
-    let sql = 'SELECT * FROM countryCount';
+    let sql = 'SELECT * FROM public."countryCount"';
     pool.query(sql, (error, results) => {
         if(error) {
             throw error;
@@ -45,7 +45,7 @@ const getCountryCounts = async() => {
 }
 
 const postCountryCount = async(countryCount) => {
-    let sql = 'INSERT INTO countryCount ( country, symbol, count ) ';
+    let sql = 'INSERT INTO public."countryCount" ( country, symbol, count ) ';
     sql += 'VALUES ( $1, $2, $3 ) ';
     pool.query(sql, [countryCount.country, countryCount.symbol, countryCount.count], (error, results) => {
         if(error) {
@@ -57,7 +57,7 @@ const postCountryCount = async(countryCount) => {
 }
 
 const getDiscountCodes = async() => {
-    let sql = 'SELECT * FROM discountCode';
+    let sql = 'SELECT * FROM public."discountCode"';
     pool.query(sql, (error, results) => {
         if(error) {
             throw error;
@@ -68,7 +68,7 @@ const getDiscountCodes = async() => {
 }
 
 const getDiscountCodeById = async(id) => {
-    let sql = 'SELECT * FROM discountCode WHERE code = $1';
+    let sql = 'SELECT * FROM public."discountCode" WHERE code = $1';
     pool.query(sql, [id], (error, results) => {
         if(error) {
             throw error;
@@ -79,7 +79,7 @@ const getDiscountCodeById = async(id) => {
 }
 
 const postDiscountCode = async(discount) => {
-    let sql = 'INSERT INTO discountCode ( code, "percentOff", "validTil", "usedOn" ) ';
+    let sql = 'INSERT INTO public."discountCode" ( code, "percentOff", "validTil", "usedOn" ) ';
     sql += 'VALUES ( $1, $2, $3, $4 ) ';
     pool.query(sql, [discount.code, discount.percentOff, discount.validTil, discount.usedOn], (error, results) => {
         if(error) {
@@ -91,7 +91,7 @@ const postDiscountCode = async(discount) => {
 }
 
 const updateDiscountCode = async(discount) => {
-    let sql = 'UPDATE discountCode set "usedOn" = $1 ';
+    let sql = 'UPDATE public."discountCode" set "usedOn" = $1 ';
     sql += 'WHERE code = $2 ';
     pool.query(sql, [discount.usedOn, discount.code], (error, results) => {
         if(error) {
@@ -103,7 +103,7 @@ const updateDiscountCode = async(discount) => {
 }
 
 const getSymbolCounts = async() => {
-    let sql = 'SELECT * FROM symbolCount';
+    let sql = 'SELECT * FROM public.symbolCount';
     pool.query(sql, (error, results) => {
         if(error) {
             throw error;
@@ -114,7 +114,7 @@ const getSymbolCounts = async() => {
 }
 
 const postSymbolCount = async(symbolCount) => {
-    let sql = 'INSERT INTO symbolCount ( symbol, count ) ';
+    let sql = 'INSERT INTO public.symbolCount ( symbol, count ) ';
     sql += 'VALUES ( $1, $2 ) ';
     pool.query(sql, [symbolCount.symbol, symbolCount.count], (error, results) => {
         if(error) {
@@ -126,7 +126,7 @@ const postSymbolCount = async(symbolCount) => {
 }
 
 const getUsers = async() => {
-    let sql = 'SELECT * from users';
+    let sql = 'SELECT * from public.users';
 
     try {
         const res = await pool.query(sql);
@@ -138,7 +138,7 @@ const getUsers = async() => {
 }
 
 const getUserByEmail = async(email) => {
-    let sql = 'SELECT * FROM users WHERE email = $1';
+    let sql = 'SELECT * FROM public.users WHERE email = $1';
     try {
         const res = await pool.query(sql, [email]);
 
@@ -149,7 +149,7 @@ const getUserByEmail = async(email) => {
 }
 
 const getUserByUserId = async(userId) => {
-    let sql = 'SELECT * FROM users WHERE "userId" = $1';
+    let sql = 'SELECT * FROM public.users WHERE "userId" = $1';
     pool.query(sql, [userId], (error, results) => {
         if(error) {
             throw error;
@@ -160,7 +160,7 @@ const getUserByUserId = async(userId) => {
 }
 
 const postUser = async(user) => {
-    let sql = 'INSERT INTO users ( email, created, "userId", "accountType" ) ';
+    let sql = 'INSERT INTO public.users ( email, created, "userId", "accountType" ) ';
     sql += 'VALUES ( $1, $2, $3, $4 )';
     pool.query(sql, [user.email, user.created, user.userId, user.accountType], (error, results) => {
         if(error) {
@@ -246,6 +246,30 @@ const postTrxToken = async(token) => {
         })
 }
 
+const postUserData = async(userData) => {
+    let sql = 'INSERT INTO public."userData" ( "userId", hash, chain, type, added ) ';
+    sql += 'VALUES ( $1, $2, $3, $4, $5 )';
+    pool.query(sql, [user.userId, user.hash, user.chain, user.type, user.added], (error, results) => {
+        if(error) {
+            throw error;
+        }
+
+        return results.rows;
+    })
+}
+
+const getUserData = async(userId) => {
+    let sql = 'SELECT * FROM public."userData" where "userId" = $1";
+
+    pool.query(sql, [userId], (error, results) => {
+        if(error) {
+            throw error;
+        }
+
+        return results.rows;
+    })
+}
+
 module.exports = {
     getAssets,
     postAsset,
@@ -264,5 +288,7 @@ module.exports = {
     getSearchResults,
     postSearchResult,
     getTrxTokens,
-    postTrxTokens
+    postTrxTokens,
+    postUserData,
+    getUserData
 }

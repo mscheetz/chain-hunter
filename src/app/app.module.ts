@@ -39,6 +39,7 @@ import { DialogModule } from 'primeng/dialog';
 import { NgxQRCodeModule } from 'node_modules/ngx-qrcode2';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { TransactionComponent } from './components/transaction/transaction.component';
+import { SearchTextComponent } from './components/search-text/search-text.component';
 
 const appRoutes: Routes = [
   { path: '', component: ChainHunterComponent },
@@ -66,7 +67,8 @@ const appRoutes: Routes = [
     SearchResultsComponent,
     TermsComponent,
     TopAdComponent,
-    TransactionComponent
+    TransactionComponent,
+    SearchTextComponent
   ],
   imports: [
     AccordionModule,

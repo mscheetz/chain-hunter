@@ -9,6 +9,7 @@ import { CookieData } from 'src/app/classes/ChainHunter/CookieData';
 import { CookieService } from 'ngx-cookie-service';
 import { CookieRequest } from 'src/app/classes/ChainHunter/CookieRequest';
 import { Asset } from 'src/app/classes/ChainHunter/Asset';
+import anime from 'animejs';
 
 @Component({
     selector: 'chain-hunter',
@@ -17,6 +18,7 @@ import { Asset } from 'src/app/classes/ChainHunter/Asset';
 })
 
 export class ChainHunterComponent implements OnInit {
+    @Output() huntCount: number = 0;
     offLine: boolean = false;
     @Output() addyTxn: string;
     @Output() activeChains: Chain[] = [];
@@ -27,6 +29,7 @@ export class ChainHunterComponent implements OnInit {
     activeItem: MenuItem;
     @Output() blockchain: Blockchain = null;
     map: Map<string, Blockchain> = new Map<string, Blockchain>();
+    mapBackup: Map<string, Blockchain> = new Map<string, Blockchain>();
     menuItems: MenuItem[];
     selectedChain: string = "";
     @Output() txnsComplete: boolean = true;
@@ -42,6 +45,7 @@ export class ChainHunterComponent implements OnInit {
     unlimitedCookie: string = "tch-cookie-unlimited";
     searchLimit: boolean = false;
     unlimited: boolean = false;
+    //animationLoop: boolean = false;
     @Output() tokenContent: string;
 
     constructor(private helperService: HelperService,
@@ -54,6 +58,10 @@ export class ChainHunterComponent implements OnInit {
         this.getChains();
         this.nullOut();
         this.updateMenuItems();
+    }
+
+    ngAfterViewInit() {
+        //this.animateText();
     }
 
     /**
@@ -132,6 +140,7 @@ export class ChainHunterComponent implements OnInit {
                 Object.keys(map).forEach(e => {
                     this.map.set(e, map[e]);
                 });
+                this.mapBackup = this.map;
                 this.setBlockchainIcons();
                 this.startHunt();
             });
@@ -154,6 +163,9 @@ export class ChainHunterComponent implements OnInit {
      * Get results for blockchains
      */
     startHunt() {
+        // this.animationLoop = true;
+        // this.animateText();
+        this.huntCount ++;
         this.requestedChains = this.map.size;
         this.map.forEach((value: Blockchain, key: string) => {
             this.chainService.getBlockchain(key, this.addyTxn)
@@ -228,6 +240,7 @@ export class ChainHunterComponent implements OnInit {
         if(this.requestedChains === 0) {
             this.notRunning = true;
             this.huntStatus = this.resultsFound.length === 0 ? 2 : 3;
+            //this.animationLoop = false;
             if(this.resultsFound.length === 0) {
                 this.chainService.emptySearch()
                     .subscribe(res => {
@@ -403,6 +416,66 @@ export class ChainHunterComponent implements OnInit {
     cookieOk(cookie: boolean){
         this.showNotice = false;
     }
+    
+    // /**
+    //  * Animate text when searching
+    //  */
+    // animateText() {
+    //     let ml4: any = {};
+    //     ml4.opacityIn = [0,1];
+    //     ml4.scaleIn = [0.2, 1];
+    //     ml4.scaleOut = 3;
+    //     ml4.durationIn = 800;
+    //     ml4.durationOut = 600;
+    //     ml4.delay = 500;
+        
+    //     anime.timeline({loop: true})
+    //         .add({
+    //         targets: '.ml4 .letters-1',
+    //         opacity: ml4.opacityIn,
+    //         scale: ml4.scaleIn,
+    //         duration: ml4.durationIn,
+    //         complete: function(anim) {
+    //             anime.remove();
+    //         }
+    //         }).add({
+    //         targets: '.ml4 .letters-1',
+    //         opacity: 0,
+    //         scale: ml4.scaleOut,
+    //         duration: ml4.durationOut,
+    //         easing: "easeInExpo",
+    //         delay: ml4.delay,
+    //         complete: function(anim) {
+    //             anime.remove();
+    //         }
+    //         }).add({
+    //         targets: '.ml4 .letters-2',
+    //         opacity: ml4.opacityIn,
+    //         scale: ml4.scaleIn,
+    //         duration: ml4.durationIn,
+    //         complete: function(anim) {
+    //             anime.remove();
+    //         }
+    //         }).add({
+    //         targets: '.ml4 .letters-2',
+    //         opacity: 0,
+    //         scale: ml4.scaleOut,
+    //         duration: ml4.durationOut,
+    //         easing: "easeInExpo",
+    //         delay: ml4.delay,
+    //         complete: function(anim) {
+    //             anime.remove();
+    //         }
+    //         }).add({
+    //         targets: '.ml4',
+    //         opacity: 0,
+    //         duration: 500,
+    //         delay: 500,
+    //         complete: function(anim) {
+    //             anime.remove();
+    //         }
+    //     });
+    // }
 
     styles: string = `
     <style>

@@ -53,7 +53,8 @@
         <p *ngIf="blockchain.contract.quantity">
             Balance: {{blockchain.contract.quantity}} {{blockchain.contract.symbol}}
         </p>
-        <p *ngIf="blockchain.contract.creator">Creator Address: {{blockchain.contract.creator}}</p>
+        <p *ngIf="blockchain.contract.creator">Creator: {{blockchain.contract.creator}}</p>
+        <p *ngIf="blockchain.contract.creatorAddress">Creator Address: {{blockchain.contract.creatorAddress}}</p>
         <div *ngIf="blockchain.source">
             <p>
                 For more info: <a href="{{blockchain.source}}" target="_blank">{{blockchain.source}}</a>
@@ -74,13 +75,16 @@
     </p-panel>
 </div>
 <p-panel showHeader="false" *ngIf="huntStatus === 1">
-    <!-- <div style="height: 6em; vertical-align: middle;">
-        <h1 class="ml4">
-            <span class="letters letters-1">The Hunt</span>
-            <span class="letters letters-2">Is On!</span>
-        </h1>
+    <app-search-text></app-search-text>
+    <!-- <div class="p-grid">
+        <div class="p-col" style="height: 8em; vertical-align: middle; text-align: center;">
+            <h1 class="ml4">
+                <span class="letters letters-1">The Hunt</span>
+                <span class="letters letters-2">Is On!</span>
+            </h1>
+        </div>
     </div> -->
-    <h3>Searching...</h3>
+    <!-- <h3>Searching...</h3> -->
 </p-panel>
 <p-panel showHeader="false" *ngIf="huntStatus === 2 && selectedChain === ''">
     <h3>Nothing found</h3>

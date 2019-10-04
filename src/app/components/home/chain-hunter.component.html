@@ -17,6 +17,14 @@
             </div>
         </div>
         <div *ngIf="!notRunning">
+            <!-- <div class="p-grid">
+                <div class="p-col" style="height: 8em; vertical-align: middle; text-align: center;">
+                    <h1 class="ml4">
+                        <span class="letters letters-1">The Hunt</span>
+                        <span class="letters letters-2">Is On!</span>
+                    </h1>
+                </div>
+            </div> -->
             <div class="h3-like">
                 The hunt is on!
                 <p-progressBar mode="indeterminate" [style]="{'width': '50%'}"></p-progressBar>
@@ -38,6 +46,7 @@
                 [tokensComplete]="tokensComplete" 
                 [resultsFound]="resultsFound"
                 [tokenContent]="tokenContent"
+                [huntCount]="huntCount"
                 (getTransactions)="getAddressTxns($event)" 
                 (getTokens)="getAddressTokens($event)">
             </search-results>

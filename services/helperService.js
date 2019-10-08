@@ -722,6 +722,14 @@ const searchType = function(chain, toFind) {
             return enums.searchType.nothing;
         }
     }
+    if(chain === "lsk") {
+        const len = toFind.length;
+        if((20 <= len <= 25) && _.isNumber(toFind)) {
+            return enums.searchType.transaction;
+        } else if((20 <= len <= 22) && toFind.substr(len - 1) === "L") {
+            return enums.searchType.address;
+        }
+    }
 
     return enums.searchType.address | enums.searchType.transaction | enums.searchType.contract;
 }

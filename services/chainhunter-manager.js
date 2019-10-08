@@ -11,6 +11,7 @@ const eos = require('./eos.js');
 const eth = require('./eth.js');
 const icx = require('./icx.js');
 const iost = require('./iost.js');
+const lsk = require('./lsk.js');
 const ltc = require('./ltc.js');
 const nano = require('./nano.js');
 const neo = require('./neo.js');
@@ -111,7 +112,7 @@ const getChains = function() {
         {
             name: 'Lisk',
             symbol: 'LSK',
-            status: 'Future'
+            status: 'Active'
         },
         {
             name: 'Litecoin',
@@ -294,6 +295,8 @@ const getEmptyBlockchain = async(chain) => {
         blockchain =  await xlm.getEmptyBlockchain();
     } else if(chain === 'xtz') {
         blockchain =  await xtz.getEmptyBlockchain();
+    } else if(chain === 'lsk') {
+        blockchain =  await lsk.getEmptyBlockchain();
     }
     
     blockchain.address = null;
@@ -360,6 +363,8 @@ const getEmptyBlockchains = async() => {
             blockchains["XLM"] = await xlm.getEmptyBlockchain();
         } else if(chains[i].symbol === 'XTZ') {
             blockchains["XTZ"] = await xtz.getEmptyBlockchain();
+        } else if(chains[i].symbol === 'LSK') {
+            blockchains["LSK"] = await lsk.getEmptyBlockchain();
         // } else if(chains[i].symbol === 'DCR') {
         //     blockchains["DCR"] = await dcr.getEmptyBlockchain();
         }
@@ -424,6 +429,8 @@ const getBlockchains = async(toFind) => {
             blockchains["XLM"] = await xlm.getBlockchain(toFind);
         } else if(chains[i].symbol === 'XTZ') {
             blockchains["XTZ"] = await xtz.getBlockchain(toFind);
+        } else if(chains[i].symbol === 'LSK') {
+            blockchains["LSK"] = await lsk.getBlockchain(toFind);
         // } else if(chains[i].symbol === 'DCR') {
         //     blockchains["DCR"] = await dcr.getBlockchain(toFind);
         }
@@ -485,6 +492,8 @@ const getBlockchain = async(chain, toFind) => {
         return await xlm.getBlockchain(toFind);
     } else if (chain === "xtz") {
         return await xtz.getBlockchain(toFind);
+    } else if (chain === "lsk") {
+        return await lsk.getBlockchain(toFind);
     // } else if (chain === "dcr") {
     //     return await dcr.getBlockchain(toFind);
     }
@@ -559,6 +568,8 @@ const getTransactions = async(chain, address) => {
         return await xlm.getTransactions(address);
     } else if (chain === "xtz") {
         return await xtz.getTransactions(address);
+    } else if (chain === "lsk") {
+        return await lsk.getTransactions(address);
     // } else if (chain === "dcr") {
     //     return await dcr.getTransactions(address);
     }

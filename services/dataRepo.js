@@ -259,7 +259,7 @@ const postUserData = async(userData) => {
 }
 
 const getUserData = async(userId) => {
-    let sql = 'SELECT * FROM public."userData" where "userId" = $1";
+    let sql = 'SELECT * FROM public."userData" where "userId" = $1';
 
     pool.query(sql, [userId], (error, results) => {
         if(error) {

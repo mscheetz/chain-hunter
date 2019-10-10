@@ -8,6 +8,7 @@ const btc = require('./btc.js');
 const dash = require('./dash.js');
 const dcr = require('./dcr.js');
 const eos = require('./eos.js');
+const etc = require('./etc.js');
 const eth = require('./eth.js');
 const icx = require('./icx.js');
 const iost = require('./iost.js');
@@ -92,7 +93,7 @@ const getChains = function() {
         {
             name: 'Ethereum Classic',
             symbol: 'ETC',
-            status: 'Future'
+            status: 'Active'
         },
         {
             name: 'Icon',
@@ -169,6 +170,11 @@ const getChains = function() {
             symbol: 'XLM',
             status: 'Active'
         },
+        // {
+        //     name: 'Terra',
+        //     symbol: 'LUNA',
+        //     status: 'Future'
+        // },
         {
             name: 'Tether',
             symbol: 'USDT',
@@ -244,59 +250,61 @@ const getFutureChains = function() {
 const getEmptyBlockchain = async(chain) => {
     let blockchain = {};
     if(chain === 'btc') {
-        blockchain =  await btc.getEmptyBlockchain();
+        blockchain = await btc.getEmptyBlockchain();
     } else if(chain === 'bch') {
-        blockchain =  await bch.getEmptyBlockchain();
+        blockchain = await bch.getEmptyBlockchain();
+    } else if(chain === 'etc') {
+        blockchain = await etc.getEmptyBlockchain();
     } else if(chain === 'eth') {
-        blockchain =  await eth.getEmptyBlockchain();
+        blockchain = await eth.getEmptyBlockchain();
     } else if(chain === 'ltc') {
-        blockchain =  await ltc.getEmptyBlockchain();
+        blockchain = await ltc.getEmptyBlockchain();
     } else if(chain === 'xrp') {
-        blockchain =  await xrp.getEmptyBlockchain();
+        blockchain = await xrp.getEmptyBlockchain();
     } else if(chain === 'neo') {
-        blockchain =  await neo.getEmptyBlockchain();
+        blockchain = await neo.getEmptyBlockchain();
     } else if(chain === 'rvn') {
-        blockchain =  await rvn.getEmptyBlockchain();
+        blockchain = await rvn.getEmptyBlockchain();
     } else if(chain === 'bnb') {
-        blockchain =  await bnb.getEmptyBlockchain();
+        blockchain = await bnb.getEmptyBlockchain();
     } else if(chain === 'aion') {
-        blockchain =  await aion.getEmptyBlockchain();
+        blockchain = await aion.getEmptyBlockchain();
     } else if(chain === 'eos') {
-        blockchain =  await eos.getEmptyBlockchain();
+        blockchain = await eos.getEmptyBlockchain();
     } else if(chain === 'trx') {
-        blockchain =  await trx.getEmptyBlockchain();
+        blockchain = await trx.getEmptyBlockchain();
     } else if(chain === 'ont') {
-        blockchain =  await ont.getEmptyBlockchain();
+        blockchain = await ont.getEmptyBlockchain();
     } else if(chain === 'usddt') {
-        blockchain =  await usdt.getEmptyBlockchain();
+        blockchain = await usdt.getEmptyBlockchain();
     } else if(chain === 'iost') {
-        blockchain =  await iost.getEmptyBlockchain();
+        blockchain = await iost.getEmptyBlockchain();
     } else if(chain === 'icx') {
-        blockchain =  await icx.getEmptyBlockchain();
+        blockchain = await icx.getEmptyBlockchain();
     } else if(chain === 'nano') {
-        blockchain =  await nano.getEmptyBlockchain();
+        blockchain = await nano.getEmptyBlockchain();
     } else if(chain === 'dash') {
-        blockchain =  await dash.getEmptyBlockchain();
+        blockchain = await dash.getEmptyBlockchain();
     } else if(chain === 'ae') {
-        blockchain =  await ae.getEmptyBlockchain();
+        blockchain = await ae.getEmptyBlockchain();
     } else if(chain === 'ada') {
-        blockchain =  await ada.getEmptyBlockchain();
+        blockchain = await ada.getEmptyBlockchain();
     } else if(chain === 'zel') {
-        blockchain =  await zel.getEmptyBlockchain();
+        blockchain = await zel.getEmptyBlockchain();
     } else if(chain === 'atom') {
-        blockchain =  await atom.getEmptyBlockchain();
+        blockchain = await atom.getEmptyBlockchain();
     } else if(chain === 'vet') {
-        blockchain =  await vet.getEmptyBlockchain();
+        blockchain = await vet.getEmptyBlockchain();
     } else if(chain === 'qtum') {
-        blockchain =  await qtum.getEmptyBlockchain();
+        blockchain = await qtum.getEmptyBlockchain();
     } else if(chain === 'nebl') {
-        blockchain =  await nebl.getEmptyBlockchain();
+        blockchain = await nebl.getEmptyBlockchain();
     } else if(chain === 'xlm') {
-        blockchain =  await xlm.getEmptyBlockchain();
+        blockchain = await xlm.getEmptyBlockchain();
     } else if(chain === 'xtz') {
-        blockchain =  await xtz.getEmptyBlockchain();
+        blockchain = await xtz.getEmptyBlockchain();
     } else if(chain === 'lsk') {
-        blockchain =  await lsk.getEmptyBlockchain();
+        blockchain = await lsk.getEmptyBlockchain();
     }
     
     blockchain.address = null;
@@ -315,6 +323,8 @@ const getEmptyBlockchains = async() => {
             blockchains["BTC"] = await btc.getEmptyBlockchain();
         } else if(chains[i].symbol === 'BCH') {
             blockchains["BCH"] = await bch.getEmptyBlockchain();
+        } else if(chains[i].symbol === 'ETC') {
+            blockchains["ETC"] = await etc.getEmptyBlockchain();
         } else if(chains[i].symbol === 'ETH') {
             blockchains["ETH"] = await eth.getEmptyBlockchain();
         } else if(chains[i].symbol === 'LTC') {
@@ -381,6 +391,8 @@ const getBlockchains = async(toFind) => {
             blockchains["BTC"] = await btc.getBlockchain(toFind);
         } else if(chains[i].symbol === 'BCH') {
             blockchains["BCH"] = await bch.getBlockchain(toFind);
+        } else if(chains[i].symbol === 'ETC') {
+            blockchains["ETC"] = await etc.getBlockchain(toFind);
         } else if(chains[i].symbol === 'ETH') {
             blockchains["ETH"] = await eth.getBlockchain(toFind);
         } else if(chains[i].symbol === 'LTC') {
@@ -444,6 +456,8 @@ const getBlockchain = async(chain, toFind) => {
         return await btc.getBlockchain(toFind);
     } else if (chain === "bch") {
         return await bch.getBlockchain(toFind);
+    } else if (chain === "etc") {
+        return await etc.getBlockchain(toFind);
     } else if (chain === "eth") {
         return await eth.getBlockchain(toFind);
     } else if (chain === "ltc") {
@@ -504,6 +518,8 @@ const getTokens = async(chain, address) => {
         return await eth.getTokens(address);
     } else if (chain === "aion") {
         return await aion.getTokens(address);
+    } else if (chain === "etc") {
+        return await etc.getTokens(address);
     } else if (chain === "trx") {
         return await trx.getTokens(address);
     } else if (chain === "vet") {
@@ -522,6 +538,8 @@ const getTransactions = async(chain, address) => {
         return await btc.getTransactions(address);
     } else if (chain === "bch") {
         return await bch.getTransactions(address);
+    } else if (chain === "etc") {
+        return await etc.getTransactions(address);
     } else if (chain === "eth") {
         return await eth.getTransactions(address);
     } else if (chain === "ltc") {

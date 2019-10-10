@@ -29,7 +29,7 @@ const getBlockchain = async(toFind) => {
         address = await getAddress(toFind);
     }
     if(searchType & enums.searchType.contract) {
-        contract = await getContract(toFind);
+        contract = null;//await getContract(toFind);
     }
     if(searchType & enums.searchType.transaction) {
         transaction = await getTransaction(toFind);
@@ -55,13 +55,12 @@ const getAddress = async(addressToFind) => {
         if(response.data.status === "1") {
             const quantity = helperSvc.bigNumberToDecimal(response.data.result, 18);
             const balance = helperSvc.commaBigNumber(quantity.toString());
+            const cleanedTotal = helperSvc.decimalCleanup(balance);
             let address = {
                 address: addressToFind,
-                quantity: balance,
+                quantity: cleanedTotal,
                 hasTransactions: true
             };
-            const txns = datas.caTxList.slice(0, 10);
-            address.transactions = getTransactions(address.address, txns);
 
             return address;
         } else {
@@ -78,6 +77,7 @@ const getTokens = async(address) => {
 
     try{
         const response = await axios.get(url);
+        console.log(response.data);
         if(response.data.status === "1") {
             const datas = response.data.result;
             let assets = [];
@@ -95,17 +95,17 @@ const getTokens = async(address) => {
     }
 }
 
-const buildToken = function(asset) {
-    const decimals = asset.decimals;
-    const qty = asset.balance.length > decimals 
-                ? helperSvc.bigNumberToDecimal(datas.balance, decimals)
-                : datas.balance;
+const buildToken = function(data) {
+    const decimals = parseInt(data.decimals);
+    const qty = data.balance.length > decimals 
+                ? helperSvc.bigNumberToDecimal(data.balance, decimals)
+                : data.balance;
     const total = helperSvc.commaBigNumber(qty.toString());
     const cleanedTotal = helperSvc.decimalCleanup(total);
     let asset = {
         quantity: cleanedTotal,
-        symbol: datas.symbol,
-        name: datas.name
+        symbol: data.symbol,
+        name: data.name
     };
     const icon = 'color/' + asset.symbol.toLowerCase() + '.png';
     const iconStatus = helperSvc.iconExists(icon);
@@ -118,7 +118,7 @@ const getTransactions = async(address) => {
     const etcTxns = await getEtcTransactions(address);
     const tokenTxns = await getTokenTransactions(address);
 
-    let transactions = _.contract(etcTxns, tokenTxns);
+    let transactions = _.concat(etcTxns, tokenTxns);
     let sorted = _.sortBy(transactions, 'date');
 
     let sliced = _.takeRight(sorted, 10);
@@ -156,7 +156,7 @@ const getTokenTransactions = async(address) => {
     }
 }
 
-const getEtcTransactions = function(address) {
+const getEtcTransactions = async(address) => {
     let endpoint = "?module=account&action=txlist&address=" + address + "&sort=desc&page=1&offset=10";
     let url = base + endpoint;
 
@@ -194,14 +194,16 @@ const getTransaction = async(hash) => {
             let froms = [];
             let tos = [];
             let noDetail = false;
-            if(typeof datas.logs !== 'undefined') {
+            if(datas.logs.length > 0) {
                 const details = await getComboTokenTransactions(datas.from, parseInt(datas.blockNumber), hash);
                 froms = details.froms;
                 tos = details.tos;
                 noDetail = true;
             }
             let transaction = buildTokenTransaction(datas, false, noDetail);
+
             transaction.date = helperSvc.unixToUTC(transaction.date);
+            
             if(noDetail){
                 transaction.froms = froms;
                 transaction.tos = tos;
@@ -235,7 +237,7 @@ const getComboTokenTransactions = async(address, block, hash) => {
                 let decimals = 18;
                 if(typeof txn.tokenSymbol !== 'undefined') {
                     symbol = txn.tokenSymbol;
-                    decimals = parseInt(txn.tokenDecimals);
+                    decimals = parseInt(txn.tokenDecimal);
 
                 }
                 const qty = txn.value.length > decimals 

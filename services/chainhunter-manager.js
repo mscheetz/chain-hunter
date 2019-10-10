@@ -170,11 +170,11 @@ const getChains = function() {
             symbol: 'XLM',
             status: 'Active'
         },
-        {
-            name: 'Terra',
-            symbol: 'LUNA',
-            status: 'Future'
-        },
+        // {
+        //     name: 'Terra',
+        //     symbol: 'LUNA',
+        //     status: 'Future'
+        // },
         {
             name: 'Tether',
             symbol: 'USDT',

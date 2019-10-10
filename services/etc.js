@@ -29,7 +29,7 @@ const getBlockchain = async(toFind) => {
         address = await getAddress(toFind);
     }
     if(searchType & enums.searchType.contract) {
-        contract = null;//await getContract(toFind);
+        contract = await getContract(toFind);
     }
     if(searchType & enums.searchType.transaction) {
         transaction = await getTransaction(toFind);
@@ -65,6 +65,28 @@ const getAddress = async(addressToFind) => {
             return address;
         } else {
             return null;
+        }
+    } catch(error) {
+        return null;
+    }
+}
+
+const getContract = async(address) => {
+    let endpoint = "?module=contract&action=getsourcecode&address=" + address;
+    let url = base + endpoint;
+
+    try{
+        const response = await axios.get(url);
+        if(response.data.status === "1") {
+            const datas = response.data.result[0];
+            let contractAddress = datas.Address;
+
+            let contract = {
+                address: contractAddress,
+                contractName: datas.ContractName
+            };
+
+            return contract;
         }
     } catch(error) {
         return null;

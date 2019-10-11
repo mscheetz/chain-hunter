@@ -376,12 +376,12 @@ const inoutCalculation = function(address, transaction) {
  * @param {*} toFind search string
  */
 const searchType = function(chain, toFind) {
-    if((chain === "aion" || chain === "etc" || chain === "eth" || chain === "vet") 
+    if((chain === "aion" || chain === "etc" || chain === "eth" || chain === "tomo" || chain === "vet") 
         && toFind.substr(0, 2) !== "0x") {
         return enums.searchType.nothing;
     }
     if(toFind.substr(0, 2) === "0x") {
-        if(chain === "etc" || chain === "eth") {
+        if(chain === "etc" || chain === "eth" || chain === "tomo") {
             if(toFind.length === 42) {
                 return enums.searchType.address | enums.searchType.contract;
             } else {

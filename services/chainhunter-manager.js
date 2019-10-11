@@ -20,6 +20,7 @@ const nebl = require('./nebl.js');
 const ont = require('./ont.js');
 const qtum = require('./qtum.js');
 const rvn = require('./rvn.js');
+const tomo = require('./tomo.js');
 const trx = require('./trx.js');
 const usdt = require('./usdt.js');
 const vet = require('./vet.js');
@@ -181,6 +182,11 @@ const getChains = function() {
             status: 'Active'
         },
         {
+            name: 'Tomo Chain',
+            symbol: 'TOMO',
+            status: 'Active'
+        },
+        {
             name: 'Tezos',
             symbol: 'XTZ',
             status: 'Active'
@@ -305,6 +311,8 @@ const getEmptyBlockchain = async(chain) => {
         blockchain = await xtz.getEmptyBlockchain();
     } else if(chain === 'lsk') {
         blockchain = await lsk.getEmptyBlockchain();
+    } else if(chain === 'tomo') {
+        blockchain = await tomo.getEmptyBlockchain();
     }
     
     blockchain.address = null;
@@ -375,6 +383,8 @@ const getEmptyBlockchains = async() => {
             blockchains["XTZ"] = await xtz.getEmptyBlockchain();
         } else if(chains[i].symbol === 'LSK') {
             blockchains["LSK"] = await lsk.getEmptyBlockchain();
+        } else if(chains[i].symbol === 'TOMO') {
+            blockchains["TOMO"] = await tomo.getEmptyBlockchain();
         // } else if(chains[i].symbol === 'DCR') {
         //     blockchains["DCR"] = await dcr.getEmptyBlockchain();
         }
@@ -443,6 +453,8 @@ const getBlockchains = async(toFind) => {
             blockchains["XTZ"] = await xtz.getBlockchain(toFind);
         } else if(chains[i].symbol === 'LSK') {
             blockchains["LSK"] = await lsk.getBlockchain(toFind);
+        } else if(chains[i].symbol === 'TOMO') {
+            blockchains["TOMO"] = await tomo.getBlockchain(toFind);
         // } else if(chains[i].symbol === 'DCR') {
         //     blockchains["DCR"] = await dcr.getBlockchain(toFind);
         }
@@ -508,6 +520,8 @@ const getBlockchain = async(chain, toFind) => {
         return await xtz.getBlockchain(toFind);
     } else if (chain === "lsk") {
         return await lsk.getBlockchain(toFind);
+    } else if (chain === "tomo") {
+        return await tomo.getBlockchain(toFind);
     // } else if (chain === "dcr") {
     //     return await dcr.getBlockchain(toFind);
     }
@@ -530,6 +544,8 @@ const getTokens = async(chain, address) => {
         return await ont.getTokens(address);
     } else if (chain === "iost") {
         return await iost.getTokens(address);
+    } else if (chain === "tomo") {
+        return await tomo.getTokens(address);
     }
 }
 
@@ -588,6 +604,8 @@ const getTransactions = async(chain, address) => {
         return await xtz.getTransactions(address);
     } else if (chain === "lsk") {
         return await lsk.getTransactions(address);
+    } else if (chain === "tomo") {
+        return await tomo.getTransactions(address);
     // } else if (chain === "dcr") {
     //     return await dcr.getTransactions(address);
     }

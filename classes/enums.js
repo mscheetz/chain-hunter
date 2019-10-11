@@ -10,7 +10,8 @@ const searchType = {
 
 /**
  * Blockchain types
- * from https://steemitimages.com/p/JvFFVmatwWHRfvmtd53nmEJ94xpKydwmbSC5H5svBACH7z9fCvxPj3CUpU5kRMqxvo3QmGpg9v2A69xAuWstsksJTeppQPZHkdEz9cKdbch8TSxpsm43E3KokjEFFRqzaREev4uQqU?format=match&mode=fit&width=640
+ * from 
+ * https://steemitimages.com/p/JvFFVmatwWHRfvmtd53nmEJ94xpKydwmbSC5H5svBACH7z9fCvxPj3CUpU5kRMqxvo3QmGpg9v2A69xAuWstsksJTeppQPZHkdEz9cKdbch8TSxpsm43E3KokjEFFRqzaREev4uQqU?format=match&mode=fit&width=640
  * and
  * https://coinnewstelegraph.com/wp-content/uploads/2018/06/cryptocurrency-periodic-table-chart-9-types-of-blockchain-assets-categories.jpg
  */

@@ -99,7 +99,7 @@ const getTokens = async(address) => {
 
     try{
         const response = await axios.get(url);
-        console.log(response.data);
+        
         if(response.data.status === "1") {
             const datas = response.data.result;
             let assets = [];
@@ -162,7 +162,7 @@ const getTokenTransactions = async(address) => {
             const datas = response.data.result;
             let transactions = [];
             datas.forEach(data => {
-                let transaction = buildTokenTransaction(data, true);
+                let transaction = buildTransaction(data, true);
 
                 transaction = helperSvc.inoutCalculation(address, transaction);
 
@@ -188,7 +188,7 @@ const getEtcTransactions = async(address) => {
             const datas = response.data.result;
             let transactions = [];
             datas.forEach(data => {
-                let transaction = buildTokenTransaction(data);
+                let transaction = buildTransaction(data);
 
                 transaction = helperSvc.inoutCalculation(address, transaction);
 
@@ -222,7 +222,7 @@ const getTransaction = async(hash) => {
                 tos = details.tos;
                 noDetail = true;
             }
-            let transaction = buildTokenTransaction(datas, false, noDetail);
+            let transaction = buildTransaction(datas, false, noDetail);
 
             transaction.date = helperSvc.unixToUTC(transaction.date);
             
@@ -286,7 +286,7 @@ const getComboTokenTransactions = async(address, block, hash) => {
     }
 }
 
-const buildTokenTransaction = function(txn, token = false, noDetail = false) {
+const buildTransaction = function(txn, token = false, noDetail = false) {
     let froms = [];
     let tos = [];
     const symbol = token ? txn.tokenSymbol : "ETC";
@@ -312,79 +312,6 @@ const buildTokenTransaction = function(txn, token = false, noDetail = false) {
         block: txn.blockNumber,
         confirmations: txn.confirmations,
         date: timestamp,
-        froms: fromData,
-        tos: toData
-    };
-
-    return transaction;
-}
-
-const buildTransaction = function(txn) {
-    let froms = [];
-    let tos = [];
-    const symbol = "ETC";
-
-
-    const fromData = helperSvc.cleanIO(froms);
-    const toData = helperSvc.cleanIO(tos);
-
-    let transaction = {
-        type: enums.transactionType.TRANSFER,
-        hash: txn.ctbId,
-        date: helperSvc.unixToUTC(txn.ctbTimeIssued),
-        froms: fromData,
-        tos: toData
-    };
-
-    return transaction;
-}
-
-
-const buildTransactionII = function(txn) {
-    let froms = [];
-    let tos = [];
-    const symbol = "ADA";
-
-    txn.ctsInputs.forEach(input => {
-        let i = 0;
-        let address = "";
-        let quantity = 0;
-        for(const [key, value] of Object.entries(input)) {
-            if(i === 0) {
-                address = value;
-            } else if (i === 1) {
-                quantity = value.getCoin/1000000;
-            }
-            i++;
-        }
-        let from = helperSvc.getSimpleIO(symbol, address, quantity);
-        froms.push(from);
-    })
-    txn.ctsOutputs.forEach(output => {
-        let i = 0;
-        let address = "";
-        let quantity = 0;
-        for(const [key, value] of Object.entries(output)) {
-            if(i === 0) {
-                address = value;
-            } else if (i === 1) {
-                quantity = value.getCoin/1000000;
-            }
-            i++;
-        }
-        let to = helperSvc.getSimpleIO(symbol, address, quantity);
-        tos.push(to);
-    })
-
-    const fromData = helperSvc.cleanIO(froms);
-    const toData = helperSvc.cleanIO(tos);
-    let block = txn.ctsBlockEpoch + "." + txn.ctsBlockSlot;
-
-    let transaction = {
-        type: enums.transactionType.TRANSFER,
-        hash: txn.ctsId,
-        block: parseFloat(block),
-        date: helperSvc.unixToUTC(txn.ctsTxTimeIssued),
         froms: fromData,
         tos: toData
     };

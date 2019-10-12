@@ -7,7 +7,10 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const compression = require('compression');
 const helmet = require('helmet');
-const api = require('./routes/api');
+const blockchainApi = require('./routes/blockchainApi');
+const loginApi = require('./routes/loginApi');
+const userApi = require('./routes/userApi');
+const resultsApi = require('./routes/searchApi');
 const config = require('./config');
 
 const port = process.env.PORT || 3000;
@@ -42,6 +45,7 @@ var corsOptions = {
 
 app.use(cors(corsOptions));
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true}));
 app.use(compression());
 app.use(helmet());
 app.use(cookieParser());
@@ -68,7 +72,10 @@ const redirectHome = async(req, res) => {
   res.redirect(baseUrl);
 };
 
-app.get('/api/*', api);
+app.all('/api/blockchain/*', blockchainApi);
+app.all('/api/login/*', loginApi);
+app.all('/api/user/*', userApi);
+app.all('/api/results/*', resultsApi);
 
 app.get('/', function (req, res) {
   res.status(200).sendFile(`/`, {root: dist_dir});

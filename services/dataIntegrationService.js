@@ -1,4 +1,4 @@
-const db = require('./dataRepo');
+const db = require('../data/dataRepo');
 const helperSvc = require('./helperService.js')
 
 /**

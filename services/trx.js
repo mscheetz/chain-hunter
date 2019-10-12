@@ -2,7 +2,7 @@ const axios = require('axios');
 const helperSvc = require('./helperService.js');
 const base = "https://apilist.tronscan.org/api";
 const enums = require('../classes/enums');
-const db = require('./dataRepo');
+const db = require('../data/dataRepo');
 const _ = require('lodash');
 
 const getEmptyBlockchain = async() => {

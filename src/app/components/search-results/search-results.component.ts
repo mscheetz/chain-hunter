@@ -36,5 +36,7 @@ export class SearchResultsComponent implements OnInit{
             }
         }
     }
-
+    saveAddress(event) {
+        console.log('You want to save an address');
+    }
 }

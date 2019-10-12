@@ -160,9 +160,33 @@ const getUserByUserId = async(userId) => {
 }
 
 const postUser = async(user) => {
-    let sql = 'INSERT INTO public.users ( email, created, "userId", "accountType" ) ';
-    sql += 'VALUES ( $1, $2, $3, $4 )';
-    pool.query(sql, [user.email, user.created, user.userId, user.accountType], (error, results) => {
+    let sql = 'INSERT INTO public.users ( email, created, "userId", "accountType", username, "expirationDate", password, salt ) ';
+    sql += 'VALUES ( $1, $2, $3, $4, $5, $6, $7, $8 )';
+    pool.query(sql, [user.email, user.created, user.userId, user.accountType, user.username, user.expirationDate, password, salt], (error, results) => {
+        if(error) {
+            throw error;
+        }
+
+        return results.rows;
+    })
+}
+
+const updateUser = async(user) => {
+    let sql = 'UPDATE public.users SET email = $1, "accountType" = $2, username = $3, "expirationDate" = $4 ';
+    sql += 'WHERE "userId" = $5'
+    pool.query(sql, [user.email, user.created, user.userId, user.accountType, user.username, user.expirationDate], (error, results) => {
+        if(error) {
+            throw error;
+        }
+
+        return results.rows;
+    })
+}
+
+const updateUserPassword = async(userId, oldHash, newHash, salt) => {
+    let sql = 'UPDATE public.users SET password = $3, salt = $4 ';
+    sql += 'WHERE "userId" = $1 AND password = $2'
+    pool.query(sql, [userId, oldHash, newHash, salt], (error, results) => {
         if(error) {
             throw error;
         }
@@ -285,6 +309,8 @@ module.exports = {
     getUserByUserId,
     getUsers,
     postUser,
+    updateUser,
+    updateUserPassword,
     getSearchResults,
     postSearchResult,
     getTrxTokens,

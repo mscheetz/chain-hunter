@@ -1,33 +1,35 @@
-const ada = require('./ada.js');
-const aion = require('./aion.js');
-const ae = require('./ae.js');
-const atom = require('./atom.js');
-const bch = require('./bch.js');
-const bnb = require('./bnb.js');
-const btc = require('./btc.js');
-const dash = require('./dash.js');
-const dcr = require('./dcr.js');
-const eos = require('./eos.js');
-const etc = require('./etc.js');
-const eth = require('./eth.js');
-const icx = require('./icx.js');
-const iost = require('./iost.js');
-const lsk = require('./lsk.js');
-const ltc = require('./ltc.js');
-const nano = require('./nano.js');
-const neo = require('./neo.js');
-const nebl = require('./nebl.js');
-const ont = require('./ont.js');
-const qtum = require('./qtum.js');
-const rvn = require('./rvn.js');
-const tomo = require('./tomo.js');
-const trx = require('./trx.js');
-const usdt = require('./usdt.js');
-const vet = require('./vet.js');
-const xlm = require('./xlm.js');
-const xrp = require('./xrp.js');
-const xtz = require('./xtz.js');
-const zel = require('./zel.js');
+const dataSvc = require("../data/dataIntegrationService");
+const db = require('../data/dataRepo');
+const ada = require('./blockchains/ada.js');
+const aion = require('./blockchains/aion.js');
+const ae = require('./blockchains/ae.js');
+const atom = require('./blockchains/atom.js');
+const bch = require('./blockchains/bch.js');
+const bnb = require('./blockchains/bnb.js');
+const btc = require('./blockchains/btc.js');
+const dash = require('./blockchains/dash.js');
+const dcr = require('./blockchains/dcr.js');
+const eos = require('./blockchains/eos.js');
+const etc = require('./blockchains/etc.js');
+const eth = require('./blockchains/eth.js');
+const icx = require('./blockchains/icx.js');
+const iost = require('./blockchains/iost.js');
+const lsk = require('./blockchains/lsk.js');
+const ltc = require('./blockchains/ltc.js');
+const nano = require('./blockchains/nano.js');
+const neo = require('./blockchains/neo.js');
+const nebl = require('./blockchains/nebl.js');
+const ont = require('./blockchains/ont.js');
+const qtum = require('./blockchains/qtum.js');
+const rvn = require('./blockchains/rvn.js');
+const tomo = require('./blockchains/tomo.js');
+const trx = require('./blockchains/trx.js');
+const usdt = require('./blockchains/usdt.js');
+const vet = require('./blockchains/vet.js');
+const xlm = require('./blockchains/xlm.js');
+const xrp = require('./blockchains/xrp.js');
+const xtz = require('./blockchains/xtz.js');
+const zel = require('./blockchains/zel.js');
 
 const getChains = function() {
     const chains = [
@@ -206,6 +208,11 @@ const getChains = function() {
             symbol: 'VET',
             status: 'Active'
         },
+        // {
+        //     name: 'V Systems',
+        //     symbol: 'VSYS',
+        //     status: 'Future'
+        // },
         {
             name: 'Waltonchain',
             symbol: 'WTC',
@@ -241,18 +248,29 @@ const getChains = function() {
     return chains;
 }
 
+/**
+ * Get active chains
+ */
 const getActiveChains = function() {
     const chains = getChains();
 
     return chains.filter(c => c.status === 'Active');
 }
 
+/**
+ * Get future chains
+ */
 const getFutureChains = function() {
     const chains = getChains();
 
     return chains.filter(c => c.status === 'Future');
 }
 
+/**
+ * Get an emtpy blockchain
+ * 
+ * @param {string} chain chain symbol
+ */
 const getEmptyBlockchain = async(chain) => {
     let blockchain = {};
     if(chain === 'btc') {
@@ -322,6 +340,9 @@ const getEmptyBlockchain = async(chain) => {
     return blockchain;
 }
 
+/**
+ * Get empty blockchain objects
+ */
 const getEmptyBlockchains = async() => {
     let blockchains = {};
     const chains = getActiveChains();
@@ -463,152 +484,232 @@ const getBlockchains = async(toFind) => {
     return blockchains;
 }
 
-const getBlockchain = async(chain, toFind) => {
+/**
+ * Get Blockchain info
+ * 
+ * @param {string} chain chain symbol to hunt
+ * @param {string} toFind string to find
+ * @param {string} ip requestor's ip address
+ * @param {object} ipInfo requestor's ip info
+ */
+const getBlockchain = async(chain, toFind, ip, ipInfo) => {
+    let result;
     if(chain === "btc") {
-        return await btc.getBlockchain(toFind);
+        result = await btc.getBlockchain(toFind);
     } else if (chain === "bch") {
-        return await bch.getBlockchain(toFind);
+        result = await bch.getBlockchain(toFind);
     } else if (chain === "etc") {
-        return await etc.getBlockchain(toFind);
+        result = await etc.getBlockchain(toFind);
     } else if (chain === "eth") {
-        return await eth.getBlockchain(toFind);
+        result = await eth.getBlockchain(toFind);
     } else if (chain === "ltc") {
-        return await ltc.getBlockchain(toFind);
+        result = await ltc.getBlockchain(toFind);
     } else if (chain === "xrp") {
-        return await xrp.getBlockchain(toFind);
+        result = await xrp.getBlockchain(toFind);
     } else if (chain === "neo") {
-        return await neo.getBlockchain(toFind);
+        result = await neo.getBlockchain(toFind);
     } else if (chain === "rvn") {
-        return await rvn.getBlockchain(toFind);
+        result = await rvn.getBlockchain(toFind);
     } else if (chain === "bnb") {
-        return await bnb.getBlockchain(toFind);
+        result = await bnb.getBlockchain(toFind);
     } else if (chain === "aion") {
-        return await aion.getBlockchain(toFind);
+        result = await aion.getBlockchain(toFind);
     // } else if (chain === "eos") {
     //     return await eos.getBlockchain(toFind);
     } else if (chain === "trx") {
-        return await trx.getBlockchain(toFind);
+        result = await trx.getBlockchain(toFind);
     } else if (chain === "ont") {
-        return await ont.getBlockchain(toFind);
+        result = await ont.getBlockchain(toFind);
     } else if (chain === "usdt") {
-        return await usdt.getBlockchain(toFind);
+        result = await usdt.getBlockchain(toFind);
     } else if (chain === "iost") {
-        return await iost.getBlockchain(toFind);
+        result = await iost.getBlockchain(toFind);
     } else if (chain === "icx") {
-        return await icx.getBlockchain(toFind);
+        result = await icx.getBlockchain(toFind);
     } else if (chain === "nano") {
-        return await nano.getBlockchain(toFind);
+        result = await nano.getBlockchain(toFind);
     } else if (chain === "dash") {
-        return await dash.getBlockchain(toFind);
+        result = await dash.getBlockchain(toFind);
     } else if (chain === "ae") {
-        return await ae.getBlockchain(toFind);
+        result = await ae.getBlockchain(toFind);
     } else if (chain === "ada") {
-        return await ada.getBlockchain(toFind);
+        result = await ada.getBlockchain(toFind);
     } else if (chain === "zel") {
-        return await zel.getBlockchain(toFind);
+        result = await zel.getBlockchain(toFind);
     } else if (chain === "atom") {
-        return await atom.getBlockchain(toFind);
+        result = await atom.getBlockchain(toFind);
     } else if (chain === "vet") {
-        return await vet.getBlockchain(toFind);
+        result = await vet.getBlockchain(toFind);
     } else if (chain === "qtum") {
-        return await qtum.getBlockchain(toFind);
+        result = await qtum.getBlockchain(toFind);
     } else if (chain === "nebl") {
-        return await nebl.getBlockchain(toFind);
+        result = await nebl.getBlockchain(toFind);
     } else if (chain === "xlm") {
-        return await xlm.getBlockchain(toFind);
+        result = await xlm.getBlockchain(toFind);
     } else if (chain === "xtz") {
-        return await xtz.getBlockchain(toFind);
+        result = await xtz.getBlockchain(toFind);
     } else if (chain === "lsk") {
-        return await lsk.getBlockchain(toFind);
+        result = await lsk.getBlockchain(toFind);
     } else if (chain === "tomo") {
-        return await tomo.getBlockchain(toFind);
+        result = await tomo.getBlockchain(toFind);
     // } else if (chain === "dcr") {
     //     return await dcr.getBlockchain(toFind);
     }
-}
 
-const getTokens = async(chain, address) => {
-    if(chain === "eth") {
-        return await eth.getTokens(address);
-    } else if (chain === "aion") {
-        return await aion.getTokens(address);
-    } else if (chain === "etc") {
-        return await etc.getTokens(address);
-    } else if (chain === "trx") {
-        return await trx.getTokens(address);
-    } else if (chain === "vet") {
-        return await vet.getTokens(address);
-    } else if (chain === "qtum") {
-        return await qtum.getTokens(address);
-    } else if (chain === "ont") {
-        return await ont.getTokens(address);
-    } else if (chain === "iost") {
-        return await iost.getTokens(address);
-    } else if (chain === "tomo") {
-        return await tomo.getTokens(address);
+    if (result.address || result.contract || result.transaction) {
+        let updateType = "";
+        if (result.address) {
+          updateType = "address";
+        } else if (result.contract) {
+          updateType = "contract";
+        } else if (result.transaction) {
+          updateType = "transaction";
+        }
+
+        await dataSvc.updateSearchResult(
+          ip,
+          ipInfo,
+          chain,
+          updateType
+        );
     }
+
+    return result;
 }
 
-const getTransactions = async(chain, address) => {
-    if(chain === "btc") {
-        return await btc.getTransactions(address);
-    } else if (chain === "bch") {
-        return await bch.getTransactions(address);
-    } else if (chain === "etc") {
-        return await etc.getTransactions(address);
-    } else if (chain === "eth") {
-        return await eth.getTransactions(address);
-    } else if (chain === "ltc") {
-        return await ltc.getTransactions(address);
-    } else if (chain === "xrp") {
-        return await xrp.getTransactions(address);
-    } else if (chain === "neo") {
-        return await neo.getTransactions(address);
-    } else if (chain === "rvn") {
-        return await rvn.getTransactions(address);
-    } else if (chain === "bnb") {
-        return await bnb.getTransactions(address);
+/**
+ * Get tokens for an address
+ * 
+ * @param {string} chain chain symbol to hunt
+ * @param {string} address address to search
+ * @param {string} ip requestor's ip address
+ * @param {object} ipInfo requestor's ip info
+ */
+const getTokens = async(chain, address, ip, ipInfo) => {
+    let tokens = [];
+    if(chain === "eth") {
+        tokens = await eth.getTokens(address);
     } else if (chain === "aion") {
-        return await aion.getTransactions(address);
+        tokens = await aion.getTokens(address);
+    } else if (chain === "etc") {
+        tokens = await etc.getTokens(address);
+    } else if (chain === "trx") {
+        tokens = await trx.getTokens(address);
+    } else if (chain === "vet") {
+        tokens = await vet.getTokens(address);
+    } else if (chain === "qtum") {
+        tokens = await qtum.getTokens(address);
+    } else if (chain === "ont") {
+        tokens = await ont.getTokens(address);
+    } else if (chain === "iost") {
+        tokens = await iost.getTokens(address);
+    } else if (chain === "tomo") {
+        tokens = await tomo.getTokens(address);
+    }
+
+    await dataSvc.updateSearchResult(
+      ip,
+      ipInfo,
+      chain,
+      "addressTokens"
+    );
+
+    return tokens;
+}
+
+/**
+ * Get transactions for an address
+ * 
+ * @param {string} chain chain symbol to hunt
+ * @param {string} address address to search
+ * @param {string} ip requestor's ip address
+ * @param {object} ipInfo requestor's ip info
+ */
+const getTransactions = async(chain, address, ip, ipInfo) => {
+    let transactions = [];
+    if(chain === "btc") {
+        transactions = await btc.getTransactions(address);
+    } else if (chain === "bch") {
+        transactions = await bch.getTransactions(address);
+    } else if (chain === "etc") {
+        transactions = await etc.getTransactions(address);
+    } else if (chain === "eth") {
+        transactions = await eth.getTransactions(address);
+    } else if (chain === "ltc") {
+        transactions = await ltc.getTransactions(address);
+    } else if (chain === "xrp") {
+        transactions = await xrp.getTransactions(address);
+    } else if (chain === "neo") {
+        transactions = await neo.getTransactions(address);
+    } else if (chain === "rvn") {
+        transactions = await rvn.getTransactions(address);
+    } else if (chain === "bnb") {
+        transactions = await bnb.getTransactions(address);
+    } else if (chain === "aion") {
+        transactions = await aion.getTransactions(address);
     // } else if (chain === "eos") {
     //     return await eos.getTransactions(address);
     } else if (chain === "trx") {
-        return await trx.getTransactions(address);
+        transactions = await trx.getTransactions(address);
     } else if (chain === "ont") {
-        return await ont.getTransactions(address);
+        transactions = await ont.getTransactions(address);
     } else if (chain === "usdt") {
-        return await usdt.getTransactions(address);
+        transactions = await usdt.getTransactions(address);
     } else if (chain === "iost") {
-        return await iost.getTransactions(address);
+        transactions = await iost.getTransactions(address);
     } else if (chain === "icx") {
-        return await icx.getTransactions(address);
+        transactions = await icx.getTransactions(address);
     } else if (chain === "nano") {
-        return await nano.getTransactions(address);
+        transactions = await nano.getTransactions(address);
     } else if (chain === "dash") {
-        return await dash.getTransactions(address);
+        transactions = await dash.getTransactions(address);
     } else if (chain === "ae") {
-        return await ae.getTransactions(address);
+        transactions = await ae.getTransactions(address);
     } else if (chain === "zel") {
-        return await zel.getTransactions(address);
+        transactions = await zel.getTransactions(address);
     } else if (chain === "atom") {
-        return await atom.getTransactions(address);
+        transactions = await atom.getTransactions(address);
     } else if (chain === "vet") {
-        return await vet.getTransactions(address);
+        transactions = await vet.getTransactions(address);
     } else if (chain === "qtum") {
-        return await qtum.getTransactions(address);
+        transactions = await qtum.getTransactions(address);
     } else if (chain === "nebl") {
-        return await nebl.getTransactions(address);
+        transactions = await nebl.getTransactions(address);
     } else if (chain === "xlm") {
-        return await xlm.getTransactions(address);
+        transactions = await xlm.getTransactions(address);
     } else if (chain === "xtz") {
-        return await xtz.getTransactions(address);
+        transactions = await xtz.getTransactions(address);
     } else if (chain === "lsk") {
-        return await lsk.getTransactions(address);
+        transactions = await lsk.getTransactions(address);
     } else if (chain === "tomo") {
-        return await tomo.getTransactions(address);
+        transactions = await tomo.getTransactions(address);
     // } else if (chain === "dcr") {
     //     return await dcr.getTransactions(address);
     }
+
+    await dataSvc.updateSearchResult(
+      ip,
+      ipInfo,
+      chain,
+      "addressTransactions"
+    );
+
+    return transactions;
+}
+
+/**
+ * Log an empty search
+ * 
+ * @param {string} ip requestor's ip address
+ * @param {object} ipInfo requestor's ip info
+ */
+const emptySearch = async(ip, ipInfo) => {
+    await dataSvc.updateSearchResult(
+        headerMsg.ip,
+        req.ipInfo,
+        "none",
+        "empty"
+      );
 }
 
 module.exports = {
@@ -620,5 +721,6 @@ module.exports = {
     getBlockchains,
     getBlockchain,
     getTokens,
-    getTransactions
+    getTransactions,
+    emptySearch
 }

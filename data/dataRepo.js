@@ -148,6 +148,17 @@ const getUserByEmail = async(email) => {
     }
 }
 
+const getUser = async(username) => {
+    let sql = 'SELECT * FROM public.users WHERE "username" = $1';
+    pool.query(sql, [username], (error, results) => {
+        if(error) {
+            throw error;
+        }
+
+        return results.rows;
+    })
+}
+
 const getUserByUserId = async(userId) => {
     let sql = 'SELECT * FROM public.users WHERE "userId" = $1';
     pool.query(sql, [userId], (error, results) => {
@@ -183,8 +194,8 @@ const updateUser = async(user) => {
     })
 }
 
-const updateUserPassword = async(userId, oldHash, newHash, salt) => {
-    let sql = 'UPDATE public.users SET password = $3, salt = $4 ';
+const updateUserPassword = async(userId, oldHash, newHash) => {
+    let sql = 'UPDATE public.users SET password = $3 ';
     sql += 'WHERE "userId" = $1 AND password = $2'
     pool.query(sql, [userId, oldHash, newHash, salt], (error, results) => {
         if(error) {
@@ -305,6 +316,7 @@ module.exports = {
     updateDiscountCode,
     getSymbolCounts,
     postSymbolCount,
+    getUser,
     getUserByEmail,
     getUserByUserId,
     getUsers,

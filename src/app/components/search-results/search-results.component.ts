@@ -1,6 +1,7 @@
 import { OnInit, Input, Component, Output, EventEmitter } from '@angular/core';
 import { Blockchain } from 'src/app/classes/ChainHunter/Blockchain';
 import { Chain } from 'src/app/classes/ChainHunter/Chain';
+import { OverlayPanel } from 'primeng/overlaypanel';
 
 @Component({
     selector: 'search-results',
@@ -19,6 +20,7 @@ export class SearchResultsComponent implements OnInit{
     @Input() selectedChain: string;
     @Input() resultsFound: string[];
     @Input() tokenContent: string;
+    saveThisMessage: string;
 
     constructor() {}
 
@@ -38,5 +40,11 @@ export class SearchResultsComponent implements OnInit{
     }
     saveAddress(event) {
         console.log('You want to save an address');
+    }
+
+    saveClick(event, type: string, overlayPanel: OverlayPanel) {
+      this.saveThisMessage = "Coming Soon! Save this " + this.blockchain.symbol + " " + type;
+      
+      overlayPanel.toggle(event);
     }
 }

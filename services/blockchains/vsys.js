@@ -4,7 +4,7 @@ const base = "https://explorer.v.systems/api";
 const enums = require('../../classes/enums');
 const delay = time => new Promise(res=>setTimeout(res,time));
 
-const getEmptyBlockchain = async() => {
+const getEmptyBlockchain = async(chain) => {
     const chain = {};
     chain.name = 'V Systems';
     chain.symbol = 'VSYS';
@@ -16,8 +16,8 @@ const getEmptyBlockchain = async() => {
     return chain;
 }
 
-const getBlockchain = async(toFind) => {
-    const chain = await getEmptyBlockchain();
+const getBlockchain = async(chain, toFind) => {
+    //const chain = await getEmptyBlockchain(blockchain);
     let address = null;
     let transaction = null;
 

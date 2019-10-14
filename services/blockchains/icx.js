@@ -4,7 +4,7 @@ const base = "https://tracker.icon.foundation/v3";
 const enums = require('../../classes/enums');
 const _ = require('lodash');
 
-const getEmptyBlockchain = async() => {
+const getEmptyBlockchain = async(chain) => {
     const chain = {};
     chain.name = 'Icon';
     chain.symbol = 'ICX';
@@ -16,8 +16,8 @@ const getEmptyBlockchain = async() => {
     return chain;
 }
 
-const getBlockchain = async(toFind) => {
-    const chain = await getEmptyBlockchain();
+const getBlockchain = async(chain, toFind) => {
+    //const chain = await getEmptyBlockchain(blockchain);
 
     let address = null; 
     let transaction = null;

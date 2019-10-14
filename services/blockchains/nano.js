@@ -4,7 +4,7 @@ const base = "https://api.nanocrawler.cc/v2";
 const enums = require('../../classes/enums');
 const delay = time => new Promise(res=>setTimeout(res,time));
 
-const getEmptyBlockchain = async() => {
+const getEmptyBlockchain = async(chain) => {
     const chain = {};
     chain.name = 'Nano';
     chain.symbol = 'NANO';
@@ -16,8 +16,8 @@ const getEmptyBlockchain = async() => {
     return chain;
 }
 
-const getBlockchain = async(toFind) => {
-    const chain = await getEmptyBlockchain();
+const getBlockchain = async(chain, toFind) => {
+    //const chain = await getEmptyBlockchain(blockchain);
     let address = null;
     let transaction = null;
 

@@ -3,7 +3,7 @@ const helperSvc = require('../helperService.js');
 const base = "https://blockchain.info";
 const enums = require('../../classes/enums');
 
-const getEmptyBlockchain = async() => {
+const getEmptyBlockchain = async(chain) => {
     const chain = {};
     chain.name = 'Bitcoin';
     chain.symbol = 'BTC';
@@ -16,8 +16,8 @@ const getEmptyBlockchain = async() => {
     return chain;
 }
 
-const getBlockchain = async(toFind) => {
-    const chain = await getEmptyBlockchain();
+const getBlockchain = async(chain, toFind) => {
+    //const chain = await getEmptyBlockchain(blockchain);
     let address = null;
     let transaction = null;
 

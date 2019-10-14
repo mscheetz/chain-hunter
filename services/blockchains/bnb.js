@@ -5,7 +5,7 @@ const base2 = "https://explorer.binance.org/api/v1";
 const enums = require('../../classes/enums');
 const _ = require('lodash');
 
-const getEmptyBlockchain = async() => {
+const getEmptyBlockchain = async(chain) => {
     const chain = {};
     chain.name = 'Binance Coin';
     chain.symbol = 'BNB';
@@ -18,8 +18,8 @@ const getEmptyBlockchain = async() => {
     return chain;
 }
 
-const getBlockchain = async(toFind) => {
-    const chain = await getEmptyBlockchain();
+const getBlockchain = async(chain, toFind) => {
+    //const chain = await getEmptyBlockchain(blockchain);
     let address = null;
     let transaction = null;
 

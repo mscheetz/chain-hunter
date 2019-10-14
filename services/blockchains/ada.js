@@ -2,9 +2,8 @@ const axios = require('axios');
 const helperSvc = require('../helperService.js');
 const base = "https://cardanoexplorer.com/api";
 const enums = require('../../classes/enums');
-const delay = time => new Promise(res=>setTimeout(res,time));
 
-const getEmptyBlockchain = async() => {
+const getEmptyBlockchain = async(chain) => {
     const chain = {};
     chain.name = 'Cardano';
     chain.symbol = 'ADA';
@@ -16,8 +15,8 @@ const getEmptyBlockchain = async() => {
     return chain;
 }
 
-const getBlockchain = async(toFind) => {
-    const chain = await getEmptyBlockchain();
+const getBlockchain = async(chain, toFind) => {
+    //const chain = await getEmptyBlockchain(blockchain);
     let address = null;
     let transaction = null;
 

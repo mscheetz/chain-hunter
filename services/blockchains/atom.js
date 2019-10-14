@@ -6,7 +6,7 @@ const txnBase = "https://lcd.cosmostation.io";
 const enums = require('../../classes/enums');
 const delay = time => new Promise(res=>setTimeout(res,time));
 
-const getEmptyBlockchain = async() => {
+const getEmptyBlockchain = async(chain) => {
     const chain = {};
     chain.name = 'Cosmos';
     chain.symbol = 'ATOM';
@@ -18,8 +18,8 @@ const getEmptyBlockchain = async() => {
     return chain;
 }
 
-const getBlockchain = async(toFind) => {
-    const chain = await getEmptyBlockchain();
+const getBlockchain = async(chain, toFind) => {
+    //const chain = await getEmptyBlockchain(blockchain);
     let address = null;
     let contract = null;
     let transaction = null;

@@ -5,7 +5,7 @@ const enums = require('../../classes/enums');
 const _ = require('lodash');
 const delay = time => new Promise(res=>setTimeout(res,time));
 
-const getEmptyBlockchain = async() => {
+const getEmptyBlockchain = async(chain) => {
     const chain = {};
     chain.name = 'Neblio';
     chain.symbol = 'NEBL';
@@ -17,8 +17,8 @@ const getEmptyBlockchain = async() => {
     return chain;
 }
 
-const getBlockchain = async(toFind) => {
-    const chain = await getEmptyBlockchain();
+const getBlockchain = async(chain, toFind) => {
+    //const chain = await getEmptyBlockchain(blockchain);
     let address = null;
     let transaction = null;
 

@@ -6,7 +6,7 @@ const ethplorerApiBase = "https://ethplorer.io/service/service.php?data=";
 const enums = require('../../classes/enums');
 const delay = time => new Promise(res=>setTimeout(res,time));
 
-const getEmptyBlockchain = async() => {
+const getEmptyBlockchain = async(chain) => {
     const chain = {};
     chain.name = 'Ethereum';
     chain.symbol = 'ETH';
@@ -19,8 +19,8 @@ const getEmptyBlockchain = async() => {
     return chain;
 }
 
-const getBlockchain = async(toFind) => {
-    let chain = await getEmptyBlockchain();
+const getBlockchain = async(chain, toFind) => {
+    //const chain = await getEmptyBlockchain(blockchain);
 
     if(toFind.substr(0,2) === "0x") {
         chain.address = null;

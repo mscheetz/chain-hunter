@@ -19,6 +19,20 @@ router.get(
 );
 
 router.get(
+  "/api/blockchain/arrrrrgggggs",
+  apiHelp.asyncMiddleware(async (req, res, next) => {
+    const headerMsg = apiHelp.headerCheck(req);
+    if (!headerMsg.status) {
+      apiHelp.errorResponse(res);
+    } else {
+      const result = await manager.getActiveChainsII();
+
+      res.status(200).json(result);
+    }
+  })
+);
+
+router.get(
   "/api/blockchain/future",
   apiHelp.asyncMiddleware(async (req, res, next) => {
     const headerMsg = apiHelp.headerCheck(req);

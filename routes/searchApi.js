@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const dataSvc = require("../services/dataIntegrationService");
+const dataSvc = require("../data/dataIntegrationService");
 const apiHelp = require("../services/apiHelper");
 
 router.get(

@@ -1,7 +1,22 @@
+<p-overlayPanel #saveThis>
+    {{saveThisMessage}}
+</p-overlayPanel>
 <div *ngIf="blockchain !== null">
     <!-- Address Results -->
     <p-panel header="{{blockchain.symbol}} Address" *ngIf="blockchain.address">
-        <h3 class="word-break">{{blockchain.symbol}} Address: {{blockchain.address.address}}</h3>
+        <div class="p-grid">
+            <!-- <div class="p-col-1">
+                
+            </div>
+            <div class="p-col-11"> -->
+                <h3 class="word-break">
+                    <i (mouseover)="saveClick($event, 'Address', saveThis)" (mouseleave)="saveClick($event, 'Address', saveThis)" 
+                        class="fa fa-star-o" 
+                        style="color: deeppink; cursor: pointer;"></i>
+                    {{blockchain.symbol}} Address: {{blockchain.address.address}}
+                </h3>
+            <!-- </div> -->
+        </div>
         <div class="m-bottom-1">Balance: {{blockchain.address.quantity}} {{blockchain.symbol}}</div>
         <p-accordion 
                 *ngIf="blockchain.address.hasTransactions || blockchain.hasTokens" 
@@ -11,7 +26,7 @@
                     header="Most recent {{blockchain.symbol}} address transactions" 
                     *ngIf="blockchain.address.hasTransactions">
                 <div *ngIf="!transactionsComplete">
-                    Fetching Transactions <i class="fa fa-cog fa-2x fa-spin" style="color: #464a4e;"></i>
+                    Hunting down Transactions <i class="fa fa-cog fa-2x fa-spin" style="color: #464a4e;"></i>
                 </div>
                 <div
                     *ngIf="blockchain.address.transactions !== undefined && blockchain.address.transactions.length === 0">
@@ -30,7 +45,9 @@
                     *ngIf="blockchain.hasTokens">
                 <div *ngIf="blockchain.address.tokens !== undefined && blockchain.address.tokens.length === 0">No tokens
                     found</div>
-                <div *ngIf="!tokensComplete">Fetching tokens...</div>
+                <div *ngIf="!tokensComplete">
+                    Hunting down tokens <i class="fa fa-cog fa-2x fa-spin" style="color: #464a4e;"></i>
+                </div>
                 <div *ngIf="blockchain.address.tokens !== undefined && blockchain.address.tokens.length > 0" 
                     [innerHtml]="tokenContent"
                     class="p-grid"></div>
@@ -44,7 +61,12 @@
     </p-panel>
     <!-- Contract Results -->
     <p-panel header="{{blockchain.symbol}} {{blockchain.symbol === 'ATOM' ? 'Validator' : 'Contract'}}" *ngIf="blockchain.hasContracts && blockchain.contract">
-        <h3 class="word-break">{{blockchain.symbol}} {{blockchain.symbol === 'ATOM' ? 'Validator' : 'Contract'}} Address: {{blockchain.contract.address}}</h3>        
+        <h3 class="word-break">
+            <i (mouseover)="saveClick($event, 'Contract', saveThis)" (mouseleave)="saveClick($event, 'Contract', saveThis)" 
+                class="fa fa-star-o" 
+                style="color: deeppink; cursor: pointer;"></i>
+            {{blockchain.symbol}} {{blockchain.symbol === 'ATOM' ? 'Validator' : 'Contract'}} Address: {{blockchain.contract.address}}
+        </h3>
         <p *ngIf="blockchain.contract.contractName">
             Name: {{blockchain.contract.contractName}}
             <img *ngIf="blockchain.contract.icon" src="{{blockchain.contract.icon}}" style="height: 30px; width: 30px; border-radius: 50%;" />
@@ -62,7 +84,12 @@
     </p-panel>
     <!-- Transaction Results -->
     <p-panel header="{{blockchain.symbol}} Transaction" *ngIf="blockchain.transaction">
-        <h3 class="word-break">{{blockchain.symbol}} Transaction Hash: {{blockchain.transaction.hash}}</h3>
+        <h3 class="word-break">
+            <i (mouseover)="saveClick($event, 'Transaction', saveThis)" (mouseleave)="saveClick($event, 'Transaction', saveThis)" 
+                class="fa fa-star-o" 
+                style="color: deeppink; cursor: pointer;"></i>
+            {{blockchain.symbol}} Transaction Hash: {{blockchain.transaction.hash}}
+        </h3>
         <transaction [transaction]="blockchain.transaction"
                      [address]=""
                      [showHash]="false"></transaction>
@@ -80,7 +107,7 @@
             <span class="letters letters-2">Is On!</span>
         </h1>
     </div> -->
-    <h3>Searching...</h3>
+    <h3>Hunting...</h3>
 </p-panel>
 <p-panel showHeader="false" *ngIf="huntStatus === 2 && selectedChain === ''">
     <h3>Nothing found</h3>

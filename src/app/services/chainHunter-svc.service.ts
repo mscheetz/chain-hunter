@@ -91,7 +91,7 @@ export class ChainHunterService{
      * @param address Address to query
      */
     getAddressTransactions(chain: string, address: string): Observable<Transaction[]>{
-        let endpoint: string = "/api/address/" + chain + "/" + address +"/txs";
+        let endpoint: string = "/api/blockchain/address/" + chain + "/" + address +"/txs";
         let url: string = this.baseUrl + endpoint;
 
         return this.onGet<Transaction[]>(url);
@@ -104,7 +104,7 @@ export class ChainHunterService{
      * @param address Address to query
      */
     getAddressTokens(chain: string, address: string): Observable<Asset[]>{
-        let endpoint: string = "/api/address/" + chain + "/" + address +"/tokens";
+        let endpoint: string = "/api/blockchain/address/" + chain + "/" + address +"/tokens";
         let url: string = this.baseUrl + endpoint;
 
         return this.onGet<Asset[]>(url);
@@ -114,7 +114,7 @@ export class ChainHunterService{
      * Capture an empty search
      */
     emptySearch(): Observable<boolean>{
-        let endpoint: string = "/api/empty";
+        let endpoint: string = "/api/blockchain/empty";
         let url: string = this.baseUrl + endpoint;
 
         return this.onGet<boolean>(url);

@@ -9,4 +9,5 @@ tr > th, .center {
 .dotted {
     border-bottom: 1px dotted black;
     text-decoration: none;
+    cursor: pointer;
 }

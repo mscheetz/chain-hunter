@@ -3,7 +3,7 @@ const helperSvc = require('../helperService.js');
 const base = "https://roma-net.mdw.aepps.com";
 const enums = require('../../classes/enums');
 
-const getEmptyBlockchain = async(chain) => {
+const getEmptyBlockchain = async() => {
     const chain = {};
     chain.name = 'Aeternity';
     chain.symbol = 'AE';

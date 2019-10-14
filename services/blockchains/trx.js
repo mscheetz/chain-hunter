@@ -5,7 +5,7 @@ const enums = require('../../classes/enums');
 const db = require('../../data/dataRepo');
 const _ = require('lodash');
 
-const getEmptyBlockchain = async(chain) => {
+const getEmptyBlockchain = async() => {
     const chain = {};
     chain.name = 'Tron';
     chain.symbol = 'TRX';

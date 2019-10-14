@@ -4,7 +4,7 @@ const base = "https://explorer.zel.cash/api";
 const enums = require('../../classes/enums');
 const delay = time => new Promise(res=>setTimeout(res,time));
 
-const getEmptyBlockchain = async(chain) => {
+const getEmptyBlockchain = async() => {
     const chain = {};
     chain.name = 'ZelCash';
     chain.symbol = 'ZEL';

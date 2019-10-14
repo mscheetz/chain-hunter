@@ -5,7 +5,7 @@ const enums = require('../../classes/enums');
 const delay = time => new Promise(res=>setTimeout(res,time));
 const tokenTypes = [ 'native', 'oep4', 'oep5', 'oep8'];
 
-const getEmptyBlockchain = async(chain) => {
+const getEmptyBlockchain = async() => {
     const chain = {};
     chain.name = 'Ontology';
     chain.symbol = 'ONT';

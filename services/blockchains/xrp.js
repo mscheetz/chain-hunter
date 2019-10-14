@@ -3,7 +3,7 @@ const helperSvc = require('../helperService.js');
 const base = "https://api.xrpscan.com/api";
 const enums = require('../../classes/enums');
 
-const getEmptyBlockchain = async(chain) => {
+const getEmptyBlockchain = async() => {
     const chain = {};
     chain.name = 'Ripple';
     chain.symbol = 'XRP';

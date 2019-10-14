@@ -3,7 +3,7 @@ const helperSvc = require('../helperService.js');
 const base = "https://mainnet-api.aion.network/aion/dashboard";
 const enums = require('../../classes/enums');
 
-const getEmptyBlockchain = async(chain) => {
+const getEmptyBlockchain = async() => {
     const chain = {};
     chain.name = 'AION';
     chain.symbol = 'AION';

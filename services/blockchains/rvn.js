@@ -3,7 +3,7 @@ const helperSvc = require('../helperService.js');
 const base = "https://ravencoin.network/api";
 const enums = require('../../classes/enums');
 
-const getEmptyBlockchain = async(chain) => {
+const getEmptyBlockchain = async() => {
     const chain = {};
     chain.name = 'Raven Coin';
     chain.symbol = 'RVN';

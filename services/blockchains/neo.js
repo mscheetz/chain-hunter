@@ -18,7 +18,7 @@ const neoAssets = [
     }
 ]
 
-const getEmptyBlockchain = async(chain) => {
+const getEmptyBlockchain = async() => {
     const chain = {};
     chain.name = 'Neo';
     chain.symbol = 'NEO';

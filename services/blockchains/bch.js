@@ -4,7 +4,7 @@ const base = "https://bch-chain.api.btc.com/v3";
 const convertBase = "https://bch.btc.com/tools"
 const enums = require('../../classes/enums');
 
-const getEmptyBlockchain = async(chain) => {
+const getEmptyBlockchain = async() => {
     const chain = {};
     chain.name = 'Bitcoin Cash';
     chain.symbol = 'BCH';

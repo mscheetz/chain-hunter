@@ -4,7 +4,7 @@ const base = "https://qtum.info/api/";
 const enums = require('../../classes/enums');
 const divisor = 100000000;
 
-const getEmptyBlockchain = async(chain) => {
+const getEmptyBlockchain = async() => {
     const chain = {};
     chain.name = 'QTUM';
     chain.symbol = 'QTUM';

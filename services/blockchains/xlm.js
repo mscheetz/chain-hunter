@@ -3,7 +3,7 @@ const helperSvc = require('../helperService.js');
 const base = "https://horizon.stellar.org";
 const enums = require('../../classes/enums');
 
-const getEmptyBlockchain = async(chain) => {
+const getEmptyBlockchain = async() => {
     const chain = {};
     chain.name = 'Stellar Lumens';
     chain.symbol = 'XLM';

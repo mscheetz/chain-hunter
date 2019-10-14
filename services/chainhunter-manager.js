@@ -454,7 +454,7 @@ const emptySearch = async(ip, ipInfo) => {
 
 module.exports = {
     getActiveChains,
-    getActiveChainsII,
+    //getActiveChainsII,
     getFutureChains,
     getEmptyBlockchain,
     getEmptyBlockchains,

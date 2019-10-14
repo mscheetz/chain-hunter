@@ -130,7 +130,7 @@ export class ChainHunterComponent implements OnInit {
             .subscribe(map => {
                 this.map = new Map<string, Blockchain>();
                 Object.keys(map).forEach(e => {
-                    this.map.set(e, map[e]);
+                    this.map.set(map[e].symbol, map[e]);
                 });
                 this.setBlockchainIcons();
                 this.startHunt();
@@ -155,18 +155,20 @@ export class ChainHunterComponent implements OnInit {
      */
     startHunt() {
         this.requestedChains = this.map.size;
-        this.map.forEach((value: Blockchain, key: string) => {
-            this.chainService.getBlockchain(key, this.addyTxn)
-                .subscribe(chain => {
-                    this.requestedChains--;
-                    this.setMap(chain);
-                    if(chain.address || chain.transaction || chain.contract) {
-                        this.resultsFound.push(chain.name);
-                    }
-                    this.updateMenuItems();
-                    this.checkCompleted();
-                })
-        });
+        if(this.map.size > 0) {
+            this.map.forEach((value: Blockchain, key: string) => {
+                this.chainService.getBlockchain(key, this.addyTxn)
+                    .subscribe(chain => {
+                        this.requestedChains--;
+                        this.setMap(chain);
+                        if(chain.address || chain.transaction || chain.contract) {
+                            this.resultsFound.push(chain.name);
+                        }
+                        this.updateMenuItems();
+                        this.checkCompleted();
+                    })
+            });
+        }
     }
 
     /**

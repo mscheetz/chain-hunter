@@ -1,5 +1,8 @@
 import { Component } from '@angular/core';
 import { MessageService } from 'primeng/api';
+import { User } from './classes/User';
+import { Router } from '@angular/router';
+import { AuthenticationService } from './services/authentication.service';
 
 @Component({
   selector: 'app-root',
@@ -8,9 +11,12 @@ import { MessageService } from 'primeng/api';
 })
 export class AppComponent {
   title = 'chain-hunter';
+  currentUser: User;
   showNotice: boolean = true;
     
-  constructor(private messageSvc: MessageService) {}
+  constructor(private router: Router, private authSvc: AuthenticationService, private messageSvc: MessageService) {
+    this.authSvc.currentUser.subscribe(c => this.currentUser = c);
+  }
 
   cookieOk(cookie: boolean){
     this.showNotice = false;
@@ -28,6 +34,10 @@ export class AppComponent {
             detail:'Account registrations coming soon. Follow us on twitter to be the first to sign up!',
             sticky: true
         });
+  }
+
+  logout(){
+    this.authSvc.logout();
   }
 
   /**

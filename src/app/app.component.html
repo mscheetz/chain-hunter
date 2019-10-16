@@ -7,17 +7,17 @@
   <account class="login-position" (login)="login()"></account>
   <div class="ui-g">
     <div class="ui-g-12 ui-md-12 ui-lg-10">
-      <top-ad class="top-ad"></top-ad>
+      <top-ad class="top-ad" *ngIf="currentUser === null"></top-ad>
       <!-- Chain Hunter Main -->
       <div class="main-container">
         <router-outlet></router-outlet>
       </div>
     </div>
-    <div class="right-panel ui-g-12 ui-md-12 ui-lg-1">
+    <div class="right-panel ui-g-12 ui-md-12 ui-lg-1" *ngIf="currentUser === null">
       <right-ad class="right-ad"></right-ad>
     </div>
   </div>
-  <div class="ui-g-12 ui-md-12 ui-lg-10">
+  <div class="ui-g-12 ui-md-12 ui-lg-10" *ngIf="currentUser === null">
     <bottom-ad class="bottom-ad"></bottom-ad>
   </div>
 </div>

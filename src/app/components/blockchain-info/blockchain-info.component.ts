@@ -1,6 +1,6 @@
 import { Component, OnInit, HostListener } from '@angular/core';
 import { Title } from '@angular/platform-browser';
-import { ChainHunterService } from 'src/app/services/chainHunter-svc.service';
+import { ApiService } from 'src/app/services/api-svc.service';
 import { Blockchain } from 'src/app/classes/ChainHunter/Blockchain';
 import { OverlayPanel } from 'primeng/overlaypanel';
 
@@ -16,7 +16,7 @@ export class BlockchainInfoComponent implements OnInit {
   selectedChain: string;
   selectedChainType: string;
 
-  constructor(private chainService: ChainHunterService,
+  constructor(private chainService: ApiService,
               private titleService: Title) {
     this.titleService.setTitle("Supported Blockchains - The Chain Hunter : Multi Blockchain Search | BTC, ETH, LTC, BCH, XRP, and more!");
   }

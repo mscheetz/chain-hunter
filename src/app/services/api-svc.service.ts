@@ -7,13 +7,102 @@ import { Asset } from '../classes/ChainHunter/Asset';
 import { Chain } from '../classes/ChainHunter/Chain';
 import { environment } from 'src/environments/environment';
 import { HelperService } from './helper-svc.service';
+import { User } from '../classes/User';
+import { UserData } from '../classes/UserData';
 
 @Injectable({providedIn: 'root'})
-export class ChainHunterService{
+export class ApiService{
     constructor(private http: HttpClient, private helperSvc: HelperService) {}
     
     private baseUrl: string = "";
     private user: string = environment.user;
+
+    login(email: string, password: string): Observable<User> {
+        let endpoint: string = "/api/login";
+        let url: string = this.baseUrl + endpoint;
+
+        let result = this.onPost<User>(url, { email, password });
+
+        return result;
+    }
+
+    changePassword(user: User, oldPassword: string, newPassword: string): Observable<User> {
+        let endpoint: string = "/api/user/password";
+        let url: string = this.baseUrl + endpoint;
+
+        let result = this.onPost<User>(url, { user, oldPassword, newPassword });
+
+        return result;
+    }
+
+    register(user: User): Observable<number> {
+        let endpoint: string = "/api/user";
+        let url: string = this.baseUrl + endpoint;
+
+        let result = this.onPost<number>(url, user);
+
+        return result;
+    }
+
+    updateUser(user: User): Observable<number> {
+        let endpoint: string = "/api/user";
+        let url: string = this.baseUrl + endpoint;
+
+        let result = this.onPut<number>(url, user);
+
+        return result;
+    }
+
+    /**
+     * Get saved search history
+     * 
+     * @param userId user id
+     */
+    getUserData(userId: string): Observable<UserData[]> {
+        let endpoint: string = "/api/user/data";
+        let url: string = this.baseUrl + endpoint + "/" + userId;
+
+        let result = this.onDelete<UserData[]>(url);
+
+        return result;
+    }
+
+    /**
+     * Save user search data
+     * 
+     * @param user user data
+     * @param hash hash to save
+     * @param symbol symbol
+     * @param type type of object
+     */
+    saveData(user: User, hash: string, symbol: string, type: string): Observable<number> {
+        let endpoint: string = "/api/user/data";
+        let url: string = this.baseUrl + endpoint;
+        let data = {
+            userId: user.userId,
+            hash: hash,
+            symbol: symbol,
+            type: type
+        }
+
+        let result = this.onPost<number>(url, data);
+
+        return result;
+    }
+
+    /**
+     * Delete user search data
+     * 
+     * @param id save id
+     */
+    deleteData(id: string): Observable<number> {
+        let endpoint: string = "/api/user/data";
+        let url: string = this.baseUrl + endpoint + "/" + id;
+
+        let result = this.onDelete<number>(url);
+
+        return result;
+    }
 
     /**
      * Get active blockchains
@@ -130,5 +219,41 @@ export class ChainHunterService{
         }
 
         return this.http.get<T>(url, requestOptions);
+    }
+
+    onPost<T>(url: string, data: any): Observable<T> {
+        let headers = {
+            'TCH-USER': this.user,
+            'TCH-SIGNATURE': this.helperSvc.requestSignature()
+        }
+        let requestOptions = {
+            headers: new HttpHeaders(headers),
+        }
+
+        return this.http.post<T>(url, data, requestOptions);
+    }
+
+    onPut<T>(url: string, data: any): Observable<T> {
+        let headers = {
+            'TCH-USER': this.user,
+            'TCH-SIGNATURE': this.helperSvc.requestSignature()
+        }
+        let requestOptions = {
+            headers: new HttpHeaders(headers),
+        }
+
+        return this.http.put<T>(url, data, requestOptions);
+    }
+
+    onDelete<T>(url: string): Observable<T> {
+        let headers = {
+            'TCH-USER': this.user,
+            'TCH-SIGNATURE': this.helperSvc.requestSignature()
+        }
+        let requestOptions = {
+            headers: new HttpHeaders(headers),
+        }
+
+        return this.http.delete<T>(url, requestOptions);
     }
 }

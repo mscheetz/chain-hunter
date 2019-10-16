@@ -2,7 +2,7 @@ import { OnInit, Component, Output, Input, isDevMode } from '@angular/core';
 import { MenuItem, MessageService } from 'primeng/api';
 import { Blockchain } from 'src/app/classes/ChainHunter/Blockchain';
 import { HelperService } from 'src/app/services/helper-svc.service';
-import { ChainHunterService } from 'src/app/services/chainHunter-svc.service';
+import { ApiService } from 'src/app/services/api-svc.service';
 import { Chain } from 'src/app/classes/ChainHunter/Chain';
 import { DomSanitizer } from '@angular/platform-browser';
 import { CookieData } from 'src/app/classes/ChainHunter/CookieData';
@@ -45,7 +45,7 @@ export class ChainHunterComponent implements OnInit {
     @Output() tokenContent: string;
 
     constructor(private helperService: HelperService,
-                private chainService: ChainHunterService,
+                private chainService: ApiService,
                 private domSanitizer: DomSanitizer,
                 private cookieSvc: CookieService,
                 private messageSvc: MessageService) {}

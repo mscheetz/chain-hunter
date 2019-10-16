@@ -409,12 +409,13 @@ const postTrxToken = async(token) => {
 }
 
 const postUserData = async(userData) => {
-    let sql = 'INSERT INTO public."userData" ( "userId", hash, chain, type, added ) ';
-    sql += 'VALUES ( $1, $2, $3, $4, $5 )';
+    let sql = 'INSERT INTO public."userData" ( id, "userId", hash, symbol, type, added ) ';
+    sql += 'VALUES ( $1, $2, $3, $4, $5, $6 )';
     const data = [
+        userData.id,
         userData.userId, 
         userData.hash, 
-        userData.chain, 
+        userData.symbol, 
         userData.type, 
         userData.added
     ];
@@ -435,6 +436,18 @@ const getUserData = async(userId) => {
         const res = await pool.query(sql, [userId]);
 
         return res.rows;
+    } catch(err) {
+        console.log(err);
+    }
+}
+
+const deleteUserData = async(id) => {
+    let sql = 'DELETE FROM public."userData" where id = $1';
+
+    try {
+        const res = await pool.query(sql, [ id ]);
+
+        return res.rowCount;
     } catch(err) {
         console.log(err);
     }
@@ -467,5 +480,6 @@ module.exports = {
     getTrxTokens,
     postTrxTokens,
     postUserData,
-    getUserData
+    getUserData,
+    deleteUserData
 }

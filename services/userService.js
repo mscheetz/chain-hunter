@@ -1,5 +1,6 @@
-const db = require('./dataRepo');
-const encryptionSvc = require("../services/encryption.js");
+const db = require('../data/dataRepo');
+const encryptionSvc = require("./encryption.js");
+const helperSvc = require('./helperService');
 
 /**
  * Register a user
@@ -64,10 +65,52 @@ const getUserByUserId = async(userId) => {
     return await db.getUserByUserId(userId);
 }
 
+/**
+ * Get saved search data
+ * 
+ * @param {string} userId user id
+ */
+const getUserData = async(userId) => {
+    return await db.getUserData(userId);
+}
+
+/**
+ * Add user saved search
+ * 
+ * @param {string} userId user id
+ * @param {string} hash hash to save
+ * @param {string} chain chain owning
+ * @param {enum} type type of object
+ */
+const addUserData = async(userId, hash, chain, type) => {
+    const uuid = encryptionSvc.getUuid();
+    const created = helperSvc.getUnixTS();
+    const userData = {
+        id: uuid,
+        userId: userId,
+        hash: hash,
+        symbol: symbol,
+        type: type,
+        added: created
+    }
+    return await db.postUserData(userData);
+}
+/**
+ * Delete user saved search
+ * 
+ * @param {string} id saved search id
+ */
+const deleteUserData = async(id) => {
+    return await db.deleteUserData(id);
+}
+
 module.exports = {
     registerUser,
     updateUser,
     changePassword,
     getUser,
-    getUserByUserId
+    getUserByUserId,
+    getUserData,
+    addUserData,
+    deleteUserData
 }

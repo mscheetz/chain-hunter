@@ -8,7 +8,6 @@ const bodyParser = require('body-parser');
 const compression = require('compression');
 const helmet = require('helmet');
 const blockchainApi = require('./routes/blockchainApi');
-const loginApi = require('./routes/loginApi');
 const userApi = require('./routes/userApi');
 const resultsApi = require('./routes/searchApi');
 const config = require('./config');
@@ -73,7 +72,6 @@ const redirectHome = async(req, res) => {
 };
 
 app.all('/api/blockchain/*', blockchainApi);
-app.all('/api/login/*', loginApi);
 app.all('/api/user/*', userApi);
 app.all('/api/results/*', resultsApi);
 

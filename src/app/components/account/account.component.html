@@ -1,2 +1,6 @@
 <p-button label="Login / Register" (onClick)="onLogin()" styleClass="ui-button-info"></p-button>
 <p-toast key="login-notice-toast"></p-toast>
+<p-dialog header="Login" [(visible)]="showLogin">
+    <app-login (showLogin)="showLogin">
+    </app-login>
+</p-dialog>

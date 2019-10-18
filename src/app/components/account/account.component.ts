@@ -8,6 +8,7 @@ import { OnInit, Component, Output, EventEmitter } from '@angular/core';
 
 export class AccountComponent implements OnInit{
     @Output() login: EventEmitter<any> = new EventEmitter();
+    showLogin: boolean = false;
     
     constructor() {
     }
@@ -16,6 +17,7 @@ export class AccountComponent implements OnInit{
     }
 
     onLogin() {
+        this.showLogin = true;
         this.login.emit();
     }
 }

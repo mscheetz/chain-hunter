@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { User } from '../classes/User';
 import { ApiService } from './api-svc.service';
 
@@ -19,14 +20,24 @@ export class AuthenticationService {
 
     login(email: string, password: string) {
         return this.apiSvc.login(email, password)
-            .subscribe(user => {
+        .pipe(map(res => {
+                const jwt = res.token;
+                localStorage.setItem('tch-user-token', JSON.stringify(jwt));
+                const user = new User();
+                user.accountType = res.accountType;
+                user.createdDate = res.createdDate;
+                user.email = res.email;
+                user.expirationDate = res.expirationDate;
+                user.userId = res.userId;
+                user.username = res.username;
                 localStorage.setItem('currentUser', JSON.stringify(user));
                 this.currentUserSubject.next(user);
-                return user;
-            });
+                return res;
+            }));
     }
 
     logout() {
+        localStorage.removeItem('tch-user-token');
         localStorage.removeItem('currentUser');
         this.currentUserSubject.next(null);
     }

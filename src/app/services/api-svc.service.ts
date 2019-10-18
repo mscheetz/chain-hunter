@@ -9,6 +9,7 @@ import { environment } from 'src/environments/environment';
 import { HelperService } from './helper-svc.service';
 import { User } from '../classes/User';
 import { UserData } from '../classes/UserData';
+import { UserResponse } from '../classes/UserResponse';
 
 @Injectable({providedIn: 'root'})
 export class ApiService{
@@ -17,11 +18,11 @@ export class ApiService{
     private baseUrl: string = "";
     private user: string = environment.user;
 
-    login(email: string, password: string): Observable<User> {
-        let endpoint: string = "/api/login";
+    login(email: string, password: string): Observable<UserResponse> {
+        let endpoint: string = "/api/user/login";
         let url: string = this.baseUrl + endpoint;
 
-        let result = this.onPost<User>(url, { email, password });
+        let result = this.onPost<UserResponse>(url, { email, password });
 
         return result;
     }
@@ -30,7 +31,7 @@ export class ApiService{
         let endpoint: string = "/api/user/password";
         let url: string = this.baseUrl + endpoint;
 
-        let result = this.onPost<User>(url, { user, oldPassword, newPassword });
+        let result = this.onPost<User>(url, { user, oldPassword, newPassword }, true);
 
         return result;
     }
@@ -48,7 +49,7 @@ export class ApiService{
         let endpoint: string = "/api/user";
         let url: string = this.baseUrl + endpoint;
 
-        let result = this.onPut<number>(url, user);
+        let result = this.onPut<number>(url, user, true);
 
         return result;
     }
@@ -62,7 +63,7 @@ export class ApiService{
         let endpoint: string = "/api/user/data";
         let url: string = this.baseUrl + endpoint + "/" + userId;
 
-        let result = this.onDelete<UserData[]>(url);
+        let result = this.onDelete<UserData[]>(url, true);
 
         return result;
     }
@@ -85,7 +86,7 @@ export class ApiService{
             type: type
         }
 
-        let result = this.onPost<number>(url, data);
+        let result = this.onPost<number>(url, data, true);
 
         return result;
     }
@@ -99,7 +100,7 @@ export class ApiService{
         let endpoint: string = "/api/user/data";
         let url: string = this.baseUrl + endpoint + "/" + id;
 
-        let result = this.onDelete<number>(url);
+        let result = this.onDelete<number>(url, true);
 
         return result;
     }
@@ -157,7 +158,6 @@ export class ApiService{
     
         return result;
     }
-
     
     /**
      * Get all Blockchains
@@ -209,11 +209,8 @@ export class ApiService{
         return this.onGet<boolean>(url);
     }
 
-    onGet<T>(url: string): Observable<T> {
-        let headers = {
-            'TCH-USER': this.user,
-            'TCH-SIGNATURE': this.helperSvc.requestSignature()
-        }
+    onGet<T>(url: string, secure: boolean = false): Observable<T> {
+        let headers = this.getHeaders(secure);
         let requestOptions = {
             headers: new HttpHeaders(headers),
         }
@@ -221,11 +218,8 @@ export class ApiService{
         return this.http.get<T>(url, requestOptions);
     }
 
-    onPost<T>(url: string, data: any): Observable<T> {
-        let headers = {
-            'TCH-USER': this.user,
-            'TCH-SIGNATURE': this.helperSvc.requestSignature()
-        }
+    onPost<T>(url: string, data: any, secure: boolean = false): Observable<T> {
+        let headers = this.getHeaders(secure);
         let requestOptions = {
             headers: new HttpHeaders(headers),
         }
@@ -233,11 +227,8 @@ export class ApiService{
         return this.http.post<T>(url, data, requestOptions);
     }
 
-    onPut<T>(url: string, data: any): Observable<T> {
-        let headers = {
-            'TCH-USER': this.user,
-            'TCH-SIGNATURE': this.helperSvc.requestSignature()
-        }
+    onPut<T>(url: string, data: any, secure: boolean = false): Observable<T> {
+        let headers = this.getHeaders(secure);
         let requestOptions = {
             headers: new HttpHeaders(headers),
         }
@@ -245,15 +236,25 @@ export class ApiService{
         return this.http.put<T>(url, data, requestOptions);
     }
 
-    onDelete<T>(url: string): Observable<T> {
-        let headers = {
-            'TCH-USER': this.user,
-            'TCH-SIGNATURE': this.helperSvc.requestSignature()
-        }
+    onDelete<T>(url: string, secure: boolean = false): Observable<T> {
+        let headers = this.getHeaders(secure);
         let requestOptions = {
             headers: new HttpHeaders(headers),
         }
 
         return this.http.delete<T>(url, requestOptions);
+    }
+
+    getHeaders(secure: boolean = false) {        
+        let headers = {
+            'TCH-USER': this.user,
+            'TCH-SIGNATURE': this.helperSvc.requestSignature()
+        }
+
+        if(secure){
+            headers['x-access-token'] = localStorage.getItem("tch-user-token");
+        }
+
+        return headers;
     }
 }

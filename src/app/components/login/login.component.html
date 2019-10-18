@@ -1,14 +1,15 @@
 <h3>Login</h3>
 <div class="p-grid">
-    <div class="p-col">
-        <input type="text" pInputText placeholder="Email" [(ngModel)]="email">
+    <div class="p-col-12">
+        <input type="text" pInputText placeholder="Email" [(ngModel)]="email" size="40" (ngModelChange)="modelChange($event)">
     </div>
-    <div class="p-col">
-        <input type="password" pInputText placeholder="Password" [(ngModel)]="password">        
+    <div class="p-col-12">
+        <input type="password" pInputText placeholder="Password" [(ngModel)]="password" size="40" (ngModelChange)="modelChange($event)">        
     </div>
-    <div class="p-col">
-        <p-button label="Login" (click)="onLogin($event)" styleClass="ui-button-success"></p-button>
+    <div class="p-col-12">
+        <p-button label="Login" disabled="{{loginDisabled}}" (click)="onLogin($event)" styleClass="ui-button-success"></p-button>
         &nbsp;&nbsp;
-        <p-button label="Forgot Password" (click)="onForgotPassword($event)" styleClass="ui-button-warning"></p-button>
+        <p-button label="Forgot Password" disabled="{{pwdDisabled}}" (click)="onForgotPassword($event)" styleClass="ui-button-warning"></p-button>
     </div>
 </div>
+<p-toast key="login-toast"></p-toast>

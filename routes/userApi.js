@@ -15,10 +15,10 @@ router.post(
     if (!headerMsg.status) {
       apiHelp.errorResponse(res);
     } else {
-      const username = req.body.username,
+      const email = req.body.email,
         password = req.body.password;
 
-        const result = await userSvc.login(username, password);
+        const result = await userSvc.login(email, password);
 
         res.status(result.code).json(result.data);
     }

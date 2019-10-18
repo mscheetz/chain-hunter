@@ -9,10 +9,14 @@ const apiHelp = require('../services/apiHelper');
  * @param {string} username username
  * @param {string} password password
  */
-const login = async(username, password) => {
-    let user = username.indexOf('@') > 0 
-                ? await db.getUserByEmail(username)
-                : await db.getUser(username);
+const login = async(email, password) => {
+    let user = email.indexOf('@') > 0 
+                ? await db.getUserByEmail(email)
+                : await db.getUser(email);
+
+    if(typeof user === 'undefined') {
+        return apiHelp.errorMessage("Invalid login account");        
+    }
 
     const validLogin = await encryptionSvc.checkPassword(password, user.password);
 

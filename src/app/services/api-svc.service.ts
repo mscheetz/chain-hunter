@@ -27,6 +27,15 @@ export class ApiService{
         return result;
     }
 
+    forgotPassword(email: string): Observable<number> {
+        let endpoint: string = "/api/user/forgotPassword";
+        let url: string = this.baseUrl + endpoint;
+
+        let result = this.onPost<number>(url, { email });
+
+        return result;
+    }
+
     changePassword(user: User, oldPassword: string, newPassword: string): Observable<User> {
         let endpoint: string = "/api/user/password";
         let url: string = this.baseUrl + endpoint;

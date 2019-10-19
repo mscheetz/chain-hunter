@@ -18,6 +18,6 @@ export class AccountComponent implements OnInit{
 
     onLogin() {
         this.showLogin = true;
-        this.login.emit();
+        //this.login.emit();
     }
 }

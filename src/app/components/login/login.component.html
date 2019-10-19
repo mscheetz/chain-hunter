@@ -1,15 +1,34 @@
-<h3>Login</h3>
-<div class="p-grid">
+<p-selectButton [options]="actionTypes" [(ngModel)]="selectedAction" (onChange)="typeChange($event)"></p-selectButton>
+<div class="p-grid bottom-pad" *ngIf="loginView">
     <div class="p-col-12">
+        <h4>Email</h4>
         <input type="text" pInputText placeholder="Email" [(ngModel)]="email" size="40" (ngModelChange)="modelChange($event)">
     </div>
     <div class="p-col-12">
+        <h4>Password</h4>
         <input type="password" pInputText placeholder="Password" [(ngModel)]="password" size="40" (ngModelChange)="modelChange($event)">        
     </div>
     <div class="p-col-12">
-        <p-button label="Login" disabled="{{loginDisabled}}" (click)="onLogin($event)" styleClass="ui-button-success"></p-button>
+        <p-button label="Login" (click)="onLogin($event)" styleClass="ui-button-success"></p-button>
         &nbsp;&nbsp;
-        <p-button label="Forgot Password" disabled="{{pwdDisabled}}" (click)="onForgotPassword($event)" styleClass="ui-button-warning"></p-button>
+        <p-button label="Forgot Password" (click)="onForgotPassword($event)" styleClass="ui-button-warning"></p-button>
+    </div>
+</div>
+<div class="p-grid bottom-pad" *ngIf="!loginView">
+    <div class="p-col-12">
+        <h4>Email</h4>
+        <input type="text" pInputText placeholder="Email" [(ngModel)]="newEmail" size="40" (ngModelChange)="modelChange($event)">
+    </div>
+    <div class="p-col-12">
+        <h4>Password</h4>
+        <input type="password" pInputText placeholder="Minimum 8 characters" [(ngModel)]="newPassword" size="40" (ngModelChange)="modelChange($event)">
+    </div>
+    <div class="p-col-12">
+        <h4>Confirm Password</h4>
+        <input type="password" pInputText placeholder="Confirm Password" [(ngModel)]="newPasswordConfirm" size="40" (ngModelChange)="modelChange($event)">
+    </div>
+    <div class="p-col-12">
+        <p-button label="Register" (click)="onRegister($event)" styleClass="ui-button-success"></p-button>
     </div>
 </div>
 <p-toast key="login-toast"></p-toast>

@@ -1,6 +1,6 @@
 <p-button label="Login / Register" (onClick)="onLogin()" styleClass="ui-button-info"></p-button>
 <p-toast key="login-notice-toast"></p-toast>
-<p-dialog header="Login" [(visible)]="showLogin">
+<p-dialog header="Join the Hunting Party!" [(visible)]="showLogin" [style]="{width: '400px'}">
     <app-login (showLogin)="showLogin">
     </app-login>
 </p-dialog>

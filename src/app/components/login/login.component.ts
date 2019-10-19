@@ -1,6 +1,9 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { AuthenticationService } from 'src/app/services/authentication.service';
-import { MessageService } from 'primeng/api';
+import { MessageService, SelectItem } from 'primeng/api';
+import { ThrowStmt } from '@angular/compiler';
+import { ApiService } from 'src/app/services/api-svc.service';
+import { HelperService } from 'src/app/services/helper-svc.service';
 
 @Component({
   selector: 'app-login',
@@ -9,36 +12,82 @@ import { MessageService } from 'primeng/api';
 })
 export class LoginComponent implements OnInit {
   @Input() showLogin: boolean;
+  actionTypes: SelectItem[];
+  selectedAction: number = 0;
+  loginView: boolean = true;
   loginDisabled: boolean = true;
+  registerDisabled: boolean = true;
   pwdDisabled: boolean = true;
   email: string;
   password: string;
+  newEmail: string;
+  newPassword: string;
+  newPasswordConfirm: string;
 
-  constructor(private authSvc: AuthenticationService, private messageSvc: MessageService) { }
+  constructor(private authSvc: AuthenticationService, private messageSvc: MessageService, private apiSvc: ApiService, private helperSvc: HelperService) { }
 
   ngOnInit() {
+    this.actionTypes = [
+      { label: 'Login', value: 0 },
+      { label: 'Register', value: 1 }
+    ]
   }
 
   modelChange(event) {
-    this.pwdDisabled = this.email.length > 0 ? false : true;
-    this.loginDisabled = this.email.length > 0 && this.password.length > 0 ? false : true;
+    // this.pwdDisabled = this.email.length > 0 ? false : true;
+    // this.loginDisabled = this.email.length > 0 && this.validateEmail(this.email) && this.password.length > 0 ? false : true;
+    // this.registerDisabled = this.newEmail.length > 0 && 
+    //                         this.validateEmail(this.newEmail) &&
+    //                         this.newPassword.length > 0 && 
+    //                         this.newPasswordConfirm.length > 0 && 
+    //                         this.onPasswordConfirm() ? false : true;
+  }
+
+  onPasswordConfirm() {
+    if(this.newPassword.length > 0 && this.newPasswordConfirm.length > 0) {
+      return this.newPassword === this.newPasswordConfirm;
+    } else {
+      return true;
+    }
   }
 
   onLogin(event) {
-    if(this.loginDisabled) {
-      return;
-    }
+    if((typeof this.email === 'undefined') || (typeof this.password === 'undefined') || this.email.length === 0 || this.password.length === 0){
+      this.messageSvc.clear();
+      this.messageSvc.add(
+          {
+              key:'login-toast',
+              severity:'warn', 
+              summary:'Incomplete', 
+              detail: 'Enter all the required fields',
+              life: 5000
+          });
+          return;
+    } else if(!this.helperSvc.validateEmail(this.email)){
+      this.messageSvc.clear();
+      this.messageSvc.add(
+          {
+              key:'login-toast',
+              severity:'warn', 
+              summary:'Email', 
+              detail: 'Not a valid email address',
+              life: 5000
+          });
+          return;
+    } 
+    
     this.authSvc.login(this.email, this.password)
         .subscribe(
           res => {
             this.showLogin = false;
+            this.messageSvc.clear();
             this.messageSvc.add(
                 {
                     key:'login-toast',
                     severity:'success', 
                     summary:'Login Status', 
                     detail: 'Login Success',
-                    sticky: true
+                    life: 5000
                 });
           }, 
           err => {
@@ -49,16 +98,112 @@ export class LoginComponent implements OnInit {
                     severity:'error', 
                     summary:'Login Error', 
                     detail: err.error,
-                    sticky: true
+                    life: 5000
                 });
           });
     this.showLogin = false;
   }
 
   onForgotPassword(event) {
-    if(this.pwdDisabled) {
-      return;
+    if((typeof this.email === 'undefined') || this.email.length === 0){
+      this.messageSvc.clear();
+      this.messageSvc.add(
+          {
+              key:'login-toast',
+              severity:'warn', 
+              summary:'Email', 
+              detail: 'Enter a valid email address',
+              life: 5000
+          });
+          return;
+    } else if(!this.helperSvc.validateEmail(this.email)){
+      this.messageSvc.clear();
+      this.messageSvc.add(
+          {
+              key:'login-toast',
+              severity:'warn', 
+              summary:'Email', 
+              detail: 'Not a valid email address',
+              life: 5000
+          });
+          return;
     }
-    //this.showLogin = false;
+    this.apiSvc.forgotPassword(this.email)
+        .subscribe(res => {
+          this.messageSvc.clear();
+          this.messageSvc.add(
+              {
+                  key:'login-toast',
+                  severity:'success', 
+                  summary:'Forgot Password', 
+                  detail: 'You wil receive an email with password reset instructions.',
+                  life: 5000
+              });
+        }, err => {
+          this.messageSvc.clear();
+          this.messageSvc.add(
+              {
+                  key:'login-toast',
+                  severity:'error', 
+                  summary:'Forgot Password', 
+                  detail: 'Please re-submit your request.',
+                  life: 5000
+              });
+        })
+  }
+
+  onRegister(event) {
+    if((typeof this.email === 'undefined') || (typeof this.newPassword === 'undefined') || (typeof this.newPasswordConfirm === 'undefined') 
+          || this.newEmail.length === 0 || this.newPassword.length === 0 || this.newPasswordConfirm.length === 0){
+      this.messageSvc.clear();
+      this.messageSvc.add(
+          {
+              key:'login-toast',
+              severity:'warn', 
+              summary:'Incomplete', 
+              detail: 'Enter all the required fields',
+              life: 5000
+          });
+          return;
+    } else if(!this.helperSvc.validateEmail(this.newEmail)){
+      this.messageSvc.clear();
+      this.messageSvc.add(
+          {
+              key:'login-toast',
+              severity:'warn', 
+              summary:'Email', 
+              detail: 'Not a valid email address',
+              life: 5000
+          });
+          return;
+    } else if(this.newPassword.length < 8) {
+      this.messageSvc.clear();
+      this.messageSvc.add(
+          {
+              key:'login-toast',
+              severity:'warn', 
+              summary:'Password', 
+              detail: 'Password is less than 8 characters',
+              life: 5000
+          });
+          return;
+    } else if (!this.onPasswordConfirm()) {
+      this.messageSvc.clear();
+      this.messageSvc.add(
+          {
+              key:'login-toast',
+              severity:'warn', 
+              summary:'Password', 
+              detail: 'Passwords to not match',
+              life: 5000
+          });
+          return;
+    }
+
+  }
+
+  typeChange(event){
+    this.email = "", this.password = this.email, this.newEmail = this.email, this.newPassword = this.email, this.newPasswordConfirm = this.email;
+    this.loginView = this.selectedAction === 0 ? true : false;
   }
 }

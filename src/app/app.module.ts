@@ -40,6 +40,7 @@ import { NgxQRCodeModule } from 'node_modules/ngx-qrcode2';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { TransactionComponent } from './components/transaction/transaction.component';
 import { LoginComponent } from './components/login/login.component';
+import { SelectButtonModule } from 'primeng/selectbutton';
 
 const appRoutes: Routes = [
   { path: '', component: ChainHunterComponent },
@@ -85,6 +86,7 @@ const appRoutes: Routes = [
     PanelModule,
     ProgressBarModule,
     ProgressSpinnerModule,
+    SelectButtonModule,
     SlideMenuModule,
     TableModule,
     TabMenuModule,

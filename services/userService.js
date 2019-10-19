@@ -10,12 +10,16 @@ const apiHelp = require('../services/apiHelper');
  * @param {string} password password
  */
 const login = async(email, password) => {
+    const validEmail = helperSvc.validateEmail(email);
+    if(!validEmail) {
+        return apiHelp.errorMessage("Not a valid email address");
+    }
     let user = email.indexOf('@') > 0 
                 ? await db.getUserByEmail(email)
                 : await db.getUser(email);
 
     if(typeof user === 'undefined') {
-        return apiHelp.errorMessage("Invalid login account");        
+        return apiHelp.errorMessage("Invalid account");        
     }
 
     const validLogin = await encryptionSvc.checkPassword(password, user.password);
@@ -27,8 +31,19 @@ const login = async(email, password) => {
 
         return apiHelp.successMessage(user);
     } else {
-        return apiHelp.errorMessage("Invalid login");
+        return apiHelp.errorMessage("Invalid password");
     }
+}
+
+/**
+ * Forgot password method 
+ * 
+ * @param {string} email email address
+ */
+const forgotPassword = async(email) => {
+    // TODO: do something
+    
+    return apiHelp.successMessage(1);
 }
 
 /**
@@ -36,6 +51,10 @@ const login = async(email, password) => {
  * @param {object} user 
  */
 const registerUser = async(user) => {
+    const validEmail = helperSvc.validateEmail(user.email);
+    if(!validEmail) {
+        return apiHelp.errorMessage("Not a valid email address");
+    }
     user.hash = await encryptionSvc.hashPassword(user.password);
     delete user.password;
 
@@ -48,7 +67,11 @@ const registerUser = async(user) => {
  * Update a user
  * @param {object} user 
  */
-const updateUser = async(user) => {    
+const updateUser = async(user) => {
+    const validEmail = helperSvc.validateEmail(user.email);
+    if(!validEmail) {
+        return apiHelp.errorMessage("Not a valid email address");
+    }
     const status = await db.updateUser(user);
 
     return apiHelp.successMessage(status, 202);
@@ -145,6 +168,7 @@ const deleteUserData = async(id) => {
 
 module.exports = {
     login,
+    forgotPassword,
     registerUser,
     updateUser,
     changePassword,

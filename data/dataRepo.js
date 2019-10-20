@@ -271,7 +271,7 @@ const getUserByUserId = async(userId) => {
 }
 
 const postUser = async(user) => {
-    let sql = 'INSERT INTO public.user ( email, created, "userId", "accountType", username, "expirationDate", password, salt ) ';
+    let sql = 'INSERT INTO public.user ( email, created, "userId", "accountType", username, "expirationDate", hash, validated ) ';
     sql += 'VALUES ( $1, $2, $3, $4, $5, $6, $7, $8 )';
     const data = [
         user.email, 
@@ -280,8 +280,8 @@ const postUser = async(user) => {
         user.accountType, 
         user.username, 
         user.expirationDate, 
-        password, 
-        salt
+        user.hash, 
+        user.validated
     ];
 
     try {
@@ -314,14 +314,30 @@ const updateUser = async(user) => {
     }
 }
 
+const validateUser = async(userId, validationTS) => {
+    let sql = 'UPDATE public.user SET validated = $2 ';
+    sql += 'WHERE "userId" = $1'
+    const data = [
+        userId, 
+        validationTS
+    ];
+
+    try {
+        const res = await pool.query(sql, data);
+
+        return res.rowCount;
+    } catch(err) {
+        console.log(err);
+    }
+}
+
 const updateUserPassword = async(userId, oldHash, newHash) => {
-    let sql = 'UPDATE public.user SET password = $3 ';
-    sql += 'WHERE "userId" = $1 AND password = $2'
+    let sql = 'UPDATE public.user SET hash = $3 ';
+    sql += 'WHERE "userId" = $1 AND hash = $2'
     const data = [
         userId, 
         oldHash, 
-        newHash, 
-        salt
+        newHash
     ];
 
     try {
@@ -474,6 +490,7 @@ module.exports = {
     getUsers,
     postUser,
     updateUser,
+    validateUser,
     updateUserPassword,
     getSearchResults,
     postSearchResult,

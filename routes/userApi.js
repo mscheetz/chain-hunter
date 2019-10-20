@@ -25,6 +25,22 @@ router.post(
   })
 );
 
+router.get(
+  "/api/user/validate/:userId",
+  apiHelp.asyncMiddleware(async (req, res, next) => {
+    const headerMsg = apiHelp.headerCheck(req);
+    if (!headerMsg.status) {
+      apiHelp.errorResponse(res);
+    } else {
+      const userId = req.params.userId;
+
+        const result = await userSvc.validateUser(userId);
+
+        res.status(result.code).json(result.data);
+    }
+  })
+);
+
 router.post(
   "/api/user/forgotpassword",
   apiHelp.asyncMiddleware(async (req, res, next) => {

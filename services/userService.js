@@ -78,6 +78,33 @@ const updateUser = async(user) => {
 }
 
 /**
+ * Validate a user's account
+ * 
+ * @param {string} userId 
+ */
+const validateUser = async(userId) => {
+    const user = await getUserByUserId(userId);
+
+    if(typeof user === 'undefined') {
+        return apiHelp.errorMessage("Not a valid user", 400);
+    }
+
+    if(user.validated !== null) {
+        return apiHelp.successMessage(true, 202);
+    }
+
+    const timestamp = helperSvc.getUnixTS();
+    const validated = db.validateUser(userId, timestamp);
+
+    if(validated === 1) {
+        return apiHelp.successMessage(status, 202);
+    } else {
+        return apiHelp.errorMessage("Try again", 400);
+    }
+}
+
+
+/**
  * Change a user's password
  * @param {string} userId 
  * @param {string} oldPassword 
@@ -171,6 +198,7 @@ module.exports = {
     forgotPassword,
     registerUser,
     updateUser,
+    validateUser,
     changePassword,
     getUser,
     getUserByUserId,

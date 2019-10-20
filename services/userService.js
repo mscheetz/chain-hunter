@@ -22,6 +22,10 @@ const login = async(email, password) => {
         return apiHelp.errorMessage("Invalid account");        
     }
 
+    if(user.validated === null) {
+        return apiHelp.errorMessage("Account not validated", 400);
+    }
+
     const validLogin = await encryptionSvc.checkPassword(password, user.password);
 
     if(validLogin) {

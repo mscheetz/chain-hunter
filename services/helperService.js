@@ -36,6 +36,24 @@ const unixToUTC = function(timestamp) {
     return time;
 }
 
+Date.prototype.addHours = function(h) {
+    this.setTime(this.getTime() + (h*60*60*1000));
+    return this;
+}
+
+/**
+ * Generate a random password
+ */
+const generatePassword = function() {
+    var length = 16,
+        charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*~<>?-_=+",
+        retVal = "";
+    for (var i = 0, n = charset.length; i < length; ++i) {
+        retVal += charset.charAt(Math.floor(Math.random() * n));
+    }
+    return retVal;
+}
+
 /**
  * Get a big number with N 0s
  * @param {*} zeros Number of zeros
@@ -760,5 +778,6 @@ module.exports = {
     unixToUTC,
     decimalCleanup,
     iconExists,
-    searchType
+    searchType,
+    generatePassword
 }

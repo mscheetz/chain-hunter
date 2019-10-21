@@ -349,6 +349,23 @@ const updateUserPassword = async(userId, oldHash, newHash) => {
     }
 }
 
+const setUserPassword = async(userId, hash) => {
+    let sql = 'UPDATE public.user SET hash = $2 ';
+    sql += 'WHERE "userId" = $1'
+    const data = [
+        userId, 
+        hash
+    ];
+
+    try {
+        const res = await pool.query(sql, data);
+
+        return res.rowCount;
+    } catch(err) {
+        console.log(err);
+    }
+}
+
 const getSearchResults = async() => {
     let sql = 'SELECT * FROM public."searchResults"';
 
@@ -469,6 +486,48 @@ const deleteUserData = async(id) => {
     }
 }
 
+const postPasswordReset = async(userId, token, TS) => {
+    let sql = 'INSERT INTO public."passwordReset" ( "userId", token, "goodTil" ) ';
+    sql += 'VALUES ( $1, $2, $3 )';
+    const data = [
+        userId, 
+        token, 
+        TS
+    ];
+
+    try {
+        const res = await pool.query(sql, data);
+
+        return res.rowCount;
+    } catch(err) {
+        console.log(err);
+    }
+}
+
+const getPasswordReset = async(userId) => {
+    let sql = 'SELECT * FROM public."passwordReset" where "userId" = $1';
+
+    try {
+        const res = await pool.query(sql, [userId]);
+
+        return res.rows;
+    } catch(err) {
+        console.log(err);
+    }
+}
+
+const deletePasswordReset = async(userId) => {
+    let sql = 'DELETE FROM public."PasswordReset" where "userId" = $1';
+
+    try {
+        const res = await pool.query(sql, [ userId ]);
+
+        return res.rowCount;
+    } catch(err) {
+        console.log(err);
+    }
+}
+
 module.exports = {
     getBlockchains,
     getBlockchainBySymbol,
@@ -492,11 +551,16 @@ module.exports = {
     updateUser,
     validateUser,
     updateUserPassword,
+    setUserPassword,
     getSearchResults,
     postSearchResult,
     getTrxTokens,
     postTrxTokens,
     postUserData,
     getUserData,
-    deleteUserData
+    deleteUserData,
+    postPasswordReset,
+    getPasswordReset,
+    deletePasswordReset,
+    getTimePlus
 }

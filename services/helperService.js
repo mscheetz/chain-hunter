@@ -36,8 +36,45 @@ const unixToUTC = function(timestamp) {
     return time;
 }
 
+/**
+ * Add time to a date
+ * 
+ * @param {number} d 
+ * @param {number} h 
+ * @param {number} m 
+ * @param {number} s 
+ */
+const getTimePlus = function(d = 0, h = 0, m = 0, s = 0) {
+    let date = new Date();
+    if(d !== 0) {
+        date = date.addDays(d);
+    }
+    if(h !== 0) {
+        date = date.addHours(h);
+    }
+    if(m !== 0) {
+        date = date.addMinutes(m);
+    }
+    if(s !== 0) {
+        date = date.addSeconds(s);
+    }
+
+    return date;
+}
+Date.prototype.addDays = function(d) {
+    this.setTime(this.getTime() + (d*24*60*60*1000));
+    return this;
+}
 Date.prototype.addHours = function(h) {
     this.setTime(this.getTime() + (h*60*60*1000));
+    return this;
+}
+Date.prototype.addMinutes = function(m) {
+    this.setTime(this.getTime() + (m*60*1000));
+    return this;
+}
+Date.prototype.addSeconds = function(s) {
+    this.setTime(this.getTime() + (s*1000));
     return this;
 }
 
@@ -779,5 +816,6 @@ module.exports = {
     decimalCleanup,
     iconExists,
     searchType,
-    generatePassword
+    generatePassword,
+    getTimePlus
 }

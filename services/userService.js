@@ -12,7 +12,7 @@ const apiHelp = require('../services/apiHelper');
 const login = async(email, password) => {
     const validEmail = helperSvc.validateEmail(email);
     if(!validEmail) {
-        return apiHelp.errorMessage("Not a valid email address");
+        return apiHelp.errorMessage("Not a valid email address", 400);
     }
     let user = email.indexOf('@') > 0 
                 ? await db.getUserByEmail(email)
@@ -33,21 +33,12 @@ const login = async(email, password) => {
         user.token = token;
         delete user.password;
 
+        const removeToken = await db.deletePasswordReset(user.userId);
+
         return apiHelp.successMessage(user);
     } else {
         return apiHelp.errorMessage("Invalid password");
     }
-}
-
-/**
- * Forgot password method 
- * 
- * @param {string} email email address
- */
-const forgotPassword = async(email) => {
-    // TODO: do something
-    
-    return apiHelp.successMessage(1);
 }
 
 /**
@@ -57,14 +48,25 @@ const forgotPassword = async(email) => {
 const registerUser = async(user) => {
     const validEmail = helperSvc.validateEmail(user.email);
     if(!validEmail) {
-        return apiHelp.errorMessage("Not a valid email address");
+        return apiHelp.errorMessage("Not a valid email address", 400);
+    }
+    const userCheck = await db.getUserByEmail(user.email);
+    if(typeof userCheck !== 'undefined' && userCheck.userId.length > 0) {
+        return apiHelp.errorMessage("An account already exists with that email address", 400);
     }
     user.hash = await encryptionSvc.hashPassword(user.password);
+    user.validated = null;
     delete user.password;
 
     const status = await db.postUser(user);
 
+    await validateAccountRequest(user);
+
     return apiHelp.successMessage(status, 201);
+}
+
+const validateAccountRequest = async(user) => {
+    // TODO: send validation email
 }
 
 /**
@@ -74,7 +76,7 @@ const registerUser = async(user) => {
 const updateUser = async(user) => {
     const validEmail = helperSvc.validateEmail(user.email);
     if(!validEmail) {
-        return apiHelp.errorMessage("Not a valid email address");
+        return apiHelp.errorMessage("Not a valid email address", 400);
     }
     const status = await db.updateUser(user);
 
@@ -107,6 +109,69 @@ const validateUser = async(userId) => {
     }
 }
 
+/**
+ * Initialize a forgot password request
+ * 
+ * @param {string} email email address
+ */
+const forgotPasswordInit = async(email) => {
+    const validEmail = helperSvc.validateEmail(email);
+    if(!validEmail) {
+        return apiHelp.errorMessage("Not a valid email address", 400);
+    }
+
+    const user = await getUserByEmail(email);
+
+    if(typeof user === 'undefined') {
+        return apiHelp.errorMessage("Not a valid user", 400);
+    }
+
+    const oneHourPlus = helperSvc.getTimePlus(0, 1, 0, 0);
+    const ts = oneHourPlus.getTime() / 1000;
+    const token = encryptionSvc.getUuid();
+
+    const dbUpdate = await db.postPasswordReset(user.userId, token, ts);
+
+    //TODO: SEND EMAIL with userId and token
+
+    return apiHelp.successMessage(1);
+}
+
+const forgotPasswordAction = async(userId, token) =>{
+    const user = await db.getUserByUserId(userId);
+
+    if(typeof user === 'undefined') {
+        return apiHelp.errorMessage("Not a valid user", 400);
+    }
+
+    const passwordReset = await db.getPasswordReset(userId);
+
+    if(typeof passwordReset === 'undefined') {
+        return apiHelp.errorMessage("Invalid request", 400);
+    }
+
+    if(passwordReset.token !== token) {
+        return apiHelp.errorMessage("Invalid token", 401);
+    }
+    const currentTS = helperSvc.getUnixTS();
+    if(passwordReset.goodTil < currentTS) {
+        return apiHelp.errorMessage("Token has expired", 400);
+    }
+
+    const removeToken = await db.deletePasswordReset(userId);
+
+    const newPassword = helperSvc.generatePassword();
+    const hash = await encryptionSvc.hashPassword(newPassword);
+
+    let updated = false;
+    while(!updated) {
+        const pwdUpdated = await db.setUserPassword(userId, hash);
+
+        updated = pwdUpdated === 1 ? true : false;
+    }
+
+    return apiHelp.successMessage(newPassword);
+}
 
 /**
  * Change a user's password
@@ -116,6 +181,10 @@ const validateUser = async(userId) => {
  */
 const changePassword = async(userId, oldPassword, newPassword) => {    
     const user = await getUserByUserId(userId);
+
+    if(typeof user === 'undefined') {
+        return apiHelp.errorMessage("Not a valid user", 400);
+    }
 
     const validPwd = encryptionSvc.checkPassword(oldPassword, user.hash);
 
@@ -204,6 +273,8 @@ module.exports = {
     updateUser,
     validateUser,
     changePassword,
+    forgotPasswordInit,
+    forgotPasswordAction,
     getUser,
     getUserByUserId,
     getUserData,

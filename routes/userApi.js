@@ -42,7 +42,7 @@ router.get(
 );
 
 router.post(
-  "/api/user/forgotpassword",
+  "/api/user/password/forgot/init",
   apiHelp.asyncMiddleware(async (req, res, next) => {
     const headerMsg = apiHelp.headerCheck(req);
     if (!headerMsg.status) {
@@ -50,13 +50,29 @@ router.post(
     } else {
       const email = req.body.email;
 
-        const result = await userSvc.forgotPassword(email);
+      const result = await userSvc.forgotPasswordInit(email);
 
-        res.status(result.code).json(result.data);
+      res.status(result.code).json(result.data);
     }
   })
 );
 
+router.post(
+  "/api/user/password/forgot/action",
+  apiHelp.asyncMiddleware(async (req, res, next) => {
+    const headerMsg = apiHelp.headerCheck(req);
+    if (!headerMsg.status) {
+      apiHelp.errorResponse(res);
+    } else {
+      const userId = req.body.userId,
+            token = req.body.token;
+
+      const result = await userSvc.forgotPasswordAction(userId, token);
+
+      res.status(result.code).json(result.data);
+    }
+  })
+);
 
 
 router.post(

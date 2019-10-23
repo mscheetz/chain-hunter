@@ -27,6 +27,15 @@ export class ApiService{
         return result;
     }
 
+    guest(): Observable<UserResponse> {
+        let endpoint: string = "/api/user/guest";
+        let url: string = this.baseUrl + endpoint;
+
+        let result = this.onPost<UserResponse>(url, null);
+
+        return result;
+    }
+
     forgotPassword(email: string): Observable<number> {
         let endpoint: string = "/api/user/forgotPassword";
         let url: string = this.baseUrl + endpoint;

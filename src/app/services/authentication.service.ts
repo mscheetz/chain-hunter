@@ -22,23 +22,37 @@ export class AuthenticationService {
         return this.apiSvc.login(email, password)
         .pipe(map(res => {
                 const jwt = res.token;
-                localStorage.setItem('tch-user-token', JSON.stringify(jwt));
-                const user = new User();
+                let user = new User();
                 user.accountType = res.accountType;
                 user.createdDate = res.createdDate;
                 user.email = res.email;
                 user.expirationDate = res.expirationDate;
                 user.userId = res.userId;
                 user.username = res.username;
-                localStorage.setItem('currentUser', JSON.stringify(user));
+
+                this.addLogin(jwt, user);
                 this.currentUserSubject.next(user);
                 return res;
             }));
     }
 
     logout() {
+        this.removeLogin();
+        this.currentUserSubject.next(null);
+    }
+
+    isLoggedIn() {
+        return localStorage.getItem('tch-user-token') ? true : false;
+    }
+
+    private addLogin(jwt: string, user: User) {
+        this.removeLogin();
+        localStorage.setItem('tch-user-token', jwt);
+        localStorage.setItem('currentUser', JSON.stringify(user));
+    }
+
+    private removeLogin() {        
         localStorage.removeItem('tch-user-token');
         localStorage.removeItem('currentUser');
-        this.currentUserSubject.next(null);
     }
 }

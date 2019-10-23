@@ -795,6 +795,13 @@ const searchType = function(chain, toFind) {
             return enums.searchType.address;
         }
     }
+    if(chain === "zen") {
+        if(toFind.length === 35) {
+            return enums.searchType.address;
+        } else {
+            return enums.searchType.transaction;
+        }
+    }
 
     return enums.searchType.address | enums.searchType.transaction | enums.searchType.contract;
 }

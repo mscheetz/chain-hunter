@@ -32,6 +32,7 @@ const xlm = require('./blockchains/xlm.js');
 const xrp = require('./blockchains/xrp.js');
 const xtz = require('./blockchains/xtz.js');
 const zel = require('./blockchains/zel.js');
+const zen = require('./blockchains/zen.js');
 
 const getChains = function() {
     const chains = [
@@ -211,6 +212,8 @@ const getBlockchains = async(toFind) => {
             blockchains["LSK"] = await lsk.getBlockchain(blockchain, toFind);
         } else if(chains[i].symbol === 'TOMO') {
             blockchains["TOMO"] = await tomo.getBlockchain(blockchain, toFind);
+        } else if(chains[i].symbol === 'ZEN') {
+            blockchains["ZEN"] = await zen.getBlockchain(blockchain, toFind);
         // } else if(chains[i].symbol === 'DCR') {
         //     blockchains["DCR"] = await dcr.getBlockchain(toFind);
         }
@@ -292,10 +295,12 @@ const getBlockchain = async(chain, toFind, ip, ipInfo) => {
         result = await lsk.getBlockchain(blockchain, toFind);
     } else if (chain === "tomo") {
         result = await tomo.getBlockchain(blockchain, toFind);
+    } else if (chain === "zen") {
+        result = await zen.getBlockchain(blockchain, toFind);
     // } else if (chain === "dcr") {
     //     return await dcr.getBlockchain(toFind);
     }
-
+    
     if (result.address || result.contract || result.transaction) {
         let updateType = "";
         if (result.address) {
@@ -423,6 +428,8 @@ const getTransactions = async(chain, address, ip, ipInfo) => {
         transactions = await lsk.getTransactions(address);
     } else if (chain === "tomo") {
         transactions = await tomo.getTransactions(address);
+    } else if (chain === "zen") {
+        transactions = await zen.getTransactions(address);
     // } else if (chain === "dcr") {
     //     return await dcr.getTransactions(address);
     }

@@ -8,220 +8,135 @@ router.get("/api/user/login", apiHelp.asyncMiddleware(async (req, res, next) => 
   res.status(200).json("howdy folks!");
 }));
 
-router.post(
-  "/api/user/login",
-  apiHelp.asyncMiddleware(async (req, res, next) => {
-    const headerMsg = apiHelp.headerCheck(req);
-    if (!headerMsg.status) {
-      apiHelp.errorResponse(res);
-    } else {
-      const email = req.body.email,
-        password = req.body.password;
+router.post("/api/user/login", apiHelp.bootlegMiddleware, async (req, res, next) => {
+  const email = req.body.email,
+    password = req.body.password;
 
-        const result = await userSvc.login(email, password);
+  const result = await userSvc.login(email, password);
+console.log(result);
+  res.status(result.code).json(result.data);
+});
 
-        res.status(result.code).json(result.data);
-    }
+router.post("/api/user/guest", apiHelp.bootlegMiddleware, async (req, res, next) => {
+  const result = await userSvc.guestLogin();
+
+  res.status(result.code).json(result.data);
+});
+
+router.get("/api/user/validate/:userId", apiHelp.asyncMiddleware(async (req, res, next) => {
+    const userId = req.params.userId;
+
+    const result = await userSvc.validateUser(userId);
+
+    res.status(result.code).json(result.data);
   })
 );
 
-router.get(
-  "/api/user/validate/:userId",
-  apiHelp.asyncMiddleware(async (req, res, next) => {
-    const headerMsg = apiHelp.headerCheck(req);
-    if (!headerMsg.status) {
+router.post("/api/user/password/forgot/init", apiHelp.bootlegMiddleware, async (req, res, next) => {
+  const email = req.body.email;
+
+  const result = await userSvc.forgotPasswordInit(email);
+
+  res.status(result.code).json(result.data);
+});
+
+router.post("/api/user/password/forgot/action", apiHelp.bootlegMiddleware, async (req, res, next) => {
+  const userId = req.body.userId,
+    token = req.body.token;
+
+  const result = await userSvc.forgotPasswordAction(userId, token);
+
+  res.status(result.code).json(result.data);
+});
+
+
+router.post("/api/user/login/shucks", apiHelp.bootlegMiddleware, async (req, res, next) => {
+  const password = req.body.password;
+
+  const result = await encryptionSvc.hashPassword(password);
+
+  res.status(200).json(result);
+});
+
+router.get("/api/logout", apiHelp.asyncMiddleware(async (req, res, next) => { }));
+
+router.get("/api/user/:userId", [apiHelp.bootlegMiddleware, apiHelp.authMiddleware, apiHelp.userMiddleware], async (req, res, next) => {
+    const userId = req.params.userId;
+    const tokenUserId = res.locals.userId;
+    if(userId !== tokenUserId) {
       apiHelp.errorResponse(res);
-    } else {
-      const userId = req.params.userId;
-
-        const result = await userSvc.validateUser(userId);
-
-        res.status(result.code).json(result.data);
     }
-  })
-);
 
-router.post(
-  "/api/user/password/forgot/init",
-  apiHelp.asyncMiddleware(async (req, res, next) => {
-    const headerMsg = apiHelp.headerCheck(req);
-    if (!headerMsg.status) {
-      apiHelp.errorResponse(res);
-    } else {
-      const email = req.body.email;
+    const result = await userSvc.getUserByUserId(userId);
 
-      const result = await userSvc.forgotPasswordInit(email);
-
-      res.status(result.code).json(result.data);
-    }
-  })
-);
-
-router.post(
-  "/api/user/password/forgot/action",
-  apiHelp.asyncMiddleware(async (req, res, next) => {
-    const headerMsg = apiHelp.headerCheck(req);
-    if (!headerMsg.status) {
-      apiHelp.errorResponse(res);
-    } else {
-      const userId = req.body.userId,
-            token = req.body.token;
-
-      const result = await userSvc.forgotPasswordAction(userId, token);
-
-      res.status(result.code).json(result.data);
-    }
-  })
-);
-
-
-router.post(
-  "/api/user/login/shucks",
-  apiHelp.asyncMiddleware(async (req, res, next) => {
-    const headerMsg = apiHelp.headerCheck(req);
-    if (!headerMsg.status) {
-      apiHelp.errorResponse(res);
-    } else {
-      const password = req.body.password;
-
-      const result = await encryptionSvc.hashPassword(password);
-
-      res.status(200).json(result);
-    }
-  })
-);
-
-router.get("/api/logout", apiHelp.asyncMiddleware(async (req, res, next) => {}));
-
-router.get(
-  "/api/user/:userId",
-  apiHelp.asyncMiddleware(async (req, res, next) => {
-    encryptionSvc.validateToken(req, res, next);
-    const headerMsg = apiHelp.headerCheck(req);
-    if (!headerMsg.status) {
-      apiHelp.errorResponse(res);
-    } else {
-      const userId = req.params.userId;
-
-      const result = await userSvc.getUserByUserId(userId);
-
-      res.status(result.code).json(result.data);
-    }
-  })
-)
+    res.status(result.code).json(result.data);
+});
 
 /**
  * Add a user
  */
-router.post(
-  "/api/user",
-  apiHelp.asyncMiddleware(async (req, res, next) => {
-    const headerMsg = apiHelp.headerCheck(req);
-    if (!headerMsg.status) {
-      apiHelp.errorResponse(res);
-    } else {
-      const data = req.body.data;
+router.post("/api/user", apiHelp.bootlegMiddleware, async (req, res, next) => {
+  const data = req.body.data;
 
-      const result = await userSvc.registerUser(data);
+  const result = await userSvc.registerUser(data);
 
-      res.status(result.code).json(result.data);
-    }
-  })
-);
+  res.status(result.code).json(result.data);
+});
 
 /**
  * Update a user
  */
-router.put(
-  "/api/user",
-  apiHelp.asyncMiddleware(async (req, res, next) => {
-    const headerMsg = apiHelp.headerCheck(req);
-    if (!headerMsg.status) {
-      apiHelp.errorResponse(res);
-    } else {
-      const data = req.body.data;
+router.put("/api/user", [ apiHelp.bootlegMiddleware, apiHelp.authMiddleware, apiHelp.userMiddleware ], async (req, res, next) => {
+  const data = req.body.data;
 
-      const result = await userSvc.updateUser(data);
+  const result = await userSvc.updateUser(data);
 
-      res.status(result.code).json(result.data);
-    }
-  })
-);
+  res.status(result.code).json(result.data);
+});
 
 /**
  * Update a user's password
  */
-router.post(
-  "/api/user/password",
-  apiHelp.asyncMiddleware(async (req, res, next) => {
-    const headerMsg = apiHelp.headerCheck(req);
-    if (!headerMsg.status) {
-      apiHelp.errorResponse(res);
-    } else {
-      const data = req.body.data;
+router.post("/api/user/password", [ apiHelp.bootlegMiddleware, apiHelp.authMiddleware, apiHelp.userMiddleware ], async (req, res, next) => {
+  const data = req.body.data;
 
-      const result = await userSvc.changePassword(data.userId, data.oldPassword, data.newPassword);
+  const result = await userSvc.changePassword(data.userId, data.oldPassword, data.newPassword);
 
-      res.status(result.code).json(result.data);
-    }
-  })
-);
+  res.status(result.code).json(result.data);
+});
 
 /**
  * Get user data
  */
-router.get(
-  "/api/user/data:userId",
-  apiHelp.asyncMiddleware(async (req, res, next) => {
-    const headerMsg = apiHelp.headerCheck(req);
-    if (!headerMsg.status) {
-      apiHelp.errorResponse(res);
-    } else {
-      const userId = req.params.userId;
+router.get("/api/user/data", [ apiHelp.bootlegMiddleware, apiHelp.authMiddleware, apiHelp.userMiddleware ], async (req, res, next) => {
+  const userId = res.locals.userId;
 
-      const result = await userSvc.getUserData(userId);
+  const result = await userSvc.getUserData(userId);
 
-      res.status(result.code).json(result.data);
-    }
-  })
-);
+  res.status(result.code).json(result.data);
+});
 
 /**
  * Add new user data
  */
-router.post(
-  "/api/user/data",
-  apiHelp.asyncMiddleware(async (req, res, next) => {
-    const headerMsg = apiHelp.headerCheck(req);
-    if (!headerMsg.status) {
-      apiHelp.errorResponse(res);
-    } else {
-      const data = req.body.data;
+router.post("/api/user/data", [ apiHelp.bootlegMiddleware, apiHelp.authMiddleware, apiHelp.userMiddleware ], async (req, res, next) => {
+  const userId = res.locals.userId;
+  const data = req.body.data;
 
-      const result = await userSvc.addUserData(data.userId, data.hash, data.symbol, data.type);
+  const result = await userSvc.addUserData(userId, data.hash, data.symbol, data.type);
 
-      res.status(result.code).json(result.data);
-    }
-  })
-);
+  res.status(result.code).json(result.data);
+});
 
 /**
- * Add new user data
+ * Remove user data
  */
-router.delete(
-  "/api/user/data",
-  apiHelp.asyncMiddleware(async (req, res, next) => {
-    const headerMsg = apiHelp.headerCheck(req);
-    if (!headerMsg.status) {
-      apiHelp.errorResponse(res);
-    } else {
-      const data = req.body.data;
+router.delete("/api/user/data", [ apiHelp.bootlegMiddleware, apiHelp.authMiddleware, apiHelp.userMiddleware ], async (req, res, next) => {
+  const data = req.body.data;
 
-      const result = await userSvc.deleteUserData(data.userId, data.hash, data.symbol, data.type);
+  const result = await userSvc.deleteUserData(data.userId, data.hash, data.symbol, data.type);
 
-      res.status(result.code).json(result.data);
-    }
-  })
-);
+  res.status(result.code).json(result.data);
+});
 
 module.exports = router;

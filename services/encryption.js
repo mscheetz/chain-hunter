@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt');
 const uuidv4 = require('uuid/v4');
 const jwt = require('jsonwebtoken');
 const config = require('../config');
+const helperSvc = require('./helperService');
 
 const decryptHeader = function(message, token) {
 	let bytes = CryptoTS.AES.decrypt(message, token);
@@ -29,9 +30,13 @@ const hashPassword = async(plaintext) => {
  * @param {string} hash 	hash of password
  */
 const checkPassword = async(plaintext, hash) => {
-	const match = await bcrypt.compare(plaintext, hash);
-	
-	return match;
+	try {
+		const match = await bcrypt.compare(plaintext, hash);
+		return match;
+	} catch(err) {
+		console.log(err);
+		return false;
+	}
 }
 
 /**
@@ -41,21 +46,73 @@ const getUuid = function() {
 	return uuidv4();
 }
 
+const validUuid = async(uuid) => {
+	const uuidV4Regex = /^[A-F\d]{8}-[A-F\d]{4}-4[A-F\d]{3}-[89AB][A-F\d]{3}-[A-F\d]{12}$/i;
+
+	return uuidV4Regex.test(uuid);
+}
+
 /**
  * Get a JWT
  * 
- * @param {object} user user object
+ * @param {object} userId user id
  */
-const getToken = async(user) => {
-	let token = jwt.sign({
-		email: user.email,
-		id: user.id
-	},
+const getToken = async(userId) => {
+	let token = jwt.sign({userId},
 		config.CHAINHUNTER_TOKEN,
 		{ expiresIn: '3d'}
 	);
 
 	return token
+}
+
+/**
+ * Is the token valid
+ * 
+ * @param {string} token jwt token
+ */
+const isTokenValid = async(token) =>{
+	const payload = await getTokenPayload(token);
+	if(!payload) {
+		return payload;
+	}
+	
+	const unixNow = helperSvc.getUnixTS();
+	if(payload.exp < unixNow) {
+		return false;
+	}
+	return true;
+}
+
+/**
+ * Get payload from a token
+ * 
+ * @param {string} token jwt token
+ */
+const getTokenPayload = async(token) => {
+	let payload;
+	try {
+		payload = jwt.verify(token, config.CHAINHUNTER_TOKEN);
+	} catch(err) {
+		return false;
+	}
+
+	return payload;
+}
+
+/**
+ * get user id from a jwt
+ * 
+ * @param {string} token jwt token
+ */
+const getUserIdFromToken = async(token) => {
+	let userId = null;
+	const payload = await getTokenPayload(token);
+	if(!payload) {
+		return userId;
+	}
+
+	return payload.userId;
 }
 
 /**
@@ -90,6 +147,10 @@ module.exports = {
 	hashPassword,
 	checkPassword,
 	getUuid,
+	validUuid,
 	getToken,
+	getUserIdFromToken,
+	getTokenPayload,
+	isTokenValid,
 	validateToken
 }

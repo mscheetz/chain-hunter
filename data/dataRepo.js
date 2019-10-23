@@ -517,7 +517,7 @@ const getPasswordReset = async(userId) => {
 }
 
 const deletePasswordReset = async(userId) => {
-    let sql = 'DELETE FROM public."PasswordReset" where "userId" = $1';
+    let sql = 'DELETE FROM public."passwordReset" where "userId" = $1';
 
     try {
         const res = await pool.query(sql, [ userId ]);
@@ -561,6 +561,5 @@ module.exports = {
     deleteUserData,
     postPasswordReset,
     getPasswordReset,
-    deletePasswordReset,
-    getTimePlus
+    deletePasswordReset
 }

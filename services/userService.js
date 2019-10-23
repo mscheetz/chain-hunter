@@ -1,7 +1,7 @@
 const db = require('../data/dataRepo');
 const encryptionSvc = require("./encryption.js");
 const helperSvc = require('./helperService');
-const apiHelp = require('../services/apiHelper');
+const responseSvc = require('./responseService');
 
 /**
  * Login to account
@@ -12,33 +12,42 @@ const apiHelp = require('../services/apiHelper');
 const login = async(email, password) => {
     const validEmail = helperSvc.validateEmail(email);
     if(!validEmail) {
-        return apiHelp.errorMessage("Not a valid email address", 400);
+        return responseSvc.errorMessage("Not a valid email address", 400);
     }
     let user = email.indexOf('@') > 0 
                 ? await db.getUserByEmail(email)
                 : await db.getUser(email);
 
     if(typeof user === 'undefined') {
-        return apiHelp.errorMessage("Invalid account");        
+        return responseSvc.errorMessage("Invalid account");        
     }
 
     if(user.validated === null) {
-        return apiHelp.errorMessage("Account not validated", 400);
+        return responseSvc.errorMessage("Account not validated. A validation email has been sent to your email address.", 400);
     }
 
-    const validLogin = await encryptionSvc.checkPassword(password, user.password);
+    let validLogin = await encryptionSvc.checkPassword(password, user.hash);
 
     if(validLogin) {
-        const token = await encryptionSvc.getToken(user);
+        const token = await encryptionSvc.getToken(user.userId);
         user.token = token;
         delete user.password;
 
         const removeToken = await db.deletePasswordReset(user.userId);
 
-        return apiHelp.successMessage(user);
+        return responseSvc.successMessage(user);
     } else {
-        return apiHelp.errorMessage("Invalid password");
+        return responseSvc.errorMessage("Invalid password");
     }
+}
+/**
+ * Login as guest
+ */
+const guestLogin = async() => {
+    const guestId = encryptionSvc.getUuid();
+    const token = await encryptionSvc.getToken(guestId);
+
+    return responseSvc.successMessage(token);
 }
 
 /**
@@ -48,11 +57,11 @@ const login = async(email, password) => {
 const registerUser = async(user) => {
     const validEmail = helperSvc.validateEmail(user.email);
     if(!validEmail) {
-        return apiHelp.errorMessage("Not a valid email address", 400);
+        return responseSvc.errorMessage("Not a valid email address", 400);
     }
     const userCheck = await db.getUserByEmail(user.email);
     if(typeof userCheck !== 'undefined' && userCheck.userId.length > 0) {
-        return apiHelp.errorMessage("An account already exists with that email address", 400);
+        return responseSvc.errorMessage("An account already exists with that email address", 400);
     }
     user.hash = await encryptionSvc.hashPassword(user.password);
     user.validated = null;
@@ -62,7 +71,7 @@ const registerUser = async(user) => {
 
     await validateAccountRequest(user);
 
-    return apiHelp.successMessage(status, 201);
+    return responseSvc.successMessage(status, 201);
 }
 
 const validateAccountRequest = async(user) => {
@@ -73,14 +82,14 @@ const validateAccountRequest = async(user) => {
  * Update a user
  * @param {object} user 
  */
-const updateUser = async(user) => {
+const updateUser = async(user, token) => {
     const validEmail = helperSvc.validateEmail(user.email);
     if(!validEmail) {
-        return apiHelp.errorMessage("Not a valid email address", 400);
+        return responseSvc.errorMessage("Not a valid email address", 400);
     }
     const status = await db.updateUser(user);
 
-    return apiHelp.successMessage(status, 202);
+    return responseSvc.successMessage(status, 202);
 }
 
 /**
@@ -92,20 +101,20 @@ const validateUser = async(userId) => {
     const user = await getUserByUserId(userId);
 
     if(typeof user === 'undefined') {
-        return apiHelp.errorMessage("Not a valid user", 400);
+        return responseSvc.errorMessage("Not a valid user", 400);
     }
 
     if(user.validated !== null) {
-        return apiHelp.successMessage(true, 202);
+        return responseSvc.successMessage(true, 202);
     }
 
     const timestamp = helperSvc.getUnixTS();
     const validated = db.validateUser(userId, timestamp);
 
     if(validated === 1) {
-        return apiHelp.successMessage(status, 202);
+        return responseSvc.successMessage(status, 202);
     } else {
-        return apiHelp.errorMessage("Try again", 400);
+        return responseSvc.errorMessage("Try again", 400);
     }
 }
 
@@ -117,13 +126,13 @@ const validateUser = async(userId) => {
 const forgotPasswordInit = async(email) => {
     const validEmail = helperSvc.validateEmail(email);
     if(!validEmail) {
-        return apiHelp.errorMessage("Not a valid email address", 400);
+        return responseSvc.errorMessage("Not a valid email address", 400);
     }
 
     const user = await getUserByEmail(email);
 
     if(typeof user === 'undefined') {
-        return apiHelp.errorMessage("Not a valid user", 400);
+        return responseSvc.errorMessage("Not a valid user", 400);
     }
 
     const oneHourPlus = helperSvc.getTimePlus(0, 1, 0, 0);
@@ -134,28 +143,28 @@ const forgotPasswordInit = async(email) => {
 
     //TODO: SEND EMAIL with userId and token
 
-    return apiHelp.successMessage(1);
+    return responseSvc.successMessage(1);
 }
 
 const forgotPasswordAction = async(userId, token) =>{
     const user = await db.getUserByUserId(userId);
 
     if(typeof user === 'undefined') {
-        return apiHelp.errorMessage("Not a valid user", 400);
+        return responseSvc.errorMessage("Not a valid user", 400);
     }
 
     const passwordReset = await db.getPasswordReset(userId);
 
     if(typeof passwordReset === 'undefined') {
-        return apiHelp.errorMessage("Invalid request", 400);
+        return responseSvc.errorMessage("Invalid request", 400);
     }
 
     if(passwordReset.token !== token) {
-        return apiHelp.errorMessage("Invalid token", 401);
+        return responseSvc.errorMessage("Invalid token", 401);
     }
     const currentTS = helperSvc.getUnixTS();
     if(passwordReset.goodTil < currentTS) {
-        return apiHelp.errorMessage("Token has expired", 400);
+        return responseSvc.errorMessage("Token has expired", 400);
     }
 
     const removeToken = await db.deletePasswordReset(userId);
@@ -170,7 +179,7 @@ const forgotPasswordAction = async(userId, token) =>{
         updated = pwdUpdated === 1 ? true : false;
     }
 
-    return apiHelp.successMessage(newPassword);
+    return responseSvc.successMessage(newPassword);
 }
 
 /**
@@ -183,20 +192,20 @@ const changePassword = async(userId, oldPassword, newPassword) => {
     const user = await getUserByUserId(userId);
 
     if(typeof user === 'undefined') {
-        return apiHelp.errorMessage("Not a valid user", 400);
+        return responseSvc.errorMessage("Not a valid user", 400);
     }
 
     const validPwd = encryptionSvc.checkPassword(oldPassword, user.hash);
 
     if(!validPwd) {
-        return apiHelp.errorMessage("Invalid password", 400);
+        return responseSvc.errorMessage("Invalid password", 400);
     }
 
     const newHash = await encryptionSvc.hashPassword(newPassword);
 
     const status = await db.updateUserPassword(userId, user.hash, newHash);
 
-    return apiHelp.successMessage(status, 202);
+    return responseSvc.successMessage(status, 202);
 }
 
 /**
@@ -207,7 +216,7 @@ const changePassword = async(userId, oldPassword, newPassword) => {
 const getUser = async(username) => {
     const user = await db.getUser(username);
 
-    return apiHelp.successMessage(user[0]);
+    return responseSvc.successMessage(user[0]);
 }
 
 /**
@@ -218,7 +227,7 @@ const getUser = async(username) => {
 const getUserByUserId = async(userId) => {
     const user = await db.getUserByUserId(userId);
     
-    return apiHelp.successMessage(user[0]);
+    return responseSvc.successMessage(user[0]);
 }
 
 /**
@@ -229,7 +238,7 @@ const getUserByUserId = async(userId) => {
 const getUserData = async(userId) => {
     const data = await db.getUserData(userId);
     
-    return apiHelp.successMessage(data[0]);
+    return responseSvc.successMessage(data[0]);
 }
 
 /**
@@ -253,7 +262,7 @@ const addUserData = async(userId, hash, chain, type) => {
     }
     const result = await db.postUserData(userData);
         
-    return apiHelp.successMessage(result, 201);
+    return responseSvc.successMessage(result, 201);
 }
 /**
  * Delete user saved search
@@ -263,12 +272,13 @@ const addUserData = async(userId, hash, chain, type) => {
 const deleteUserData = async(id) => {
     const result = await db.deleteUserData(id);
         
-    return apiHelp.successMessage(result, 202);
+    return responseSvc.successMessage(result, 202);
 }
 
 module.exports = {
     login,
-    forgotPassword,
+    guestLogin,
+    //forgotPassword,
     registerUser,
     updateUser,
     validateUser,

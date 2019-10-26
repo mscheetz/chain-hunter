@@ -1,3 +1,5 @@
+import { AccountType } from './Enums';
+
 export class User {
     constructor() {}
 

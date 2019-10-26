@@ -1,53 +1,60 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { AppRoutingModule } from './app-routing.module';
-import { AppComponent } from './app.component';
-import { ChainHunterComponent } from './components/home/chain-hunter.component';
 import { HttpClientModule } from '@angular/common/http';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { Routes, RouterModule } from '@angular/router';
+
+import { CookieService } from 'ngx-cookie-service';
+
+import { NgxQRCodeModule } from 'node_modules/ngx-qrcode2';
+
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { TabMenuModule } from 'primeng/tabmenu';
 import { TabViewModule } from 'primeng/tabview';
 import { AccordionModule } from 'primeng/accordion';
-import { SamplesComponent } from './components/samples/samples.component';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { PanelModule } from 'primeng/panel';
-import { SearchResultsComponent } from './components/search-results/search-results.component';
 import { ProgressBarModule } from 'primeng/progressbar';
+import { MessageService } from 'primeng/api';
+import { ToastModule } from 'primeng/toast';
+import { SlideMenuModule } from 'primeng/slidemenu';
+import { TableModule } from 'primeng/table';
+import { DialogModule } from 'primeng/dialog';
+import { OverlayPanelModule } from 'primeng/overlaypanel';
+import { SelectButtonModule } from 'primeng/selectbutton';
+
+import { AppRoutingModule } from './app-routing.module';
+import { AppComponent } from './app.component';
+import { ChainHunterComponent } from './components/home/chain-hunter.component';
+import { SamplesComponent } from './components/samples/samples.component';
+import { SearchResultsComponent } from './components/search-results/search-results.component';
 import { ComingSoonComponent } from './components/coming-soon/coming-soon.component';
 import { FooterComponent } from './components/footer/footer.component';
 import { HeaderComponent } from './components/header/header.component';
 import { ActiveChainsComponent } from './components/active-chains/active-chains.component';
 import { CookiesComponent } from './components/cookies/cookies.component';
-import { CookieService } from 'ngx-cookie-service';
-import { MessageService } from 'primeng/api';
-import { ToastModule } from 'primeng/toast';
 import { AccountComponent } from './components/account/account.component';
-import { Routes, RouterModule } from '@angular/router';
 import { AboutComponent } from './components/about/about.component';
 import { NavigationComponent } from './components/navigation/navigation.component';
-import { SlideMenuModule } from 'primeng/slidemenu';
 import { TermsComponent } from './components/terms/terms.component';
 import { TopAdComponent } from './components/top-ad/top-ad.component';
 import { RightAdComponent } from './components/right-ad/right-ad.component';
 import { BottomAdComponent } from './components/bottom-ad/bottom-ad.component';
-import { TableModule } from 'primeng/table';
 import { BlockchainInfoComponent } from './components/blockchain-info/blockchain-info.component';
-import { DialogModule } from 'primeng/dialog';
-import { NgxQRCodeModule } from 'node_modules/ngx-qrcode2';
-import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { TransactionComponent } from './components/transaction/transaction.component';
 import { LoginComponent } from './components/login/login.component';
-import { SelectButtonModule } from 'primeng/selectbutton';
 import { TopNavComponent } from './components/top-nav/top-nav.component';
+import { MyPageComponent } from './components/my-page/my-page.component';
+import { AuthGuard } from './helpers/auth.guard';
 
 const appRoutes: Routes = [
   { path: '', component: ChainHunterComponent },
   { path: 'about', component: AboutComponent },
   { path: 'terms', component: TermsComponent },
-  { path: 'info', component: BlockchainInfoComponent }
+  { path: 'info', component: BlockchainInfoComponent },
+  { path: 'mypage', component: MyPageComponent, canActivate: [AuthGuard] }
 ]
 
 @NgModule({
@@ -71,7 +78,8 @@ const appRoutes: Routes = [
     TopAdComponent,
     TransactionComponent,
     LoginComponent,
-    TopNavComponent
+    TopNavComponent,
+    MyPageComponent
   ],
   imports: [
     AccordionModule,

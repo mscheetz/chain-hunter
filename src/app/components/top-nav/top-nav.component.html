@@ -1,0 +1,9 @@
+<ul>
+    <li><a routerLink="/" routerLinkActive="active">Home</a></li>
+    <li><a *ngIf="!loggedIn" routerLink="" (click)="login($event)">Login | Register</a></li>
+    <li><a *ngIf="loggedIn" routerLink="/mypage" routerLinkActive="active">My Page</a></li>
+    <li><a *ngIf="loggedIn" routerLink="" (click)="logout($event)">Logout</a></li>
+    <li><a routerLink="/info" routerLinkActive="active">Blockchain Info</a></li>
+    <li><a routerLink="/about" routerLinkActive="active">About</a></li>
+    <li><a routerLink="/terms" routerLinkActive="active">Terms</a></li>
+</ul>

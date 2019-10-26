@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, Input } from '@angular/core';
 import { environment } from 'src/environments/environment';
 
 @Component({
@@ -13,8 +13,8 @@ export class FooterComponent implements OnInit {
     qrType: string = "url";
     address: string = "36ZZ78NYGtvhQCcSRRG7311MoxZDJkCzob";
     symbol: string = null;
-
-    @Output() login: EventEmitter<any> = new EventEmitter();
+    @Output() toggleLogin: EventEmitter<any> = new EventEmitter();
+    @Input() loggedIn: boolean;
     @Output() notification: EventEmitter<any> = new EventEmitter();
     
     constructor() {}
@@ -25,7 +25,8 @@ export class FooterComponent implements OnInit {
      * Login to app
      */
     onLogin() {
-        this.login.emit();
+        this.toggleLogin.emit(event);
+        //this.login.emit();
     }
 
     /**

@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { AuthenticationService } from 'src/app/services/authentication.service';
 import { MessageService, SelectItem } from 'primeng/api';
 import { ThrowStmt } from '@angular/compiler';
@@ -11,7 +11,8 @@ import { HelperService } from 'src/app/services/helper-svc.service';
   styleUrls: ['./login.component.css']
 })
 export class LoginComponent implements OnInit {
-  @Input() showLogin: boolean;
+  @Output() toggleLogin: EventEmitter<any> = new EventEmitter();
+  @Output() loginSuccess: EventEmitter<boolean> = new EventEmitter<boolean>();
   actionTypes: SelectItem[];
   selectedAction: number = 0;
   loginView: boolean = true;
@@ -34,13 +35,6 @@ export class LoginComponent implements OnInit {
   }
 
   modelChange(event) {
-    // this.pwdDisabled = this.email.length > 0 ? false : true;
-    // this.loginDisabled = this.email.length > 0 && this.validateEmail(this.email) && this.password.length > 0 ? false : true;
-    // this.registerDisabled = this.newEmail.length > 0 && 
-    //                         this.validateEmail(this.newEmail) &&
-    //                         this.newPassword.length > 0 && 
-    //                         this.newPasswordConfirm.length > 0 && 
-    //                         this.onPasswordConfirm() ? false : true;
   }
 
   onPasswordConfirm() {
@@ -79,8 +73,9 @@ export class LoginComponent implements OnInit {
     this.authSvc.login(this.email, this.password)
         .subscribe(
           res => {
-            this.showLogin = false;
+            this.loginSuccess.emit(true);
             this.messageSvc.clear();
+            this.toggleLogin.emit(event);
             this.messageSvc.add(
                 {
                     key:'login-toast',
@@ -101,7 +96,6 @@ export class LoginComponent implements OnInit {
                     life: 5000
                 });
           });
-    this.showLogin = false;
   }
 
   onForgotPassword(event) {
@@ -131,6 +125,7 @@ export class LoginComponent implements OnInit {
     this.apiSvc.forgotPassword(this.email)
         .subscribe(res => {
           this.messageSvc.clear();
+          this.toggleLogin.emit(event);
           this.messageSvc.add(
               {
                   key:'login-toast',

@@ -3,15 +3,18 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { User } from '../classes/User';
 import { ApiService } from './api-svc.service';
+import { HelperService } from './helper-svc.service';
+import { Interval } from '../classes/Enums';
 
 @Injectable({providedIn: 'root'})
 export class AuthenticationService {
     private currentUserSubject: BehaviorSubject<User>;
     public currentUser: Observable<User>;
 
-    constructor(private apiSvc: ApiService) {
+    constructor(private apiSvc: ApiService, private helperSvc: HelperService) {
         this.currentUserSubject = new BehaviorSubject<User>(JSON.parse(localStorage.getItem('currentUser')));
         this.currentUser = this.currentUserSubject.asObservable();
+        this.validateTokenDate();
     }
 
     public get currentUserValue(): User {
@@ -45,13 +48,27 @@ export class AuthenticationService {
         return localStorage.getItem('tch-user-token') ? true : false;
     }
 
+    private validateTokenDate() {
+        let expiry = localStorage.getItem('tch-user-token-expiry');
+        if(expiry) {
+            const expiryI = parseInt(expiry);
+            const expiryElapsed = this.helperSvc.getTimestampAge(expiryI, Interval.Hour);
+            if(expiryElapsed > 24) {
+                this.removeLogin();
+            }
+            
+        }
+    }
+
     private addLogin(jwt: string, user: User) {
         this.removeLogin();
+        localStorage.setItem('tch-user-token-expiry', this.helperSvc.getFutureUnixTimestamp(1, Interval.Day).toString());
         localStorage.setItem('tch-user-token', jwt);
         localStorage.setItem('currentUser', JSON.stringify(user));
     }
 
-    private removeLogin() {        
+    private removeLogin() {
+        localStorage.removeItem('tch-user-token-expiry');
         localStorage.removeItem('tch-user-token');
         localStorage.removeItem('currentUser');
     }

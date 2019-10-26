@@ -41,6 +41,7 @@ import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { TransactionComponent } from './components/transaction/transaction.component';
 import { LoginComponent } from './components/login/login.component';
 import { SelectButtonModule } from 'primeng/selectbutton';
+import { TopNavComponent } from './components/top-nav/top-nav.component';
 
 const appRoutes: Routes = [
   { path: '', component: ChainHunterComponent },
@@ -69,7 +70,8 @@ const appRoutes: Routes = [
     TermsComponent,
     TopAdComponent,
     TransactionComponent,
-    LoginComponent
+    LoginComponent,
+    TopNavComponent
   ],
   imports: [
     AccordionModule,

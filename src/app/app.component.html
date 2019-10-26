@@ -3,8 +3,11 @@
   <header _ngcontent-rap-c0="" class="jumbotron mt-3" _nghost-rap-c1="">
     <img _ngcontent-rap-c1="" class="logo-main" src="./assets/chainhunterhorizontal.png">
   </header>
+  <app-top-nav (toggleLogin)="onToggleLogin($event)"
+               (loginSuccess)="onLoginSuccess($event)"
+               [loggedIn]="loggedIn"></app-top-nav>
   <!-- Chain Hunter Login -->
-  <account class="login-position" (login)="login()"></account>
+  <!-- <account class="login-position" [showLogin]="showLogin"></account> -->
   <div class="ui-g">
     <div class="ui-g-12 ui-md-12 ui-lg-10">
       <top-ad class="top-ad" *ngIf="currentUser === null"></top-ad>
@@ -23,8 +26,16 @@
 </div>
 <!-- Chain Hunter Footer -->
 <div class="footer">
-  <footer-component (login)="login()" (notification)="notification($event)"></footer-component>
+  <footer-component  (toggleLogin)="onToggleLogin($event)" [loggedIn]="loggedIn" (notification)="notification($event)"></footer-component>
 </div>
 <!-- Chain Hunter Cookie notice -->
 <cookies *ngIf="showNotice" (cookiesOk)="cookieOk($event)" class="cookie-box"></cookies>
 <p-toast key="notification-toast"></p-toast>
+<p-toast key="login-notice-toast"></p-toast>
+<p-dialog header="Join the Hunting Party!" 
+          [(visible)]="showLogin" 
+          [style]="{width: '400px'}">
+    <app-login 
+          (toggleLogin)="onToggleLogin($event)"
+          (loginSuccess)="onLoginSuccess($event)"></app-login>
+</p-dialog>

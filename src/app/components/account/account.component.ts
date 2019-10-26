@@ -1,4 +1,4 @@
-import { OnInit, Component, Output, EventEmitter } from '@angular/core';
+import { OnInit, Component, Output, EventEmitter, Input } from '@angular/core';
 
 @Component({
     selector: 'account',
@@ -7,8 +7,8 @@ import { OnInit, Component, Output, EventEmitter } from '@angular/core';
 })
 
 export class AccountComponent implements OnInit{
-    @Output() login: EventEmitter<any> = new EventEmitter();
-    showLogin: boolean = false;
+    //@Output() login: EventEmitter<any> = new EventEmitter();
+    @Input() showLogin: boolean;
     
     constructor() {
     }

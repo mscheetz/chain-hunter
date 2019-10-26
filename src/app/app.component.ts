@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Output } from '@angular/core';
 import { MessageService } from 'primeng/api';
 import { User } from './classes/User';
 import { Router } from '@angular/router';
@@ -13,15 +13,22 @@ export class AppComponent {
   title = 'chain-hunter';
   currentUser: User;
   showNotice: boolean = true;
-    
+  @Output() showLogin: boolean;
+  
   constructor(private router: Router, private authSvc: AuthenticationService, private messageSvc: MessageService) {
+    this.showLogin = false;
     this.authSvc.currentUser.subscribe(c => this.currentUser = c);
   }
 
+  @Output() loggedIn: boolean = this.authSvc.isLoggedIn();
+  
   cookieOk(cookie: boolean){
     this.showNotice = false;
   }
   
+  onToggleLogin(event) {
+    this.showLogin = this.showLogin ? false : true;
+  }
   /**
    * Login to account
    */
@@ -38,6 +45,13 @@ export class AppComponent {
 
   logout(){
     this.authSvc.logout();
+  }
+
+  onLoginSuccess(event) {
+    this.loggedIn = event;
+    if(!this.loggedIn) {
+      this.authSvc.logout();
+    }
   }
 
   /**

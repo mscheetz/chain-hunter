@@ -24,17 +24,21 @@ const bootlegMiddleware = async(req, res, next) => {
 }
 
 const authMiddleware = async(req, res, next) => {
-    if(!req.header('authorization')) {
+    let token = req.headers['authorization'];
+    if(typeof token === 'undefined') {
+        token= req.headers['x-access-token'];
+    }
+    if(typeof token === 'undefined') {
         res.status(401).json("no token");
         res.end();
     }
-    const token = req.header('authorization');
     const tokenValid = await encryptionSvc.isTokenValid(token);
     if(!tokenValid){
-        req.status(401).json("invalid token");
-        req.end;
+        res.status(401).json("invalid token");
+        res.end;
+    } else {
+        next();
     }
-    next();
 }
 
 const guestMiddleware = async(req, res, next) => {
@@ -42,8 +46,8 @@ const guestMiddleware = async(req, res, next) => {
     const guestId = await encryptionSvc.getUserIdFromToken(token);
     const validUuid = await encryptionSvc.validUuid(guestId);
     if(!validUuid){
-        req.status(401).json("invalid token payload");
-        req.end;
+        res.status(401).json("invalid token payload");
+        res.end;
     }
     next();
 }
@@ -53,8 +57,8 @@ const userMiddleware = async(req, res, next) => {
     const userId = await encryptionSvc.getUserIdFromToken(token);
     const user = await userSvc.getUserByUserId(userId);
     if(typeof user === 'undefined'){
-        req.status(401).json("invalid account");
-        req.end;
+        res.status(401).json("invalid account");
+        res.end;
     }
     res.locals.userId = userId;
     next();

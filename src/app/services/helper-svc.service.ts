@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { AES } from 'node_modules/crypto-ts'
+import { Interval } from '../classes/Enums';
 
 @Injectable({providedIn: 'root'})
 export class HelperService{
@@ -49,16 +50,16 @@ export class HelperService{
      * @param timeOffset offset amount
      * @param interval time interval
      */
-    getFutureUnixTimestamp(timeOffset: number, interval: string): number {
+    getFutureUnixTimestamp(timeOffset: number, interval: Interval): number {
       const timestamp = this.getUnixTimestamp();
 
-      if(interval === "sec"){
+      if(interval === Interval.Second){
         return timestamp + (timeOffset * 1000);
-      } else if (interval == "min") {
+      } else if (interval === Interval.Minute) {
         return timestamp + (timeOffset * 60 * 1000);
-      } else if (interval == "hrs") {
+      } else if (interval === Interval.Hour) {
         return timestamp + (timeOffset * 60 * 60 * 1000);
-      } else if (interval == "days") {
+      } else if (interval === Interval.Day) {
         return timestamp + (timeOffset * 24 * 60 * 60 * 1000);
       }
     }
@@ -68,17 +69,17 @@ export class HelperService{
      * @param timestamp timestamp to compare
      * @param interval time interval to return
      */
-    getTimestampAge(timestamp: number, interval: string): number {
+    getTimestampAge(timestamp: number, interval: Interval): number {
       const currentTs = this.getUnixTimestamp();
       const diff = currentTs - timestamp;
 
-      if(interval === "sec"){
+      if(interval === Interval.Second){
         return diff/1000;
-      } else if (interval == "min") {
+      } else if (interval == Interval.Minute) {
         return diff/60/1000;
-      } else if (interval == "hrs") {
+      } else if (interval == Interval.Hour) {
         return diff/60/60/1000;
-      } else if (interval == "days") {
+      } else if (interval == Interval.Day) {
         return diff/24/60/60/1000;
       }
     }

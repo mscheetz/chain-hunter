@@ -4,11 +4,12 @@ import { Blockchain } from 'src/app/classes/ChainHunter/Blockchain';
 import { HelperService } from 'src/app/services/helper-svc.service';
 import { ApiService } from 'src/app/services/api-svc.service';
 import { Chain } from 'src/app/classes/ChainHunter/Chain';
-import { DomSanitizer } from '@angular/platform-browser';
+import { DomSanitizer, Title } from '@angular/platform-browser';
 import { CookieData } from 'src/app/classes/ChainHunter/CookieData';
 import { CookieService } from 'ngx-cookie-service';
 import { CookieRequest } from 'src/app/classes/ChainHunter/CookieRequest';
 import { Asset } from 'src/app/classes/ChainHunter/Asset';
+import { Interval } from '../../classes/Enums';
 
 @Component({
     selector: 'chain-hunter',
@@ -44,11 +45,13 @@ export class ChainHunterComponent implements OnInit {
     unlimited: boolean = false;
     @Output() tokenContent: string;
 
-    constructor(private helperService: HelperService,
+    constructor(private titleService: Title,
+                private helperService: HelperService,
                 private chainService: ApiService,
                 private domSanitizer: DomSanitizer,
                 private cookieSvc: CookieService,
-                private messageSvc: MessageService) {}
+                private messageSvc: MessageService) {
+        this.titleService.setTitle("The Chain Hunter : Multi Blockchain Search | BTC, ETH, LTC, BCH, XRP, and more!");}
 
     ngOnInit() {
         this.getChains();
@@ -186,7 +189,7 @@ export class ChainHunterComponent implements OnInit {
             this.cookieData = JSON.parse(cookie);
             let cookieRequests: CookieRequest[] = [];
             this.cookieData.requests.forEach(req => {
-                const age = this.helperService.getTimestampAge(req.time, "hrs");
+                const age = this.helperService.getTimestampAge(req.time, Interval.Hour);
                 if(age < 24) {
                     cookieRequests.push(req);
                 }
@@ -218,7 +221,7 @@ export class ChainHunterComponent implements OnInit {
         request.symbols = this.resultsFound;
         request.time = this.helperService.getUnixTimestamp();
         this.cookieData.requests.push(request);
-        const expiry = this.helperService.getFutureUnixTimestamp(1, "days");
+        const expiry = this.helperService.getFutureUnixTimestamp(1, Interval.Day);
 
         this.cookieSvc.set(this.cookieName, JSON.stringify(this.cookieData), expiry);
     }

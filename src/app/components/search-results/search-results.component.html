@@ -5,17 +5,12 @@
     <!-- Address Results -->
     <p-panel header="{{blockchain.symbol}} Address" *ngIf="blockchain.address">
         <div class="p-grid">
-            <!-- <div class="p-col-1">
-                
-            </div>
-            <div class="p-col-11"> -->
-                <h3 class="word-break">
-                    <i (mouseover)="saveClick($event, 'Address', saveThis)" (mouseleave)="saveClick($event, 'Address', saveThis)" 
-                        class="fa fa-star-o" 
-                        style="color: deeppink; cursor: pointer;"></i>
-                    {{blockchain.symbol}} Address: {{blockchain.address.address}}
-                </h3>
-            <!-- </div> -->
+            <h3 class="word-break">
+                <i (mouseover)="saveClick($event, 'Address', saveThis)" (mouseleave)="saveClick($event, 'Address', saveThis)" 
+                    class="fa fa-star-o" 
+                    style="color: deeppink; cursor: pointer;"></i>
+                {{blockchain.symbol}} Address: {{blockchain.address.address}}
+            </h3>
         </div>
         <div class="m-bottom-1">Balance: {{blockchain.address.quantity}} {{blockchain.symbol}}</div>
         <p-accordion 
@@ -101,12 +96,6 @@
     </p-panel>
 </div>
 <p-panel showHeader="false" *ngIf="huntStatus === 1">
-    <!-- <div style="height: 6em; vertical-align: middle;">
-        <h1 class="ml4">
-            <span class="letters letters-1">The Hunt</span>
-            <span class="letters letters-2">Is On!</span>
-        </h1>
-    </div> -->
     <h3>Hunting...</h3>
 </p-panel>
 <p-panel showHeader="false" *ngIf="huntStatus === 2 && selectedChain === ''">

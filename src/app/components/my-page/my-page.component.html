@@ -7,9 +7,9 @@
 <div *ngIf="savedSearches.length > 0">
     <h3>Your saved searches</h3>
     <p-accordion (onOpen)="onExpand($event)">
-        <p-accordionTab *ngFor="let save of savedSearches" 
-                        header="{{save.symbol save.type save.hash}}">
-            {{save}}
+        <p-accordionTab *ngFor="let data of savedSearches" 
+                        header="{{data.symbol}} {{data.type}} {{data.hash}}">
+            {{data}}
         </p-accordionTab>
     </p-accordion>
 </div>

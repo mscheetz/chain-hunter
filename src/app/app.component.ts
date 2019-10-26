@@ -49,7 +49,9 @@ export class AppComponent {
 
   onLoginSuccess(event) {
     this.loggedIn = event;
+    this.currentUser = this.authSvc.getUser();
     if(!this.loggedIn) {
+      this.currentUser = null;
       this.authSvc.logout();
     }
   }

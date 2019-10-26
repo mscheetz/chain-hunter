@@ -5,11 +5,13 @@ import { User } from '../classes/User';
 import { ApiService } from './api-svc.service';
 import { HelperService } from './helper-svc.service';
 import { Interval } from '../classes/Enums';
+import { environment } from 'src/environments/environment.prod';
 
 @Injectable({providedIn: 'root'})
 export class AuthenticationService {
     private currentUserSubject: BehaviorSubject<User>;
     public currentUser: Observable<User>;
+    user: User;
 
     constructor(private apiSvc: ApiService, private helperSvc: HelperService) {
         this.currentUserSubject = new BehaviorSubject<User>(JSON.parse(localStorage.getItem('currentUser')));
@@ -19,6 +21,10 @@ export class AuthenticationService {
 
     public get currentUserValue(): User {
         return this.currentUserSubject.value;
+    }
+
+    getUser(): User{
+        return this.user;
     }
 
     login(email: string, password: string) {
@@ -33,6 +39,7 @@ export class AuthenticationService {
                 user.userId = res.userId;
                 user.username = res.username;
 
+                this.user = user;
                 this.addLogin(jwt, user);
                 this.currentUserSubject.next(user);
                 return res;
@@ -45,11 +52,11 @@ export class AuthenticationService {
     }
 
     isLoggedIn() {
-        return localStorage.getItem('tch-user-token') ? true : false;
+        return localStorage.getItem(environment.jwtName) ? true : false;
     }
 
     private validateTokenDate() {
-        let expiry = localStorage.getItem('tch-user-token-expiry');
+        let expiry = localStorage.getItem(environment.jwtTsName);
         if(expiry) {
             const expiryI = parseInt(expiry);
             const expiryElapsed = this.helperSvc.getTimestampAge(expiryI, Interval.Hour);
@@ -62,14 +69,14 @@ export class AuthenticationService {
 
     private addLogin(jwt: string, user: User) {
         this.removeLogin();
-        localStorage.setItem('tch-user-token-expiry', this.helperSvc.getFutureUnixTimestamp(1, Interval.Day).toString());
-        localStorage.setItem('tch-user-token', jwt);
-        localStorage.setItem('currentUser', JSON.stringify(user));
+        localStorage.setItem(environment.jwtTsName, this.helperSvc.getFutureUnixTimestamp(1, Interval.Day).toString());
+        localStorage.setItem(environment.jwtName, jwt);
+        localStorage.setItem(environment.currentUserName, JSON.stringify(user));
     }
 
     private removeLogin() {
-        localStorage.removeItem('tch-user-token-expiry');
-        localStorage.removeItem('tch-user-token');
-        localStorage.removeItem('currentUser');
+        localStorage.removeItem(environment.jwtTsName);
+        localStorage.removeItem(environment.jwtName);
+        localStorage.removeItem(environment.currentUserName);
     }
 }

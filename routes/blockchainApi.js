@@ -3,6 +3,7 @@ const router = express.Router();
 const manager = require("../services/chainhunter-manager");
 const dataSvc = require("../data/dataIntegrationService");
 const apiHelp = require("../services/apiHelper");
+const enums = require('../classes/enums');
 
 router.get("/api/blockchain/active", apiHelp.bootlegMiddleware, async (req, res, next) => {
     const result = await manager.getActiveChains();
@@ -44,6 +45,15 @@ router.get("/api/blockchain/:chain/:toFind", apiHelp.bootlegMiddleware, async (r
     res.status(200).json(result);
 });
 
+router.get("/api/blockchain/address/:chain/:address", apiHelp.bootlegMiddleware, async (req, res, next) => {
+    const chain = req.params.chain.toLowerCase();
+    const address = req.params.address;
+    const ip = res.locals.ip;
+    const result = await manager.getBlockchain(chain, address, ip, req.ipInfo, enums.searchType.address);
+
+    res.status(200).json(result);
+});
+
 router.get("/api/blockchain/address/:chain/:address/txs", apiHelp.bootlegMiddleware, async (req, res, next) => {
     const chain = req.params.chain.toLowerCase();
     const address = req.params.address;
@@ -58,6 +68,24 @@ router.get("/api/blockchain/address/:chain/:address/tokens", apiHelp.bootlegMidd
     const address = req.params.address;
     const ip = res.locals.ip;
     const result = await manager.getTokens(chain, address, ip, req.ipInfo);
+
+    res.status(200).json(result);
+});
+
+router.get("/api/blockchain/contract/:chain/:address", apiHelp.bootlegMiddleware, async (req, res, next) => {
+    const chain = req.params.chain.toLowerCase();
+    const address = req.params.address;
+    const ip = res.locals.ip;
+    const result = await manager.getBlockchain(chain, address, ip, req.ipInfo, enums.searchType.contract);
+
+    res.status(200).json(result);
+});
+
+router.get("/api/blockchain/txn/:chain/:hash", apiHelp.bootlegMiddleware, async (req, res, next) => {
+    const chain = req.params.chain.toLowerCase();
+    const hash = req.params.hash;
+    const ip = res.locals.ip;
+    const result = await manager.getBlockchain(chain, hash, ip, req.ipInfo, enums.searchType.transaction);
 
     res.status(200).json(result);
 });

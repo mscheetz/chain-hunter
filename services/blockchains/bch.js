@@ -16,12 +16,14 @@ const getEmptyBlockchain = async() => {
     return chain;
 }
 
-const getBlockchain = async(chain, toFind) => {
+const getBlockchain = async(chain, toFind, type) => {
     //const chain = await getEmptyBlockchain(blockchain);
     let address = null;
     let transaction = null;
 
-    const searchType = helperSvc.searchType(chain.symbol.toLowerCase(), toFind);
+    const searchType = type === enums.searchType.nothing 
+            ? helperSvc.searchType(chain.symbol.toLowerCase(), toFind)
+            : type;
 
     if(searchType & enums.searchType.address) {
         if(toFind.substr(0, 1) === "q" || toFind.substr(0, 1) === "p" || toFind.substr(0, 11) === "bitcoincash") {

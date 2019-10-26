@@ -17,13 +17,15 @@ const getEmptyBlockchain = async() => {
     return chain;
 }
 
-const getBlockchain = async(chain, toFind) => {
+const getBlockchain = async(chain, toFind, type) => {
     //const chain = await getEmptyBlockchain(blockchain);
     let address = null;
     let contract = null;
     let transaction = null;
 
-    const searchType = helperSvc.searchType(chain.symbol.toLowerCase(), toFind);
+    const searchType = type === enums.searchType.nothing 
+            ? helperSvc.searchType(chain.symbol.toLowerCase(), toFind)
+            : type;
 
     if(searchType & enums.searchType.address || searchType & enums.searchType.contract) {
         const data = await getAddressOrContract(toFind);

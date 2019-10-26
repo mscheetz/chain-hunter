@@ -1,6 +1,7 @@
 const dataSvc = require("../data/dataIntegrationService");
 const encryptionSvc = require('./encryption');
 const _ = require('lodash');
+const enums = require('../classes/enums');
 const db = require('../data/dataRepo');
 const ada = require('./blockchains/ada.js');
 const aion = require('./blockchains/aion.js');
@@ -229,8 +230,9 @@ const getBlockchains = async(toFind) => {
  * @param {string} toFind string to find
  * @param {string} ip requestor's ip address
  * @param {object} ipInfo requestor's ip info
+ * @param {enum}   type search type
  */
-const getBlockchain = async(chain, toFind, ip, ipInfo) => {
+const getBlockchain = async(chain, toFind, ip, ipInfo, type = enums.searchType.nothing) => {
     let result;
     
     let blockchain = await db.getBlockchainBySymbol(chain);
@@ -238,65 +240,65 @@ const getBlockchain = async(chain, toFind, ip, ipInfo) => {
     blockchain.icon = "white/"+ blockchain.symbol.toLowerCase()  +".png";
 
     if(chain === "btc") {
-        result = await btc.getBlockchain(blockchain, toFind);
+        result = await btc.getBlockchain(blockchain, toFind, type);
     } else if (chain === "bch") {
-        result = await bch.getBlockchain(blockchain, toFind);
+        result = await bch.getBlockchain(blockchain, toFind, type);
     } else if (chain === "etc") {
-        result = await etc.getBlockchain(blockchain, toFind);
+        result = await etc.getBlockchain(blockchain, toFind, type);
     } else if (chain === "eth") {
-        result = await eth.getBlockchain(blockchain, toFind);
+        result = await eth.getBlockchain(blockchain, toFind, type);
     } else if (chain === "ltc") {
-        result = await ltc.getBlockchain(blockchain, toFind);
+        result = await ltc.getBlockchain(blockchain, toFind, type);
     } else if (chain === "xrp") {
-        result = await xrp.getBlockchain(blockchain, toFind);
+        result = await xrp.getBlockchain(blockchain, toFind, type);
     } else if (chain === "neo") {
-        result = await neo.getBlockchain(blockchain, toFind);
+        result = await neo.getBlockchain(blockchain, toFind, type);
     } else if (chain === "rvn") {
-        result = await rvn.getBlockchain(blockchain, toFind);
+        result = await rvn.getBlockchain(blockchain, toFind, type);
     } else if (chain === "bnb") {
-        result = await bnb.getBlockchain(blockchain, toFind);
+        result = await bnb.getBlockchain(blockchain, toFind, type);
     } else if (chain === "aion") {
-        result = await aion.getBlockchain(blockchain, toFind);
+        result = await aion.getBlockchain(blockchain, toFind, type);
     // } else if (chain === "eos") {
-    //     return await eos.getBlockchain(blockchain, toFind);
+    //     return await eos.getBlockchain(blockchain, toFind, type);
     } else if (chain === "trx") {
-        result = await trx.getBlockchain(blockchain, toFind);
+        result = await trx.getBlockchain(blockchain, toFind, type);
     } else if (chain === "ont") {
-        result = await ont.getBlockchain(blockchain, toFind);
+        result = await ont.getBlockchain(blockchain, toFind, type);
     } else if (chain === "usdt") {
-        result = await usdt.getBlockchain(blockchain, toFind);
+        result = await usdt.getBlockchain(blockchain, toFind, type);
     } else if (chain === "iost") {
-        result = await iost.getBlockchain(blockchain, toFind);
+        result = await iost.getBlockchain(blockchain, toFind, type);
     } else if (chain === "icx") {
-        result = await icx.getBlockchain(blockchain, toFind);
+        result = await icx.getBlockchain(blockchain, toFind, type);
     } else if (chain === "nano") {
-        result = await nano.getBlockchain(blockchain, toFind);
+        result = await nano.getBlockchain(blockchain, toFind, type);
     } else if (chain === "dash") {
-        result = await dash.getBlockchain(blockchain, toFind);
+        result = await dash.getBlockchain(blockchain, toFind, type);
     } else if (chain === "ae") {
-        result = await ae.getBlockchain(blockchain, toFind);
+        result = await ae.getBlockchain(blockchain, toFind, type);
     } else if (chain === "ada") {
-        result = await ada.getBlockchain(blockchain, toFind);
+        result = await ada.getBlockchain(blockchain, toFind, type);
     } else if (chain === "zel") {
-        result = await zel.getBlockchain(blockchain, toFind);
+        result = await zel.getBlockchain(blockchain, toFind, type);
     } else if (chain === "atom") {
-        result = await atom.getBlockchain(blockchain, toFind);
+        result = await atom.getBlockchain(blockchain, toFind, type);
     } else if (chain === "vet") {
-        result = await vet.getBlockchain(blockchain, toFind);
+        result = await vet.getBlockchain(blockchain, toFind, type);
     } else if (chain === "qtum") {
-        result = await qtum.getBlockchain(blockchain, toFind);
+        result = await qtum.getBlockchain(blockchain, toFind, type);
     } else if (chain === "nebl") {
-        result = await nebl.getBlockchain(blockchain, toFind);
+        result = await nebl.getBlockchain(blockchain, toFind, type);
     } else if (chain === "xlm") {
-        result = await xlm.getBlockchain(blockchain, toFind);
+        result = await xlm.getBlockchain(blockchain, toFind, type);
     } else if (chain === "xtz") {
-        result = await xtz.getBlockchain(blockchain, toFind);
+        result = await xtz.getBlockchain(blockchain, toFind, type);
     } else if (chain === "lsk") {
-        result = await lsk.getBlockchain(blockchain, toFind);
+        result = await lsk.getBlockchain(blockchain, toFind, type);
     } else if (chain === "tomo") {
-        result = await tomo.getBlockchain(blockchain, toFind);
+        result = await tomo.getBlockchain(blockchain, toFind, type);
     } else if (chain === "zen") {
-        result = await zen.getBlockchain(blockchain, toFind);
+        result = await zen.getBlockchain(blockchain, toFind, type);
     // } else if (chain === "dcr") {
     //     return await dcr.getBlockchain(toFind);
     }

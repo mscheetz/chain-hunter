@@ -1,7 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Routes, RouterModule } from '@angular/router';
 
@@ -48,6 +48,7 @@ import { LoginComponent } from './components/login/login.component';
 import { TopNavComponent } from './components/top-nav/top-nav.component';
 import { MyPageComponent } from './components/my-page/my-page.component';
 import { AuthGuard } from './helpers/auth.guard';
+import { AuthInterceptor } from './services/authIntercepter.service';
 
 const appRoutes: Routes = [
   { path: '', component: ChainHunterComponent },
@@ -106,7 +107,8 @@ const appRoutes: Routes = [
   ],
   providers: [ 
     CookieService,
-    MessageService
+    MessageService,
+    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }
   ],
   bootstrap: [ AppComponent ]
 })

@@ -47,7 +47,7 @@ export class ChainHunterComponent implements OnInit {
 
     constructor(private titleService: Title,
                 private helperService: HelperService,
-                private chainService: ApiService,
+                private apiSvc: ApiService,
                 private domSanitizer: DomSanitizer,
                 private cookieSvc: CookieService,
                 private messageSvc: MessageService) {
@@ -63,14 +63,14 @@ export class ChainHunterComponent implements OnInit {
      * Get active and future blockchains
      */
     getChains() {
-        this.chainService.getActiveChains()
+        this.apiSvc.getActiveChains()
             .subscribe(chains => {
                 this.activeChains = chains;
             },
             error => {
                 this.offLine = true;
             });
-        this.chainService.getFutureChains()
+        this.apiSvc.getFutureChains()
             .subscribe(chains => {
                 this.futureChains = chains;
                 chains.forEach(chain => {
@@ -129,7 +129,7 @@ export class ChainHunterComponent implements OnInit {
      * Build map of empty blockchain objects
      */
     buildMap(){
-        this.chainService.getEmptyBlockchains()
+        this.apiSvc.getEmptyBlockchains()
             .subscribe(map => {
                 this.map = new Map<string, Blockchain>();
                 Object.keys(map).forEach(e => {
@@ -160,7 +160,7 @@ export class ChainHunterComponent implements OnInit {
         this.requestedChains = this.map.size;
         if(this.map.size > 0) {
             this.map.forEach((value: Blockchain, key: string) => {
-                this.chainService.getBlockchain(key, this.addyTxn)
+                this.apiSvc.getBlockchain(key, this.addyTxn)
                     .subscribe(chain => {
                         this.requestedChains--;
                         this.setMap(chain);
@@ -234,7 +234,7 @@ export class ChainHunterComponent implements OnInit {
             this.notRunning = true;
             this.huntStatus = this.resultsFound.length === 0 ? 2 : 3;
             if(this.resultsFound.length === 0) {
-                this.chainService.emptySearch()
+                this.apiSvc.emptySearch()
                     .subscribe(res => {
                         return;
                     });
@@ -251,7 +251,7 @@ export class ChainHunterComponent implements OnInit {
     getAddressTxns(symbol: string): any {
         this.txnsComplete = false;
         let chain = this.getBlockchain(symbol);
-        this.chainService.getAddressTransactions(symbol, chain.address.address)
+        this.apiSvc.getAddressTransactions(symbol, chain.address.address)
             .subscribe(txns => {
                 chain.address.transactions = txns;
                 this.txnsComplete = true;
@@ -266,7 +266,7 @@ export class ChainHunterComponent implements OnInit {
     getAddressTokens(symbol: string): any {
         this.tokensComplete = false;
         let chain = this.getBlockchain(symbol);
-        this.chainService.getAddressTokens(symbol, chain.address.address)
+        this.apiSvc.getAddressTokens(symbol, chain.address.address)
             .subscribe(tokens => {
                 this.tokensComplete = true;
                 chain.address.tokens = tokens;

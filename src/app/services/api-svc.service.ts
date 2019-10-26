@@ -18,6 +18,11 @@ export class ApiService{
     private baseUrl: string = "";
     private user: string = environment.user;
 
+    /**
+     * User login
+     * @param email email address
+     * @param password password
+     */
     login(email: string, password: string): Observable<UserResponse> {
         let endpoint: string = "/api/user/login";
         let url: string = this.baseUrl + endpoint;
@@ -27,6 +32,9 @@ export class ApiService{
         return result;
     }
 
+    /**
+     * Guest login
+     */
     guest(): Observable<UserResponse> {
         let endpoint: string = "/api/user/guest";
         let url: string = this.baseUrl + endpoint;
@@ -36,6 +44,10 @@ export class ApiService{
         return result;
     }
 
+    /**
+     * Forgot a password
+     * @param email email address
+     */
     forgotPassword(email: string): Observable<number> {
         let endpoint: string = "/api/user/forgotPassword";
         let url: string = this.baseUrl + endpoint;
@@ -45,6 +57,12 @@ export class ApiService{
         return result;
     }
 
+    /**
+     * Change a password
+     * @param user user data 
+     * @param oldPassword old password
+     * @param newPassword new password
+     */
     changePassword(user: User, oldPassword: string, newPassword: string): Observable<User> {
         let endpoint: string = "/api/user/password";
         let url: string = this.baseUrl + endpoint;
@@ -54,6 +72,10 @@ export class ApiService{
         return result;
     }
 
+    /**
+     * Register a new user
+     * @param user user data to register
+     */
     register(user: User): Observable<number> {
         let endpoint: string = "/api/user";
         let url: string = this.baseUrl + endpoint;
@@ -63,6 +85,10 @@ export class ApiService{
         return result;
     }
 
+    /**
+     * Update user data
+     * @param user user data to update
+     */
     updateUser(user: User): Observable<number> {
         let endpoint: string = "/api/user";
         let url: string = this.baseUrl + endpoint;
@@ -77,9 +103,9 @@ export class ApiService{
      * 
      * @param userId user id
      */
-    getUserData(userId: string): Observable<UserData[]> {
+    getUserData(): Observable<UserData[]> {
         let endpoint: string = "/api/user/data";
-        let url: string = this.baseUrl + endpoint + "/" + userId;
+        let url: string = this.baseUrl + endpoint;
 
         let result = this.onDelete<UserData[]>(url, true);
 
@@ -225,6 +251,48 @@ export class ApiService{
         let url: string = this.baseUrl + endpoint;
 
         return this.onGet<boolean>(url);
+    }
+
+    /**
+     * Get an address
+     * @param chain blockchain symbol
+     * @param address address
+     */
+    getAddress(chain: string, address: string): Observable<Blockchain>{
+        let endpoint: string = "/api/blockchain/address/"+ chain + "/" + address;
+        let url: string = this.baseUrl + endpoint;
+
+        let result = this.onGet<Blockchain>(url);
+    
+        return result;
+    }
+
+    /**
+     * Get a contract
+     * @param chain blockchain symbol
+     * @param address address
+     */
+    getContract(chain: string, address: string): Observable<Blockchain>{
+        let endpoint: string = "/api/blockchain/contract/"+ chain + "/" + address;
+        let url: string = this.baseUrl + endpoint;
+
+        let result = this.onGet<Blockchain>(url);
+    
+        return result;
+    }
+
+    /**
+     * Get a transaction
+     * @param chain blockchain symbol
+     * @param hash transaction hash
+     */
+    getTransaction(chain: string, hash: string): Observable<Blockchain>{
+        let endpoint: string = "/api/blockchain/txn/"+ chain + "/" + hash;
+        let url: string = this.baseUrl + endpoint;
+
+        let result = this.onGet<Blockchain>(url);
+    
+        return result;
     }
 
     onGet<T>(url: string, secure: boolean = false): Observable<T> {

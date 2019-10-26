@@ -16,12 +16,12 @@
         <router-outlet></router-outlet>
       </div>
     </div>
-    <div class="right-panel ui-g-12 ui-md-12 ui-lg-1" *ngIf="currentUser === null">
-      <right-ad class="right-ad"></right-ad>
+    <div class="right-panel ui-g-12 ui-md-12 ui-lg-1">
+      <right-ad class="right-ad" *ngIf="currentUser === null"></right-ad>
     </div>
   </div>
-  <div class="ui-g-12 ui-md-12 ui-lg-10" *ngIf="currentUser === null">
-    <bottom-ad class="bottom-ad"></bottom-ad>
+  <div class="ui-g-12 ui-md-12 ui-lg-10">
+    <bottom-ad class="bottom-ad" *ngIf="currentUser === null"></bottom-ad>
   </div>
 </div>
 <!-- Chain Hunter Footer -->

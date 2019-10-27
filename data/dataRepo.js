@@ -223,7 +223,7 @@ const postSymbolCount = async(symbolCount) => {
 }
 
 const getUsers = async() => {
-    let sql = 'SELECT * from public.user';
+    let sql = 'SELECT * from public."user"';
 
     try {
         const res = await pool.query(sql);
@@ -235,7 +235,7 @@ const getUsers = async() => {
 }
 
 const getUserByEmail = async(email) => {
-    let sql = 'SELECT * FROM public.user WHERE email = $1';
+    let sql = 'SELECT * FROM public."user" WHERE email = $1';
 
     try {
         const res = await pool.query(sql, [email]);
@@ -247,7 +247,7 @@ const getUserByEmail = async(email) => {
 }
 
 const getUser = async(username) => {
-    let sql = 'SELECT * FROM public.user WHERE "username" = $1';
+    let sql = 'SELECT * FROM public."user" WHERE "username" = $1';
 
     try {
         const res = await pool.query(sql, [username]);
@@ -259,7 +259,7 @@ const getUser = async(username) => {
 }
 
 const getUserByUserId = async(userId) => {
-    let sql = 'SELECT * FROM public.user WHERE "userId" = $1';
+    let sql = 'SELECT * FROM public."user" WHERE "userId" = $1';
 
     try {
         const res = await pool.query(sql, [userId]);
@@ -271,7 +271,7 @@ const getUserByUserId = async(userId) => {
 }
 
 const postUser = async(user) => {
-    let sql = 'INSERT INTO public.user ( email, created, "userId", "accountType", username, "expirationDate", hash, validated ) ';
+    let sql = 'INSERT INTO public."user" ( email, created, "userId", "accountType", username, "expirationDate", hash, validated ) ';
     sql += 'VALUES ( $1, $2, $3, $4, $5, $6, $7, $8 )';
     const data = [
         user.email, 
@@ -294,7 +294,7 @@ const postUser = async(user) => {
 }
 
 const updateUser = async(user) => {
-    let sql = 'UPDATE public.user SET email = $1, "accountType" = $2, username = $3, "expirationDate" = $4 ';
+    let sql = 'UPDATE public."user" SET email = $1, "accountType" = $2, username = $3, "expirationDate" = $4 ';
     sql += 'WHERE "userId" = $5'
     const data = [
         user.email, 
@@ -315,7 +315,7 @@ const updateUser = async(user) => {
 }
 
 const validateUser = async(userId, validationTS) => {
-    let sql = 'UPDATE public.user SET validated = $2 ';
+    let sql = 'UPDATE public."user" SET validated = $2 ';
     sql += 'WHERE "userId" = $1'
     const data = [
         userId, 
@@ -332,7 +332,7 @@ const validateUser = async(userId, validationTS) => {
 }
 
 const updateUserPassword = async(userId, oldHash, newHash) => {
-    let sql = 'UPDATE public.user SET hash = $3 ';
+    let sql = 'UPDATE public."user" SET hash = $3 ';
     sql += 'WHERE "userId" = $1 AND hash = $2'
     const data = [
         userId, 
@@ -350,7 +350,7 @@ const updateUserPassword = async(userId, oldHash, newHash) => {
 }
 
 const setUserPassword = async(userId, hash) => {
-    let sql = 'UPDATE public.user SET hash = $2 ';
+    let sql = 'UPDATE public."user" SET hash = $2 ';
     sql += 'WHERE "userId" = $1'
     const data = [
         userId, 

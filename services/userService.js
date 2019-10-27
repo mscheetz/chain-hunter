@@ -97,7 +97,7 @@ const updateUser = async(user, token) => {
  * 
  * @param {string} userId 
  */
-const validateUser = async(userId) => {
+const validateUser = async(userId) => {    
     const user = await getUserByUserId(userId);
 
     if(typeof user === 'undefined') {
@@ -227,7 +227,7 @@ const getUser = async(username) => {
 const getUserByUserId = async(userId) => {
     const user = await db.getUserByUserId(userId);
     
-    return responseSvc.successMessage(user[0]);
+    return user;// responseSvc.successMessage(user[0]);
 }
 
 /**
@@ -237,8 +237,8 @@ const getUserByUserId = async(userId) => {
  */
 const getUserData = async(userId) => {
     const data = await db.getUserData(userId);
-    
-    return responseSvc.successMessage(data[0]);
+
+    return responseSvc.successMessage(data);
 }
 
 /**
@@ -256,7 +256,7 @@ const addUserData = async(userId, hash, chain, type) => {
         id: uuid,
         userId: userId,
         hash: hash,
-        symbol: symbol,
+        symbol: chain,
         type: type,
         added: created
     }

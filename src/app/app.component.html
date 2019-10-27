@@ -26,7 +26,7 @@
 </div>
 <!-- Chain Hunter Footer -->
 <div class="footer">
-  <footer-component  (toggleLogin)="onToggleLogin($event)" [loggedIn]="loggedIn" (notification)="notification($event)"></footer-component>
+  <footer-component (toggleLogin)="onToggleLogin($event)" [loggedIn]="loggedIn" (notification)="notification($event)"></footer-component>
 </div>
 <!-- Chain Hunter Cookie notice -->
 <cookies *ngIf="showNotice" (cookiesOk)="cookieOk($event)" class="cookie-box"></cookies>
@@ -34,6 +34,7 @@
 <p-toast key="login-notice-toast"></p-toast>
 <p-dialog header="Join the Hunting Party!" 
           [(visible)]="showLogin" 
+          (onHide)="loginHidden()"
           [style]="{width: '400px'}">
     <app-login 
           (toggleLogin)="onToggleLogin($event)"

@@ -2,11 +2,15 @@
 <div class="p-grid bottom-pad" *ngIf="loginView">
     <div class="p-col-12">
         <h4>Email</h4>
-        <input type="text" pInputText placeholder="Email" [(ngModel)]="email" size="40" (ngModelChange)="modelChange($event)">
+        <input type="text" pInputText 
+                           placeholder="Email" [(ngModel)]="email" size="40" 
+                           (ngModelChange)="modelChange($event)" (keyup.enter)="onLogin($event)">
     </div>
     <div class="p-col-12">
         <h4>Password</h4>
-        <input type="password" pInputText placeholder="Password" [(ngModel)]="password" size="40" (ngModelChange)="modelChange($event)">        
+        <input type="password" pInputText 
+                               placeholder="Password" [(ngModel)]="password" size="40" 
+                               (ngModelChange)="modelChange($event)" (keyup.enter)="onLogin($event)">        
     </div>
     <div class="p-col-12">
         <p-button label="Login" (click)="onLogin($event)" styleClass="ui-button-success"></p-button>

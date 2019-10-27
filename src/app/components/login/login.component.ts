@@ -4,6 +4,7 @@ import { MessageService, SelectItem } from 'primeng/api';
 import { ThrowStmt } from '@angular/compiler';
 import { ApiService } from 'src/app/services/api-svc.service';
 import { HelperService } from 'src/app/services/helper-svc.service';
+import { LoginService } from 'src/app/services/login.service';
 
 @Component({
   selector: 'app-login',
@@ -25,7 +26,11 @@ export class LoginComponent implements OnInit {
   newPassword: string;
   newPasswordConfirm: string;
 
-  constructor(private authSvc: AuthenticationService, private messageSvc: MessageService, private apiSvc: ApiService, private helperSvc: HelperService) { }
+  constructor(private authSvc: AuthenticationService, 
+              private messageSvc: MessageService, 
+              private apiSvc: ApiService, 
+              private helperSvc: HelperService,
+              private loginSvc: LoginService) { }
 
   ngOnInit() {
     this.actionTypes = [
@@ -75,7 +80,8 @@ export class LoginComponent implements OnInit {
           res => {
             this.loginSuccess.emit(true);
             this.messageSvc.clear();
-            this.toggleLogin.emit(event);
+            this.loginSvc.toggleLogin();
+            //this.toggleLogin.emit(event);
             this.messageSvc.add(
                 {
                     key:'login-toast',
@@ -125,7 +131,8 @@ export class LoginComponent implements OnInit {
     this.apiSvc.forgotPassword(this.email)
         .subscribe(res => {
           this.messageSvc.clear();
-          this.toggleLogin.emit(event);
+          this.loginSvc.toggleLogin();
+          //this.toggleLogin.emit(event);
           this.messageSvc.add(
               {
                   key:'login-toast',

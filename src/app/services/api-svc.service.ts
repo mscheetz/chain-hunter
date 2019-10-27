@@ -10,6 +10,7 @@ import { HelperService } from './helper-svc.service';
 import { User } from '../classes/User';
 import { UserData } from '../classes/UserData';
 import { UserResponse } from '../classes/UserResponse';
+import { ResultType } from '../classes/Enums';
 
 @Injectable({providedIn: 'root'})
 export class ApiService{
@@ -107,7 +108,7 @@ export class ApiService{
         let endpoint: string = "/api/user/data";
         let url: string = this.baseUrl + endpoint;
 
-        let result = this.onDelete<UserData[]>(url, true);
+        let result = this.onGet<UserData[]>(url, true);
 
         return result;
     }
@@ -115,19 +116,17 @@ export class ApiService{
     /**
      * Save user search data
      * 
-     * @param user user data
      * @param hash hash to save
      * @param symbol symbol
      * @param type type of object
      */
-    saveData(user: User, hash: string, symbol: string, type: string): Observable<number> {
+    saveData(hash: string, symbol: string, type: ResultType): Observable<number> {
         let endpoint: string = "/api/user/data";
         let url: string = this.baseUrl + endpoint;
         let data = {
-            userId: user.userId,
             hash: hash,
             symbol: symbol,
-            type: type
+            type: ResultType[type]
         }
 
         let result = this.onPost<number>(url, data, true);

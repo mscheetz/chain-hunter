@@ -6,7 +6,9 @@
     <p-panel header="{{blockchain.symbol}} Address" *ngIf="blockchain.address">
         <div class="p-grid">
             <h3 class="word-break">
-                <i (mouseover)="saveClick($event, 'Address', saveThis)" (mouseleave)="saveClick($event, 'Address', saveThis)" 
+                <i (mouseover)="saveHover($event, 'Address', saveThis)" 
+                   (mouseleave)="saveHover($event, 'Address', saveThis)"
+                   (click)="saveResult($event, 'address')" 
                     class="fa fa-star-o" 
                     style="color: deeppink; cursor: pointer;"></i>
                 {{blockchain.symbol}} Address: {{blockchain.address.address}}
@@ -57,7 +59,9 @@
     <!-- Contract Results -->
     <p-panel header="{{blockchain.symbol}} {{blockchain.symbol === 'ATOM' ? 'Validator' : 'Contract'}}" *ngIf="blockchain.hasContracts && blockchain.contract">
         <h3 class="word-break">
-            <i (mouseover)="saveClick($event, 'Contract', saveThis)" (mouseleave)="saveClick($event, 'Contract', saveThis)" 
+            <i (mouseover)="saveHover($event, 'Contract', saveThis)" 
+               (mouseleave)="saveHover($event, 'Contract', saveThis)" 
+               (click)="saveResult($event, 'contract')" 
                 class="fa fa-star-o" 
                 style="color: deeppink; cursor: pointer;"></i>
             {{blockchain.symbol}} {{blockchain.symbol === 'ATOM' ? 'Validator' : 'Contract'}} Address: {{blockchain.contract.address}}
@@ -80,7 +84,9 @@
     <!-- Transaction Results -->
     <p-panel header="{{blockchain.symbol}} Transaction" *ngIf="blockchain.transaction">
         <h3 class="word-break">
-            <i (mouseover)="saveClick($event, 'Transaction', saveThis)" (mouseleave)="saveClick($event, 'Transaction', saveThis)" 
+            <i (mouseover)="saveHover($event, 'Transaction', saveThis)" 
+               (mouseleave)="saveHover($event, 'Transaction', saveThis)" 
+               (click)="saveResult($event, 'transaction')" 
                 class="fa fa-star-o" 
                 style="color: deeppink; cursor: pointer;"></i>
             {{blockchain.symbol}} Transaction Hash: {{blockchain.transaction.hash}}

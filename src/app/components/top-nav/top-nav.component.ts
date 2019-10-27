@@ -1,4 +1,5 @@
 import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
+import { LoginService } from 'src/app/services/login.service';
 
 @Component({
   selector: 'app-top-nav',
@@ -10,13 +11,14 @@ export class TopNavComponent implements OnInit {
   @Input() loggedIn: boolean;
   @Output() loginSuccess: EventEmitter<boolean> = new EventEmitter<boolean>();
 
-  constructor() { }
+  constructor(private loginSvc: LoginService) { }
 
   ngOnInit() {
   }
 
   login(event) {
-    this.toggleLogin.emit(event);
+    this.loginSvc.toggleLogin();
+    //this.toggleLogin.emit(event);
   }
 
   logout(event) {

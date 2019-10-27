@@ -1,5 +1,6 @@
 import { Component, OnInit, Output, EventEmitter, Input } from '@angular/core';
 import { environment } from 'src/environments/environment';
+import { LoginService } from 'src/app/services/login.service';
 
 @Component({
     selector: 'footer-component',
@@ -17,7 +18,7 @@ export class FooterComponent implements OnInit {
     @Input() loggedIn: boolean;
     @Output() notification: EventEmitter<any> = new EventEmitter();
     
-    constructor() {}
+    constructor(private loginSvc: LoginService) {}
 
     ngOnInit() {}
 
@@ -25,7 +26,8 @@ export class FooterComponent implements OnInit {
      * Login to app
      */
     onLogin() {
-        this.toggleLogin.emit(event);
+        this.loginSvc.toggleLogin();
+        //this.toggleLogin.emit(event);
         //this.login.emit();
     }
 

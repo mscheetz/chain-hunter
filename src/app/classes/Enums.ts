@@ -12,3 +12,10 @@ export enum Interval {
     Hour,
     Day
 }
+
+export enum ResultType {
+    none,
+    address,
+    contract,
+    transaction
+}

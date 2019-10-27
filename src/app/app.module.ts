@@ -49,6 +49,7 @@ import { TopNavComponent } from './components/top-nav/top-nav.component';
 import { MyPageComponent } from './components/my-page/my-page.component';
 import { AuthGuard } from './helpers/auth.guard';
 import { AuthInterceptor } from './services/authIntercepter.service';
+import { LoginService } from './services/login.service';
 
 const appRoutes: Routes = [
   { path: '', component: ChainHunterComponent },
@@ -108,6 +109,7 @@ const appRoutes: Routes = [
   providers: [ 
     CookieService,
     MessageService,
+    LoginService,
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }
   ],
   bootstrap: [ AppComponent ]

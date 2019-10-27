@@ -73,11 +73,12 @@ const getToken = async(userId) => {
  */
 const isTokenValid = async(token) =>{
 	const payload = await getTokenPayload(token);
+
 	if(!payload) {
 		return payload;
 	}
+	let unixNow = helperSvc.getUnixTsSeconds();
 	
-	const unixNow = helperSvc.getUnixTS();
 	if(payload.exp < unixNow) {
 		return false;
 	}

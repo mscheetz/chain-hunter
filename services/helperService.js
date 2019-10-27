@@ -3,10 +3,19 @@ const enums = require('../classes/enums');
 const _ = require('lodash');
 
 /**
- * Get current unix timestamp
+ * Get current unix timestamp, in milliseconds
  */
 const getUnixTS = function() {
     return Date.now();
+}
+
+/**
+ * Get current unix timestamp, in seconds
+ */
+const getUnixTsSeconds = function() {
+    const ts = Date.now();
+
+    return parseInt(ts / 1000);
 }
 
 /**
@@ -814,6 +823,7 @@ module.exports = {
     cleanIO,
     inoutCalculation,
     getUnixTS,
+    getUnixTsSeconds,
     commaBigNumber,
     bigNumberToDecimal,
     getBigNumber,

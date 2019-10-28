@@ -15,14 +15,16 @@ export class AppComponent {
   currentUser: User;
   showNotice: boolean = true;
   @Output() showLogin: boolean;
+  loggedIn: boolean = false;
 
   constructor(private router: Router, private authSvc: AuthenticationService, private messageSvc: MessageService, private loginSvc: LoginService) {
     //this.showLogin = false;
     this.authSvc.currentUser.subscribe(c => this.currentUser = c);
     this.loginSvc.showLogin.subscribe(val => this.showLogin = val);
+    this.authSvc.isLoggedIn.subscribe(val => this.loggedIn = val);
   }
 
-  @Output() loggedIn: boolean = this.authSvc.isLoggedIn();
+  //@Output() loggedIn: boolean = this.authSvc.isLoggedIn();
   
   cookieOk(cookie: boolean){
     this.showNotice = false;

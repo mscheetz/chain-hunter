@@ -81,7 +81,8 @@ export class LoginComponent implements OnInit {
             this.loginSuccess.emit(true);
             this.messageSvc.clear();
             this.loginSvc.toggleLogin();
-            //this.toggleLogin.emit(event);
+            this.email = "";
+            this.password = "";
             this.messageSvc.add(
                 {
                     key:'login-toast',
@@ -132,7 +133,6 @@ export class LoginComponent implements OnInit {
         .subscribe(res => {
           this.messageSvc.clear();
           this.loginSvc.toggleLogin();
-          //this.toggleLogin.emit(event);
           this.messageSvc.add(
               {
                   key:'login-toast',

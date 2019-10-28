@@ -25,12 +25,15 @@ export class SearchResultsComponent implements OnInit{
     @Input() selectedChain: string;
     @Input() resultsFound: string[];
     @Input() tokenContent: string;
+    loggedIn: boolean;
     saveThisMessage: string;
 
     constructor(private apiSvc: ApiService, 
                 private messageSvc: MessageService, 
                 private authSvc: AuthenticationService,
-                private loginSvc: LoginService) {}
+                private loginSvc: LoginService) {
+                    this.authSvc.isLoggedIn.subscribe(val => this.loggedIn = val);
+                }
 
     ngOnInit() {
     }
@@ -58,7 +61,7 @@ export class SearchResultsComponent implements OnInit{
     }
 
     saveResult(event, type: string) {
-        if(!this.authSvc.isLoggedIn()) {
+        if(!this.loggedIn) {
             this.loginSvc.toggleLogin();
             this.messageSvc.add(
                 {
@@ -85,7 +88,7 @@ export class SearchResultsComponent implements OnInit{
         }
         this.apiSvc.saveData(hash, this.blockchain.symbol, objType)
             .subscribe(res => {
-                this.messageSvc.clear();
+                try{
                 this.messageSvc.add(
                     {
                         key:'login-toast',
@@ -94,8 +97,11 @@ export class SearchResultsComponent implements OnInit{
                         detail: message,
                         life: 5000
                     });
+                }
+                catch(err) {
+                    console.log(err);
+                }
             }, err => {
-                this.messageSvc.clear();
                 this.messageSvc.add(
                     {
                         key:'login-toast',

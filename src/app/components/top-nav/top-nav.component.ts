@@ -1,5 +1,6 @@
 import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
 import { LoginService } from 'src/app/services/login.service';
+import { AuthenticationService } from 'src/app/services/authentication.service';
 
 @Component({
   selector: 'app-top-nav',
@@ -7,11 +8,13 @@ import { LoginService } from 'src/app/services/login.service';
   styleUrls: ['./top-nav.component.css']
 })
 export class TopNavComponent implements OnInit {
-  @Output() toggleLogin: EventEmitter<any> = new EventEmitter();
-  @Input() loggedIn: boolean;
-  @Output() loginSuccess: EventEmitter<boolean> = new EventEmitter<boolean>();
+  //@Output() toggleLogin: EventEmitter<any> = new EventEmitter();
+  loggedIn: boolean;
+  //@Output() loginSuccess: EventEmitter<boolean> = new EventEmitter<boolean>();
 
-  constructor(private loginSvc: LoginService) { }
+  constructor(private loginSvc: LoginService, private authSvc: AuthenticationService) { 
+    this.authSvc.isLoggedIn.subscribe(val => this.loggedIn = val);
+  }
 
   ngOnInit() {
   }
@@ -22,6 +25,7 @@ export class TopNavComponent implements OnInit {
   }
 
   logout(event) {
-    this.loginSuccess.emit(false);
+    this.authSvc.logout();
+    //this.loginSuccess.emit(false);
   }
 }

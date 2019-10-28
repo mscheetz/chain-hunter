@@ -1,6 +1,7 @@
 import { Component, OnInit, Output, EventEmitter, Input } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { LoginService } from 'src/app/services/login.service';
+import { AuthenticationService } from 'src/app/services/authentication.service';
 
 @Component({
     selector: 'footer-component',
@@ -14,11 +15,13 @@ export class FooterComponent implements OnInit {
     qrType: string = "url";
     address: string = "36ZZ78NYGtvhQCcSRRG7311MoxZDJkCzob";
     symbol: string = null;
-    @Output() toggleLogin: EventEmitter<any> = new EventEmitter();
-    @Input() loggedIn: boolean;
+    //@Output() toggleLogin: EventEmitter<any> = new EventEmitter();
+    loggedIn: boolean;
     @Output() notification: EventEmitter<any> = new EventEmitter();
     
-    constructor(private loginSvc: LoginService) {}
+    constructor(private loginSvc: LoginService, private authSvc: AuthenticationService) {
+        this.authSvc.isLoggedIn.subscribe(val => this.loggedIn = val);
+    }
 
     ngOnInit() {}
 

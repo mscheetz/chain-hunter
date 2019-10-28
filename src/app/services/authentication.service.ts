@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { User } from '../classes/User';
 import { ApiService } from './api-svc.service';
@@ -16,8 +16,14 @@ export class AuthenticationService {
     constructor(private apiSvc: ApiService, private helperSvc: HelperService) {
         this.currentUserSubject = new BehaviorSubject<User>(JSON.parse(localStorage.getItem('currentUser')));
         this.currentUser = this.currentUserSubject.asObservable();
+        this.loggedInSubject = new Subject<boolean>();
+        this.isLoggedIn = this.loggedInSubject.asObservable();
         this.validateTokenDate();
     }
+    loggedInState: boolean = false;
+    isLoggedIn: Observable<boolean>;
+
+    private loggedInSubject: Subject<boolean>;
 
     public get currentUserValue(): User {
         return this.currentUserSubject.value;
@@ -42,6 +48,7 @@ export class AuthenticationService {
                 this.user = user;
                 this.addLogin(jwt, user);
                 this.currentUserSubject.next(user);
+                this.loggedInSubject.next(true);
                 return res;
             }));
     }
@@ -49,11 +56,12 @@ export class AuthenticationService {
     logout() {
         this.removeLogin();
         this.currentUserSubject.next(null);
+        this.loggedInSubject.next(false);
     }
 
-    isLoggedIn() {
-        return localStorage.getItem(environment.jwtName) ? true : false;
-    }
+    // isLoggedIn() {
+    //     return localStorage.getItem(environment.jwtName) ? true : false;
+    // }
 
     private validateTokenDate() {
         let expiry = localStorage.getItem(environment.jwtTsName);

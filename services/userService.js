@@ -2,6 +2,7 @@ const db = require('../data/dataRepo');
 const encryptionSvc = require("./encryption.js");
 const helperSvc = require('./helperService');
 const responseSvc = require('./responseService');
+const _ = require('lodash');
 
 /**
  * Login to account
@@ -237,8 +238,8 @@ const getUserByUserId = async(userId) => {
  */
 const getUserData = async(userId) => {
     const data = await db.getUserData(userId);
-
-    return responseSvc.successMessage(data);
+    
+    return responseSvc.successMessage(_.orderBy(data, "symbol"));
 }
 
 /**
@@ -251,16 +252,24 @@ const getUserData = async(userId) => {
  */
 const addUserData = async(userId, hash, chain, type) => {
     const uuid = encryptionSvc.getUuid();
-    const created = helperSvc.getUnixTS();
-    const userData = {
-        id: uuid,
-        userId: userId,
-        hash: hash,
-        symbol: chain,
-        type: type,
-        added: created
+    const userData = await getUserData(userId);
+    const exists = userData.data.filter(u => u.hash === hash && u.symbol === chain && u.type === type);
+
+    let result;
+    if(exists.length === 0) {
+        const created = helperSvc.getUnixTS();
+        const userData = {
+            id: uuid,
+            userId: userId,
+            hash: hash,
+            symbol: chain,
+            type: type,
+            added: created
+        }
+        result = await db.postUserData(userData);
+    } else {
+        result = 0;
     }
-    const result = await db.postUserData(userData);
         
     return responseSvc.successMessage(result, 201);
 }

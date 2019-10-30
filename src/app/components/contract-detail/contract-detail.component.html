@@ -1,0 +1,26 @@
+<p-overlayPanel #saveThisContract>
+    {{saveThisMessage}}
+</p-overlayPanel>
+<h3 class="word-break">
+    <i (mouseover)="saveHover($event, 'Contract', saveThisContract)" 
+       (mouseleave)="saveHover($event, 'Contract', saveThisContract)" 
+       (click)="saveResult($event, 'contract')" 
+       class="fa fa-star-o" 
+       style="color: deeppink; cursor: pointer;"></i>
+    {{blockchain.symbol}} {{blockchain.symbol === 'ATOM' ? 'Validator' : 'Contract'}} Address: {{blockchain.contract.address}}
+</h3>
+<p *ngIf="blockchain.contract.contractName">
+    Name: {{blockchain.contract.contractName}}
+    <img *ngIf="blockchain.contract.icon" src="{{blockchain.contract.icon}}" style="height: 30px; width: 30px; border-radius: 50%;" />
+    <img *ngIf="!blockchain.contract.icon && blockchain.contract.symbol && blockchain.contract.hasIcon" src="/assets/cryptoicons/color/{{blockchain.contract.symbol.toLowerCase()}}.png" />
+</p>
+<p *ngIf="blockchain.contract.quantity">
+    Balance: {{blockchain.contract.quantity}} {{blockchain.contract.symbol}}
+</p>
+<p *ngIf="blockchain.contract.creator">Creator Address: {{blockchain.contract.creator}}</p>
+<div *ngIf="blockchain.source !== undefined">
+    <p>
+        For more info: <a href="{{blockchain.source}}" target="_blank">{{blockchain.source}}</a>
+    </p>
+</div>
+<!-- <p-toast key="contract-toast"></p-toast> -->

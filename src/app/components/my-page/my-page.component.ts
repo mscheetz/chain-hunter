@@ -11,6 +11,7 @@ import { Blockchain } from 'src/app/classes/ChainHunter/Blockchain';
 export class MyPageComponent implements OnInit {
   savedSearches: UserData[] = [];
   blockchains: Map<number, Blockchain> = new Map<number, Blockchain>();
+  gettingData: boolean = false;
 
   constructor(private apiSvc: ApiService) { }
 
@@ -19,9 +20,14 @@ export class MyPageComponent implements OnInit {
   }
 
   async getData() {
+    this.gettingData = true;
     this.apiSvc.getUserData()
         .subscribe(data => {
+          this.gettingData = false;
           this.savedSearches = data;
+          this.savedSearches.forEach((value, key: number) => {
+            this.blockchains[key] = 0;
+          })
         })
   }
 

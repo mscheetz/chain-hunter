@@ -4,7 +4,7 @@ import { Chain } from 'src/app/classes/ChainHunter/Chain';
 import { OverlayPanel } from 'primeng/overlaypanel';
 import { ApiService } from 'src/app/services/api-svc.service';
 import { MessageService } from 'primeng/api';
-import { ResultType } from 'src/app/classes/Enums';
+import { ResultType, Severity } from 'src/app/classes/Enums';
 import { AuthenticationService } from 'src/app/services/authentication.service';
 import { LoginService } from 'src/app/services/login.service';
 
@@ -54,7 +54,7 @@ export class SearchResultsComponent implements OnInit{
     }
 
     saveHover(event, type: string, overlayPanel: OverlayPanel) {
-    this.saveThisMessage = "Save this " + this.blockchain.symbol + " " + type;
+        this.saveThisMessage = "Save this " + this.blockchain.symbol + " " + type;
       //this.saveThisMessage = "Coming Soon! Save this " + this.blockchain.symbol + " " + type;
       
       overlayPanel.toggle(event);
@@ -73,7 +73,6 @@ export class SearchResultsComponent implements OnInit{
                 });
             return;
         }
-        let message = `${this.blockchain.symbol} ${type} saved!`;
         let hash = "";
         let objType: ResultType = ResultType.none;
         if(type === ResultType[ResultType.address]) {
@@ -88,29 +87,24 @@ export class SearchResultsComponent implements OnInit{
         }
         this.apiSvc.saveData(hash, this.blockchain.symbol, objType)
             .subscribe(res => {
-                try{
-                this.messageSvc.add(
-                    {
-                        key:'login-toast',
-                        severity:'success', 
-                        summary:'Saved', 
-                        detail: message,
-                        life: 5000
-                    });
-                }
-                catch(err) {
-                    console.log(err);
-                }
+                const message = `${this.blockchain.symbol} ${type} saved!`;
+                this.addToast('notification-toast', Severity.success, 'Saved', message, 5000);
             }, err => {
-                this.messageSvc.add(
-                    {
-                        key:'login-toast',
-                        severity:'error', 
-                        summary:'Error', 
-                        detail: `Something happened when attempting to save this ${objType.toString()}`,
-                        life: 5000
-                    });
+                const message = `Something happened when attempting to save this ${objType.toString()}`;
+                this.addToast('notification-toast', Severity.error, 'Error', message, 5000);
             })
 
+    }
+
+    addToast(key: string, severity: Severity, summary: string, message: string, life: number = 5000){
+        const severityString = Severity[severity];
+        this.messageSvc.add(
+            {
+                key: key,
+                severity: severityString, 
+                summary: summary, 
+                detail: message,
+                life: life
+            });
     }
 }

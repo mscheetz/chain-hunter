@@ -50,6 +50,8 @@ import { MyPageComponent } from './components/my-page/my-page.component';
 import { AuthGuard } from './helpers/auth.guard';
 import { AuthInterceptor } from './services/authIntercepter.service';
 import { LoginService } from './services/login.service';
+import { AddressDetailComponent } from './components/address-detail/address-detail.component';
+import { ContractDetailComponent } from './components/contract-detail/contract-detail.component';
 
 const appRoutes: Routes = [
   { path: '', component: ChainHunterComponent },
@@ -81,7 +83,9 @@ const appRoutes: Routes = [
     TransactionComponent,
     LoginComponent,
     TopNavComponent,
-    MyPageComponent
+    MyPageComponent,
+    AddressDetailComponent,
+    ContractDetailComponent
   ],
   imports: [
     AccordionModule,

@@ -1,12 +1,14 @@
 <h2>My Page</h2>
 
-<div *ngIf="savedSearches.length === 0">
+<div *ngIf="savedSearches.length === 0 && !gettingData">
     <h3>You have not saved any addresses, contracts, or transactions</h3>
 </div>
-
+<div *ngIf="gettingData">    
+    <h3>Loading your favorite Hunts!&nbsp;&nbsp;&nbsp;<i class="fa fa-cog fa-2x fa-spin" style="color: #464a4e;"></i></h3>    
+</div>
 <div *ngIf="savedSearches.length > 0">
-    <h3>Your saved searches</h3>
-    <p-accordion (onOpen)="onExpand($event)">
+    <h3>Your favorite Hunts:</h3>
+    <p-accordion (onOpen)="onExpand($event)" [multiple]="true">
         <p-accordionTab *ngFor="let data of savedSearches" 
                         header="{{data.symbol}} {{data.type}} {{data.hash}}">
             {{data}}

@@ -19,3 +19,11 @@ export enum ResultType {
     contract,
     transaction
 }
+
+export enum Severity {
+    success,
+    info,
+    warn,
+    error,
+    custom
+}

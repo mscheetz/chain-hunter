@@ -4,7 +4,7 @@
 <div *ngIf="blockchain !== null">
     <!-- Address Results -->
     <p-panel header="{{blockchain.symbol}} Address" *ngIf="blockchain.address">
-        <app-address-detail [blockchain]="blockchain"></app-address-detail>
+        <app-address-detail [addressSaved]="false" [saveId]="" [blockchain]="blockchain"></app-address-detail>
     </p-panel>
     <!-- Contract Results -->
     <p-panel header="{{blockchain.symbol}} {{blockchain.symbol === 'ATOM' ? 'Validator' : 'Contract'}}" *ngIf="blockchain.hasContracts && blockchain.contract">

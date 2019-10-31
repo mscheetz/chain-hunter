@@ -3,7 +3,12 @@
 </p-overlayPanel>
 <div class="p-grid">
     <h3 class="word-break">
-        <i (mouseover)="saveHover($event, 'Address', saveThisAddress)" 
+        <i *ngIf="addressSaved" (mouseover)="unSaveHover($event, 'Address', saveThisAddress)" 
+            (mouseleave)="unSaveHover($event, 'Address', saveThisAddress)"
+            (click)="unSaveResult($event, 'address')" 
+            class="fa fa-star" 
+            style="color: deeppink; cursor: pointer;"></i>
+        <i *ngIf="!addressSaved" (mouseover)="saveHover($event, 'Address', saveThisAddress)" 
             (mouseleave)="saveHover($event, 'Address', saveThisAddress)"
             (click)="saveResult($event, 'address')" 
             class="fa fa-star-o" 

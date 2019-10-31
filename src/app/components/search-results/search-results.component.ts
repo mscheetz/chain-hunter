@@ -32,7 +32,9 @@ export class SearchResultsComponent implements OnInit{
                 private messageSvc: MessageService, 
                 private authSvc: AuthenticationService,
                 private loginSvc: LoginService) {
-                    this.authSvc.isLoggedIn.subscribe(val => this.loggedIn = val);
+                    authSvc.getLoggedInStatus().subscribe(val => {
+                        this.loggedIn = val;
+                    })
                 }
 
     ngOnInit() {

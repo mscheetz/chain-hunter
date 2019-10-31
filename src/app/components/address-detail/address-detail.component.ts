@@ -22,6 +22,8 @@ export class AddressDetailComponent implements OnInit {
   tokenContent: string;
   saveThisMessage: string;
   loggedIn: boolean = false;
+  @Input() saveId: string;
+  @Input() addressSaved: boolean = false;
 
   constructor(private apiSvc: ApiService, 
               private messageSvc: MessageService, 
@@ -37,6 +39,13 @@ export class AddressDetailComponent implements OnInit {
 
   saveHover(event, type: string, overlayPanel: OverlayPanel) {
       this.saveThisMessage = "Save this " + this.blockchain.symbol + " " + type;
+    //this.saveThisMessage = "Coming Soon! Save this " + this.blockchain.symbol + " " + type;
+    
+    overlayPanel.toggle(event);
+  }
+
+  unSaveHover(event, type: string, overlayPanel: OverlayPanel) {
+      this.saveThisMessage = "Un-save this " + this.blockchain.symbol + " " + type;
     //this.saveThisMessage = "Coming Soon! Save this " + this.blockchain.symbol + " " + type;
     
     overlayPanel.toggle(event);
@@ -62,10 +71,41 @@ export class AddressDetailComponent implements OnInit {
       }
       this.apiSvc.saveData(hash, this.blockchain.symbol, objType)
           .subscribe(res => {
+              this.saveId = res;
               const message = `${this.blockchain.symbol} ${type} saved!`;
               this.addToast('notification-toast', Severity.success, 'Saved', message, 5000);
           }, err => {
               const message = `Something happened when attempting to save this ${objType.toString()}`;
+              this.addToast('notification-toast', Severity.error, 'Error', message, 5000);
+          })
+
+  }
+
+  unSaveResult(event, type: string) {
+      if(!this.loggedIn) {
+          this.loginSvc.toggleLogin();
+          this.addToast('notification-toast', Severity.warn, 'Login', 'You must login before un-saving results', 5000);
+          return;
+      }
+      let hash = "";
+      let objType: ResultType = ResultType.none;
+      if(type === ResultType[ResultType.address]) {
+          objType = ResultType.address;
+          hash = this.blockchain.address.address;
+      } else if (type === ResultType[ResultType.contract]) {
+          objType = ResultType.contract;
+          hash = this.blockchain.contract.address;
+      } else if (type === ResultType[ResultType.transaction]) {
+          objType = ResultType.transaction;
+          hash = this.blockchain.transaction.hash;
+      }
+      this.apiSvc.deleteData(this.saveId)
+          .subscribe(res => {
+              this.addressSaved = false;
+              const message = `${this.blockchain.symbol} ${type} un-saved!`;
+              this.addToast('notification-toast', Severity.success, 'Un-Saved', message, 5000);
+          }, err => {
+              const message = `Something happened when attempting to un-save this ${objType.toString()}`;
               this.addToast('notification-toast', Severity.error, 'Error', message, 5000);
           })
 

@@ -1,5 +1,6 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { Message } from 'primeng/components/common/api';
+import { CookieService } from 'ngx-cookie-service';
 
 @Component({
     selector: 'cookies',
@@ -10,7 +11,8 @@ import { Message } from 'primeng/components/common/api';
 export class CookiesComponent implements OnInit {
     msgs: Message[] = [];
     @Output() cookiesOk: EventEmitter<any> = new EventEmitter();
-    constructor() {}
+
+    constructor(private cookieSvc: CookieService) {}
     
     ngOnInit() {
         this.msgs = [];
@@ -21,6 +23,9 @@ export class CookiesComponent implements OnInit {
     }
 
     cookieOk(){
+        let expiration = new Date();
+        expiration.setDate(expiration.getDate() + 7);
+        this.cookieSvc.set("tch-cookie-ok", "true", expiration);
         this.cookiesOk.emit();
     }
 }

@@ -12,6 +12,7 @@ export class MyPageComponent implements OnInit {
   savedSearches: UserData[] = [];
   blockchains: Map<number, Blockchain> = new Map<number, Blockchain>();
   gettingData: boolean = false;
+  blockchain: Blockchain = null;
 
   constructor(private apiSvc: ApiService) { }
 
@@ -26,6 +27,7 @@ export class MyPageComponent implements OnInit {
           this.gettingData = false;
           this.savedSearches = data;
           this.savedSearches.forEach((value, key: number) => {
+            value.blockchain = null;
             this.blockchains[key] = 0;
           })
         })
@@ -39,29 +41,44 @@ export class MyPageComponent implements OnInit {
     }
   }
 
+  onRefresh(event, data: UserData) {
+    const idx = 0; /// TODO GET INDEX of savedSearches for the selected data, null blockchain out
+    event.index = idx;
+    this.onExpand(event);
+  }
+
   onExpand(event) {
     const idx = event.index;
     const toSearch = this.savedSearches[idx];
+    if(this.savedSearches[idx].blockchain !== null) {
+      return;
+    }
     this.blockchains[idx] = 0;
 
     if(toSearch.type === "address") {
       this.apiSvc.getAddress(toSearch.symbol, toSearch.hash)
           .subscribe(data => {
+            this.savedSearches[idx].blockchain = data;
             this.blockchains[idx] = data;
+            this.blockchain = data;
           }, err => {
             this.blockchains[idx] = -1
           });
     } else if (toSearch.type === "contract"){
       this.apiSvc.getContract(toSearch.symbol, toSearch.hash)
           .subscribe(data => {
+            this.savedSearches[idx].blockchain = data;
             this.blockchains[idx] = data;
+            this.blockchain = data;
           }, err => {
             this.blockchains[idx] = -1
           });
     } else if (toSearch.type === "transaction"){
       this.apiSvc.getTransaction(toSearch.symbol, toSearch.hash)
           .subscribe(data => {
+            this.savedSearches[idx].blockchain = data;
             this.blockchains[idx] = data;
+            this.blockchain = data;
           }, err => {
             this.blockchains[idx] = -1
           });

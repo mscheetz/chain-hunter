@@ -3,15 +3,49 @@
 <div *ngIf="savedSearches.length === 0 && !gettingData">
     <h3>You have not saved any addresses, contracts, or transactions</h3>
 </div>
-<div *ngIf="gettingData">    
+<div *ngIf="gettingData">
     <h3>Loading your favorite Hunts!&nbsp;&nbsp;&nbsp;<i class="fa fa-cog fa-2x fa-spin" style="color: #464a4e;"></i></h3>    
 </div>
 <div *ngIf="savedSearches.length > 0">
-    <h3>Your favorite Hunts:</h3>
+    <h3>Favorite Hunts:</h3>
     <p-accordion (onOpen)="onExpand($event)" [multiple]="true">
         <p-accordionTab *ngFor="let data of savedSearches" 
                         header="{{data.symbol}} {{data.type}} {{data.hash}}">
-            {{data}}
+            <div *ngIf="data.type==='address'">
+                <div *ngIf="data.blockchain === null">
+                    <h3>Hunting...<i class="fa fa-refresh fa-2x fa-spin"></i></h3>
+                </div>
+                <div *ngIf="data.blockchain !== null">
+                    <div>
+                        <p-button label="Refresh" (click)="onRefresh($event, data)" styleClass="ui-button-secondary"></p-button>
+                    </div>
+                    <app-address-detail [addressSaved]="true" [saveId]="data.id" [blockchain]="data.blockchain"></app-address-detail>
+                </div>
+            </div>
+            <div *ngIf="data.type==='contract'">
+                <div *ngIf="data.blockchain === null">
+                    <h3>Hunting...<i class="fa fa-refresh fa-2x fa-spin"></i></h3>
+                </div>
+                <div *ngIf="data.blockchain !== null">
+                    <div>
+                        <p-button label="Refresh" (click)="onRefresh($event, data)" styleClass="ui-button-secondary"></p-button>
+                    </div>
+                    <app-contract-detail *ngIf="data.blockchain !== null"  [blockchain]="data.blockchain"></app-contract-detail>
+                </div>
+            </div>
+            <div *ngIf="data.type==='transaction'">
+                <div *ngIf="data.blockchain === null">
+                    <h3>Hunting...<i class="fa fa-refresh fa-2x fa-spin"></i></h3>
+                </div>
+                <div *ngIf="data.blockchain !== null">
+                    <div>
+                        <p-button label="Refresh" (click)="onRefresh($event, data)" styleClass="ui-button-secondary"></p-button>
+                    </div>
+                    <transaction *ngIf="data.blockchain !== null" [transaction]="data.blockchain.transaction"
+                         [address]=""
+                         [showHash]="false"></transaction>
+                </div>
+            </div>
         </p-accordionTab>
     </p-accordion>
 </div>

@@ -132,9 +132,9 @@ router.post("/api/user/data", [ apiHelp.bootlegMiddleware, apiHelp.authMiddlewar
  * Remove user data
  */
 router.delete("/api/user/data/:id", [ apiHelp.bootlegMiddleware, apiHelp.authMiddleware, apiHelp.userMiddleware ], async (req, res, next) => {
-  const data = req.body.data;
+  const id = req.params.id;
 
-  const result = await userSvc.deleteUserData(data.userId, data.hash, data.symbol, data.type);
+  const result = await userSvc.deleteUserData(id);
 
   res.status(result.code).json(result.data);
 });

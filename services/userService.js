@@ -252,10 +252,9 @@ const getUserData = async(userId) => {
  */
 const addUserData = async(userId, hash, chain, type) => {
     const uuid = encryptionSvc.getUuid();
-    const userData = await getUserData(userId);
-    const exists = userData.data.filter(u => u.hash === hash && u.symbol === chain && u.type === type);
+    let userData = await getUserData(userId);
+    let exists = userData.data.filter(u => u.hash === hash && u.symbol === chain && u.type === type);
 
-    let result;
     if(exists.length === 0) {
         const created = helperSvc.getUnixTS();
         const userData = {
@@ -266,11 +265,13 @@ const addUserData = async(userId, hash, chain, type) => {
             type: type,
             added: created
         }
-        result = await db.postUserData(userData);
-    } else {
-        result = 0;
+        const status = await db.postUserData(userData);
+        userData = await getUserData(userId);
+        exists = userData.data.filter(u => u.hash === hash && u.symbol === chain && u.type === type);
     }
-        
+
+    const result = exists.id;
+
     return responseSvc.successMessage(result, 201);
 }
 /**

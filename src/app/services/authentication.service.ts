@@ -16,17 +16,21 @@ export class AuthenticationService {
     constructor(private apiSvc: ApiService, private helperSvc: HelperService) {
         this.currentUserSubject = new BehaviorSubject<User>(JSON.parse(localStorage.getItem('currentUser')));
         this.currentUser = this.currentUserSubject.asObservable();
-        this.loggedInSubject = new Subject<boolean>();
+        this.loggedInSubject = new BehaviorSubject<boolean>(this.loggedInState);
         this.isLoggedIn = this.loggedInSubject.asObservable();
         this.validateTokenDate();
     }
     loggedInState: boolean = false;
     isLoggedIn: Observable<boolean>;
 
-    private loggedInSubject: Subject<boolean>;
+    private loggedInSubject: BehaviorSubject<boolean>;
 
     public get currentUserValue(): User {
         return this.currentUserSubject.value;
+    }
+
+    public getLoggedInStatus(): Observable<boolean> {
+        return this.loggedInSubject.asObservable();
     }
 
     getUser(): User{
@@ -47,6 +51,7 @@ export class AuthenticationService {
 
                 this.user = user;
                 this.addLogin(jwt, user);
+                this.loggedInState = true;
                 this.currentUserSubject.next(user);
                 this.loggedInSubject.next(true);
                 return res;
@@ -55,6 +60,7 @@ export class AuthenticationService {
 
     logout() {
         this.removeLogin();
+        this.loggedInState = false;
         this.currentUserSubject.next(null);
         this.loggedInSubject.next(false);
     }

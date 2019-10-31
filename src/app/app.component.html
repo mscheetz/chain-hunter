@@ -34,7 +34,7 @@
           [(visible)]="showLogin" 
           (onHide)="loginHidden()"
           [style]="{width: '400px'}">
-    <app-login 
-          (toggleLogin)="onToggleLogin($event)"
-          (loginSuccess)="onLoginSuccess($event)"></app-login>
+<app-login 
+      (toggleLogin)="onToggleLogin($event)"
+      (loginSuccess)="onLoginSuccess($event)"></app-login>
 </p-dialog>

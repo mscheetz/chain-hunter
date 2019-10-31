@@ -4,6 +4,7 @@ import { User } from './classes/User';
 import { Router } from '@angular/router';
 import { AuthenticationService } from './services/authentication.service';
 import { LoginService } from './services/login.service';
+import { CookieService } from 'ngx-cookie-service';
 
 @Component({
   selector: 'app-root',
@@ -17,15 +18,27 @@ export class AppComponent {
   @Output() showLogin: boolean;
   loggedIn: boolean = false;
 
-  constructor(private router: Router, private authSvc: AuthenticationService, private messageSvc: MessageService, private loginSvc: LoginService) {
+  constructor(private router: Router, 
+              private authSvc: AuthenticationService, 
+              private messageSvc: MessageService, 
+              private loginSvc: LoginService,
+              private cookieSvc: CookieService) {
     //this.showLogin = false;
     this.authSvc.currentUser.subscribe(c => this.currentUser = c);
-    this.loginSvc.showLogin.subscribe(val => this.showLogin = val);
     this.authSvc.isLoggedIn.subscribe(val => this.loggedIn = val);
+    this.loginSvc.showLogin.subscribe(val => this.showLogin = val);
+    this.cookieCheck();
   }
 
   //@Output() loggedIn: boolean = this.authSvc.isLoggedIn();
   
+  cookieCheck() {
+    let cookieCookie = this.cookieSvc.get("tch-cookie-ok");
+    if(cookieCookie != null && cookieCookie !== "") {
+      this.showNotice = false;
+    }
+  }
+
   cookieOk(cookie: boolean){
     this.showNotice = false;
   }
@@ -58,9 +71,9 @@ export class AppComponent {
 
   onLoginSuccess(event) {
     this.loggedIn = event;
-    this.currentUser = this.authSvc.getUser();
+    //this.currentUser = this.authSvc.getUser();
     if(!this.loggedIn) {
-      this.currentUser = null;
+      //this.currentUser = null;
       this.authSvc.logout();
     }
   }

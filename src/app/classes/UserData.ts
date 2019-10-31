@@ -1,3 +1,5 @@
+import { Blockchain } from './ChainHunter/Blockchain';
+
 export class UserData {
     constructor() {}
 
@@ -6,4 +8,5 @@ export class UserData {
     symbol: string;
     type: string;
     added: number;
+    blockchain: Blockchain = null;
 }

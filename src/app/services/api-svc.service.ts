@@ -120,7 +120,7 @@ export class ApiService{
      * @param symbol symbol
      * @param type type of object
      */
-    saveData(hash: string, symbol: string, type: ResultType): Observable<number> {
+    saveData(hash: string, symbol: string, type: ResultType): Observable<string> {
         let endpoint: string = "/api/user/data";
         let url: string = this.baseUrl + endpoint;
         let data = {
@@ -129,7 +129,7 @@ export class ApiService{
             type: ResultType[type]
         }
 
-        let result = this.onPost<number>(url, data, true);
+        let result = this.onPost<string>(url, data, true);
 
         return result;
     }

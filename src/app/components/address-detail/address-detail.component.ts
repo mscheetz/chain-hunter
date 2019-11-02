@@ -71,6 +71,7 @@ export class AddressDetailComponent implements OnInit {
       }
       this.apiSvc.saveData(hash, this.blockchain.symbol, objType)
           .subscribe(res => {
+              this.addressSaved = true;
               this.saveId = res;
               const message = `${this.blockchain.symbol} ${type} saved!`;
               this.addToast('notification-toast', Severity.success, 'Saved', message, 5000);
@@ -108,7 +109,6 @@ export class AddressDetailComponent implements OnInit {
               const message = `Something happened when attempting to un-save this ${objType.toString()}`;
               this.addToast('notification-toast', Severity.error, 'Error', message, 5000);
           })
-
   }
 
   addToast(key: string, severity: Severity, summary: string, message: string, life: number = 5000){

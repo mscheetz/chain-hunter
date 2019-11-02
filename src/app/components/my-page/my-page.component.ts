@@ -42,7 +42,13 @@ export class MyPageComponent implements OnInit {
   }
 
   onRefresh(event, data: UserData) {
-    const idx = 0; /// TODO GET INDEX of savedSearches for the selected data, null blockchain out
+    let idx = -1; /// TODO GET INDEX of savedSearches for the selected data, null blockchain out
+    this.savedSearches.forEach((value, key: number) => {
+      if(value.id === data.id) {
+        idx = key;
+      }
+    })
+    this.savedSearches[idx].blockchain = null;
     event.index = idx;
     this.onExpand(event);
   }

@@ -8,7 +8,7 @@
     </p-panel>
     <!-- Contract Results -->
     <p-panel header="{{blockchain.symbol}} {{blockchain.symbol === 'ATOM' ? 'Validator' : 'Contract'}}" *ngIf="blockchain.hasContracts && blockchain.contract">
-        <app-contract-detail [blockchain]="blockchain"></app-contract-detail>
+        <app-contract-detail [contractSaved]="false" [saveId]="" [blockchain]="blockchain"></app-contract-detail>
     </p-panel>
     <!-- Transaction Results -->
     <p-panel header="{{blockchain.symbol}} Transaction" *ngIf="blockchain.transaction">

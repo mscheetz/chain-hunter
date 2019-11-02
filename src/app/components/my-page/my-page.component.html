@@ -30,7 +30,7 @@
                     <div>
                         <p-button label="Refresh" (click)="onRefresh($event, data)" styleClass="ui-button-secondary"></p-button>
                     </div>
-                    <app-contract-detail *ngIf="data.blockchain !== null"  [blockchain]="data.blockchain"></app-contract-detail>
+                    <app-contract-detail [contractSaved]="true" [saveId]="data.id" [blockchain]="data.blockchain"></app-contract-detail>
                 </div>
             </div>
             <div *ngIf="data.type==='transaction'">
@@ -41,7 +41,7 @@
                     <div>
                         <p-button label="Refresh" (click)="onRefresh($event, data)" styleClass="ui-button-secondary"></p-button>
                     </div>
-                    <transaction *ngIf="data.blockchain !== null" [transaction]="data.blockchain.transaction"
+                    <transaction [transaction]="data.blockchain.transaction"
                          [address]=""
                          [showHash]="false"></transaction>
                 </div>

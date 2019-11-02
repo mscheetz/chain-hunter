@@ -14,6 +14,8 @@ import { LoginService } from 'src/app/services/login.service';
 })
 export class ContractDetailComponent implements OnInit {
   @Input() blockchain: Blockchain;
+  @Input() contractSaved: boolean = false;
+  @Input() saveId: string;
   saveThisMessage: string;
   loggedIn: boolean;
 
@@ -54,6 +56,8 @@ export class ContractDetailComponent implements OnInit {
       }
       this.apiSvc.saveData(hash, this.blockchain.symbol, objType)
           .subscribe(res => {
+              this.contractSaved = true;
+              this.saveId = res;
               const message = `${this.blockchain.symbol} ${type} saved!`;
               this.addToast('notification-toast', Severity.success, 'Saved', message, 5000);
           }, err => {
@@ -61,6 +65,26 @@ export class ContractDetailComponent implements OnInit {
               this.addToast('notification-toast', Severity.error, 'Error', message, 5000);
           })
 
+  }
+
+  unSaveResult(event, type: string) {
+      if(!this.loggedIn) {
+          this.loginSvc.toggleLogin();
+          this.addToast('notification-toast', Severity.warn, 'Login', 'You must login before un-saving results', 5000);
+          return;
+      }
+      let hash = this.blockchain.contract.address;
+      let objType: ResultType = ResultType.contract;
+      
+      this.apiSvc.deleteData(this.saveId)
+          .subscribe(res => {
+              this.contractSaved = false;
+              const message = `${this.blockchain.symbol} ${type} un-saved!`;
+              this.addToast('notification-toast', Severity.success, 'Un-Saved', message, 5000);
+          }, err => {
+              const message = `Something happened when attempting to un-save this ${objType.toString()}`;
+              this.addToast('notification-toast', Severity.error, 'Error', message, 5000);
+          })
   }
 
   addToast(key: string, severity: Severity, summary: string, message: string, life: number = 5000){

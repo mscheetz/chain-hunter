@@ -139,4 +139,26 @@ router.delete("/api/user/data/:id", [ apiHelp.bootlegMiddleware, apiHelp.authMid
   res.status(result.code).json(result.data);
 });
 
+/**
+ * Validate an invite code
+ */
+router.post("api/user/invite/validate", [ apiHelp.bootlegMiddleware ], async(req, res, next) => {
+  const data = req.body;
+
+  const result = await userSvc.validateInviteCode(data);
+
+  res.status(result.code).json(result.data);
+});
+
+/**
+ * Register a new user
+ */
+router.post("/api/user/register", [ apiHelp.bootlegMiddleware ], async(req, res, next) => {
+  const data = req.body;
+
+  const result = await userSvc.registerUser(data.email, data.password, data.inviteCode);
+
+  res.status(result.code).json(result.data);
+});
+
 module.exports = router;

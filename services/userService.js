@@ -285,6 +285,31 @@ const deleteUserData = async(id) => {
     return responseSvc.successMessage(result, 202);
 }
 
+/**
+ * Validate an invite code
+ * 
+ * @param {string} id code id
+ */
+const validateInviteCode = async(id) => {
+    const code = await db.getDiscountCode(id);
+
+    if(typeof code === 'undefined') {
+        return responseSvc.errorMessage(false, 400);
+    }
+
+    if(code.validTil === null || code.validTil === "") {
+        return responseSvc.successMessage(true);
+    }
+
+    const now = helperSvc.getUnixTsSeconds();
+
+    if(now > code.validTil || code.redeemed) {
+        return responseSvc.errorMessage(false, 400);
+    } else {
+        return responseSvc.successMessage(true);
+    }
+}
+
 module.exports = {
     login,
     guestLogin,
@@ -299,5 +324,6 @@ module.exports = {
     getUserByUserId,
     getUserData,
     addUserData,
-    deleteUserData
+    deleteUserData,
+    validateInviteCode
 }

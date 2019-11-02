@@ -145,7 +145,7 @@ const getDiscountCodes = async() => {
     }
 }
 
-const getDiscountCodeById = async(id) => {
+const getDiscountCode = async(id) => {
     let sql = 'SELECT * FROM public."discountCode" WHERE code = $1';
 
     try {
@@ -538,7 +538,7 @@ module.exports = {
     getCountryCounts,
     postCountryCount,
     getDiscountCodes,
-    getDiscountCodeById,
+    getDiscountCode,
     postDiscountCode,
     updateDiscountCode,
     getSymbolCounts,

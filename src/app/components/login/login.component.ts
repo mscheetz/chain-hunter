@@ -17,6 +17,8 @@ export class LoginComponent implements OnInit {
   actionTypes: SelectItem[];
   selectedAction: number = 0;
   loginView: boolean = true;
+  registerView: boolean = false;
+  confirmView: boolean = false;
   loginDisabled: boolean = true;
   registerDisabled: boolean = true;
   pwdDisabled: boolean = true;
@@ -25,6 +27,7 @@ export class LoginComponent implements OnInit {
   newEmail: string;
   newPassword: string;
   newPasswordConfirm: string;
+  inviteCode: string;
 
   constructor(private authSvc: AuthenticationService, 
               private messageSvc: MessageService, 
@@ -202,10 +205,54 @@ export class LoginComponent implements OnInit {
           return;
     }
 
+    if(this.inviteCode !== "") {
+      this.apiSvc.validateInviteCode(this.inviteCode)
+          .subscribe(res => {
+            this.register();
+          }, err => {
+            this.messageSvc.clear();
+            this.messageSvc.add(
+                {
+                    key:'login-toast',
+                    severity:'warn', 
+                    summary:'Invite Code', 
+                    detail: 'Invalid Invite Code',
+                    life: 5000
+                });
+                return;
+          })
+    } else {
+      this.register();
+    }
+  }
+
+  register(){
+    this.apiSvc.register(this.newEmail, this.newPassword, this.inviteCode)
+        .subscribe(res => {
+          this.registerView = false;
+          this.confirmView = true;
+        }, err => {
+          this.messageSvc.clear();
+          this.messageSvc.add(
+              {
+                  key:'login-toast',
+                  severity:'warn', 
+                  summary:'Registration Error', 
+                  detail: err,
+                  life: 5000
+              });
+              return;
+        })
   }
 
   typeChange(event){
     this.email = "", this.password = this.email, this.newEmail = this.email, this.newPassword = this.email, this.newPasswordConfirm = this.email;
-    this.loginView = this.selectedAction === 0 ? true : false;
+    if(this.selectedAction === 0 ) {
+      this.loginView = true;
+      this.registerView = false;
+    } else {
+      this.loginView = false;
+      this.registerView = true;
+    }
   }
 }

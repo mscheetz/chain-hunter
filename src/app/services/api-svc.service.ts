@@ -74,14 +74,37 @@ export class ApiService{
     }
 
     /**
+     * Validate invite code
+     * 
+     * @param code Code to validate
+     */
+    validateInviteCode(code: string): Observable<boolean> {
+        let endpoint: string = "/api/user/invite/validate";
+        let url: string = this.baseUrl + endpoint;
+        let data = {
+            code: code
+        };
+
+        let result = this.onPost<boolean>(url, data);
+
+        return result;
+    }
+
+    /**
      * Register a new user
+     * 
      * @param user user data to register
      */
-    register(user: User): Observable<number> {
-        let endpoint: string = "/api/user";
+    register(email: string, password: string, inviteCode: string): Observable<number> {
+        let endpoint: string = "/api/user/register";
         let url: string = this.baseUrl + endpoint;
+        const data = {
+            email: email,
+            password: password,
+            inviteCode: inviteCode
+        };
 
-        let result = this.onPost<number>(url, user);
+        let result = this.onPost<number>(url, data);
 
         return result;
     }

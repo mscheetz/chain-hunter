@@ -2,13 +2,13 @@
 <div class="p-grid bottom-pad" *ngIf="loginView">
     <div class="p-col-12">
         <h4>Email</h4>
-        <input type="text" pInputText 
+        <input type="text" pInputText name="username"
                            placeholder="Email" [(ngModel)]="email" size="40" 
                            (ngModelChange)="modelChange($event)" (keyup.enter)="onLogin($event)">
     </div>
     <div class="p-col-12">
         <h4>Password</h4>
-        <input type="password" pInputText 
+        <input type="password" pInputText name="password" 
                                placeholder="Password" [(ngModel)]="password" size="40" 
                                (ngModelChange)="modelChange($event)" (keyup.enter)="onLogin($event)">        
     </div>
@@ -18,7 +18,7 @@
         <p-button label="Forgot Password" (click)="onForgotPassword($event)" styleClass="ui-button-warning"></p-button>
     </div>
 </div>
-<div class="p-grid bottom-pad" *ngIf="!loginView">
+<div class="p-grid bottom-pad" *ngIf="registerView">
     <div class="p-col-12">
         <h4>Email</h4>
         <input type="text" pInputText placeholder="Email" [(ngModel)]="newEmail" size="40" (ngModelChange)="modelChange($event)">
@@ -32,7 +32,17 @@
         <input type="password" pInputText placeholder="Confirm Password" [(ngModel)]="newPasswordConfirm" size="40" (ngModelChange)="modelChange($event)">
     </div>
     <div class="p-col-12">
+        <h4>Invite Code</h4>
+        <input type="text" pInputText placeholder="Optional" [(ngModel)]="inviteCode" size="40" (ngModelChange)="modelChange($event)">
+    </div>
+    <div class="p-col-12">
         <p-button label="Register" (click)="onRegister($event)" styleClass="ui-button-success"></p-button>
+    </div>
+</div>
+<div class="p-grid bottom-pad" *ngIf="confirmView">
+    <div class="p-col-12">
+        <h2>Successful Registration</h2>
+        <p>Check your email for a verification link</p>
     </div>
 </div>
 <p-toast key="login-toast"></p-toast>

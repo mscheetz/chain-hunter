@@ -6,14 +6,17 @@ import { ApiService } from './api-svc.service';
 import { HelperService } from './helper-svc.service';
 import { Interval } from '../classes/Enums';
 import { environment } from 'src/environments/environment.prod';
+import { CookieService } from 'ngx-cookie-service';
 
 @Injectable({providedIn: 'root'})
 export class AuthenticationService {
     private currentUserSubject: BehaviorSubject<User>;
     public currentUser: Observable<User>;
     user: User;
+    unlimitedCookie: string = "tch-cookie-unlimited";
+    searchLimitCookie: string = "tch-cookie-search";
 
-    constructor(private apiSvc: ApiService, private helperSvc: HelperService) {
+    constructor(private apiSvc: ApiService, private helperSvc: HelperService, private cookieSvc: CookieService) {
         this.currentUserSubject = new BehaviorSubject<User>(JSON.parse(localStorage.getItem('currentUser')));
         this.currentUser = this.currentUserSubject.asObservable();
         this.loggedInSubject = new BehaviorSubject<boolean>(this.loggedInState);
@@ -48,6 +51,11 @@ export class AuthenticationService {
                 user.expirationDate = res.expirationDate;
                 user.userId = res.userId;
                 user.username = res.username;
+                if(res.searchLimit === null) {
+                  this.cookieSvc.set(this.unlimitedCookie, 'unlimited', 1);
+                } else {
+                  this.cookieSvc.set(this.searchLimitCookie, JSON.stringify(res.searchLimit), 1);
+                }
 
                 this.user = user;
                 this.addLogin(jwt, user);
@@ -60,6 +68,8 @@ export class AuthenticationService {
 
     logout() {
         this.removeLogin();
+        this.cookieSvc.delete(this.unlimitedCookie);
+        this.cookieSvc.delete(this.searchLimitCookie);
         this.loggedInState = false;
         this.currentUserSubject.next(null);
         this.loggedInSubject.next(false);

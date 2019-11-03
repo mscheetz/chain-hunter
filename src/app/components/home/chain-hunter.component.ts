@@ -41,7 +41,9 @@ export class ChainHunterComponent implements OnInit {
     cookieData: CookieData = null;
     cookieName: string = "tch-cookie-cnt";
     unlimitedCookie: string = "tch-cookie-unlimited";
+    searchLimitCookie: string = "tch-cookie-search";
     searchLimit: boolean = false;
+    searchLimitSize: number = 3;
     unlimited: boolean = false;
     @Output() tokenContent: string;
 
@@ -178,15 +180,20 @@ export class ChainHunterComponent implements OnInit {
      * Read cookies for search counts
      */
     getCookies() {
+        let cookies = this.cookieSvc.getAll();
         const unlimited = this.cookieSvc.get(this.unlimitedCookie);
-        if(unlimited != null && unlimited !== "") {
+        if(typeof unlimited !== "undefined" && unlimited !== null && unlimited !== "") {
             this.unlimited = true;
             this.searchLimit = false;
             return;
         }
-        const cookie = this.cookieSvc.get(this.cookieName);
+        const searchCookie = this.cookieSvc.get(this.searchLimitCookie);
+        if(typeof searchCookie !== "undefined" && searchCookie !== null && searchCookie !== "") {
+            this.searchLimitSize = parseInt(JSON.parse(searchCookie));
+        }
+        const countCookie = this.cookieSvc.get(this.cookieName);
         if(this.cookieData != null) {
-            this.cookieData = JSON.parse(cookie);
+            this.cookieData = JSON.parse(countCookie);
             let cookieRequests: CookieRequest[] = [];
             this.cookieData.requests.forEach(req => {
                 const age = this.helperService.getTimestampAge(req.time, Interval.Hour);
@@ -199,7 +206,7 @@ export class ChainHunterComponent implements OnInit {
             this.cookieData = new CookieData();
             this.cookieData.requests = [];
         }
-        if(this.cookieData.requests.length > 4) {
+        if(this.cookieData.requests.length > this.searchLimitSize) {
             this.searchLimit = true;
         } else {
             this.searchLimit = false;

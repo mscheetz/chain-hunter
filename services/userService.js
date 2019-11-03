@@ -30,6 +30,9 @@ const login = async(email, password) => {
     let validLogin = await encryptionSvc.checkPassword(password, user.hash);
 
     if(validLogin) {
+        console.log('user I', user);
+        user = await db.getUserAndAccount(user.userId);
+        console.log('user', user);
         const token = await encryptionSvc.getToken(user.userId);
         user.token = token;
         delete user.password;
@@ -53,30 +56,60 @@ const guestLogin = async() => {
 
 /**
  * Register a user
- * @param {object} user 
+ * 
+ * @param {string} email email address
+ * @param {string} password password
+ * @param {string} inviteCode invite code
  */
-const registerUser = async(user) => {
-    const validEmail = helperSvc.validateEmail(user.email);
+const registerUser = async(email, password, inviteCode) => {
+    const validEmail = helperSvc.validateEmail(email);
     if(!validEmail) {
         return responseSvc.errorMessage("Not a valid email address", 400);
     }
-    const userCheck = await db.getUserByEmail(user.email);
+    const userCheck = await db.getUserByEmail(email);
     if(typeof userCheck !== 'undefined' && userCheck.userId.length > 0) {
         return responseSvc.errorMessage("An account already exists with that email address", 400);
     }
-    user.hash = await encryptionSvc.hashPassword(user.password);
+    user.hash = await encryptionSvc.hashPassword(password);
     user.validated = null;
+    user.accountTypeId = 1;
+    if(inviteCode !== "") {
+        user.accountTypeId = await getAccountTypeFromInviteCode(inviteCode);
+    }
     delete user.password;
 
-    const status = await db.postUser(user);
+    const postStatus = await db.postUser(user);
 
-    await validateAccountRequest(user);
+    const status = await validateAccountRequest(user);
 
     return responseSvc.successMessage(status, 201);
 }
 
+const getAccountTypeFromInviteCode = async(code) => {
+    const discountCode = await db.getDiscountCode(code);
+
+    if(typeof discountCode === 'undefined'){
+        return 1;
+    }
+    if(discountCode.redeemed !== null) {
+        return 1;
+    }
+    if(!discountCode.multiUse) {
+        await redeemDiscountCode(code);
+    }
+    return discountCode.accountTypeId;
+}
+
+const redeemDiscountCode = async(code) => {
+    const status = await db.redeemDiscountCode(code);
+
+    return status;
+}
+
 const validateAccountRequest = async(user) => {
     // TODO: send validation email
+
+    return 'A validation email has been sent to your email address.';
 }
 
 /**
@@ -253,6 +286,10 @@ const getUserData = async(userId) => {
 const addUserData = async(userId, hash, chain, type) => {
     const uuid = encryptionSvc.getUuid();
     let userData = await getUserData(userId);
+    let user = await db.getUserAndAccount(userId);
+    if(userData.length >= user.saveLimit) {
+        return responseSvc.errorMessage("You have exceeded your save limit", 400);
+    }
     let exists = userData.data.filter(u => u.hash === hash && u.symbol === chain && u.type === type);
 
     if(exists.length === 0) {
@@ -274,6 +311,7 @@ const addUserData = async(userId, hash, chain, type) => {
 
     return responseSvc.successMessage(result, 201);
 }
+
 /**
  * Delete user saved search
  * 
@@ -294,7 +332,7 @@ const validateInviteCode = async(id) => {
     const code = await db.getDiscountCode(id);
 
     if(typeof code === 'undefined') {
-        return responseSvc.errorMessage(false, 400);
+        return responseSvc.errorMessage("Invalid code", 400);
     }
 
     if(code.validTil === null || code.validTil === "") {
@@ -303,11 +341,15 @@ const validateInviteCode = async(id) => {
 
     const now = helperSvc.getUnixTsSeconds();
 
-    if(now > code.validTil || code.redeemed) {
-        return responseSvc.errorMessage(false, 400);
-    } else {
-        return responseSvc.successMessage(true);
+    if(now > code.validTil) {
+        return responseSvc.errorMessage("Code expired", 400);
     }
+
+    if(code.redeemed) {
+        return responseSvc.errorMessage("Code already redeemed", 400);
+    }
+
+    return responseSvc.successMessage(true);
 }
 
 module.exports = {

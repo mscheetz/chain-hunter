@@ -158,13 +158,15 @@ const getDiscountCode = async(id) => {
 }
 
 const postDiscountCode = async(discount) => {
-    let sql = 'INSERT INTO public."discountCode" ( code, "percentOff", "validTil", "usedOn" ) ';
-    sql += 'VALUES ( $1, $2, $3, $4 ) ';
+    let sql = 'INSERT INTO public."discountCode" ( code, "percentOff", "validTil", "multiUse", "accountTypeId", price ) ';
+    sql += 'VALUES ( $1, $2, $3, $4, $5, $6 ) ';
     const data = [
         discount.code, 
         discount.percentOff, 
         discount.validTil, 
-        discount.usedOn
+        discount.multiUse,
+        discount.accountTypeId,
+        discount.price
     ];
 
     try {
@@ -176,8 +178,20 @@ const postDiscountCode = async(discount) => {
     }
 }
 
-const updateDiscountCode = async(discount) => {
-    let sql = 'UPDATE public."discountCode" set "usedOn" = $1 ';
+const deleteDiscountCode = async(code) => {
+    let sql = 'DELETE FROM public."discountCode" WHERE code = $1';
+
+    try {
+        const res = await pool.query(sql, [ code ]);
+
+        return res.rowCount;
+    } catch(err) {
+        console.log(err);
+    }
+}
+
+const redeemDiscountCode = async(discount) => {
+    let sql = 'UPDATE public."discountCode" set redeemed = $1 ';
     sql += 'WHERE code = $2 ';
     const data = [
         discount.usedOn, 
@@ -271,7 +285,7 @@ const getUserByUserId = async(userId) => {
 }
 
 const postUser = async(user) => {
-    let sql = 'INSERT INTO public."user" ( email, created, "userId", "accountType", username, "expirationDate", hash, validated ) ';
+    let sql = 'INSERT INTO public."user" ( email, created, "userId", "accountTypeId", username, "expirationDate", hash, validated ) ';
     sql += 'VALUES ( $1, $2, $3, $4, $5, $6, $7, $8 )';
     const data = [
         user.email, 
@@ -294,7 +308,7 @@ const postUser = async(user) => {
 }
 
 const updateUser = async(user) => {
-    let sql = 'UPDATE public."user" SET email = $1, "accountType" = $2, username = $3, "expirationDate" = $4 ';
+    let sql = 'UPDATE public."user" SET email = $1, "accountTypeId" = $2, username = $3, "expirationDate" = $4 ';
     sql += 'WHERE "userId" = $5'
     const data = [
         user.email, 
@@ -361,6 +375,22 @@ const setUserPassword = async(userId, hash) => {
         const res = await pool.query(sql, data);
 
         return res.rowCount;
+    } catch(err) {
+        console.log(err);
+    }
+}
+
+const getUserAndAccount = async(id) => {
+    let sql = 'SELECT email, "userId", created, "expirationDate", username, hash, validated, "accountTypeId", "searchLimit", "saveLimit" ';
+	sql += 'FROM public."user" a ';
+	sql += 'LEFT JOIN public."accountType" b ';
+    sql += 'on a."accountTypeId" = b.id ';
+    sql += 'WHERE a."userId" = $1';
+
+    try {
+        const res = await pool.query(sql, [ id ]);
+
+        return res.rows[0];
     } catch(err) {
         console.log(err);
     }
@@ -528,6 +558,96 @@ const deletePasswordReset = async(userId) => {
     }
 }
 
+const getAccountTypes = async() => {
+    let sql = 'SELECT id, name, "searchLimit", "saveLimit", monthly, yearly FROM public."accountType" WHERE monthly >= 0 ORDER BY id';
+
+    try {
+        const res = await pool.query(sql);
+
+        return res.rows;
+    } catch(err) {
+        console.log(err);
+    }
+}
+
+const getAccountType = async(id) => {
+    let sql = 'SELECT id, name, "searchLimit", "saveLimit", monthly, yearly FROM public."accountType" WHERE id = $1';
+
+    try {
+        const res = await pool.query(sql, [id]);
+
+        return res.rows;
+    } catch(err) {
+        console.log(err);
+    }
+}
+
+const getAccountTypeByName = async(name) => {
+    let sql = 'SELECT id, name, "searchLimit", "saveLimit", monthly, yearly FROM public."accountType" WHERE name = $1';
+
+    try {
+        const res = await pool.query(sql, [name]);
+
+        return res.rows;
+    } catch(err) {
+        console.log(err);
+    }
+}
+
+const addAccountType = async(name, searchLimit, saveLimit, monthly, yearly) => {
+    let sql = 'INSERT INTO public."accountType" ( name, "searchLimit", "saveLimit", monthly, yearly ) ';
+    sql += 'VALUES ( $1, $2, $3, $4, $5 )';
+    const data = [
+        id,
+        name,
+        searchLimit,
+        saveLimit,
+        monthly,
+        yearly
+    ]
+
+    try {
+        const res = await pool.query(sql, data);
+
+        return res.rowCount;
+    } catch(err) {
+        console.log(err);
+    }
+}
+
+const updateAccountType = async(id, name, searchLimit, saveLimit, monthly, yearly) => {
+    let sql = 'UPDATE public."accountType" set name = $2, "searchLimit" = $3, "saveLimit" = $4, monthly = $5, yearly = $6 ';
+    sql += 'WHERE id = $1';
+    const data = [
+        id,
+        name,
+        searchLimit,
+        saveLimit,
+        monthly,
+        yearly
+    ]
+
+    try {
+        const res = await pool.query(sql, data);
+
+        return res.rowCount;
+    } catch(err) {
+        console.log(err);
+    }
+}
+
+const deleteAccountType = async(id) => {
+    let sql = 'DELETE FROM public."accountType" where id = $1';
+
+    try {
+        const res = await pool.query(sql, [ id ]);
+
+        return res.rowCount;
+    } catch(err) {
+        console.log(err);
+    }
+}
+
 module.exports = {
     getBlockchains,
     getBlockchainBySymbol,
@@ -540,7 +660,8 @@ module.exports = {
     getDiscountCodes,
     getDiscountCode,
     postDiscountCode,
-    updateDiscountCode,
+    redeemDiscountCode,
+    deleteDiscountCode,
     getSymbolCounts,
     postSymbolCount,
     getUser,
@@ -552,6 +673,7 @@ module.exports = {
     validateUser,
     updateUserPassword,
     setUserPassword,
+    getUserAndAccount,
     getSearchResults,
     postSearchResult,
     getTrxTokens,
@@ -561,5 +683,11 @@ module.exports = {
     deleteUserData,
     postPasswordReset,
     getPasswordReset,
-    deletePasswordReset
+    deletePasswordReset,
+    getAccountTypes,
+    getAccountType,
+    getAccountTypeByName,
+    addAccountType,
+    updateAccountType,
+    deleteAccountType
 }

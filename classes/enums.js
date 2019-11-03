@@ -32,6 +32,9 @@ const blockchainType = {
     IOT : 'IoT'
 }
 
+/**
+ * Represents a blockchain transaction type
+ */
 const transactionType = {
     TRANSFER : 'Transfer',
     CONTRACT: 'Contract',
@@ -57,8 +60,19 @@ const transactionType = {
     CREATE_ACCOUNT : 'Create Account'
 }
 
+/**
+ * Represents a user account type
+ */
+const accountType = {
+    FREE : 'free',
+    BASIC : 'basic',
+    PRO : 'pro',
+    ADMIN : 'admin'
+}
+
 module.exports = {
     searchType,
     blockchainType,
-    transactionType
+    transactionType,
+    accountType
 }

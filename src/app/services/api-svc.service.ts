@@ -50,7 +50,7 @@ export class ApiService{
      * @param email email address
      */
     forgotPassword(email: string): Observable<number> {
-        let endpoint: string = "/api/user/forgotPassword";
+        let endpoint: string = "/api/user/password/forgot/init";
         let url: string = this.baseUrl + endpoint;
 
         let result = this.onPost<number>(url, { email });

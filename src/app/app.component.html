@@ -30,11 +30,16 @@
 <cookies *ngIf="showNotice" (cookiesOk)="cookieOk($event)" class="cookie-box"></cookies>
 <p-toast key="notification-toast"></p-toast>
 <p-toast key="login-notice-toast"></p-toast>
-<p-dialog header="Join the Hunting Party!" 
+<p-dialog header="Join Chain Hunter!" 
           [(visible)]="showLogin" 
+          [modal]="true"
+          (onShow)="resetLoginBools()"
           (onHide)="loginHidden()"
           [style]="{width: '400px'}">
 <app-login 
+      [inLoginView]="loginView"
+      [inRegisterView]="registerView"
+      [inConfirmView]="confirmView"
       (toggleLogin)="onToggleLogin($event)"
       (loginSuccess)="onLoginSuccess($event)"></app-login>
 </p-dialog>

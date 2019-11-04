@@ -17,6 +17,9 @@ export class AppComponent {
   showNotice: boolean = true;
   @Output() showLogin: boolean;
   loggedIn: boolean = false;
+  @Output() loginView: boolean = true;
+  @Output() registerView: boolean = false;
+  @Output() confirmView: boolean = false;
 
   constructor(private router: Router, 
               private authSvc: AuthenticationService, 
@@ -89,5 +92,11 @@ export class AppComponent {
             detail:message,
             life: 3000
         });
+  }
+
+  resetLoginBools() {
+    this.loginView = true;
+    this.registerView = false;
+    this.confirmView = false;
   }
 }

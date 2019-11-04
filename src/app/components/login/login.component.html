@@ -1,4 +1,4 @@
-<p-selectButton [options]="actionTypes" [(ngModel)]="selectedAction" (onChange)="typeChange($event)"></p-selectButton>
+<p-selectButton *ngIf="loginView || registerView" [options]="actionTypes" [(ngModel)]="selectedAction" (onChange)="typeChange($event)"></p-selectButton>
 <div class="p-grid bottom-pad" *ngIf="loginView">
     <div class="p-col-12">
         <h4>Email</h4>

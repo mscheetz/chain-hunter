@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, Input } from '@angular/core';
 import { AuthenticationService } from 'src/app/services/authentication.service';
 import { MessageService, SelectItem } from 'primeng/api';
 import { ApiService } from 'src/app/services/api-svc.service';
@@ -15,6 +15,9 @@ export class LoginComponent implements OnInit {
   @Output() loginSuccess: EventEmitter<boolean> = new EventEmitter<boolean>();
   actionTypes: SelectItem[];
   selectedAction: number = 0;
+  @Input() inLoginView: boolean = true;
+  @Input() inRegisterView: boolean = false;
+  @Input() inConfirmView: boolean = false;
   loginView: boolean = true;
   registerView: boolean = false;
   confirmView: boolean = false;
@@ -35,6 +38,9 @@ export class LoginComponent implements OnInit {
               private loginSvc: LoginService) { }
 
   ngOnInit() {
+    this.loginView = this.inLoginView;
+    this.registerView = this.inRegisterView;
+    this.confirmView = this.inConfirmView;
     this.actionTypes = [
       { label: 'Login', value: 0 },
       { label: 'Register', value: 1 }
@@ -150,7 +156,7 @@ export class LoginComponent implements OnInit {
                   key:'login-toast',
                   severity:'error', 
                   summary:'Forgot Password', 
-                  detail: 'Please re-submit your request.',
+                  detail: err.error,
                   life: 5000
               });
         })
@@ -237,7 +243,7 @@ export class LoginComponent implements OnInit {
                   key:'login-toast',
                   severity:'warn', 
                   summary:'Registration Error', 
-                  detail: err,
+                  detail: err.error,
                   life: 5000
               });
               return;

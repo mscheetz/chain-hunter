@@ -134,7 +134,7 @@ const postCountryCount = async(countryCount) => {
 }
 
 const getDiscountCodes = async() => {
-    let sql = 'SELECT * FROM public."discountCode"';
+    let sql = 'SELECT * FROM public."discountCodes"';
 
     try {
         const res = await pool.query(sql);
@@ -146,27 +146,28 @@ const getDiscountCodes = async() => {
 }
 
 const getDiscountCode = async(id) => {
-    let sql = 'SELECT * FROM public."discountCode" WHERE code = $1';
+    let sql = 'SELECT * FROM public."discountCodes" WHERE code = $1';
 
     try {
         const res = await pool.query(sql, [id]);
 
-        return res.rows;
+        return res.rows[0];
     } catch(err) {
         console.log(err);
     }
 }
 
 const postDiscountCode = async(discount) => {
-    let sql = 'INSERT INTO public."discountCode" ( code, "percentOff", "validTil", "multiUse", "accountTypeId", price ) ';
-    sql += 'VALUES ( $1, $2, $3, $4, $5, $6 ) ';
+    let sql = 'INSERT INTO public."discountCodes" ( code, "percentOff", "validTil", "multiUse", "accountTypeId", price, days ) ';
+    sql += 'VALUES ( $1, $2, $3, $4, $5, $6, $7 ) ';
     const data = [
         discount.code, 
         discount.percentOff, 
         discount.validTil, 
         discount.multiUse,
         discount.accountTypeId,
-        discount.price
+        discount.price,
+        discount.days
     ];
 
     try {
@@ -179,7 +180,7 @@ const postDiscountCode = async(discount) => {
 }
 
 const deleteDiscountCode = async(code) => {
-    let sql = 'DELETE FROM public."discountCode" WHERE code = $1';
+    let sql = 'DELETE FROM public."discountCodes" WHERE code = $1';
 
     try {
         const res = await pool.query(sql, [ code ]);
@@ -190,16 +191,25 @@ const deleteDiscountCode = async(code) => {
     }
 }
 
-const redeemDiscountCode = async(discount) => {
-    let sql = 'UPDATE public."discountCode" set redeemed = $1 ';
-    sql += 'WHERE code = $2 ';
-    const data = [
-        discount.usedOn, 
-        discount.code
-    ];
+const redeemDiscountCode = async(code) => {
+    let sql = 'UPDATE public."discountCodes" set redeemed = true ';
+    sql += 'WHERE code = $1 ';
 
     try {
-        const res = await pool.query(sql, data);
+        const res = await pool.query(sql, [ code ]);
+
+        return res.rowCount;
+    } catch(err) {
+        console.log(err);
+    }
+}
+
+const consumeDiscountCode = async(code) => {
+    let sql = 'UPDATE public."discountCodes" set "usedUses" = "usedUses" + 1 ';
+    sql += 'WHERE code = $1 ';
+
+    try {
+        const res = await pool.query(sql, [ code ]);
 
         return res.rowCount;
     } catch(err) {
@@ -288,10 +298,10 @@ const postUser = async(user) => {
     let sql = 'INSERT INTO public."user" ( email, created, "userId", "accountTypeId", username, "expirationDate", hash, validated ) ';
     sql += 'VALUES ( $1, $2, $3, $4, $5, $6, $7, $8 )';
     const data = [
-        user.email, 
+        user.email,
         user.created, 
         user.userId, 
-        user.accountType, 
+        user.accountTypeId, 
         user.username, 
         user.expirationDate, 
         user.hash, 
@@ -661,6 +671,7 @@ module.exports = {
     getDiscountCode,
     postDiscountCode,
     redeemDiscountCode,
+    consumeDiscountCode,
     deleteDiscountCode,
     getSymbolCounts,
     postSymbolCount,

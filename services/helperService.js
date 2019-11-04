@@ -19,6 +19,37 @@ const getUnixTsSeconds = function() {
 }
 
 /**
+ * Get future unix timestamp
+ * 
+ * @param {number} d days
+ * @param {number} h hours
+ * @param {number} m minutes
+ * @param {number} s seconds
+ * @param {boolean} ms use milliseconds
+ */
+const getUnixTsPlus = function(d = 0, h = 0, m = 0, s = 0, ms = false) {
+    const ts = getUnixTsSeconds();
+
+    let seconds = s;
+    if(m > 0) {
+        let minSeconds = m*60;
+        seconds += minSeconds;
+    }
+    if(h > 0) {
+        let hrSeconds = h*60*60;
+        seconds += hrSeconds;
+    }
+    if(d > 0) {
+        let dSeconds = d*24*60*60;
+        seconds += dSeconds;
+    }
+    if(ms === true) {
+        seconds = seconds*1000;
+    }
+    return ts + seconds;
+}
+
+/**
  * validate an email address
  * 
  * @param email email to validate
@@ -824,6 +855,7 @@ module.exports = {
     inoutCalculation,
     getUnixTS,
     getUnixTsSeconds,
+    getUnixTsPlus,
     commaBigNumber,
     bigNumberToDecimal,
     getBigNumber,

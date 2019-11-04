@@ -142,10 +142,10 @@ router.delete("/api/user/data/:id", [ apiHelp.bootlegMiddleware, apiHelp.authMid
 /**
  * Validate an invite code
  */
-router.post("api/user/invite/validate", [ apiHelp.bootlegMiddleware ], async(req, res, next) => {
+router.post("/api/user/invite/validate", [ apiHelp.bootlegMiddleware ], async(req, res, next) => {
   const data = req.body;
-
-  const result = await userSvc.validateInviteCode(data);
+  
+  const result = await userSvc.validateInviteCode(data.code);
 
   res.status(result.code).json(result.data);
 });

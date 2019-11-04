@@ -30,9 +30,8 @@ const login = async(email, password) => {
     let validLogin = await encryptionSvc.checkPassword(password, user.hash);
 
     if(validLogin) {
-        console.log('user I', user);
         user = await db.getUserAndAccount(user.userId);
-        console.log('user', user);
+        
         const token = await encryptionSvc.getToken(user.userId);
         user.token = token;
         delete user.password;
@@ -63,19 +62,31 @@ const guestLogin = async() => {
  */
 const registerUser = async(email, password, inviteCode) => {
     const validEmail = helperSvc.validateEmail(email);
+
     if(!validEmail) {
         return responseSvc.errorMessage("Not a valid email address", 400);
     }
     const userCheck = await db.getUserByEmail(email);
+    
     if(typeof userCheck !== 'undefined' && userCheck.userId.length > 0) {
         return responseSvc.errorMessage("An account already exists with that email address", 400);
     }
+    let user = {
+        created: helperSvc.getUnixTsSeconds(),
+        email: email,
+        userId: encryptionSvc.getUuid()
+    };
     user.hash = await encryptionSvc.hashPassword(password);
     user.validated = null;
     user.accountTypeId = 1;
     if(inviteCode !== "") {
-        user.accountTypeId = await getAccountTypeFromInviteCode(inviteCode);
+        const discount = await getAccountTypeFromInviteCode(inviteCode);
+        user.accountTypeId = discount.id;
+        if(user.accountTypeId !== 1) {            
+            user.expirationDate = helperSvc.getUnixTsPlus(discount.days);
+        }
     }
+    
     delete user.password;
 
     const postStatus = await db.postUser(user);
@@ -86,24 +97,30 @@ const registerUser = async(email, password, inviteCode) => {
 }
 
 const getAccountTypeFromInviteCode = async(code) => {
-    const discountCode = await db.getDiscountCode(code);
+    let discountCode = await db.getDiscountCode(code);
 
     if(typeof discountCode === 'undefined'){
+        console.log('no code')
         return 1;
     }
-    if(discountCode.redeemed !== null) {
+    if(discountCode.redeemed === true) {
+        console.log('code redeemed')
         return 1;
     }
-    if(!discountCode.multiUse) {
-        await redeemDiscountCode(code);
+    if(discountCode.multiUse === false) {
+        console.log('code to be redeemed')
+        await await db.redeemDiscountCode(code);
+    } else {
+        await db.consumeDiscountCode(code);
+        discountCode = await db.getDiscountCode(code);
+        
+        if(discountCode.totalUses === discountCode.usedUses) {
+            await await db.redeemDiscountCode(code);
+        }
     }
-    return discountCode.accountTypeId;
-}
+    const days = discountCode.days !== null ? parseInt(discountCode.days) : 0;
 
-const redeemDiscountCode = async(code) => {
-    const status = await db.redeemDiscountCode(code);
-
-    return status;
+    return { id: parseInt(discountCode.accountTypeId), days: days };
 }
 
 const validateAccountRequest = async(user) => {
@@ -163,10 +180,15 @@ const forgotPasswordInit = async(email) => {
         return responseSvc.errorMessage("Not a valid email address", 400);
     }
 
-    const user = await getUserByEmail(email);
+    const user = await db.getUserByEmail(email);
 
     if(typeof user === 'undefined') {
         return responseSvc.errorMessage("Not a valid user", 400);
+    }
+
+    if(user.validated === null) {
+        await validateAccountRequest(user);
+        return responseSvc.errorMessage("Account not valiated. A validation email has been sent to your email address.", 400);
     }
 
     const oneHourPlus = helperSvc.getTimePlus(0, 1, 0, 0);

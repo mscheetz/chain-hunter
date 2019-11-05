@@ -9,4 +9,5 @@ export class UserData {
     type: string;
     added: number;
     blockchain: Blockchain = null;
+    active: boolean;
 }

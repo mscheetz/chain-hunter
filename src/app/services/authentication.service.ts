@@ -40,17 +40,27 @@ export class AuthenticationService {
         return this.user;
     }
 
+    dismissUserMessage(): User {
+        this.user.message = null;
+        return this.user;
+    }
+
     login(email: string, password: string) {
         return this.apiSvc.login(email, password)
         .pipe(map(res => {
                 const jwt = res.token;
                 let user = new User();
                 user.accountType = res.accountType;
-                user.createdDate = res.createdDate;
+                user.created = res.created;
                 user.email = res.email;
                 user.expirationDate = res.expirationDate;
                 user.userId = res.userId;
                 user.username = res.username;
+                user.message = res.message;
+                user.validated = res.validated;
+                user.saveLimit = res.saveLimit;
+                user.searchLimit = res.searchLimit;
+                user.savedHunts = res.savedHunts;
                 if(res.searchLimit === null) {
                   this.cookieSvc.set(this.unlimitedCookie, 'unlimited', 1);
                 } else {
@@ -74,10 +84,6 @@ export class AuthenticationService {
         this.currentUserSubject.next(null);
         this.loggedInSubject.next(false);
     }
-
-    // isLoggedIn() {
-    //     return localStorage.getItem(environment.jwtName) ? true : false;
-    // }
 
     private validateTokenDate() {
         let expiry = localStorage.getItem(environment.jwtTsName);

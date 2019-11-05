@@ -3,6 +3,20 @@ const enums = require('../classes/enums');
 const _ = require('lodash');
 
 /**
+ * Convert unix timestamp to a date
+ * @param {number} ts timestamp
+ */
+const getDatefromTs = function(ts) {
+    const months = ['Jan', 'Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const date = new Date(ts*1000);
+    const year = date.getFullYear();
+    const month = months[date.getMonth()];
+    const day = date.getDate();
+
+    return `${day} ${month}, ${year}`;
+}
+
+/**
  * Get current unix timestamp, in milliseconds
  */
 const getUnixTS = function() {
@@ -853,6 +867,7 @@ module.exports = {
     getIO,
     cleanIO,
     inoutCalculation,
+    getDatefromTs,
     getUnixTS,
     getUnixTsSeconds,
     getUnixTsPlus,

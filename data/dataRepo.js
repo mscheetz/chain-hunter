@@ -338,6 +338,24 @@ const updateUser = async(user) => {
     }
 }
 
+const updateUserAccount = async(userId, accountTypeId, expirationDate = null) => {
+    let sql = 'UPDATE public."user" SET "accountTypeId" = $2, "expirationDate" = $3 ';
+    sql += 'WHERE "userId" = $1'
+    const data = [
+        userId, 
+        accountTypeId,
+        expirationDate
+    ];
+
+    try {
+        const res = await pool.query(sql, data);
+
+        return res.rowCount;
+    } catch(err) {
+        console.log(err);
+    }
+}
+
 const validateUser = async(userId, validationTS) => {
     let sql = 'UPDATE public."user" SET validated = $2 ';
     sql += 'WHERE "userId" = $1'
@@ -391,10 +409,12 @@ const setUserPassword = async(userId, hash) => {
 }
 
 const getUserAndAccount = async(id) => {
-    let sql = 'SELECT email, "userId", created, "expirationDate", username, hash, validated, "accountTypeId", "searchLimit", "saveLimit" ';
+    let sql = 'SELECT a.*, b."searchLimit", b."saveLimit", b."name" as "accountType", c."savedHunts" ';
 	sql += 'FROM public."user" a ';
 	sql += 'LEFT JOIN public."accountType" b ';
     sql += 'on a."accountTypeId" = b.id ';
+	sql += 'LEFT JOIN  (SELECT "userId", Count("userId") as "savedHunts" FROM public."userData" where active = true group by "userId") c ';
+	sql += 'on a."userId" = c."userId" ';
     sql += 'WHERE a."userId" = $1';
 
     try {
@@ -519,6 +539,22 @@ const deleteUserData = async(id) => {
 
     try {
         const res = await pool.query(sql, [ id ]);
+
+        return res.rowCount;
+    } catch(err) {
+        console.log(err);
+    }
+}
+
+const updateUserDataState = async(id, activeState) => {
+    let sql = 'UPDATE public."userData" set active = $2 where id = $1';
+    const data = [
+        id,
+        activeState
+    ];
+
+    try {
+        const res = await pool.query(sql, data);
 
         return res.rowCount;
     } catch(err) {
@@ -681,6 +717,7 @@ module.exports = {
     getUsers,
     postUser,
     updateUser,
+    updateUserAccount,
     validateUser,
     updateUserPassword,
     setUserPassword,
@@ -692,6 +729,7 @@ module.exports = {
     postUserData,
     getUserData,
     deleteUserData,
+    updateUserDataState,
     postPasswordReset,
     getPasswordReset,
     deletePasswordReset,

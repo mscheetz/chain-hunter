@@ -52,13 +52,15 @@ import { AuthInterceptor } from './services/authIntercepter.service';
 import { LoginService } from './services/login.service';
 import { AddressDetailComponent } from './components/address-detail/address-detail.component';
 import { ContractDetailComponent } from './components/contract-detail/contract-detail.component';
+import { MyHuntsComponent } from './components/my-hunts/my-hunts.component';
 
 const appRoutes: Routes = [
   { path: '', component: ChainHunterComponent },
   { path: 'about', component: AboutComponent },
   { path: 'terms', component: TermsComponent },
   { path: 'info', component: BlockchainInfoComponent },
-  { path: 'mypage', component: MyPageComponent, canActivate: [AuthGuard] }
+  { path: 'hunts', component: MyHuntsComponent, canActivate: [AuthGuard] },
+  { path: 'account', component: MyPageComponent, canActivate: [AuthGuard] }
 ]
 
 @NgModule({
@@ -85,7 +87,8 @@ const appRoutes: Routes = [
     TopNavComponent,
     MyPageComponent,
     AddressDetailComponent,
-    ContractDetailComponent
+    ContractDetailComponent,
+    MyHuntsComponent
   ],
   imports: [
     AccordionModule,

@@ -1,51 +1,21 @@
-<h2>My Page</h2>
-
-<div *ngIf="savedSearches.length === 0 && !gettingData">
-    <h3>You have not saved any addresses, contracts, or transactions</h3>
-</div>
-<div *ngIf="gettingData">
-    <h3>Loading your favorite Hunts!&nbsp;&nbsp;&nbsp;<i class="fa fa-cog fa-2x fa-spin" style="color: #464a4e;"></i></h3>    
-</div>
-<div *ngIf="savedSearches.length > 0">
-    <h3>Favorite Hunts:</h3>
-    <p-accordion (onOpen)="onExpand($event)" [multiple]="true">
-        <p-accordionTab *ngFor="let data of savedSearches" 
-                        header="{{data.symbol}} {{data.type}} {{data.hash}}">
-            <div *ngIf="data.type==='address'">
-                <div *ngIf="data.blockchain === null">
-                    <h3>Hunting...<i class="fa fa-refresh fa-2x fa-spin"></i></h3>
-                </div>
-                <div *ngIf="data.blockchain !== null">
-                    <div>
-                        <p-button label="Refresh" (click)="onRefresh($event, data)" styleClass="ui-button-secondary"></p-button>
-                    </div>
-                    <app-address-detail [addressSaved]="true" [saveId]="data.id" [blockchain]="data.blockchain"></app-address-detail>
-                </div>
-            </div>
-            <div *ngIf="data.type==='contract'">
-                <div *ngIf="data.blockchain === null">
-                    <h3>Hunting...<i class="fa fa-refresh fa-2x fa-spin"></i></h3>
-                </div>
-                <div *ngIf="data.blockchain !== null">
-                    <div>
-                        <p-button label="Refresh" (click)="onRefresh($event, data)" styleClass="ui-button-secondary"></p-button>
-                    </div>
-                    <app-contract-detail [contractSaved]="true" [saveId]="data.id" [blockchain]="data.blockchain"></app-contract-detail>
-                </div>
-            </div>
-            <div *ngIf="data.type==='transaction'">
-                <div *ngIf="data.blockchain === null">
-                    <h3>Hunting...<i class="fa fa-refresh fa-2x fa-spin"></i></h3>
-                </div>
-                <div *ngIf="data.blockchain !== null">
-                    <div>
-                        <p-button label="Refresh" (click)="onRefresh($event, data)" styleClass="ui-button-secondary"></p-button>
-                    </div>
-                    <transaction [transaction]="data.blockchain.transaction"
-                         [address]=""
-                         [showHash]="false"></transaction>
-                </div>
-            </div>
-        </p-accordionTab>
-    </p-accordion>
+<h2>My Account</h2>
+<div class="p-grid">
+    <div class="p-col">
+        Email: {{user.email}}
+    </div>
+    <div class="p-col">
+        Joined: {{joinDate}}
+    </div>
+    <div class="p-col">
+        Username: <input type="text" pInputText name="username"
+                           placeholder="username" [(ngModel)]="user.username" size="40">
+                <p-button label="Update" (click)="onUpdateUsername($event)" styleClass="ui-button-info"></p-button>
+    </div>
+    <div class="p-col">
+        Account Type: {{user.accountType}}
+        Daily Search Limit: {{searchLimit}}
+        Saved Hunt Limit: {{saveLimit}}
+        Current Saved Hunts: {{user.savedHunts}}
+        <p-button *ngIf="user.accountTypeId < 3" label="Upgrade Account" (click)="onUpgradeAccount($event)" styleClass="ui-button-success"></p-button>
+    </div>
 </div>

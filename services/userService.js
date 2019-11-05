@@ -31,10 +31,16 @@ const login = async(email, password) => {
 
     if(validLogin) {
         user = await db.getUserAndAccount(user.userId);
+
+        delete user.password;
+
+        user = await accountValidation(user);
         
         const token = await encryptionSvc.getToken(user.userId);
         user.token = token;
-        delete user.password;
+        if(user.savedHunts === null) {
+            user.savedHunts = 0;
+        }
 
         const removeToken = await db.deletePasswordReset(user.userId);
 
@@ -43,6 +49,77 @@ const login = async(email, password) => {
         return responseSvc.errorMessage("Invalid password");
     }
 }
+
+const accountValidation = async(user) => {
+    const currentTs = helperSvc.getUnixTsSeconds();
+    let message = "";
+    
+    if(user.expirationDate !== null && user.expirationDate < currentTs && user.accountTypeId > 1) {
+        const exprDate = helperSvc.getDatefromTs(user.expirationDate);
+        message = `Your account expired on ${exprDate}. You have been downgraded to a Free account.`;
+        user.accountTypeId = 1;
+        user.expirationDate = null;
+        await db.updateUserAccount(user.userId, 1);
+        user = await db.getUserAndAccount(user.userId);
+    } else {
+        message = "Welcome back!";
+    }
+    user.message = message;
+    
+    user = await userDataManagement(user);
+
+    return user;
+}
+
+const userDataManagement = async(user) => {
+    let userData = await getUserData(user.userId);
+    let message = "";
+    if(userData.data.length === 0) {
+        return user;
+    }
+    
+    let actives = userData.data.filter(u => u.active === true);
+    let saveLimit = user.saveLimit;
+    if(user.saveLimit === null) {
+        saveLimit = userData.data.length;
+    }
+    if(actives.length > saveLimit) {
+        if(userData !== null && actives.length > 0) {
+            let activeCount = 0;
+            let deactivatedCount = 0;
+            for(let i = 0; i < actives.length; i++) {
+                activeCount++;
+                if(activeCount > saveLimit) {
+                    deactivatedCount++;
+                    await db.updateUserDataState(actives[i].id, false);
+                }
+            }
+            if(deactivatedCount > 0) {
+                message += ` ${deactivatedCount} saved items have been deactivated.`;
+            }
+        }
+
+    } else if(actives.length < saveLimit && userData.data.length > actives.length) {
+        let inactives = userData.data.filter(u => u.active === false);
+        let activeCount = actives.length;
+        let reactivatedCount = 0;
+        for(let i = 0; i < inactives.length; i++) {
+            activeCount++;
+            if(activeCount <= saveLimit) {
+                reactivatedCount++;
+                await db.updateUserDataState(inactives[i].id, true);
+            }
+        }
+        if(reactivatedCount > 0) {
+            message += ` ${reactivatedCount} saved items have been reactivated.`;
+        }
+    }
+
+    user.message = user.message + message;
+    
+    return user;
+}
+
 /**
  * Login as guest
  */

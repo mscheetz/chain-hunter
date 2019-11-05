@@ -29,7 +29,8 @@
         <ul class="list-unstyled text-small mbe-0">
             <li><a class="text-muted" routerLink="/" routerLinkActive="active">Home</a></li>
             <li><a class="text-muted" *ngIf="!loggedIn" (click)="onLogin()" routerLink="">Login | Register</a></li>
-            <li><a class="text-muted" *ngIf="loggedIn" routerLink="mypage" routerLinkActive="active">My Page</a></li>
+            <li><a class="text-muted" *ngIf="loggedIn" routerLink="hunts" routerLinkActive="active">My Hunts</a></li>
+            <li><a class="text-muted" *ngIf="loggedIn" routerLink="account" routerLinkActive="active">My Account</a></li>
             <!-- <li><span class="text-muted link-like">Login | Register</span></li> -->
             <li><a class="text-muted" routerLink="/info" routerLinkActive="active">Blockchain Info</a></li>
             <li><a class="text-muted" routerLink="/about" routerLinkActive="active">About</a></li>

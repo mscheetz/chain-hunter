@@ -11,10 +11,11 @@ import { LoginService } from 'src/app/services/login.service';
   styleUrls: ['./login.component.css']
 })
 export class LoginComponent implements OnInit {
-  @Output() toggleLogin: EventEmitter<any> = new EventEmitter();
+  //@Output() toggleLogin: EventEmitter<any> = new EventEmitter();
   @Output() loginSuccess: EventEmitter<boolean> = new EventEmitter<boolean>();
   actionTypes: SelectItem[];
   selectedAction: number = 0;
+  performingAction: boolean = false;
   @Input() inLoginView: boolean = true;
   @Input() inRegisterView: boolean = false;
   @Input() inConfirmView: boolean = false;
@@ -82,13 +83,18 @@ export class LoginComponent implements OnInit {
           });
           return;
     } 
+    if(this.performingAction) {
+      return;
+    }
     
+    this.performingAction = true;
     this.authSvc.login(this.email, this.password)
         .subscribe(
           res => {
             this.loginSuccess.emit(true);
             this.messageSvc.clear();
             this.loginSvc.toggleLogin();
+            console.log("Login toggle from login.component - login");
             this.email = "";
             this.password = "";
             this.messageSvc.add(
@@ -99,6 +105,7 @@ export class LoginComponent implements OnInit {
                     detail: 'Login Success',
                     life: 5000
                 });
+            this.performingAction = false;
           }, 
           err => {
             this.messageSvc.clear();
@@ -110,6 +117,7 @@ export class LoginComponent implements OnInit {
                     detail: err.error,
                     life: 5000
                 });
+            this.performingAction = false;
           });
   }
 
@@ -137,10 +145,16 @@ export class LoginComponent implements OnInit {
           });
           return;
     }
+    if(this.performingAction) {
+      return;
+    }
+    
+    this.performingAction = true;
     this.apiSvc.forgotPassword(this.email)
         .subscribe(res => {
           this.messageSvc.clear();
-          this.loginSvc.toggleLogin();
+          console.log("Login toggle from login.component - forgot password");
+          this.loginSvc.setLogin(false);
           this.messageSvc.add(
               {
                   key:'login-toast',
@@ -149,6 +163,7 @@ export class LoginComponent implements OnInit {
                   detail: 'You wil receive an email with password reset instructions.',
                   life: 5000
               });
+          this.performingAction = false;
         }, err => {
           this.messageSvc.clear();
           this.messageSvc.add(
@@ -159,6 +174,7 @@ export class LoginComponent implements OnInit {
                   detail: err.error,
                   life: 5000
               });
+          this.performingAction = false;
         })
   }
 

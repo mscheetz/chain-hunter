@@ -1,22 +1,24 @@
 <p-selectButton *ngIf="loginView || registerView" [options]="actionTypes" [(ngModel)]="selectedAction" (onChange)="typeChange($event)"></p-selectButton>
 <div class="p-grid bottom-pad" *ngIf="loginView">
-    <div class="p-col-12">
-        <h4>Email</h4>
-        <input type="text" pInputText name="username"
-                           placeholder="Email" [(ngModel)]="email" size="40" 
-                           (ngModelChange)="modelChange($event)" (keyup.enter)="onLogin($event)">
-    </div>
-    <div class="p-col-12">
-        <h4>Password</h4>
-        <input type="password" pInputText name="password" 
-                               placeholder="Password" [(ngModel)]="password" size="40" 
-                               (ngModelChange)="modelChange($event)" (keyup.enter)="onLogin($event)">        
-    </div>
-    <div class="p-col-12">
-        <p-button label="Login" (click)="onLogin($event)" styleClass="ui-button-success"></p-button>
-        &nbsp;&nbsp;
-        <p-button label="Forgot Password" (click)="onForgotPassword($event)" styleClass="ui-button-warning"></p-button>
-    </div>
+    <form #login="ngForm">
+        <div class="p-col-12">
+            <h4>Email</h4>
+            <input type="text" pInputText name="email"
+                            placeholder="Email" [(ngModel)]="email" size="40" 
+                            (ngModelChange)="modelChange($event)" (keyup.enter)="onLogin($event)">
+        </div>
+        <div class="p-col-12">
+            <h4>Password</h4>
+            <input type="password" pInputText name="password" 
+                                placeholder="Password" [(ngModel)]="password" size="40" 
+                                (ngModelChange)="modelChange($event)" (keyup.enter)="onLogin($event)">        
+        </div>
+        <div class="p-col-12">
+            <p-button label="Login" (click)="onLogin($event)" styleClass="ui-button-success"></p-button>
+            &nbsp;&nbsp;
+            <p-button label="Forgot Password" (click)="onForgotPassword($event)" styleClass="ui-button-warning"></p-button>
+        </div>
+</form>
 </div>
 <div class="p-grid bottom-pad" *ngIf="registerView">
     <div class="p-col-12">

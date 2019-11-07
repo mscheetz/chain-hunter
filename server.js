@@ -71,9 +71,9 @@ const redirectHome = async(req, res) => {
   res.redirect(baseUrl);
 };
 
-app.all('/api/blockchain/*', blockchainApi);
-app.all('/api/user/*', userApi);
-app.all('/api/results/*', resultsApi);
+app.all('/api/blockchain*', blockchainApi);
+app.all('/api/user*', userApi);
+app.all('/api/results*', resultsApi);
 
 app.get('/', function (req, res) {
   res.status(200).sendFile(`/`, {root: dist_dir});

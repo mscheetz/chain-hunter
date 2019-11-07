@@ -20,7 +20,7 @@ const login = async(email, password) => {
                 : await db.getUser(email);
 
     if(typeof user === 'undefined') {
-        return responseSvc.errorMessage("Invalid account");        
+        return responseSvc.errorMessage("Invalid email or password");        
     }
 
     if(user.validated === null) {
@@ -46,7 +46,7 @@ const login = async(email, password) => {
 
         return responseSvc.successMessage(user);
     } else {
-        return responseSvc.errorMessage("Invalid password");
+        return responseSvc.errorMessage("Invalid email or password");
     }
 }
 
@@ -211,11 +211,7 @@ const validateAccountRequest = async(user) => {
  * @param {object} user 
  */
 const updateUser = async(user, token) => {
-    const validEmail = helperSvc.validateEmail(user.email);
-    if(!validEmail) {
-        return responseSvc.errorMessage("Not a valid email address", 400);
-    }
-    const status = await db.updateUser(user);
+    const status = await db.updateUserName(user.userId, user.username);
 
     return responseSvc.successMessage(status, 202);
 }
@@ -451,6 +447,12 @@ const validateInviteCode = async(id) => {
     return responseSvc.successMessage(true);
 }
 
+const getAccountTypes = async() => {
+    const accounts = await db.getAccountTypes();
+
+    return responseSvc.successMessage(accounts);
+}
+
 module.exports = {
     login,
     guestLogin,
@@ -466,5 +468,6 @@ module.exports = {
     getUserData,
     addUserData,
     deleteUserData,
-    validateInviteCode
+    validateInviteCode,
+    getAccountTypes
 }

@@ -87,9 +87,9 @@ router.post("/api/user", apiHelp.bootlegMiddleware, async (req, res, next) => {
  * Update a user
  */
 router.put("/api/user", [ apiHelp.bootlegMiddleware, apiHelp.authMiddleware, apiHelp.userMiddleware ], async (req, res, next) => {
-  const data = req.body.data;
-
-  const result = await userSvc.updateUser(data);
+  const user = req.body;
+  
+  const result = await userSvc.updateUser(user);
 
   res.status(result.code).json(result.data);
 });
@@ -158,6 +158,15 @@ router.post("/api/user/register", [ apiHelp.bootlegMiddleware ], async(req, res,
 
   const result = await userSvc.registerUser(data.email, data.password, data.inviteCode);
 
+  res.status(result.code).json(result.data);
+});
+
+/**
+ * Get account types
+ */
+router.get("/api/user/accounts", [ apiHelp.bootlegMiddleware ], async(req, res, next) => {
+  const result = await userSvc.getAccountTypes();
+  
   res.status(result.code).json(result.data);
 });
 

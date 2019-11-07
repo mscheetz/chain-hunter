@@ -338,6 +338,23 @@ const updateUser = async(user) => {
     }
 }
 
+const updateUserName = async(userId, username) => {
+    let sql = 'UPDATE public."user" SET username = $2 ';
+    sql += 'WHERE "userId" = $1'
+    const data = [
+        userId, 
+        username
+    ];
+
+    try {
+        const res = await pool.query(sql, data);
+
+        return res.rowCount;
+    } catch(err) {
+        console.log(err);
+    }
+}
+
 const updateUserAccount = async(userId, accountTypeId, expirationDate = null) => {
     let sql = 'UPDATE public."user" SET "accountTypeId" = $2, "expirationDate" = $3 ';
     sql += 'WHERE "userId" = $1'
@@ -717,6 +734,7 @@ module.exports = {
     getUsers,
     postUser,
     updateUser,
+    updateUserName,
     updateUserAccount,
     validateUser,
     updateUserPassword,

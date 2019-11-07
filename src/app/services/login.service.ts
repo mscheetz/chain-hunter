@@ -14,7 +14,9 @@ export class LoginService {
     private loginSubject: Subject<boolean>;
 
     toggleLogin(){
+        console.log(`Toggle Login: current state ${this.loginState}`);
         this.loginState = !this.loginState;
+        console.log(`Toggled: current state ${this.loginState}`);
         this.loginSubject.next(this.loginState);
     }
 

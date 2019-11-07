@@ -98,5 +98,4 @@ export class ContractDetailComponent implements OnInit {
               life: life
           });
   }
-
 }

@@ -47,6 +47,7 @@ export class AppComponent {
   }
   
   onToggleLogin(event) {
+    console.log("Login toggle from app.component");
     this.loginSvc.toggleLogin();
     //this.showLogin = this.showLogin ? false : true;
   }

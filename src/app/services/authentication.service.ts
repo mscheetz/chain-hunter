@@ -51,16 +51,17 @@ export class AuthenticationService {
                 const jwt = res.token;
                 let user = new User();
                 user.accountType = res.accountType;
+                user.accountTypeId = res.accountTypeId;
                 user.created = res.created;
                 user.email = res.email;
                 user.expirationDate = res.expirationDate;
-                user.userId = res.userId;
-                user.username = res.username;
                 user.message = res.message;
-                user.validated = res.validated;
+                user.savedHunts = res.savedHunts;
                 user.saveLimit = res.saveLimit;
                 user.searchLimit = res.searchLimit;
-                user.savedHunts = res.savedHunts;
+                user.userId = res.userId;
+                user.username = res.username;
+                user.validated = res.validated;
                 if(res.searchLimit === null) {
                   this.cookieSvc.set(this.unlimitedCookie, 'unlimited', 1);
                 } else {

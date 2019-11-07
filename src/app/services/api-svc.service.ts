@@ -11,6 +11,7 @@ import { User } from '../classes/User';
 import { UserData } from '../classes/UserData';
 import { UserResponse } from '../classes/UserResponse';
 import { ResultType } from '../classes/Enums';
+import { AccountType } from '../classes/AccountType';
 
 @Injectable({providedIn: 'root'})
 export class ApiService{
@@ -113,11 +114,11 @@ export class ApiService{
      * Update user data
      * @param user user data to update
      */
-    updateUser(user: User): Observable<number> {
+    updateUser(user: User): Observable<string> {
         let endpoint: string = "/api/user";
         let url: string = this.baseUrl + endpoint;
 
-        let result = this.onPut<number>(url, user, true);
+        let result = this.onPut<string>(url, user, true);
 
         return result;
     }
@@ -167,6 +168,18 @@ export class ApiService{
         let url: string = this.baseUrl + endpoint + "/" + id;
 
         let result = this.onDelete<number>(url, true);
+
+        return result;
+    }
+
+    /**
+     * Get all account types
+     */
+    getAccountTypes(): Observable<AccountType[]> {
+        let endpoint: string = "/api/user/accounts";
+        let url: string = this.baseUrl + endpoint;
+
+        let result = this.onGet<AccountType[]>(url);
 
         return result;
     }
@@ -338,7 +351,7 @@ export class ApiService{
     onPut<T>(url: string, data: any, secure: boolean = false): Observable<T> {
         let headers = this.getHeaders(secure);
         let requestOptions = {
-            headers: new HttpHeaders(headers),
+            headers: new HttpHeaders(headers)
         }
 
         return this.http.put<T>(url, data, requestOptions);

@@ -20,6 +20,7 @@ export class TopNavComponent implements OnInit {
   }
 
   login(event) {
+    console.log("Login toggle from top-nav.component");
     this.loginSvc.toggleLogin();
     //this.toggleLogin.emit(event);
   }

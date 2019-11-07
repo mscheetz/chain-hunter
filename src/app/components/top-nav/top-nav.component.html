@@ -2,8 +2,9 @@
     <li><a routerLink="/" routerLinkActive="active">Home</a></li>
     <li><a *ngIf="!loggedIn" routerLink="" (click)="login($event)">Login | Register</a></li>
     <li><a *ngIf="loggedIn" routerLink="/hunts" routerLinkActive="active">My Hunts</a></li>
-    <li><a *ngIf="loggedIn" routerLink="/account" routerLinkActive="active">My Account</a></li>
+    <li><a *ngIf="loggedIn" routerLink="/mypage" routerLinkActive="active">My Account</a></li>
     <li><a *ngIf="loggedIn" routerLink="" (click)="logout($event)">Logout</a></li>
+    <li><a routerLink="/accounts" routerLinkActive="active">Account Types</a></li>
     <li><a routerLink="/info" routerLinkActive="active">Blockchain Info</a></li>
     <li><a routerLink="/about" routerLinkActive="active">About</a></li>
     <li><a routerLink="/terms" routerLinkActive="active">Terms</a></li>

@@ -24,6 +24,7 @@ import { TableModule } from 'primeng/table';
 import { DialogModule } from 'primeng/dialog';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { SelectButtonModule } from 'primeng/selectbutton';
+import { CardModule } from 'primeng/card';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -53,6 +54,7 @@ import { LoginService } from './services/login.service';
 import { AddressDetailComponent } from './components/address-detail/address-detail.component';
 import { ContractDetailComponent } from './components/contract-detail/contract-detail.component';
 import { MyHuntsComponent } from './components/my-hunts/my-hunts.component';
+import { AccountTypesComponent } from './components/account-types/account-types.component';
 
 const appRoutes: Routes = [
   { path: '', component: ChainHunterComponent },
@@ -60,7 +62,8 @@ const appRoutes: Routes = [
   { path: 'terms', component: TermsComponent },
   { path: 'info', component: BlockchainInfoComponent },
   { path: 'hunts', component: MyHuntsComponent, canActivate: [AuthGuard] },
-  { path: 'account', component: MyPageComponent, canActivate: [AuthGuard] }
+  { path: 'mypage', component: MyPageComponent, canActivate: [AuthGuard] },
+  { path: 'accounts', component: AccountTypesComponent }
 ]
 
 @NgModule({
@@ -88,7 +91,8 @@ const appRoutes: Routes = [
     MyPageComponent,
     AddressDetailComponent,
     ContractDetailComponent,
-    MyHuntsComponent
+    MyHuntsComponent,
+    AccountTypesComponent
   ],
   imports: [
     AccordionModule,
@@ -96,6 +100,7 @@ const appRoutes: Routes = [
     BrowserAnimationsModule,
     BrowserModule,
     ButtonModule,
+    CardModule,
     DialogModule,
     FormsModule,
     HttpClientModule,

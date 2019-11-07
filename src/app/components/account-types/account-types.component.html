@@ -1,0 +1,14 @@
+<h2>Chain Hunter Accounts</h2>
+
+<div class="p-grid">
+    <div class="p-col" *ngFor="let account of accounts; let i = index">
+        <p-card header="{{i === 0 ? 'Good' : i === 1 ? 'Better' : 'Best'}}">
+            <h2>{{account.name}}</h2>
+            <h4>Daily Hunt Limit: <span *ngIf="account.searchLimit === null">Unlimited</span><span *ngIf="account.searchLimit !== null">{{account.searchLimit}}</span></h4>
+            <h4>Total Saved Hunts: <span *ngIf="account.saveLimit === null">Unlimited</span><span *ngIf="account.saveLimit !== null">{{account.saveLimit}}</span></h4>
+            <h3>${{account.yearly}}/Year</h3>
+            <p-button *ngIf="!loggedIn" label="Sign Up!" (click)="onOrder(account.id)" styleClass="ui-button-success"></p-button>
+            <p-button *ngIf="loggedIn && user.accountTypeId < account.id" label="Upgrade Now!" (click)="onUpgrade(account.id)" styleClass="ui-button-success"></p-button>
+        </p-card>
+    </div>
+</div>

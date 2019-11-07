@@ -27,12 +27,13 @@ export class HelperService{
     unixToUTC(timestamp: number): string {
       let dateTime = new Date(timestamp * 1000);
       const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-      let year = dateTime.getFullYear();
-      let month = months[dateTime.getMonth()];
-      let hour = dateTime.getHours() == 0 ? "00" : dateTime.getHours();
-      let min = dateTime.getMinutes() == 0 ? "00" : dateTime.getMinutes();
-      let sec = dateTime.getSeconds() == 0 ? "00" : dateTime.getSeconds();
-      let time = dateTime + '-' + month + '-' + year + ' ' + hour + ':' + min + ':' + sec ;
+      const day = dateTime.getDay();
+      const year = dateTime.getFullYear();
+      const month = months[dateTime.getMonth()];
+      const hour = dateTime.getHours() == 0 ? "00" : dateTime.getHours();
+      const min = dateTime.getMinutes() == 0 ? "00" : dateTime.getMinutes();
+      const sec = dateTime.getSeconds() == 0 ? "00" : dateTime.getSeconds();
+      const time = day + '-' + month + '-' + year + ' ' + hour + ':' + min + ':' + sec ;
       return time;
     }
 

@@ -4,6 +4,7 @@ export class User {
     userId: string;
     username: string;
     email: string;
+    accountTypeId: number;
     accountType: string;
     expirationDate: number;
     created: number;

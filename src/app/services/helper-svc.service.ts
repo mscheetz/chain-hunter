@@ -23,8 +23,9 @@ export class HelperService{
      * conver unix time to utc time
      * 
      * @param timestamp Unix timestamp
+     * @param includeTime Include Time (default true)
      */
-    unixToUTC(timestamp: number): string {
+    unixToUTC(timestamp: number, includeTime: boolean = true): string {
       let dateTime = new Date(timestamp * 1000);
       const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
       const day = dateTime.getDay();
@@ -33,8 +34,11 @@ export class HelperService{
       const hour = dateTime.getHours() == 0 ? "00" : dateTime.getHours();
       const min = dateTime.getMinutes() == 0 ? "00" : dateTime.getMinutes();
       const sec = dateTime.getSeconds() == 0 ? "00" : dateTime.getSeconds();
-      const time = day + '-' + month + '-' + year + ' ' + hour + ':' + min + ':' + sec ;
-      return time;
+      let formatted = day + '-' + month + '-' + year;
+      if(includeTime) {
+        formatted +=  ' ' + hour + ':' + min + ':' + sec ;
+      }
+      return formatted;
     }
 
     /**

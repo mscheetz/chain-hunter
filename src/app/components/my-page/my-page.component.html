@@ -2,12 +2,12 @@
 <div class="p-grid">
     <div class="p-col">
         <p-card header="About Me">
-            <div>Email: {{user.email}}</div>
-            <div>Joined: {{joinDate}}</div>
-            <div>Username: <span *ngIf="!editUser">{{user.username}}</span> 
-                <input type="text" *ngIf="editUser" pInputText name="username" placeholder="username" [(ngModel)]="user.username" size="40">
+            <div class="margin-btm-10">Email: {{user.email}}</div>
+            <div class="margin-btm-10">Joined: {{joinDate}}</div>
+            <div class="margin-btm-10">Username: <span *ngIf="!editUser">{{user.username}}</span> 
+                <input type="text" *ngIf="editUser" pInputText name="username" placeholder="Username" [(ngModel)]="user.username" size="20">
             </div>
-            <div>
+            <div class="margin-btm-10">
                 <p-button label="Edit" *ngIf="!editUser" (click)="onToggleEdit(true)" styleClass="ui-button-info"></p-button>
                 <p-button label="Update" *ngIf="editUser && !updatingUser" (click)="onUpdateUsername($event)" styleClass="ui-button-info"></p-button>
                 &nbsp;&nbsp;
@@ -15,14 +15,32 @@
                 <i *ngIf="updatingUser" class="fa fa-refresh fa-2x fa-spin"></i>
             </div>
         </p-card>
+        <p-card header="Update Password">
+            <div class="margin-btm-10">
+                Current Password: 
+                <input type="password" [ngClass]="{'invalid-input': invalidPassword0}" pInputText name="Password" placeholder="Password" [(ngModel)]="password" size="20">
+            </div>
+            <div class="margin-btm-10">
+                New Password: 
+                <input type="password" [ngClass]="{'invalid-input': invalidPassword1}" pInputText name="NewPassword" placeholder="Minimum 8 characters" [(ngModel)]="newPassword" size="20">
+            </div>
+            <div class="margin-btm-10">
+                Confirm New Password: 
+                <input type="password" [ngClass]="{'invalid-input': invalidPassword2}" pInputText name="Confirm" placeholder="Confirm" [(ngModel)]="newPasswordConfirm" size="20">
+            </div>
+            <div class="margin-btm-10">
+                <p-button label="Update" (click)="onUpdatePassword($event)" styleClass="ui-button-info"></p-button>
+                <i *ngIf="updatingPassword" class="fa fa-refresh fa-2x fa-spin"></i>
+            </div>
+        </p-card>
     </div>
     <div class="p-col">
         <p-card header="Account Details">
-            <div>Account Type: {{user.accountType}}</div>
-            <div>Daily Search Limit: {{searchLimit}}</div>
-            <div>Saved Hunt Limit: {{saveLimit}}</div>
-            <div>Current Saved Hunts: {{user.savedHunts}}</div>
-            <div>
+            <div class="margin-btm-10">Account Type: {{user.accountType}}</div>
+            <div class="margin-btm-10">Daily Search Limit: {{searchLimit}}</div>
+            <div class="margin-btm-10">Saved Hunt Limit: {{saveLimit}}</div>
+            <div class="margin-btm-10">Current Saved Hunts: {{user.savedHunts}}</div>
+            <div class="margin-btm-10">
                 <p-button *ngIf="user.accountTypeId < 3" label="Upgrade Account" (click)="onUpgradeAccount($event)" styleClass="ui-button-success"></p-button>
             </div>
         </p-card>

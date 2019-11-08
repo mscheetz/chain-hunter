@@ -19,6 +19,13 @@ export class MyPageComponent implements OnInit {
   searchLimit: string;
   editUser: boolean = false;
   updatingUser: boolean = false;
+  updatingPassword: boolean = false;
+  password: string;
+  newPassword: string;
+  newPasswordConfirm: string;
+  invalidPassword0: boolean = false;
+  invalidPassword1: boolean = false;
+  invalidPassword2: boolean = false;
   
   constructor(private apiSvc: ApiService, private authSvc: AuthenticationService, private helperSvc: HelperService, private messageSvc: MessageService, private router: Router) { }
 
@@ -56,6 +63,74 @@ export class MyPageComponent implements OnInit {
       })
       this.updatingUser = false;
     })
+  }
+
+  onUpdatePassword(event) {
+    this.invalidPassword0 = this.invalidPassword1 = this.invalidPassword2 = false;
+    if((typeof this.password === 'undefined') || (typeof this.newPassword === 'undefined') || (typeof this.newPasswordConfirm === 'undefined') 
+          || this.password.length === 0 || this.newPassword.length === 0 || this.newPasswordConfirm.length === 0){
+      this.invalidPassword0 = (typeof this.password === 'undefined') || this.password.length === 0;
+      this.invalidPassword1 = (typeof this.newPassword === 'undefined') || this.newPassword.length === 0;
+      this.invalidPassword2 = (typeof this.newPasswordConfirm === 'undefined') || this.newPasswordConfirm.length === 0;
+      this.messageSvc.clear();
+      this.messageSvc.add(
+          {
+              key:'notification-toast',
+              severity:'warn', 
+              summary:'Incomplete', 
+              detail: 'Enter all the required fields',
+              life: 5000
+          });
+          return;
+    }
+    if(this.password.length < 8) {
+      this.invalidPassword0 = true;
+      this.messageSvc.add({
+        key: 'notification-toast',
+        severity:'warn', 
+        summary:'Password', 
+        detail: "Password is less than 8 characters",
+        life: 5000
+      })
+      return;
+
+    }
+    const passwordConfirmationMessage = this.helperSvc.passwordConfirm(this.newPassword, this.newPasswordConfirm);
+    if(passwordConfirmationMessage !== null) {
+      this.invalidPassword1 = true;
+      this.invalidPassword2 = true;
+      this.messageSvc.add({
+        key: 'notification-toast',
+        severity:'warn', 
+        summary:'Password', 
+        detail: passwordConfirmationMessage,
+        life: 5000
+      })
+      return;
+    }
+    this.updatingPassword = true;
+    this.apiSvc.updatePassword(this.user.userId, this.password, this.newPassword)
+      .subscribe(res => {
+        this.password = "";
+        this.newPassword = "";
+        this.newPasswordConfirm = "";
+        this.updatingPassword = false;
+        this.messageSvc.add({
+          key: 'notification-toast',
+          severity:'success', 
+          summary:'Password', 
+          detail: res,
+          life: 5000
+        });
+      }, err => {                
+        this.messageSvc.add({
+          key: 'notification-toast',
+          severity:'error', 
+          summary:'Password', 
+          detail: err.error,
+          life: 5000
+        });
+      })
   }
 
   onUpgradeAccount(event) {

@@ -1,3 +1,9 @@
+.margin-btm-10 {
+    margin-bottom: 10px;
+}
 .ui-card{
     background-color: #f5f5f5 !important;
+}
+.invalid-input {
+    border: 1px solid #dd0031 !important;
 }

@@ -6,3 +6,6 @@ h4 {
 .bottom-pad {
     margin-block-start: .5em;
 }
+.invalid-input {
+    border: 1px solid #dd0031 !important;
+}

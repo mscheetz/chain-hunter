@@ -23,19 +23,19 @@
 <div class="p-grid bottom-pad" *ngIf="registerView">
     <div class="p-col-12">
         <h4>Email</h4>
-        <input type="text" pInputText placeholder="Email" [(ngModel)]="newEmail" size="40" (ngModelChange)="modelChange($event)">
+        <input type="text" pInputText placeholder="Email" [ngClass]="{'invalid-input': invalidEmail}" [(ngModel)]="newEmail" size="40" (ngModelChange)="modelChange($event)">
     </div>
     <div class="p-col-12">
         <h4>Password</h4>
-        <input type="password" pInputText placeholder="Minimum 8 characters" [(ngModel)]="newPassword" size="40" (ngModelChange)="modelChange($event)">
+        <input type="password" pInputText placeholder="Minimum 8 characters" [ngClass]="{'invalid-input': invalidPassword0}" [(ngModel)]="newPassword" size="40" (ngModelChange)="modelChange($event)">
     </div>
     <div class="p-col-12">
         <h4>Confirm Password</h4>
-        <input type="password" pInputText placeholder="Confirm Password" [(ngModel)]="newPasswordConfirm" size="40" (ngModelChange)="modelChange($event)">
+        <input type="password" pInputText placeholder="Confirm Password" [ngClass]="{'invalid-input': invalidPassword1}" [(ngModel)]="newPasswordConfirm" size="40" (ngModelChange)="modelChange($event)">
     </div>
     <div class="p-col-12">
         <h4>Invite Code</h4>
-        <input type="text" pInputText placeholder="Optional" [(ngModel)]="inviteCode" size="40" (ngModelChange)="modelChange($event)">
+        <input type="text" pInputText placeholder="Optional" [ngClass]="{'invalid-input': invalidInvite}" [(ngModel)]="inviteCode" size="40" (ngModelChange)="modelChange($event)">
     </div>
     <div class="p-col-12">
         <p-button label="Register" (click)="onRegister($event)" styleClass="ui-button-success"></p-button>

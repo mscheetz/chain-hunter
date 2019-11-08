@@ -4,6 +4,7 @@ import { MessageService, SelectItem } from 'primeng/api';
 import { ApiService } from 'src/app/services/api-svc.service';
 import { HelperService } from 'src/app/services/helper-svc.service';
 import { LoginService } from 'src/app/services/login.service';
+import { ThrowStmt } from '@angular/compiler';
 
 @Component({
   selector: 'app-login',
@@ -31,6 +32,10 @@ export class LoginComponent implements OnInit {
   newPassword: string;
   newPasswordConfirm: string;
   inviteCode: string;
+  invalidEmail: boolean = false;
+  invalidPassword0: boolean = false;
+  invalidPassword1: boolean = false;
+  invalidInvite: boolean = false;
 
   constructor(private authSvc: AuthenticationService, 
               private messageSvc: MessageService, 
@@ -49,14 +54,6 @@ export class LoginComponent implements OnInit {
   }
 
   modelChange(event) {
-  }
-
-  onPasswordConfirm() {
-    if(this.newPassword.length > 0 && this.newPasswordConfirm.length > 0) {
-      return this.newPassword === this.newPasswordConfirm;
-    } else {
-      return true;
-    }
   }
 
   onLogin(event) {
@@ -121,7 +118,7 @@ export class LoginComponent implements OnInit {
           });
   }
 
-  onForgotPassword(event) {
+  onForgotPassword(event) {    
     if((typeof this.email === 'undefined') || this.email.length === 0){
       this.messageSvc.clear();
       this.messageSvc.add(
@@ -154,7 +151,6 @@ export class LoginComponent implements OnInit {
         .subscribe(res => {
           this.messageSvc.clear();
           console.log("Login toggle from login.component - forgot password");
-          this.loginSvc.setLogin(false);
           this.messageSvc.add(
               {
                   key:'login-toast',
@@ -179,8 +175,12 @@ export class LoginComponent implements OnInit {
   }
 
   onRegister(event) {
+    this.invalidEmail = this.invalidInvite = this.invalidPassword0 = this.invalidPassword1 = false;
     if((typeof this.email === 'undefined') || (typeof this.newPassword === 'undefined') || (typeof this.newPasswordConfirm === 'undefined') 
           || this.newEmail.length === 0 || this.newPassword.length === 0 || this.newPasswordConfirm.length === 0){
+      this.invalidEmail = (typeof this.email === 'undefined') || this.email.length === 0;
+      this.invalidPassword0 = (typeof this.newPassword === 'undefined') || this.newPassword.length === 0;
+      this.invalidPassword1 = (typeof this.newPasswordConfirm === 'undefined') || this.newPasswordConfirm.length === 0;
       this.messageSvc.clear();
       this.messageSvc.add(
           {
@@ -192,6 +192,7 @@ export class LoginComponent implements OnInit {
           });
           return;
     } else if(!this.helperSvc.validateEmail(this.newEmail)){
+      this.invalidEmail = true;
       this.messageSvc.clear();
       this.messageSvc.add(
           {
@@ -202,25 +203,17 @@ export class LoginComponent implements OnInit {
               life: 5000
           });
           return;
-    } else if(this.newPassword.length < 8) {
+    }
+    const passwordConfirmationMessage = this.helperSvc.passwordConfirm(this.newPassword, this.newPasswordConfirm);
+    if(passwordConfirmationMessage !== null){
+      this.invalidPassword0 = this.invalidPassword1 = true;
       this.messageSvc.clear();
       this.messageSvc.add(
           {
               key:'login-toast',
               severity:'warn', 
               summary:'Password', 
-              detail: 'Password is less than 8 characters',
-              life: 5000
-          });
-          return;
-    } else if (!this.onPasswordConfirm()) {
-      this.messageSvc.clear();
-      this.messageSvc.add(
-          {
-              key:'login-toast',
-              severity:'warn', 
-              summary:'Password', 
-              detail: 'Passwords to not match',
+              detail: passwordConfirmationMessage,
               life: 5000
           });
           return;
@@ -231,6 +224,7 @@ export class LoginComponent implements OnInit {
           .subscribe(res => {
             this.register();
           }, err => {
+            this.invalidInvite = true;
             this.messageSvc.clear();
             this.messageSvc.add(
                 {

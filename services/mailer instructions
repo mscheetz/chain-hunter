@@ -1,0 +1,112 @@
+This week I had a project where I developed a simple static website for a team of lawyers. Besides presenting their work and services I had to create a contact page. Since this was a common task for this type of websites, I expected to find a lot of blog posts about solving this issue in a simple way. But all posts I found had code examples with needless complexity and many external dependencies. So I decided to write my own blog where I would use as few dependencies as possible.
+I have created an example project available on GitHub, so you can follow along.
+
+Implementation
+First, I created an HTML form with help of Bootstrap.
+
+<form role="form" action="/send-email" method="post">
+  <br style="clear:both">
+  <div class="form-group">
+    <input type="text" class="form-control" id="subject" name="subject" placeholder="Subject" required>
+  </div>
+  <div class="form-group">
+    <textarea class="form-control" type="textarea" id="message" name="message" placeholder="Message" maxlength="140" rows="7" required></textarea>
+  </div>
+  <div class="text-center">
+    <button type="submit" id="submit" name="submit" class="btn btn-primary pull-right btn-submit">Send</button>
+  </div>
+</form>
+Pressing the Send button will submit the results to the send-email path containing the form data. This will use the default media type application/x-www-form-urlencoded. With this media type send-email action will create a query string using the field names as keys and its data as values. Beside this default media type, there are also other media types like multipart/form-data or text/plain.
+
+Then I had to choose a server-side scripting language for sending emails and my choice was Node.js. Now I needed to write code where I would capture a POST request and I expected that Node.js would be enough. The code for the only server-side script I have would look like this:
+
+let http = require('http');
+let server = http.createServer((req, res) => {
+    if (req.path === 'send-email') {
+        // Grab the form data and send an email
+    }
+    // ...
+});
+server.listen(8081);
+Data in the request is a readable stream so we need to read off data from the stream and parse it before we can actually send an email. At this point, I decided not to go with pure Node.js solution, but to also use Express.js and body-parser to help me with this task.
+
+After adding Express.js and body-parser my server.js becomes:
+
+let express = require("express"),
+  path = require('path'),
+  bodyParser = require('body-parser');
+
+let app = express();
+
+app.use(express.static('src'));
+
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.json());
+
+app.post('/send-email', function (req, res) {
+  // Grab the form data and send email
+});
+
+let server = app.listen(8081, function(){
+    let port = server.address().port;
+    console.log("Server started at http://localhost:%s", port);
+});
+Now we finally came to the point where we have to send an email and we will use Nodemailer npm package for that. Here is the link where you can find how to use it, although I will explain it here too.
+
+In order to send an email, you will need a transporter object. It is an object that is able to send an email with a specified protocol. In our example, we will use an SMTP protocol. While creating the transporter object you define host and port for the SMTP server, secure flag (if true the connection will use TLS when connecting to a server) and authentication data.
+
+In the following code I will use the Gmail SMTP server, but in production, I will replace it with my client’s SMTP server. With Nodemailer you can use two types of authentication: login and oauth2. login is the simpler one where you just use sender’s email credentials. (If you decide to use oauth2, you should read this article. I will use an email address just for the purpose of sending emails from the contact form, so I will use the login authentication.
+
+After adding the code for sending an email with Nodemailer, our server.js script becomes:
+
+let express = require("express"),
+  path = require('path'),
+  nodeMailer = require('nodemailer'),
+  bodyParser = require('body-parser');
+
+let app = express();
+
+app.use(express.static('src'));
+
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.json());
+
+app.post('/send-email', function (req, res) {
+  let transporter = nodeMailer.createTransport({
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true,
+      auth: {
+          // should be replaced with real sender's account
+          user: 'hello@gmail.com',
+          pass: 'test'
+      }
+  });
+  let mailOptions = {
+      // should be replaced with real recipient's account
+      to: 'info@gmail.com',
+      subject: req.body.subject,
+      body: req.body.message
+  };
+  transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+          return console.log(error);
+      }
+      console.log('Message %s sent: %s', info.messageId, info.response);
+  });
+  res.writeHead(301, { Location: 'index.html' });
+  res.end();
+});
+
+let server = app.listen(8081, function(){
+    let port = server.address().port;
+    console.log("Server started at http://localhost:%s", port);
+});
+This was a simple flow starting from HTML form submission and going to the point of sending an email using Node.js, Express.js, and Nodemailer.
+
+Important notes:
+Sender’s and recipient’s credentials in the code above should be replaced with real ones.
+
+If you keep using Gmail provider and login authentication you will probably get an error starting with following message Error: Invalid login.... You should check your sender’s email inbox and enable less secure apps to use your email credentials if you want to continue with this type of authentication.
+
+You can notice that we didn’t wait for an email to be sent because that might take some time and we didn’t care for error handling here. Instead, we immediately finished the request. After sending an email we had to render the results page. Because I wanted to keep dependencies as few as possible, I didn’t use any view engine, so I added the location of my results page in the response header.

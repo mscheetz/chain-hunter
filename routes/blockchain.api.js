@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const manager = require("../services/chainhunter-manager");
+const manager = require("../services/chainhunter.manager");
 const dataSvc = require("../data/dataIntegration.service");
 const apiHelp = require("../services/apihelper.service");
 const enums = require('../classes/enums');

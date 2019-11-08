@@ -1,6 +1,5 @@
 const config = require('../config');
 const nodemailer = require('nodemailer');
-const responseSvc = require('./response.service');
 
 /**
  * Send an email
@@ -28,12 +27,13 @@ const sendEmail = async(recipient, subject, body) => {
     try{
         transport.sendMail(mailMessage, (err, info)=> {
             if(err) {
-
+                return false;
             }
+            return true;
         });
-        return responseSvc.successMessage("Email sent");
+        return true;
     } catch(err) {
-        return responseSvc.errorMessage(err.message, 400);
+        return false;
     }
 }
 

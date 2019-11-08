@@ -2,6 +2,7 @@ const db = require('../data/data.repo');
 const encryptionSvc = require('./encryption.service');
 const helperSvc = require('./helper.service');
 const responseSvc = require('./response.service');
+const mailSvc = require('./mail.service');
 const _ = require('lodash');
 
 /**
@@ -170,7 +171,17 @@ const registerUser = async(email, password, inviteCode) => {
 
     const status = await validateAccountRequest(user);
 
-    return responseSvc.successMessage(status, 201);
+    if(status) {
+        return responseSvc.successMessage(status, 201);
+    } else {
+        return responseSvc.errorMessage("Error sending email. Attempt logging into the site.", 400);
+    }
+}
+
+const validateAccountRequest = async(user) => {
+    let subject = "ChainHunter Account Verification";
+    let message = "Mail message with validation link";
+    return mailSvc.sendEmail(user.email, subject, message);
 }
 
 const getAccountTypeFromInviteCode = async(code) => {
@@ -198,12 +209,6 @@ const getAccountTypeFromInviteCode = async(code) => {
     const days = discountCode.days !== null ? parseInt(discountCode.days) : 0;
 
     return { id: parseInt(discountCode.accountTypeId), days: days };
-}
-
-const validateAccountRequest = async(user) => {
-    // TODO: send validation email
-
-    return 'A validation email has been sent to your email address.';
 }
 
 /**
@@ -270,9 +275,17 @@ const forgotPasswordInit = async(email) => {
 
     const dbUpdate = await db.postPasswordReset(user.userId, token, ts);
 
-    //TODO: SEND EMAIL with userId and token
+    const forgotUrl = `https://wwww.thechainhunter.com/password-reset/${token}`;
+    const subject = "ChainHunter Forgot Password";
+    const message = `Click this link: ${forgotUrl}`;
 
-    return responseSvc.successMessage(1);
+    const status = mailSvc.sendEmail(email, subject, message);
+
+    if(status) {
+        return responseSvc.successMessage("A password reset email has been sent to your email account.");
+    } else {
+        return responseSvc.errorMessage("Something happened. Please try again.", 400);
+    }
 }
 
 const forgotPasswordAction = async(userId, token) =>{

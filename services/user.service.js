@@ -1,7 +1,7 @@
-const db = require('../data/dataRepo');
-const encryptionSvc = require("./encryption.js");
-const helperSvc = require('./helperService');
-const responseSvc = require('./responseService');
+const db = require('../data/data.repo');
+const encryptionSvc = require('./encryption.service');
+const helperSvc = require('./helper.service');
+const responseSvc = require('./response.service');
 const _ = require('lodash');
 
 /**

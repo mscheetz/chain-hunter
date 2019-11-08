@@ -1,7 +1,7 @@
 const config = require('../config');
-const encryptionSvc = require('./encryption');
-const userSvc = require('./userService');
-const responseSvc = require('./responseService');
+const encryptionSvc = require('./encryption.service');
+const userSvc = require('./user.service');
+const responseSvc = require('./response.service');
 const whitelistUsers = new Map([
     [config.CHAINHUNTER_USER, config.CHAINHUNTER_TOKEN]]);
   

@@ -1,8 +1,8 @@
 const express = require("express");
 const router = express.Router();
-const userSvc = require('../services/userService');
-const apiHelp = require("../services/apiHelper");
-const encryptionSvc = require('../services/encryption');
+const userSvc = require('../services/user.service');
+const apiHelp = require("../services/apihelper.service");
+const encryptionSvc = require('../services/encryption.service');
 
 router.get("/api/user/login", apiHelp.asyncMiddleware(async (req, res, next) => {
   res.status(200).json("howdy folks!");

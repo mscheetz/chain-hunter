@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt');
 const uuidv4 = require('uuid/v4');
 const jwt = require('jsonwebtoken');
 const config = require('../config');
-const helperSvc = require('./helperService');
+const helperSvc = require('./helper.service');
 
 const decryptHeader = function(message, token) {
 	let bytes = CryptoTS.AES.decrypt(message, token);

@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
-const dataSvc = require("../data/dataIntegrationService");
-const apiHelp = require("../services/apiHelper");
+const dataSvc = require("../data/dataIntegration.service");
+const apiHelp = require("../services/apihelper.service");
 
 router.get(
   "/api/results/country",

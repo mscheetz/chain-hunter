@@ -7,9 +7,9 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const compression = require('compression');
 const helmet = require('helmet');
-const blockchainApi = require('./routes/blockchainApi');
-const userApi = require('./routes/userApi');
-const resultsApi = require('./routes/searchApi');
+const blockchainApi = require('./routes/blockchain.api');
+const userApi = require('./routes/user.api');
+const resultsApi = require('./routes/search.api');
 const config = require('./config');
 
 const port = process.env.PORT || 3000;

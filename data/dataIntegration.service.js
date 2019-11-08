@@ -1,5 +1,5 @@
-const db = require('./dataRepo');
-const helperSvc = require('../services/helperService.js')
+const db = require('./data.repo');
+const helperSvc = require('../services/helper.service.js')
 
 /**
  * Update search results table in database

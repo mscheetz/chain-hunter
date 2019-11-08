@@ -148,4 +148,29 @@ export class HelperService{
 
       return cypher.toString();
     }
+
+    /**
+     * Confirm that a password and confirmation value match
+     * 
+     * @param password password value
+     * @param confirmation password confirmation value
+     * @param minLenth minimum length (default = 8)
+     */
+    passwordConfirm(password: string, confirmation: string, minLenth: number = 8): string {
+      if(password.length < minLenth) {
+        return "New password is less than 8 characters";
+      }
+      let match = false;
+      if(password.length > 0 && confirmation.length > 0) {
+        match = password === confirmation;
+      } else {
+        match = false;
+      }
+
+      if(!match) {
+        return "Passwords to not match";
+      }
+
+      return null;
+    }
 }

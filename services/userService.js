@@ -324,7 +324,7 @@ const changePassword = async(userId, oldPassword, newPassword) => {
         return responseSvc.errorMessage("Not a valid user", 400);
     }
 
-    const validPwd = encryptionSvc.checkPassword(oldPassword, user.hash);
+    const validPwd = await encryptionSvc.checkPassword(oldPassword, user.hash);
 
     if(!validPwd) {
         return responseSvc.errorMessage("Invalid password", 400);
@@ -334,7 +334,11 @@ const changePassword = async(userId, oldPassword, newPassword) => {
 
     const status = await db.updateUserPassword(userId, user.hash, newHash);
 
-    return responseSvc.successMessage(status, 202);
+    if(status === 1) {
+        return responseSvc.successMessage("Password updated", 202);
+    } else {
+        return responseSvc.errorMessage("Something happend, please try again", 400);
+    }
 }
 
 /**

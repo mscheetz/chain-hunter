@@ -98,9 +98,9 @@ router.put("/api/user", [ apiHelp.bootlegMiddleware, apiHelp.authMiddleware, api
  * Update a user's password
  */
 router.post("/api/user/password", [ apiHelp.bootlegMiddleware, apiHelp.authMiddleware, apiHelp.userMiddleware ], async (req, res, next) => {
-  const data = req.body.data;
+  const data = req.body;
 
-  const result = await userSvc.changePassword(data.userId, data.oldPassword, data.newPassword);
+  const result = await userSvc.changePassword(data.userId, data.password, data.newPassword);
 
   res.status(result.code).json(result.data);
 });

@@ -124,6 +124,27 @@ export class ApiService{
     }
 
     /**
+     * Update a user's password
+     * 
+     * @param userId User id
+     * @param password current password
+     * @param newPassword new password
+     */
+    updatePassword(userId: string, password: string, newPassword: string): Observable<string> {
+        let endpoint: string = "/api/user/password"
+        let url: string = this.baseUrl + endpoint;
+        let data = {
+            userId: userId,
+            password: password,
+            newPassword: newPassword
+        }
+
+        let result = this.onPost<string>(url, data, true);
+
+        return result;
+    }
+
+    /**
      * Get saved search history
      * 
      * @param userId user id

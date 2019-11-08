@@ -261,7 +261,7 @@ const forgotPasswordInit = async(email) => {
 
     if(user.validated === null) {
         await validateAccountRequest(user);
-        return responseSvc.errorMessage("Account not valiated. A validation email has been sent to your email address.", 400);
+        return responseSvc.errorMessage("Account not validated. A validation email has been sent to your email address.", 400);
     }
 
     const oneHourPlus = helperSvc.getTimePlus(0, 1, 0, 0);

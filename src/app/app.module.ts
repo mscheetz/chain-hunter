@@ -57,6 +57,7 @@ import { MyHuntsComponent } from './components/my-hunts/my-hunts.component';
 import { AccountTypesComponent } from './components/account-types/account-types.component';
 import { PasswordComponent } from './components/password/password.component';
 import { VerifyComponent } from './components/verify/verify.component';
+import { PaymentComponent } from './components/payment/payment.component';
 
 const appRoutes: Routes = [
   { path: '', component: ChainHunterComponent },
@@ -96,7 +97,8 @@ const appRoutes: Routes = [
     MyHuntsComponent,
     AccountTypesComponent,
     PasswordComponent,
-    VerifyComponent
+    VerifyComponent,
+    PaymentComponent
   ],
   imports: [
     AccordionModule,

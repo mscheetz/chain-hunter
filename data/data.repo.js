@@ -603,7 +603,19 @@ const getPasswordReset = async(userId) => {
     try {
         const res = await pool.query(sql, [userId]);
 
-        return res.rows;
+        return res.rows[0];
+    } catch(err) {
+        console.log(err);
+    }
+}
+
+const getPasswordResetByToken = async(token) => {
+    let sql = 'SELECT * FROM public."passwordReset" where token = $1';
+
+    try {
+        const res = await pool.query(sql, [userId]);
+
+        return res.rows[0];
     } catch(err) {
         console.log(err);
     }
@@ -750,6 +762,7 @@ module.exports = {
     updateUserDataState,
     postPasswordReset,
     getPasswordReset,
+    getPasswordResetByToken,
     deletePasswordReset,
     getAccountTypes,
     getAccountType,

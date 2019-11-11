@@ -40,11 +40,19 @@ router.post("/api/user/password/forgot/init", apiHelp.bootlegMiddleware, async (
   res.status(result.code).json(result.data);
 });
 
-router.post("/api/user/password/forgot/action", apiHelp.bootlegMiddleware, async (req, res, next) => {
-  const userId = req.body.userId,
-    token = req.body.token;
+router.get("/api/user/password/forgot/verify/:token", apiHelp.bootlegMiddleware, async (req, res, next) => {
+  const token = req.params.token;
 
-  const result = await userSvc.forgotPasswordAction(userId, token);
+  const result = await userSvc.validatePasswordReset(token);
+
+  res.status(result.code).json(result.data);
+});
+
+router.post("/api/user/password/forgot/action", apiHelp.bootlegMiddleware, async (req, res, next) => {
+  const token = req.body.token,
+    password = req.body.password;
+
+  const result = await userSvc.forgotPasswordAction(token, password);
 
   res.status(result.code).json(result.data);
 });

@@ -288,40 +288,57 @@ const forgotPasswordInit = async(email) => {
     }
 }
 
-const forgotPasswordAction = async(userId, token) =>{
-    const user = await db.getUserByUserId(userId);
+/**
+ * Validate a password reset request
+ * 
+ * @param {string} token request token
+ */
+const validatePasswordReset = async(token) => {
+    const ts = helperSvc.getUnixTsSeconds();
+    const passwordRequest = await db.getPasswordResetByToken(token);
+
+    if(typeof passwordRequest === 'undefined' || passwordRequest === null) {
+        return responseSvc.errorMessage("Invalid request", 400);
+    }
+    if(passwordRequest.goodTil >= ts) {
+        return responseSvc.successMessage(true);
+    } else {
+        const removeToken = await db.deletePasswordReset(userId);
+    
+        return responseSvc.errorMessage("Expired", 400);
+    }
+}
+
+const forgotPasswordAction = async(token, password) =>{
+    const request = await validatePasswordReset(token);
+    if(request.code !== 200) {
+        return request;
+    }    
+
+    const user = await db.getUserByUserId(request.userId);
 
     if(typeof user === 'undefined') {
         return responseSvc.errorMessage("Not a valid user", 400);
     }
 
-    const passwordReset = await db.getPasswordReset(userId);
-
-    if(typeof passwordReset === 'undefined') {
-        return responseSvc.errorMessage("Invalid request", 400);
-    }
-
-    if(passwordReset.token !== token) {
-        return responseSvc.errorMessage("Invalid token", 401);
-    }
-    const currentTS = helperSvc.getUnixTS();
-    if(passwordReset.goodTil < currentTS) {
-        return responseSvc.errorMessage("Token has expired", 400);
-    }
-
-    const removeToken = await db.deletePasswordReset(userId);
-
-    const newPassword = helperSvc.generatePassword();
-    const hash = await encryptionSvc.hashPassword(newPassword);
+    const hash = await encryptionSvc.hashPassword(password);
 
     let updated = false;
-    while(!updated) {
+    let attempt = 0;
+    while(!updated && attempt < 3) {
         const pwdUpdated = await db.setUserPassword(userId, hash);
 
         updated = pwdUpdated === 1 ? true : false;
+        attempt++;
     }
 
-    return responseSvc.successMessage(newPassword);
+    if(updated) {
+        const removeToken = await db.deletePasswordReset(userId);
+
+        return responseSvc.successMessage(true);
+    } else {
+        return responseSvc.errorMessage("Please try again", 400);
+    }
 }
 
 /**
@@ -479,6 +496,7 @@ module.exports = {
     validateUser,
     changePassword,
     forgotPasswordInit,
+    validatePasswordReset,
     forgotPasswordAction,
     getUser,
     getUserByUserId,

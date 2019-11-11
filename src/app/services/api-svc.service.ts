@@ -59,6 +59,28 @@ export class ApiService{
         return result;
     }
 
+    forgotPasswordVerify(token: string): Observable<boolean> {
+        let endpoint: string = "/api/user/password/forgot/verify/" + token;
+        let url: string = this.baseUrl + endpoint;
+
+        let result = this.onGet<boolean>(url);
+
+        return result;
+    }
+
+    forgotPasswordAction(token: string, password: string): Observable<boolean> {
+        let endpoint: string = "/api/user/password/forgot/verify/";
+        let url: string = this.baseUrl + endpoint;
+        let data = {
+            token: token,
+            password: password
+        };
+
+        let result = this.onPost<boolean>(url, data);
+
+        return result;
+    }
+
     /**
      * Change a password
      * @param user user data 

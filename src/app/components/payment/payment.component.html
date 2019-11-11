@@ -1,1 +1,32 @@
-<p>payment works!</p>
+<h3>Payment</h3>
+<div>
+    <div>
+        Amount Due: ${{total}}
+    </div>
+    <ul>
+        <li>
+            <p-button label="Paypal" (click)="onPaypal()" styleClass="ui-button-info"></p-button>
+        </li>
+        <li>
+            <p-button label="Stripe" (click)="onStripe()" styleClass="ui-button-info"></p-button>
+        </li>
+        <li>
+            <p-button label="Bitcoin" (click)="onCrypto('BTC')" styleClass="ui-button-info"></p-button>
+        </li>
+        <li>
+            <p-button label="BitcoinCash" (click)="onCrypto('BCH')" styleClass="ui-button-info"></p-button>
+        </li>
+        <li>
+            <p-button label="Ethereum" (click)="onCrypto('ETH')" styleClass="ui-button-info"></p-button>
+        </li>
+        <li>
+            <p-button label="LiteCoin" (click)="onCrypto('LTC')" styleClass="ui-button-info"></p-button>
+        </li>
+        <li>
+            <p-button label="Paypal" (click)="onCrypto('NANO')" styleClass="ui-button-info"></p-button>
+        </li>
+        <li>
+            <p-button label="RavenCoin" (click)="onCrypto('RVN')" styleClass="ui-button-info"></p-button>
+        </li>
+    </ul>
+</div>

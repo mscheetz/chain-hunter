@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 
 @Component({
   selector: 'app-payment',
@@ -6,10 +6,22 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./payment.component.css']
 })
 export class PaymentComponent implements OnInit {
+  @Input() total: number;
 
   constructor() { }
 
   ngOnInit() {
   }
 
+  onPaypal(){
+
+  }
+
+  onStripe(){
+
+  }
+
+  onCrypto(symbol: string) {
+    
+  }
 }

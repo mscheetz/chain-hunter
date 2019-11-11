@@ -179,8 +179,10 @@ const registerUser = async(email, password, inviteCode) => {
 }
 
 const validateAccountRequest = async(user) => {
-    let subject = "ChainHunter Account Verification";
-    let message = "Mail message with validation link";
+    const verifyUrl = `https://wwww.thechainhunter.com/verify/${user.userId}`;
+    const subject = "ChainHunter Account Verification";
+    const message = `Click this link to verify your account: ${forgotUrl}`;
+
     return mailSvc.sendEmail(user.email, subject, message);
 }
 
@@ -241,7 +243,7 @@ const validateUser = async(userId) => {
     const validated = db.validateUser(userId, timestamp);
 
     if(validated === 1) {
-        return responseSvc.successMessage(status, 202);
+        return responseSvc.successMessage(true, 202);
     } else {
         return responseSvc.errorMessage("Try again", 400);
     }

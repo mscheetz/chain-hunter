@@ -1,2 +1,7 @@
-<h3>Account Verified!</h3>
-<p>Welcome to The Chain Hunter. Please login to continue.</p>
+<div *ngIf="verified">
+    <h3>Account Verified!</h3>
+    <p>Welcome to The Chain Hunter. Please login to continue.</p>
+</div>
+<div *ngIf="!verified">
+    <h3>Account not found.</h3>
+</div>

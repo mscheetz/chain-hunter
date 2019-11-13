@@ -3,13 +3,13 @@
     <form #login="ngForm">
         <div class="p-col-12">
             <h4>Email</h4>
-            <input type="text" pInputText name="email"
+            <input type="text" pInputText name="email" formcontrolname="email"
                             placeholder="Email" [(ngModel)]="email" size="40" 
                             (ngModelChange)="modelChange($event)" (keyup.enter)="onLogin($event)">
         </div>
         <div class="p-col-12">
             <h4>Password</h4>
-            <input type="password" pInputText name="password" 
+            <input type="password" pInputText name="password" formcontrolname="password"
                                 placeholder="Password" [(ngModel)]="password" size="40" 
                                 (ngModelChange)="modelChange($event)" (keyup.enter)="onLogin($event)">        
         </div>

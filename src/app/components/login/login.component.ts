@@ -12,7 +12,6 @@ import { ThrowStmt } from '@angular/compiler';
   styleUrls: ['./login.component.css']
 })
 export class LoginComponent implements OnInit {
-  //@Output() toggleLogin: EventEmitter<any> = new EventEmitter();
   @Output() loginSuccess: EventEmitter<boolean> = new EventEmitter<boolean>();
   actionTypes: SelectItem[];
   selectedAction: number = 0;

@@ -1,8 +1,8 @@
 import { Component, OnInit, Output, EventEmitter, Input } from '@angular/core';
 import { AuthenticationService } from 'src/app/services/authentication.service';
 import { MessageService, SelectItem } from 'primeng/api';
-import { ApiService } from 'src/app/services/api-svc.service';
-import { HelperService } from 'src/app/services/helper-svc.service';
+import { ApiService } from 'src/app/services/api.service';
+import { HelperService } from 'src/app/services/helper.service';
 import { LoginService } from 'src/app/services/login.service';
 import { ThrowStmt } from '@angular/compiler';
 

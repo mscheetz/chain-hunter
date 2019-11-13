@@ -1,6 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { Blockchain } from 'src/app/classes/ChainHunter/Blockchain';
-import { ApiService } from 'src/app/services/api-svc.service';
+import { ApiService } from 'src/app/services/api.service';
 import { Asset } from 'src/app/classes/ChainHunter/Asset';
 import { OverlayPanel } from 'primeng/overlaypanel';
 import { Severity, ResultType } from 'src/app/classes/Enums';

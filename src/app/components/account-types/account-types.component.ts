@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ApiService } from 'src/app/services/api-svc.service';
+import { ApiService } from 'src/app/services/api.service';
 import { AccountType } from 'src/app/classes/AccountType';
 import { AuthenticationService } from 'src/app/services/authentication.service';
 import { User } from 'src/app/classes/User';

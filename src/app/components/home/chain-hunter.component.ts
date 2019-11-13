@@ -1,8 +1,8 @@
 import { OnInit, Component, Output, Input, isDevMode } from '@angular/core';
 import { MenuItem, MessageService } from 'primeng/api';
 import { Blockchain } from 'src/app/classes/ChainHunter/Blockchain';
-import { HelperService } from 'src/app/services/helper-svc.service';
-import { ApiService } from 'src/app/services/api-svc.service';
+import { HelperService } from 'src/app/services/helper.service';
+import { ApiService } from 'src/app/services/api.service';
 import { Chain } from 'src/app/classes/ChainHunter/Chain';
 import { DomSanitizer, Title } from '@angular/platform-browser';
 import { CookieData } from 'src/app/classes/ChainHunter/CookieData';

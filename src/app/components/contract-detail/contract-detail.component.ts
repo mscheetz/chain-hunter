@@ -2,7 +2,7 @@ import { Component, OnInit, Input } from '@angular/core';
 import { Blockchain } from 'src/app/classes/ChainHunter/Blockchain';
 import { OverlayPanel } from 'primeng/overlaypanel';
 import { ResultType, Severity } from 'src/app/classes/Enums';
-import { ApiService } from 'src/app/services/api-svc.service';
+import { ApiService } from 'src/app/services/api.service';
 import { MessageService } from 'primeng/api';
 import { AuthenticationService } from 'src/app/services/authentication.service';
 import { LoginService } from 'src/app/services/login.service';

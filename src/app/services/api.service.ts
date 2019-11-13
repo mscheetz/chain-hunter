@@ -6,7 +6,7 @@ import { Transaction } from '../classes/ChainHunter/Transaction';
 import { Asset } from '../classes/ChainHunter/Asset';
 import { Chain } from '../classes/ChainHunter/Chain';
 import { environment } from 'src/environments/environment';
-import { HelperService } from './helper-svc.service';
+import { HelperService } from './helper.service';
 import { User } from '../classes/User';
 import { UserData } from '../classes/UserData';
 import { UserResponse } from '../classes/UserResponse';
@@ -143,7 +143,7 @@ export class ApiService{
         let result = this.onGet<boolean>(url);
 
         return result;
-    });
+    }
 
     /**
      * Update user data

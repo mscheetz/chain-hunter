@@ -66,7 +66,10 @@ const appRoutes: Routes = [
   { path: 'info', component: BlockchainInfoComponent },
   { path: 'hunts', component: MyHuntsComponent, canActivate: [AuthGuard] },
   { path: 'mypage', component: MyPageComponent, canActivate: [AuthGuard] },
-  { path: 'accounts', component: AccountTypesComponent }
+  { path: 'accounts', component: AccountTypesComponent },
+  { path: 'password/:id', component: PasswordComponent },
+  { path: 'payment', component: PaymentComponent },
+  { path: 'verify/:id', component: VerifyComponent }
 ]
 
 @NgModule({

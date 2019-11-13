@@ -69,7 +69,7 @@ export class ApiService{
     }
 
     forgotPasswordAction(token: string, password: string): Observable<boolean> {
-        let endpoint: string = "/api/user/password/forgot/verify/";
+        let endpoint: string = "/api/user/password/forgot/action";
         let url: string = this.baseUrl + endpoint;
         let data = {
             token: token,

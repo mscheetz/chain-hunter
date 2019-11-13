@@ -49,6 +49,7 @@ router.get("/api/user/password/forgot/verify/:token", apiHelp.bootlegMiddleware,
 });
 
 router.post("/api/user/password/forgot/action", apiHelp.bootlegMiddleware, async (req, res, next) => {
+  console.log('req.body', req.body);
   const token = req.body.token,
     password = req.body.password;
 
@@ -56,7 +57,6 @@ router.post("/api/user/password/forgot/action", apiHelp.bootlegMiddleware, async
 
   res.status(result.code).json(result.data);
 });
-
 
 router.post("/api/user/login/shucks", apiHelp.bootlegMiddleware, async (req, res, next) => {
   const password = req.body.password;

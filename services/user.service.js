@@ -275,9 +275,11 @@ const forgotPasswordInit = async(email) => {
     const ts = oneHourPlus.getTime() / 1000;
     const token = encryptionSvc.getUuid();
 
+    await db.deletePasswordReset(user.userId);
     const dbUpdate = await db.postPasswordReset(user.userId, token, ts);
 
-    const forgotUrl = `https://wwww.thechainhunter.com/password-reset/${token}`;
+    const forgotUrl = `https://wwww.thechainhunter.com/password/${token}`;
+    console.log('forgotUrl', forgotUrl);
     const subject = "ChainHunter Forgot Password";
     const message = `Click this link: ${forgotUrl}`;
 
@@ -312,9 +314,9 @@ const validatePasswordReset = async(token) => {
 }
 
 const forgotPasswordAction = async(token, password) =>{
-    const request = await validatePasswordReset(token);
-    if(request.code !== 200) {
-        return request;
+    const request = await db.getPasswordResetByToken(token);
+    if(typeof request === 'undefined') {
+        return responseSvc.errorMessage("Invalid request", 400);
     }    
 
     const user = await db.getUserByUserId(request.userId);
@@ -328,14 +330,14 @@ const forgotPasswordAction = async(token, password) =>{
     let updated = false;
     let attempt = 0;
     while(!updated && attempt < 3) {
-        const pwdUpdated = await db.setUserPassword(userId, hash);
+        const pwdUpdated = await db.setUserPassword(request.userId, hash);
 
         updated = pwdUpdated === 1 ? true : false;
         attempt++;
     }
 
     if(updated) {
-        const removeToken = await db.deletePasswordReset(userId);
+        const removeToken = await db.deletePasswordReset(request.userId);
 
         return responseSvc.successMessage(true);
     } else {

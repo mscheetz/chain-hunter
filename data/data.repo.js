@@ -613,7 +613,7 @@ const getPasswordResetByToken = async(token) => {
     let sql = 'SELECT * FROM public."passwordReset" where token = $1';
 
     try {
-        const res = await pool.query(sql, [userId]);
+        const res = await pool.query(sql, [token]);
 
         return res.rows[0];
     } catch(err) {

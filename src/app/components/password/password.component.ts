@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from 'src/app/services/api.service';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { MessageService } from 'primeng/api';
 
 @Component({
@@ -15,10 +15,11 @@ export class PasswordComponent implements OnInit {
   requestToken: string;
   newPassword: string;
   newPasswordConfirm: string;
+  passwordId: string;
 
-  constructor(private apiSvc: ApiService, private router: Router, private msgSvc: MessageService) { 
+  constructor(private apiSvc: ApiService, private router: Router, private msgSvc: MessageService, private route: ActivatedRoute) { 
     this.doWork = true;
-    this.requestToken = window.location.pathname;
+    this.requestToken = this.route.snapshot.paramMap.get('id');
     if(typeof this.requestToken === 'undefined' || this.requestToken === null || this.requestToken === "") {
       this.doWork = false;
       this.validToken = false;
@@ -35,9 +36,10 @@ export class PasswordComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.passwordId = this.route.snapshot.paramMap.get('id');
   }
 
-  onPasswordReset(event) {
+  onResetPassword(event) {
     this.doWork = true;
     this.apiSvc.forgotPasswordAction(this.requestToken, this.newPassword)
         .subscribe(res => {
@@ -51,7 +53,7 @@ export class PasswordComponent implements OnInit {
                 key:'notification-toast',
                 severity:'error', 
                 summary:'Error', 
-                detail: err.error,
+                detail: err.message,
                 life: 5000
             });
             return;

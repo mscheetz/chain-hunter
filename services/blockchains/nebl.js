@@ -1,5 +1,5 @@
 const axios = require('axios');
-const helperSvc = require('../helperService.js');
+const helperSvc = require('../helper.service.js');
 const base = "https://explorer.nebl.io";
 const enums = require('../../classes/enums');
 const _ = require('lodash');

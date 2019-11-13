@@ -1,5 +1,5 @@
 const axios = require('axios');
-const helperSvc = require('../helperService.js');
+const helperSvc = require('../helper.service.js');
 const addressBase = "https://api.cosmostation.io";
 const txnsBase = "https://app-es.cosmostation.io/cosmos/v1/getTxsByAddr";
 const txnBase = "https://lcd.cosmostation.io";

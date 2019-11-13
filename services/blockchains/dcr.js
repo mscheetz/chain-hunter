@@ -1,5 +1,5 @@
 const axios = require('axios');
-const helperSvc = require('../helperService.js');
+const helperSvc = require('../helper.service.js');
 const base = "https://mainnet.decred.org/api";//"https://dcrdata.decred.org/api";
 const enums = require('../../classes/enums');
 const delay = time => new Promise(res=>setTimeout(res,time));

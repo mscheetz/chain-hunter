@@ -1,5 +1,5 @@
 const axios = require('axios');
-const helperSvc = require('../helperService.js');
+const helperSvc = require('../helper.service.js');
 const base = "https://api.neoscan.io/api/main_net";
 const tokenTxnBase = "https://api.nel.group/api/mainnet";
 const contractBase = "https://apiscan.nel.group/api/mainnet";//"http://151.106.3.178/api";

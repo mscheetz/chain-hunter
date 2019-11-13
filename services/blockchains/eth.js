@@ -1,6 +1,6 @@
 const axios = require('axios');
 const _ = require('lodash');
-const helperSvc = require('../helperService.js');
+const helperSvc = require('../helper.service.js');
 const ethplorerBase = "https://ethplorer.io";
 const ethplorerApiBase = "https://ethplorer.io/service/service.php?data=";
 const enums = require('../../classes/enums');

@@ -1,5 +1,5 @@
 const axios = require('axios');
-const helperSvc = require('../helperService.js');
+const helperSvc = require('../helper.service.js');
 const apiKey = "67de405a0cb8a9e2fe5e33000cf9a88a";
 const base = "https://api.iostabc.com/api/?apikey=" + apiKey;
 const enums = require('../../classes/enums');

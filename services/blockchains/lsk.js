@@ -1,5 +1,5 @@
 const axios = require('axios');
-const helperSvc = require('../helperService.js');
+const helperSvc = require('../helper.service.js');
 const base = "https://explorer.lisk.io/api";
 const enums = require('../../classes/enums');
 const delay = time => new Promise(res=>setTimeout(res,time));

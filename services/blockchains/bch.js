@@ -1,5 +1,5 @@
 const axios = require('axios');
-const helperSvc = require('../helperService.js');
+const helperSvc = require('../helper.service.js');
 const base = "https://bch-chain.api.btc.com/v3";
 const convertBase = "https://bch.btc.com/tools"
 const enums = require('../../classes/enums');

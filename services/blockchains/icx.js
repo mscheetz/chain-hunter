@@ -1,5 +1,5 @@
 const axios = require('axios');
-const helperSvc = require('../helperService.js');
+const helperSvc = require('../helper.service.js');
 const base = "https://tracker.icon.foundation/v3";
 const enums = require('../../classes/enums');
 const _ = require('lodash');

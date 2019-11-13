@@ -1,5 +1,5 @@
 const axios = require('axios');
-const helperSvc = require('../helperService.js');
+const helperSvc = require('../helper.service.js');
 const base = "https://dex.binance.org/api/v1";
 const base2 = "https://explorer.binance.org/api/v1";
 const enums = require('../../classes/enums');

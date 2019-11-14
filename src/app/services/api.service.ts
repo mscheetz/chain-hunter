@@ -133,11 +133,11 @@ export class ApiService{
     }
 
     /**
-     * Verify a new account
+     * Validate a new account
      * @param userId user identifier
      */
-    verifyAccount(userId: string): Observable<boolean>{
-        let endpoint: string = "/api/user/verify/" + userId;
+    validateAccount(userId: string): Observable<boolean>{
+        let endpoint: string = "/api/user/validate/" + userId;
         let url: string = this.baseUrl + endpoint;
 
         let result = this.onGet<boolean>(url);

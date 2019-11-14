@@ -49,7 +49,6 @@ router.get("/api/user/password/forgot/verify/:token", apiHelp.bootlegMiddleware,
 });
 
 router.post("/api/user/password/forgot/action", apiHelp.bootlegMiddleware, async (req, res, next) => {
-  console.log('req.body', req.body);
   const token = req.body.token,
     password = req.body.password;
 

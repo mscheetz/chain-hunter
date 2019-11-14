@@ -35,9 +35,7 @@ export class PasswordComponent implements OnInit {
     }
   }
 
-  ngOnInit() {
-    this.passwordId = this.route.snapshot.paramMap.get('id');
-  }
+  ngOnInit() { }
 
   onResetPassword(event) {
     this.doWork = true;
@@ -53,7 +51,7 @@ export class PasswordComponent implements OnInit {
                 key:'notification-toast',
                 severity:'error', 
                 summary:'Error', 
-                detail: err.message,
+                detail: err.error,
                 life: 5000
             });
             return;

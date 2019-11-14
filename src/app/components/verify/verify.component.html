@@ -1,7 +1,12 @@
-<div *ngIf="verified">
-    <h3>Account Verified!</h3>
-    <p>Welcome to The Chain Hunter. Please login to continue.</p>
+<div *ngIf="doWork">
+    <i class="fa fa-cog fa-2x fa-spin" style="color: #464a4e;"></i>
 </div>
-<div *ngIf="!verified">
-    <h3>Account not found.</h3>
+<div *ngIf="!doWork">
+    <div *ngIf="verified">
+        <h3>Account Verified!</h3>
+        <p>Welcome to The Chain Hunter. Please login to continue.</p>
+    </div>
+    <div *ngIf="!verified">
+        <h3>{{error}}</h3>
+    </div>
 </div>

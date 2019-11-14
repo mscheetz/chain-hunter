@@ -232,20 +232,20 @@ const validateUser = async(userId) => {
     const user = await getUserByUserId(userId);
 
     if(typeof user === 'undefined') {
-        return responseSvc.errorMessage("Not a valid user", 400);
+        return responseSvc.errorMessage("Account not found", 400);
     }
 
     if(user.validated !== null) {
-        return responseSvc.successMessage(true, 202);
+        return responseSvc.errorMessage("Account already validated", 400);
     }
 
     const timestamp = helperSvc.getUnixTS();
-    const validated = db.validateUser(userId, timestamp);
+    const validated = await db.validateUser(userId, timestamp);
 
     if(validated === 1) {
         return responseSvc.successMessage(true, 202);
     } else {
-        return responseSvc.errorMessage("Try again", 400);
+        return responseSvc.errorMessage("Please try again", 400);
     }
 }
 

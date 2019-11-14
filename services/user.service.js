@@ -4,6 +4,7 @@ const helperSvc = require('./helper.service');
 const responseSvc = require('./response.service');
 const mailSvc = require('./mail.service');
 const _ = require('lodash');
+const fs = require('fs');
 
 /**
  * Login to account
@@ -180,10 +181,13 @@ const registerUser = async(email, password, inviteCode) => {
 
 const validateAccountRequest = async(user) => {
     const verifyUrl = `https://wwww.thechainhunter.com/verify/${user.userId}`;
-    const subject = "ChainHunter Account Verification";
-    const message = `Click this link to verify your account: ${forgotUrl}`;
+    const year = new Date().getFullYear();
+    let template = fs.readFileSync('templates/verification.html',{encoding: 'utf-8'});
+    template = template.replace('!#verifyLink#!', verifyUrl);
+    template = template.replace('!#year#!', year);
+    const subject = "The Chain Hunter: Account Verification";
 
-    return mailSvc.sendEmail(user.email, subject, message);
+    return mailSvc.sendEmail(user.email, subject, template);
 }
 
 const getAccountTypeFromInviteCode = async(code) => {
@@ -278,12 +282,12 @@ const forgotPasswordInit = async(email) => {
     await db.deletePasswordReset(user.userId);
     const dbUpdate = await db.postPasswordReset(user.userId, token, ts);
 
-    const forgotUrl = `https://wwww.thechainhunter.com/password/${token}`;
-    console.log('forgotUrl', forgotUrl);
-    const subject = "ChainHunter Forgot Password";
-    const message = `Click this link: ${forgotUrl}`;
+    const subject = "The Chain Hunter: Forgot Password";
+    let template = fs.readFileSync('templates/verification.html',{encoding: 'utf-8'});
+    template = template.replace('!#passwordLink#!', forgotUrl);
+    template = template.replace('!#year#!', year);
 
-    const status = mailSvc.sendEmail(email, subject, message);
+    const status = mailSvc.sendEmail(email, subject, template);
 
     if(status) {
         return responseSvc.successMessage("A password reset email has been sent to your email account.");

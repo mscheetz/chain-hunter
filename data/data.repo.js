@@ -634,7 +634,7 @@ const deletePasswordReset = async(userId) => {
 }
 
 const getAccountTypes = async() => {
-    let sql = 'SELECT id, name, "searchLimit", "saveLimit", monthly, yearly FROM public."accountType" WHERE monthly >= 0 ORDER BY id';
+    let sql = 'SELECT id, uuid, name, "searchLimit", "saveLimit", monthly, yearly FROM public."accountType" WHERE monthly >= 0 ORDER BY id';
 
     try {
         const res = await pool.query(sql);
@@ -646,7 +646,7 @@ const getAccountTypes = async() => {
 }
 
 const getAccountType = async(id) => {
-    let sql = 'SELECT id, name, "searchLimit", "saveLimit", monthly, yearly FROM public."accountType" WHERE id = $1';
+    let sql = 'SELECT id, uuid, name, "searchLimit", "saveLimit", monthly, yearly FROM public."accountType" WHERE id = $1';
 
     try {
         const res = await pool.query(sql, [id]);
@@ -657,8 +657,20 @@ const getAccountType = async(id) => {
     }
 }
 
+const getAccountTypeByUuid = async(uuid) => {
+    let sql = 'SELECT id, uuid, name, "searchLimit", "saveLimit", monthly, yearly FROM public."accountType" WHERE uuid = $1';
+
+    try {
+        const res = await pool.query(sql, [uuid]);
+
+        return res.rows;
+    } catch(err) {
+        console.log(err);
+    }
+}
+
 const getAccountTypeByName = async(name) => {
-    let sql = 'SELECT id, name, "searchLimit", "saveLimit", monthly, yearly FROM public."accountType" WHERE name = $1';
+    let sql = 'SELECT id, uuid, name, "searchLimit", "saveLimit", monthly, yearly FROM public."accountType" WHERE name = $1';
 
     try {
         const res = await pool.query(sql, [name]);
@@ -670,10 +682,10 @@ const getAccountTypeByName = async(name) => {
 }
 
 const addAccountType = async(name, searchLimit, saveLimit, monthly, yearly) => {
-    let sql = 'INSERT INTO public."accountType" ( name, "searchLimit", "saveLimit", monthly, yearly ) ';
-    sql += 'VALUES ( $1, $2, $3, $4, $5 )';
+    let sql = 'INSERT INTO public."accountType" ( uuid, name, "searchLimit", "saveLimit", monthly, yearly ) ';
+    sql += 'VALUES ( $1, $2, $3, $4, $5, $6 )';
     const data = [
-        id,
+        uuid,
         name,
         searchLimit,
         saveLimit,
@@ -691,7 +703,7 @@ const addAccountType = async(name, searchLimit, saveLimit, monthly, yearly) => {
 }
 
 const updateAccountType = async(id, name, searchLimit, saveLimit, monthly, yearly) => {
-    let sql = 'UPDATE public."accountType" set name = $2, "searchLimit" = $3, "saveLimit" = $4, monthly = $5, yearly = $6 ';
+    let sql = 'UPDATE public."accountType" set name = $2, "searchLimit" = $3, "saveLimit" = $4, monthly = $5, yearly = $6, uuid = $7 ';
     sql += 'WHERE id = $1';
     const data = [
         id,
@@ -699,7 +711,8 @@ const updateAccountType = async(id, name, searchLimit, saveLimit, monthly, yearl
         searchLimit,
         saveLimit,
         monthly,
-        yearly
+        yearly,
+        uuid
     ]
 
     try {

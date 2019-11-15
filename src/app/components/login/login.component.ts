@@ -90,7 +90,6 @@ export class LoginComponent implements OnInit {
             this.loginSuccess.emit(true);
             this.messageSvc.clear();
             this.loginSvc.toggleLogin();
-            console.log("Login toggle from login.component - login");
             this.email = "";
             this.password = "";
             this.messageSvc.add(

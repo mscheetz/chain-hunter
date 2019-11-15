@@ -1,7 +1,15 @@
-<h3>Payment</h3>
+<h2>Payment</h2>
 <div>
     <div>
         Amount Due: ${{total}}
+    </div>
+    <div>
+        <h3>Credit Card</h3>
+        <p-button label="Credit Card" (click)="toggleCreditCard()" styleClass="ui-button-info"></p-button>
+    </div>
+    <div>
+        <h3>Cryptocurrency</h3>
+        <p-button label="Cryptocurrency" (click)="toggleCryptocurrency()" styleClass="ui-button-info"></p-button>
     </div>
     <ul>
         <li>
@@ -30,3 +38,46 @@
         </li>
     </ul>
 </div>
+<p-dialog [(visible)]="showCC" [showHeader]="false" (onHide)="onHideCC()">
+    <h3>Secure Credit Card Payment</h3>
+    <div class="p-grid">
+        <div class="p-col-12">
+            <div class="p-col">Name on Card:</div>
+            <div class="p-col">
+                <input [(ngModel)]="ccName" type="text" pInputText />
+            </div>
+        </div>
+        <div class="p-col-12">
+            <div class="p-col">Credit Card Number:</div>
+            <div class="p-col">
+                <i class="fa fa-{{ccIcon}} fa-2x" [ngStyle]="{'color': iconColor}"></i>
+                &nbsp;
+                <p-inputMask [(ngModel)]="ccNumber" mask="9999 9999 9999 9999" [ngStyle]="{'color': iconColor}" (focusout)="ccValidate($event)"></p-inputMask>
+                <!-- <input [(ngModel)]="ccNumber" type="text" pInputText (focusout)="ccValidate($event)"> -->
+            </div>
+        </div>
+        <div class="p-col-12">
+            <div class="p-col">Expiration Date:</div>
+            <div class="p-col">
+                <p-inputMask [(ngModel)]="ccExpiration" mask="99/99/9999" placeholder="mm/dd/yyyy" slothChar="mm/dd/yyyy"></p-inputMask>
+            </div>
+        </div>
+        <div class="p-col-12">
+            <div class="p-col">{{codeName}}:</div>
+            <div class="p-col">
+                <input [(ngModel)]="ccv" type="password" pInputText placeholder="{{codeSize}} digits" size="6" />
+            </div>
+        </div>
+        <div class="p-col-12">
+            <div class="p-col">
+                <p-button label="Submit" (click)="onCreditCard()" styleClass="ui-button-success"></p-button>
+            </div>            
+            <div class="p-col">                
+                <p-button label="Cancel" (click)="onCancelCC()" styleClass="ui-button-info"></p-button>
+            </div>
+        </div>
+    </div>
+</p-dialog>
+<p-dialog [(visible)]="showCrypto" [showHeader]="false">
+    <h3>Secure Cryptocurrency Payment</h3>
+</p-dialog>

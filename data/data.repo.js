@@ -736,6 +736,106 @@ const deleteAccountType = async(id) => {
     }
 }
 
+const getSiteDiscounts = async() => {
+    let sql = 'SELECT "discountId", "startDate", "endDate", "percentOff", "accountTypeId", "discountPrice" FROM public."siteDiscount"';
+
+    try {
+        const res = await pool.query(sql);
+
+        return res.rows;
+    } catch(err) {
+        console.log(err);
+    }
+}
+
+const getSiteDiscountsActive = async(currentDate) => {
+    let sql = 'SELECT "discountId", "startDate", "endDate", "percentOff", "accountTypeId", "discountPrice" FROM public."siteDiscount" ';
+    sql += 'WHERE "startDate" <= $1 AND "endDate" >= $1'
+
+    try {
+        const res = await pool.query(sql, [currentDate]);
+
+        return res.rows;
+    } catch(err) {
+        console.log(err);
+    }
+}
+
+const addSiteDiscount = async(discountId, startDate, endDate, percentOff, accountTypeId, discountPrice) => {
+    let sql = 'INSERT INTO public."siteDiscount" ( "discountId", "startDate", "endDate", "percentOff", "accountTypeId", "discountPrice" ) ';
+    sql += 'VALUES ( $1, $2, $3, $4, $5, $6 )';
+    const data = [
+        discountId,
+        startDate,
+        endDate,
+        percentOff,
+        accountTypeId,
+        discountPrice
+    ]
+
+    try {
+        const res = await pool.query(sql, data);
+
+        return res.rowCount;
+    } catch(err) {
+        console.log(err);
+    }
+}
+
+const updateSiteDiscount = async(discountId, startDate, endDate, percentOff, accountTypeId, discountPrice) => {
+    let sql = 'UPDATE public."siteDiscount" set "startDate" = $2, "endDate" = $3, "percentOff" = $4, "accountTypeId" = $5, "discountPrice" = $6 ';
+    sql += 'WHERE "discountId" = $1';
+    const data = [
+        discountId,
+        startDate,
+        endDate,
+        percentOff,
+        accountTypeId,
+        discountPrice
+    ]
+
+    try {
+        const res = await pool.query(sql, data);
+
+        return res.rowCount;
+    } catch(err) {
+        console.log(err);
+    }
+}
+const getOrderHistoryByUser = async(userId) => {
+    let sql = 'SELECT "orderId", "userId", "accountType", "orderDate", price, "paymentType" FROM public."orderHistory" ';
+    sql += 'WHERE "userId" = $1'
+
+    try {
+        const res = await pool.query(sql, [userId]);
+
+        return res.rows;
+    } catch(err) {
+        console.log(err);
+    }
+}
+
+const addOrderHistory = async(orderId, userId, accountType, orderDate, price, paymentType) => {
+    let sql = 'INSERT INTO public."orderHistory" ( "orderId", "userId", "accountType", "orderDate", price, "paymentType" ) ';
+    sql += 'VALUES ( $1, $2, $3, $4, $5, $6 )';
+    const data = [
+        orderId,
+        userId,
+        accountType,
+        orderDate,
+        price,
+        paymentType
+    ]
+
+    try {
+        const res = await pool.query(sql, data);
+
+        return res.rowCount;
+    } catch(err) {
+        console.log(err);
+    }
+}
+
 module.exports = {
     getBlockchains,
     getBlockchainBySymbol,
@@ -782,5 +882,11 @@ module.exports = {
     getAccountTypeByName,
     addAccountType,
     updateAccountType,
-    deleteAccountType
+    deleteAccountType,
+    getSiteDiscounts,
+    getSiteDiscountsActive,
+    addSiteDiscount,
+    updateSiteDiscount,
+    getOrderHistoryByUser,
+    addOrderHistory
 }

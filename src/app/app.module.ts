@@ -10,6 +10,7 @@ import { CookieService } from 'ngx-cookie-service';
 import { NgxQRCodeModule } from 'node_modules/ngx-qrcode2';
 
 import { InputTextModule } from 'primeng/inputtext';
+import { InputMaskModule } from 'primeng/inputmask';
 import { ButtonModule } from 'primeng/button';
 import { TabMenuModule } from 'primeng/tabmenu';
 import { TabViewModule } from 'primeng/tabview';
@@ -58,6 +59,7 @@ import { AccountTypesComponent } from './components/account-types/account-types.
 import { PasswordComponent } from './components/password/password.component';
 import { VerifyComponent } from './components/verify/verify.component';
 import { PaymentComponent } from './components/payment/payment.component';
+import { SquarePaymentComponent } from './components/square-payment/square-payment.component';
 
 const appRoutes: Routes = [
   { path: '', component: ChainHunterComponent },
@@ -101,7 +103,8 @@ const appRoutes: Routes = [
     AccountTypesComponent,
     PasswordComponent,
     VerifyComponent,
-    PaymentComponent
+    PaymentComponent,
+    SquarePaymentComponent
   ],
   imports: [
     AccordionModule,
@@ -113,6 +116,7 @@ const appRoutes: Routes = [
     DialogModule,
     FormsModule,
     HttpClientModule,
+    InputMaskModule,
     InputTextModule,
     NgxQRCodeModule,
     OverlayPanelModule,

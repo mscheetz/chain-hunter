@@ -24,6 +24,9 @@ export class PaymentComponent implements OnInit {
   constructor() { }
 
   ngOnInit() {
+    if(typeof this.total === 'undefined') {
+      this.total = 10.99;
+    }
   }
 
   toggleCreditCard() {

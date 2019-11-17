@@ -38,9 +38,10 @@
         </li>
     </ul>
 </div>
-<p-dialog [(visible)]="showCC" [showHeader]="false" (onHide)="onHideCC()">
-    <h3>Secure Credit Card Payment</h3>
-    <div class="p-grid">
+<p-dialog [(visible)]="showCC" [style]="{'background-color': '#f1f1f1'}" [modal]="true"
+        [showHeader]="false" (onHide)="onHideCC()">
+    <app-square-payment [totalAmount]="total" [showPage]="showCC"></app-square-payment>
+    <!-- <div class="p-grid">
         <div class="p-col-12">
             <div class="p-col">Name on Card:</div>
             <div class="p-col">
@@ -53,7 +54,6 @@
                 <i class="fa fa-{{ccIcon}} fa-2x" [ngStyle]="{'color': iconColor}"></i>
                 &nbsp;
                 <p-inputMask [(ngModel)]="ccNumber" mask="9999 9999 9999 9999" [ngStyle]="{'color': iconColor}" (focusout)="ccValidate($event)"></p-inputMask>
-                <!-- <input [(ngModel)]="ccNumber" type="text" pInputText (focusout)="ccValidate($event)"> -->
             </div>
         </div>
         <div class="p-col-12">
@@ -76,7 +76,7 @@
                 <p-button label="Cancel" (click)="onCancelCC()" styleClass="ui-button-info"></p-button>
             </div>
         </div>
-    </div>
+    </div> -->
 </p-dialog>
 <p-dialog [(visible)]="showCrypto" [showHeader]="false">
     <h3>Secure Cryptocurrency Payment</h3>

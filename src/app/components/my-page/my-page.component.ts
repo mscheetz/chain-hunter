@@ -27,7 +27,11 @@ export class MyPageComponent implements OnInit {
   invalidPassword1: boolean = false;
   invalidPassword2: boolean = false;
   
-  constructor(private apiSvc: ApiService, private authSvc: AuthenticationService, private helperSvc: HelperService, private messageSvc: MessageService, private router: Router) { }
+  constructor(private apiSvc: ApiService, 
+              private authSvc: AuthenticationService, 
+              private helperSvc: HelperService, 
+              private messageSvc: MessageService, 
+              private router: Router) { }
 
   ngOnInit() {
     this.user = this.authSvc.getUser();

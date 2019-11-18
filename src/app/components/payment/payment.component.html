@@ -1,7 +1,22 @@
 <h2>Payment</h2>
 <div>
     <div>
-        Amount Due: ${{total}}
+        Account Selected: {{account.name}}
+    </div>
+    <div>
+        Price: ${{account.yearly}}
+    </div>
+    <div>
+        Promo Code: 
+        <input type="text" pInputText [(ngModel)]="promoCode" />
+        &nbsp;&nbsp;
+        <p-button label="Apply Code" (click)="onApplyCode()" styleClass="ui-button-info"></p-button>
+    </div>
+    <div *ngIf="validCode">
+        Promo Code Detail: {{promoCodeDetail}}
+    </div>
+    <div>
+        Total Due: ${{total}}
     </div>
     <div>
         <h3>Credit Card</h3>
@@ -38,8 +53,8 @@
         </li>
     </ul>
 </div>
-<p-dialog [(visible)]="showCC" [style]="{'background-color': '#f1f1f1'}" [modal]="true"
-        [showHeader]="false" (onHide)="onHideCC()">
+<p-dialog id="CCDialog" [(visible)]="showCC" [style]="{width: '450px', height: '300px'}" [modal]="true"
+        [showHeader]="false" (onShow)="onShowCC()" (onHide)="onHideCC()">
     <app-square-payment [totalAmount]="total" [showPage]="showCC"></app-square-payment>
     <!-- <div class="p-grid">
         <div class="p-col-12">

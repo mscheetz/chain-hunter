@@ -10,11 +10,11 @@ declare var SqPaymentForm: any;
   styleUrls: ['./square-payment.component.css']
 })
 export class SquarePaymentComponent implements OnInit, AfterViewChecked {
+  paymentForm: any;
   @Input() totalAmount: number;
   @Input() showPage: boolean;
   applicationId: string = environment.squareApplicationId;
   locationId: string = environment.squareLocationId;
-  paymentForm: any;
 
   constructor() { 
     this.loadCheck();
@@ -31,7 +31,7 @@ export class SquarePaymentComponent implements OnInit, AfterViewChecked {
   loadCheck() {
     if(this.showPage) {
       //console.log('page is now visible');
-      if(typeof this.paymentForm === 'undefined') {
+      if(typeof this.paymentForm === 'undefined' || this.paymentForm === null) {
         console.log('building form!')
         this.loadForm();
       }

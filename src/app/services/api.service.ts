@@ -12,6 +12,7 @@ import { UserData } from '../classes/UserData';
 import { UserResponse } from '../classes/UserResponse';
 import { ResultType } from '../classes/Enums';
 import { AccountType } from '../classes/AccountType';
+import { PromoCode } from '../classes/promo-code.class';
 
 @Injectable({providedIn: 'root'})
 export class ApiService{
@@ -109,6 +110,21 @@ export class ApiService{
         };
 
         let result = this.onPost<boolean>(url, data);
+
+        return result;
+    }
+
+    /**
+     * Get a promo code
+     * 
+     * @param code promo code
+     * @param accountUuid account uuid
+     */
+    getPromoCode(code: string, accountUuid: string): Observable<PromoCode> {
+        let endpoint: string = `/api/user/promo/${code}/uuid/${accountUuid}`;
+        let url: string = this.baseUrl + endpoint;
+
+        let result = this.onGet<PromoCode>(url);
 
         return result;
     }

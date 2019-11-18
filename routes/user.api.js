@@ -158,6 +158,18 @@ router.post("/api/user/invite/validate", [ apiHelp.bootlegMiddleware ], async(re
 });
 
 /**
+ * Get a promo code
+ */
+router.get("/api/user/promo/:code/uuid/:uuid", [ apiHelp.bootlegMiddleware ], async(req, res, next) => {
+  const code = req.params.code;
+  const accountUuid = req.params.uuid;
+
+  const result = await userSvc.getPromoCode(code, accountUuid);
+  
+  res.status(result.code).json(result.data);
+})
+
+/**
  * Register a new user
  */
 router.post("/api/user/register", [ apiHelp.bootlegMiddleware ], async(req, res, next) => {

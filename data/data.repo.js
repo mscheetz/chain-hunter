@@ -651,7 +651,7 @@ const getAccountType = async(id) => {
     try {
         const res = await pool.query(sql, [id]);
 
-        return res.rows;
+        return res.rows[0];
     } catch(err) {
         console.log(err);
     }
@@ -663,7 +663,7 @@ const getAccountTypeByUuid = async(uuid) => {
     try {
         const res = await pool.query(sql, [uuid]);
 
-        return res.rows;
+        return res.rows[0];
     } catch(err) {
         console.log(err);
     }
@@ -879,6 +879,7 @@ module.exports = {
     deletePasswordReset,
     getAccountTypes,
     getAccountType,
+    getAccountTypeByUuid,
     getAccountTypeByName,
     addAccountType,
     updateAccountType,

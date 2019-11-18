@@ -489,6 +489,48 @@ const validateInviteCode = async(id) => {
     return responseSvc.successMessage(true);
 }
 
+/**
+ * Get a promo code
+ * 
+ * @param {string} code promoCode
+ * @param {string} accountUuid account uuid
+ */
+const getPromoCode = async(code, accountUuid) => {
+    const status = await validateInviteCode(code);
+    if(status.code === 400) {
+        return status;
+    }
+    const promoCode = await db.getDiscountCode(code);
+
+    let returnCode = {
+        code: promoCode.code,
+        percentOff: promoCode.percentOff,
+        price: promoCode.price
+    };
+
+    if (promoCode.percentOff === null && promoCode.price === null) {
+        return responseSvc.errorMessage("Invalid code", 400);
+    }
+
+    if(promoCode.accountTypeId !== null) {
+        const account = await db.getAccountTypeByUuid(accountUuid);
+
+        if(typeof account !== 'undefined' && account !== null) {
+            if(account.id.toString() !== promoCode.accountTypeId) {
+                return responseSvc.errorMessage("Code not valid for this account type.", 400);
+            }
+            returnCode.accountTypeUuid = account.uuid;
+        } else {
+            responseSvc.errorMessage("Invalid code", 400);
+        }
+    }
+
+    return responseSvc.successMessage(returnCode);
+}
+
+/**
+ * Get all account types
+ */
 const getAccountTypes = async() => {
     const accounts = await db.getAccountTypes();
 
@@ -512,5 +554,6 @@ module.exports = {
     addUserData,
     deleteUserData,
     validateInviteCode,
+    getPromoCode,
     getAccountTypes
 }

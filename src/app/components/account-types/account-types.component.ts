@@ -1,9 +1,12 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+
+import { CookieService } from 'ngx-cookie-service';
+
 import { ApiService } from 'src/app/services/api.service';
 import { AccountType } from 'src/app/classes/AccountType';
 import { AuthenticationService } from 'src/app/services/authentication.service';
 import { User } from 'src/app/classes/User';
-import { Router } from '@angular/router';
 import { LoginService } from 'src/app/services/login.service';
 
 @Component({
@@ -16,7 +19,11 @@ export class AccountTypesComponent implements OnInit {
   loggedIn: boolean;
   user: User;
 
-  constructor(private apiSvc: ApiService, private authSvc: AuthenticationService, private router: Router, private loginSvc: LoginService) { 
+  constructor(private apiSvc: ApiService, 
+              private authSvc: AuthenticationService, 
+              private router: Router, 
+              private loginSvc: LoginService,
+              private cookieSvc: CookieService) { 
     this.apiSvc.getAccountTypes()
       .subscribe(res => {
         this.accounts = res;
@@ -33,8 +40,9 @@ export class AccountTypesComponent implements OnInit {
     this.loginSvc.toggleLogin();
   }
   
-  onUpgrade(accountTypeId: number) {
-    const hi = true;
+  onUpgrade(account: AccountType) {
+    this.cookieSvc.delete("tch-upgrade");
+    this.cookieSvc.set("tch-upgrade", JSON.stringify(account));
     this.router.navigate(['payment']);
   }
 }

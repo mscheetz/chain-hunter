@@ -1,7 +1,7 @@
 <h2>Chain Hunter Accounts</h2>
 
 <div class="p-grid">
-    <div class="p-col" *ngFor="let account of accounts; let i = index">
+    <div class="p-col-12 p-lg-4" *ngFor="let account of accounts; let i = index">
         <p-card header="{{i === 0 ? 'Good' : i === 1 ? 'Better' : 'Best'}}">
             <h2 class="center">{{account.name}}</h2>
             <h4 class="center">Daily Hunt Limit: <span class="biggie" *ngIf="account.searchLimit === null">Unlimited</span><span class="biggie" *ngIf="account.searchLimit !== null">{{account.searchLimit}}</span></h4>

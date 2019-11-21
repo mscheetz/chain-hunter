@@ -26,6 +26,7 @@ const login = async(email, password) => {
     }
 
     if(user.validated === null) {
+        const status = await validateAccountRequest(user);
         return responseSvc.errorMessage("Account not validated. A validation email has been sent to your email address.", 400);
     }
 
@@ -283,7 +284,9 @@ const forgotPasswordInit = async(email) => {
     const dbUpdate = await db.postPasswordReset(user.userId, token, ts);
 
     const subject = "The Chain Hunter: Forgot Password";
-    let template = fs.readFileSync('templates/verification.html',{encoding: 'utf-8'});
+    let template = fs.readFileSync('templates/forgotpassword.html',{encoding: 'utf-8'});
+    const forgotUrl = `https://www.thechainhunter.com/password/${token}`;
+    const year = new Date().getFullYear();
     template = template.replace('!#passwordLink#!', forgotUrl);
     template = template.replace('!#year#!', year);
 

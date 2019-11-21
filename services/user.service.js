@@ -170,6 +170,10 @@ const registerUser = async(email, password, inviteCode) => {
     delete user.password;
 
     const postStatus = await db.postUser(user);
+    
+    if(typeof postStatus === 'undefined') {
+        return responseSvc.errorMessage("Error creating account. Please try again.", 400);
+    }
 
     const status = await validateAccountRequest(user);
 

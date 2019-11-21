@@ -30,7 +30,7 @@ export class LoginComponent implements OnInit {
   newEmail: string;
   newPassword: string;
   newPasswordConfirm: string;
-  inviteCode: string;
+  inviteCode: string = "";
   invalidEmail: boolean = false;
   invalidPassword0: boolean = false;
   invalidPassword1: boolean = false;
@@ -267,5 +267,11 @@ export class LoginComponent implements OnInit {
       this.loginView = false;
       this.registerView = true;
     }
+  }
+
+  onReturnLogin(event) {
+    this.selectedAction = 0;
+    this.confirmView = false;
+    this.typeChange(event);
   }
 }

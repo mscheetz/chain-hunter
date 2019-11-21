@@ -30,15 +30,12 @@ const sendEmail = async(recipient, subject, body) => {
     try{
         transport.sendMail(mailMessage, (err, info)=> {
             if(err) {
-                console.log('err', err);
                 return false;
             }
-            console.log('info', info);
             return true;
         });
         return true;
     } catch(err) {
-        console.log(err);
         return false;
     }
 }

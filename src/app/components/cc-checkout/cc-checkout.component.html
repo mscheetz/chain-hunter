@@ -8,6 +8,7 @@
         <div hidden="true" id="order-id">{{orderId}}</div>
         <button id="sq-creditcard" class="button-credit-card" (click)="onGetCardNonce($event)">Pay ${{order.price}}</button>
     </div>
+    <p-button label="Return to Shopping Cart" (click)="toCart()" styleClass="ui-button-info"></p-button>    
 </div>
 <div *ngIf="!validOrder">
     <h4>{{invalidMessage}}</h4>

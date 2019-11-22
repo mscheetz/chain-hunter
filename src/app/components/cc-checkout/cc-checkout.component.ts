@@ -114,15 +114,15 @@ export class CreditCardCheckoutComponent implements OnInit {
           .catch(err => {
             alert(`Network error: ${err.message}`);
           })
-          .then(response => {
-            if(!response.ok) {
-              return response.text().then(errorInfo => Promise.reject(errorInfo));
-            }
+          // .then(response => {
+          //   if(!response.ok) {
+          //     return response.text().then(errorInfo => Promise.reject(errorInfo));
+          //   }
 
-            return response.text();
-          })
+          //   return response.text();
+          // })
           .then(data => {
-            
+
           });
 
           console.log(`order id found: ${orderId}`);

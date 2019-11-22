@@ -97,13 +97,15 @@ export class CreditCardCheckoutComponent implements OnInit {
             return;
           }
           const orderId = document.getElementById('order-id').innerHTML;
+          const token = localStorage.getItem('tch-user-token');          
           const paymentType = cardData.card_brand === "NONE" ? cardData.digital_wallet_type : cardData.card_brand;
 
-          fetch('/api/payment/process', {
+          fetch('/api/payment/cc', {
             method: 'POST',
             headers: {
+              'x-access-token': `Bearer ${token}`,
               'Accept': 'application/json',
-              'Conent-Type': 'application/json'
+              'Content-Type': 'application/json'
             },
             body: JSON.stringify({
               orderId: orderId,

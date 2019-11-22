@@ -82,7 +82,7 @@ const add = async(order) => {
 const processOrder = async(orderId, detailId, processedTS) => {
     let sql = `UPDATE public."orders" 
     SET "paymentTypeDetailId" = $2 processed = $3 
-    WHERE orderId = $1`;
+    WHERE "orderId" = $1`;
     const data = [
         orderId,
         detailId,
@@ -98,9 +98,30 @@ const processOrder = async(orderId, detailId, processedTS) => {
     }
 }
 
+/**
+ * Delete an order
+ * @param {string} orderId order id
+ */
+const remove = async(orderId) => {
+    let sql = `DELETE FROM public."orders" 
+    WHERE "orderId" = $1`;
+    const data = [
+        orderId
+    ];
+
+    try {
+        const res = await pool.query(sql, data);
+
+        return res.rowCount;
+    } catch(err) {
+        console.log(err);
+    }
+}
+
 module.exports = {
     getByUser,
     get,
     add,
-    processOrder
+    processOrder,
+    remove
 }

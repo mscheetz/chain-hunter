@@ -44,7 +44,7 @@ const getCryptoPaymentTypes = async() => {
  * @returns {string} new order Id
  */
 const createOrder = async(userId, accountTypeId, paymentTypeId, price, discountCode) => {
-    const user = await userRepo.get(userId);
+    const user = await userRepo.get(userId);    
     const accountType = await accountTypeRepo.getByUuid(accountTypeId);
     const payment = await paymentTypeRepo.get(paymentTypeId);
     let discount = discountCode === "" ? null : await discountCodeRepo.get(discountCode);
@@ -63,6 +63,13 @@ const createOrder = async(userId, accountTypeId, paymentTypeId, price, discountC
     }
     if(discount !== null && discount.accountTypeId !== null && discount.accountTypeId !== accountTypeId) {
         return responseSvc.errorMessage("Discount code not valid for this order type", 400);
+    }
+    const userOrders = await orderRepo.getByUser(userId);
+
+    for(let i = 0; i < userOrders.length; i++) {
+        if(userOrders[i].processed === null) {
+            await orderRepo.remove(userOrders[i].orderId);
+        }
     }
 
     const validPrice = calculatePrice(accountType.yearly, discount);

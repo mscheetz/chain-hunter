@@ -8,8 +8,9 @@ const bodyParser = require('body-parser');
 const compression = require('compression');
 const helmet = require('helmet');
 const blockchainApi = require('./routes/blockchain.api');
-const userApi = require('./routes/user.api');
+const paymentApi = require('./routes/payment.api');
 const resultsApi = require('./routes/search.api');
+const userApi = require('./routes/user.api');
 const config = require('./config');
 
 const port = process.env.PORT || 3000;
@@ -72,8 +73,9 @@ const redirectHome = async(req, res) => {
 };
 
 app.all('/api/blockchain*', blockchainApi);
-app.all('/api/user*', userApi);
+app.all('/api/payment*', paymentApi);
 app.all('/api/results*', resultsApi);
+app.all('/api/user*', userApi);
 
 app.get('/', function (req, res) {
   res.status(200).sendFile(`/`, {root: dist_dir});

@@ -23,14 +23,13 @@ router.post("/api/user/guest", apiHelp.bootlegMiddleware, async (req, res, next)
   res.status(result.code).json(result.data);
 });
 
-router.get("/api/user/validate/:userId", apiHelp.asyncMiddleware(async (req, res, next) => {
-    const userId = req.params.userId;
+router.get("/api/user/validate/:userId", apiHelp.asyncMiddleware, async (req, res, next) => {
+  const userId = req.params.userId;
 
-    const result = await userSvc.validateUser(userId);
+  const result = await userSvc.validateUser(userId);
 
-    res.status(result.code).json(result.data);
-  })
-);
+  res.status(result.code).json(result.data);
+});
 
 router.post("/api/user/password/forgot/init", apiHelp.bootlegMiddleware, async (req, res, next) => {
   const email = req.body.email;

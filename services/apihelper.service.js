@@ -10,6 +10,12 @@ const asyncMiddleware = fn => (req, res, next) => {
     .catch(next);
 };
 
+/**
+ * Bootleg middeware, check if correct bootleg headers and values
+ * @param {object} req request
+ * @param {object} res response
+ * @param {object} next next
+ */
 const bootlegMiddleware = async(req, res, next) => {
     const headerMsg = headerCheck(req);
     
@@ -23,6 +29,12 @@ const bootlegMiddleware = async(req, res, next) => {
     next();
 }
 
+/**
+ * Auth middleware, check if correct auth headers exist
+ * @param {object} req request
+ * @param {object} res response
+ * @param {object} next next
+ */
 const authMiddleware = async(req, res, next) => {
     let token = req.headers['authorization'];
     if(typeof token === 'undefined') {
@@ -38,13 +50,16 @@ const authMiddleware = async(req, res, next) => {
         res.status(401).json("invalid token");
         res.end;
     } else {
-        // const payload = await encryptionSvc.getTokenPayload(token);
-
-        // res.locals.userId = payload.userId;
         next();
     }
 }
 
+/**
+ * Guest middleware, check if valid guest jwt
+ * @param {object} req request
+ * @param {object} res response
+ * @param {object} next next
+ */
 const guestMiddleware = async(req, res, next) => {
     let token = req.header('authorization');
     token = token.substr(7, token.length);
@@ -57,6 +72,12 @@ const guestMiddleware = async(req, res, next) => {
     next();
 }
 
+/**
+ * User middleware, check if valid user jwt
+ * @param {object} req request
+ * @param {object} res response
+ * @param {object} next next
+ */
 const userMiddleware = async(req, res, next) => {
     let token = req.headers['authorization'];
     token = token.substr(7, token.length);
@@ -72,6 +93,11 @@ const userMiddleware = async(req, res, next) => {
     next();
 }
 
+/**
+ * Error response
+ * @param {object} res response
+ * @param {string} msg message
+ */
 const errorResponse = function(res, msg = '') {
     if(msg === '') {
         msg = 'You said whaaaaaaa??';
@@ -80,6 +106,10 @@ const errorResponse = function(res, msg = '') {
     //return res.status(400).json({'code': 400, 'message': msg});
 }
 
+/**
+ * Check for headers
+ * @param {object} req request
+ */
 const headerCheck = function(req) {
     const ip = req.socket.remoteAddress;
     const user = req.header('TCH-USER');
@@ -114,36 +144,6 @@ const headerCheck = function(req) {
     return { status: valid, message: msg, ip: ip };
 };
 
-// /**
-//  * Return a success message
-//  * 
-//  * @param {any} data data to return
-//  * @param {number} code status code, 200
-//  */
-// const successMessage = function(data, code = 200) {
-//     const response = {
-//         code: code,
-//         data: data
-//     }
-
-//     return response;
-// }
-
-// /**
-//  * Return an error message
-//  * 
-//  * @param {any} data data to return
-//  * @param {number} code status code, 401
-//  */
-// const errorMessage = function(data, code = 401) {
-//     const response = {
-//         code: code,
-//         data: data
-//     }
-
-//     return response;
-// }
-
 module.exports = {
     asyncMiddleware,
     bootlegMiddleware,
@@ -151,7 +151,5 @@ module.exports = {
     guestMiddleware,
     userMiddleware,
     errorResponse,
-    headerCheck,
-    // successMessage,
-    // errorMessage
+    headerCheck
 }

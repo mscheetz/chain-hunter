@@ -41,7 +41,7 @@ const getUnixTsSeconds = function() {
  * @param {number} s seconds
  * @param {boolean} ms use milliseconds
  */
-const getUnixTsPlus = function(d = 0, h = 0, m = 0, s = 0, ms = false) {
+const getUnixTsPlus = function({d = 0, h = 0, m = 0, s = 0, ms = false} = {}) {
     const ts = getUnixTsSeconds();
 
     let seconds = s;

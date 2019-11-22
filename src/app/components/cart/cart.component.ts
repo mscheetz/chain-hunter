@@ -4,15 +4,19 @@ import { CookieService } from 'ngx-cookie-service';
 import { MessageService } from 'primeng/api';
 
 import { environment } from 'src/environments/environment';
-import { AccountType } from 'src/app/classes/AccountType';
+import { AccountType } from 'src/app/classes/account-type.class';
 import { ApiService } from 'src/app/services/api.service';
+import { IdName } from 'src/app/classes/id-name.class';
+import { CryptoPaymentType } from 'src/app/classes/crypto-payment-type.class';
+import { PaymentType } from 'src/app/classes/payment-type.class';
+import { Router } from '@angular/router';
 
 @Component({
-  selector: 'app-payment',
-  templateUrl: './payment.component.html',
-  styleUrls: ['./payment.component.css']
+  selector: 'app-cart',
+  templateUrl: './cart.component.html',
+  styleUrls: ['./cart.component.css']
 })
-export class PaymentComponent implements OnInit {
+export class CartComponent implements OnInit {
   @Input() total: number;
   promoCode: string = "";
   showCC: boolean = false;
@@ -32,12 +36,17 @@ export class PaymentComponent implements OnInit {
   account: AccountType;
   validCode: boolean = false;
   promoCodeDetail: string;
+  paymentTypes: PaymentType[] = [];
+  cryptoPaymentTypes: CryptoPaymentType[] = [];
+  orderId: string = "";
 
   constructor(private cookieSvc: CookieService, 
               private apiSvc: ApiService,
-              private messageSvc: MessageService) { }
+              private messageSvc: MessageService,
+              private router: Router) { }
 
   ngOnInit() {
+    this.getTypes();
     const cookie = this.cookieSvc.get("tch-upgrade");
     if(typeof cookie !== "undefined" && cookie !== null && cookie !== "") {
       this.account = JSON.parse(cookie);
@@ -49,6 +58,34 @@ export class PaymentComponent implements OnInit {
     }
   }
 
+  getTypes() {
+    this.apiSvc.getPaymentTypes()
+        .subscribe(res => {
+          res.forEach(r => {
+            const type = new PaymentType();
+            type.id = r.id;
+            type.name = r.name;
+            type.cryptoTypes = [];
+            this.paymentTypes.push(type);
+          })
+          this.updatePaymentTypes();
+        });
+    this.apiSvc.getCryptoPaymentTypes()
+        .subscribe(res => {
+          this.cryptoPaymentTypes = res;
+          this.updatePaymentTypes();
+        });
+  }
+
+  updatePaymentTypes(){
+    if(this.paymentTypes.length > 0 && this.cryptoPaymentTypes.length > 0) {
+      this.paymentTypes.forEach(payment => {
+        const cryptos = this.cryptoPaymentTypes.filter(c => c.paymentTypeId === payment.id);
+        payment.cryptoTypes = cryptos;
+      })
+    }
+  }
+  
   toggleCreditCard() {
     this.showCC = !this.showCC;
     this.resetCC();
@@ -95,6 +132,21 @@ export class PaymentComponent implements OnInit {
           detail: message,
           life: 5000
         })
+  }
+
+  async createOrder(paymentTypeId: string) {
+    const payment = this.paymentTypes.find(f => f.id === paymentTypeId);
+    await this.apiSvc.createOrder(this.account.uuid, paymentTypeId, this.total, this.promoCode )
+              .subscribe(res => {
+                if(payment.name === "Credit Card") { 
+                  console.log('credit card payment')
+                  this.router.navigate([`cc-checkout`, res]);
+                } else {
+                  console.log('crypto payment')
+                }
+              }, err => {
+                this.showErrorMessage(err.error);
+              })
   }
 
   onShowCC() {

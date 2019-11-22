@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { CookieService } from 'ngx-cookie-service';
 
 import { ApiService } from 'src/app/services/api.service';
-import { AccountType } from 'src/app/classes/AccountType';
+import { AccountType } from 'src/app/classes/account-type.class';
 import { AuthenticationService } from 'src/app/services/authentication.service';
 import { User } from 'src/app/classes/User';
 import { LoginService } from 'src/app/services/login.service';
@@ -43,6 +43,6 @@ export class AccountTypesComponent implements OnInit {
   onUpgrade(account: AccountType) {
     this.cookieSvc.delete("tch-upgrade");
     this.cookieSvc.set("tch-upgrade", JSON.stringify(account));
-    this.router.navigate(['payment']);
+    this.router.navigate(['cart']);
   }
 }

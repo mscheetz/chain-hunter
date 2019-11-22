@@ -58,8 +58,9 @@ import { MyHuntsComponent } from './components/my-hunts/my-hunts.component';
 import { AccountTypesComponent } from './components/account-types/account-types.component';
 import { PasswordComponent } from './components/password/password.component';
 import { VerifyComponent } from './components/verify/verify.component';
-import { PaymentComponent } from './components/payment/payment.component';
+import { CartComponent } from './components/cart/cart.component';
 import { SquarePaymentComponent } from './components/square-payment/square-payment.component';
+import { CreditCardCheckoutComponent } from './components/cc-checkout/cc-checkout.component';
 
 const appRoutes: Routes = [
   { path: '', component: ChainHunterComponent },
@@ -70,8 +71,9 @@ const appRoutes: Routes = [
   { path: 'mypage', component: MyPageComponent, canActivate: [AuthGuard] },
   { path: 'accounts', component: AccountTypesComponent },
   { path: 'password/:id', component: PasswordComponent },
-  { path: 'payment', component: PaymentComponent },
-  { path: 'verify/:id', component: VerifyComponent }
+  { path: 'cart', component: CartComponent, canActivate: [AuthGuard] },
+  { path: 'verify/:id', component: VerifyComponent },
+  { path: 'cc-checkout/:order', component: CreditCardCheckoutComponent, canActivate: [AuthGuard] }
 ]
 
 @NgModule({
@@ -103,8 +105,9 @@ const appRoutes: Routes = [
     AccountTypesComponent,
     PasswordComponent,
     VerifyComponent,
-    PaymentComponent,
-    SquarePaymentComponent
+    CartComponent,
+    SquarePaymentComponent,
+    CreditCardCheckoutComponent
   ],
   imports: [
     AccordionModule,

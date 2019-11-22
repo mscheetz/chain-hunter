@@ -11,8 +11,11 @@ import { User } from '../classes/User';
 import { UserData } from '../classes/UserData';
 import { UserResponse } from '../classes/UserResponse';
 import { ResultType } from '../classes/Enums';
-import { AccountType } from '../classes/AccountType';
+import { AccountType } from '../classes/account-type.class';
 import { PromoCode } from '../classes/promo-code.class';
+import { IdName } from '../classes/id-name.class';
+import { CryptoPaymentType } from '../classes/crypto-payment-type.class';
+import { Order } from '../classes/order.class';
 
 @Injectable({providedIn: 'root'})
 export class ApiService{
@@ -399,6 +402,48 @@ export class ApiService{
 
         let result = this.onGet<Blockchain>(url);
     
+        return result;
+    }
+
+    getPaymentTypes(): Observable<IdName[]> {
+        let endpoint: string = "/api/payment/types";
+        let url: string = this.baseUrl + endpoint;
+
+        let result = this.onGet<IdName[]>(url);
+
+        return result;
+    }
+
+    getCryptoPaymentTypes(): Observable<CryptoPaymentType[]> {
+        let endpoint: string = "/api/payment/types/crypto";
+        let url: string = this.baseUrl + endpoint;
+
+        let result = this.onGet<CryptoPaymentType[]>(url);
+
+        return result;
+    }
+
+    createOrder(accountTypeId: string, paymentTypeId: string, price: number, discountCode: string): Observable<string> {
+        let endpoint: string = "/api/payment/order";
+        let url: string = this.baseUrl + endpoint;
+        let data = {
+            accountTypeId: accountTypeId,
+            paymentTypeId: paymentTypeId,
+            price: price,
+            discountCode: discountCode
+        }
+
+        let result = this.onPost<string>(url, data, true);
+
+        return result;
+    }
+
+    getOrder(orderId: string) : Observable<Order> {
+        let endpoint: string = `/api/payment/order/${orderId}`;
+        let url: string = this.baseUrl + endpoint;
+
+        let result = this.onGet<Order>(url, true);
+
         return result;
     }
 

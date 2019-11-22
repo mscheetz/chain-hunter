@@ -1,0 +1,15 @@
+<h3>Checkout</h3>
+<div *ngIf="validOrder">
+    <div id="form-container" style="top: 140px">
+        <div id="sq-card-number"></div>
+        <div class="third" id="sq-expiration-date"></div>
+        <div class="third" id="sq-cvv"></div>
+        <div class="third" id="sq-postal-code"></div>
+        <div hidden="true" id="order-id">{{orderId}}</div>
+        <button id="sq-creditcard" class="button-credit-card" (click)="onGetCardNonce($event)">Pay ${{order.price}}</button>
+    </div>
+</div>
+<div *ngIf="!validOrder">
+    <h4>{{invalidMessage}}</h4>
+    <p-button label="Return to Shopping Cart" (click)="toCart()" styleClass="ui-button-info"></p-button>    
+</div>

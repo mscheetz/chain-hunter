@@ -133,89 +133,89 @@ const postCountryCount = async(countryCount) => {
     }
 }
 
-const getDiscountCodes = async() => {
-    let sql = 'SELECT * FROM public."discountCodes"';
+// const getDiscountCodes = async() => {
+//     let sql = 'SELECT * FROM public."discountCodes"';
 
-    try {
-        const res = await pool.query(sql);
+//     try {
+//         const res = await pool.query(sql);
 
-        return res.rows;
-    } catch(err) {
-        console.log(err);
-    }
-}
+//         return res.rows;
+//     } catch(err) {
+//         console.log(err);
+//     }
+// }
 
-const getDiscountCode = async(id) => {
-    let sql = 'SELECT * FROM public."discountCodes" WHERE code = $1';
+// const getDiscountCode = async(id) => {
+//     let sql = 'SELECT * FROM public."discountCodes" WHERE code = $1';
 
-    try {
-        const res = await pool.query(sql, [id]);
+//     try {
+//         const res = await pool.query(sql, [id]);
 
-        return res.rows[0];
-    } catch(err) {
-        console.log(err);
-    }
-}
+//         return res.rows[0];
+//     } catch(err) {
+//         console.log(err);
+//     }
+// }
 
-const postDiscountCode = async(discount) => {
-    let sql = 'INSERT INTO public."discountCodes" ( code, "percentOff", "validTil", "multiUse", "accountTypeId", price, days ) ';
-    sql += 'VALUES ( $1, $2, $3, $4, $5, $6, $7 ) ';
-    const data = [
-        discount.code, 
-        discount.percentOff, 
-        discount.validTil, 
-        discount.multiUse,
-        discount.accountTypeId,
-        discount.price,
-        discount.days
-    ];
+// const postDiscountCode = async(discount) => {
+//     let sql = 'INSERT INTO public."discountCodes" ( code, "percentOff", "validTil", "multiUse", "accountTypeId", price, days ) ';
+//     sql += 'VALUES ( $1, $2, $3, $4, $5, $6, $7 ) ';
+//     const data = [
+//         discount.code, 
+//         discount.percentOff, 
+//         discount.validTil, 
+//         discount.multiUse,
+//         discount.accountTypeId,
+//         discount.price,
+//         discount.days
+//     ];
 
-    try {
-        const res = await pool.query(sql, data);
+//     try {
+//         const res = await pool.query(sql, data);
 
-        return res.rowCount;
-    } catch(err) {
-        console.log(err);
-    }
-}
+//         return res.rowCount;
+//     } catch(err) {
+//         console.log(err);
+//     }
+// }
 
-const deleteDiscountCode = async(code) => {
-    let sql = 'DELETE FROM public."discountCodes" WHERE code = $1';
+// const deleteDiscountCode = async(code) => {
+//     let sql = 'DELETE FROM public."discountCodes" WHERE code = $1';
 
-    try {
-        const res = await pool.query(sql, [ code ]);
+//     try {
+//         const res = await pool.query(sql, [ code ]);
 
-        return res.rowCount;
-    } catch(err) {
-        console.log(err);
-    }
-}
+//         return res.rowCount;
+//     } catch(err) {
+//         console.log(err);
+//     }
+// }
 
-const redeemDiscountCode = async(code) => {
-    let sql = 'UPDATE public."discountCodes" set redeemed = true ';
-    sql += 'WHERE code = $1 ';
+// const redeemDiscountCode = async(code) => {
+//     let sql = 'UPDATE public."discountCodes" set redeemed = true ';
+//     sql += 'WHERE code = $1 ';
 
-    try {
-        const res = await pool.query(sql, [ code ]);
+//     try {
+//         const res = await pool.query(sql, [ code ]);
 
-        return res.rowCount;
-    } catch(err) {
-        console.log(err);
-    }
-}
+//         return res.rowCount;
+//     } catch(err) {
+//         console.log(err);
+//     }
+// }
 
-const consumeDiscountCode = async(code) => {
-    let sql = 'UPDATE public."discountCodes" set "usedUses" = "usedUses" + 1 ';
-    sql += 'WHERE code = $1 ';
+// const consumeDiscountCode = async(code) => {
+//     let sql = 'UPDATE public."discountCodes" set "usedUses" = "usedUses" + 1 ';
+//     sql += 'WHERE code = $1 ';
 
-    try {
-        const res = await pool.query(sql, [ code ]);
+//     try {
+//         const res = await pool.query(sql, [ code ]);
 
-        return res.rowCount;
-    } catch(err) {
-        console.log(err);
-    }
-}
+//         return res.rowCount;
+//     } catch(err) {
+//         console.log(err);
+//     }
+// }
 
 const getSymbolCounts = async() => {
     let sql = 'SELECT * FROM public.symbolCount';
@@ -246,202 +246,202 @@ const postSymbolCount = async(symbolCount) => {
     }
 }
 
-const getUsers = async() => {
-    let sql = 'SELECT * from public."user"';
+// const getUsers = async() => {
+//     let sql = 'SELECT * from public."user"';
 
-    try {
-        const res = await pool.query(sql);
+//     try {
+//         const res = await pool.query(sql);
 
-        return res.rows;
-    } catch(err) {
-        console.log(err);
-    }
-}
+//         return res.rows;
+//     } catch(err) {
+//         console.log(err);
+//     }
+// }
 
-const getUserByEmail = async(email) => {
-    let sql = 'SELECT * FROM public."user" WHERE email = $1';
+// const getUserByEmail = async(email) => {
+//     let sql = 'SELECT * FROM public."user" WHERE email = $1';
 
-    try {
-        const res = await pool.query(sql, [email]);
+//     try {
+//         const res = await pool.query(sql, [email]);
 
-        return res.rows[0];
-    } catch(err) {
-        console.log(err);
-    }
-}
+//         return res.rows[0];
+//     } catch(err) {
+//         console.log(err);
+//     }
+// }
 
-const getUser = async(username) => {
-    let sql = 'SELECT * FROM public."user" WHERE "username" = $1';
+// const getUser = async(username) => {
+//     let sql = 'SELECT * FROM public."user" WHERE "username" = $1';
 
-    try {
-        const res = await pool.query(sql, [username]);
+//     try {
+//         const res = await pool.query(sql, [username]);
 
-        return res.rows[0];
-    } catch(err) {
-        console.log(err);
-    }
-}
+//         return res.rows[0];
+//     } catch(err) {
+//         console.log(err);
+//     }
+// }
 
-const getUserByUserId = async(userId) => {
-    let sql = 'SELECT * FROM public."user" WHERE "userId" = $1';
+// const getUserByUserId = async(userId) => {
+//     let sql = 'SELECT * FROM public."user" WHERE "userId" = $1';
 
-    try {
-        const res = await pool.query(sql, [userId]);
+//     try {
+//         const res = await pool.query(sql, [userId]);
 
-        return res.rows[0];
-    } catch(err) {
-        console.log(err);
-    }
-}
+//         return res.rows[0];
+//     } catch(err) {
+//         console.log(err);
+//     }
+// }
 
-const postUser = async(user) => {
-    let sql = 'INSERT INTO public."user" ( email, created, "userId", "accountTypeId", username, "expirationDate", hash, validated ) ';
-    sql += 'VALUES ( $1, $2, $3, $4, $5, $6, $7, $8 )';
-    const data = [
-        user.email,
-        user.created, 
-        user.userId, 
-        user.accountTypeId, 
-        user.username, 
-        user.expirationDate, 
-        user.hash, 
-        user.validated
-    ];
+// const postUser = async(user) => {
+//     let sql = 'INSERT INTO public."user" ( email, created, "userId", "accountTypeId", username, "expirationDate", hash, validated ) ';
+//     sql += 'VALUES ( $1, $2, $3, $4, $5, $6, $7, $8 )';
+//     const data = [
+//         user.email,
+//         user.created, 
+//         user.userId, 
+//         user.accountTypeId, 
+//         user.username, 
+//         user.expirationDate, 
+//         user.hash, 
+//         user.validated
+//     ];
 
-    try {
-        const res = await pool.query(sql, data);
+//     try {
+//         const res = await pool.query(sql, data);
 
-        return res.rowCount;
-    } catch(err) {
-        console.log(err);
-    }
-}
+//         return res.rowCount;
+//     } catch(err) {
+//         console.log(err);
+//     }
+// }
 
-const updateUser = async(user) => {
-    let sql = 'UPDATE public."user" SET email = $1, "accountTypeId" = $2, username = $3, "expirationDate" = $4 ';
-    sql += 'WHERE "userId" = $5'
-    const data = [
-        user.email, 
-        user.created, 
-        user.userId, 
-        user.accountType, 
-        user.username, 
-        user.expirationDate
-    ];
+// const updateUser = async(user) => {
+//     let sql = 'UPDATE public."user" SET email = $1, "accountTypeId" = $2, username = $3, "expirationDate" = $4 ';
+//     sql += 'WHERE "userId" = $5'
+//     const data = [
+//         user.email, 
+//         user.created, 
+//         user.userId, 
+//         user.accountType, 
+//         user.username, 
+//         user.expirationDate
+//     ];
 
-    try {
-        const res = await pool.query(sql, data);
+//     try {
+//         const res = await pool.query(sql, data);
 
-        return res.rowCount;
-    } catch(err) {
-        console.log(err);
-    }
-}
+//         return res.rowCount;
+//     } catch(err) {
+//         console.log(err);
+//     }
+// }
 
-const updateUserName = async(userId, username) => {
-    let sql = 'UPDATE public."user" SET username = $2 ';
-    sql += 'WHERE "userId" = $1'
-    const data = [
-        userId, 
-        username
-    ];
+// const updateUserName = async(userId, username) => {
+//     let sql = 'UPDATE public."user" SET username = $2 ';
+//     sql += 'WHERE "userId" = $1'
+//     const data = [
+//         userId, 
+//         username
+//     ];
 
-    try {
-        const res = await pool.query(sql, data);
+//     try {
+//         const res = await pool.query(sql, data);
 
-        return res.rowCount;
-    } catch(err) {
-        console.log(err);
-    }
-}
+//         return res.rowCount;
+//     } catch(err) {
+//         console.log(err);
+//     }
+// }
 
-const updateUserAccount = async(userId, accountTypeId, expirationDate = null) => {
-    let sql = 'UPDATE public."user" SET "accountTypeId" = $2, "expirationDate" = $3 ';
-    sql += 'WHERE "userId" = $1'
-    const data = [
-        userId, 
-        accountTypeId,
-        expirationDate
-    ];
+// const updateUserAccount = async(userId, accountTypeId, expirationDate = null) => {
+//     let sql = 'UPDATE public."user" SET "accountTypeId" = $2, "expirationDate" = $3 ';
+//     sql += 'WHERE "userId" = $1'
+//     const data = [
+//         userId, 
+//         accountTypeId,
+//         expirationDate
+//     ];
 
-    try {
-        const res = await pool.query(sql, data);
+//     try {
+//         const res = await pool.query(sql, data);
 
-        return res.rowCount;
-    } catch(err) {
-        console.log(err);
-    }
-}
+//         return res.rowCount;
+//     } catch(err) {
+//         console.log(err);
+//     }
+// }
 
-const validateUser = async(userId, validationTS) => {
-    let sql = 'UPDATE public."user" SET validated = $2 ';
-    sql += 'WHERE "userId" = $1'
-    const data = [
-        userId, 
-        validationTS
-    ];
+// const validateUser = async(userId, validationTS) => {
+//     let sql = 'UPDATE public."user" SET validated = $2 ';
+//     sql += 'WHERE "userId" = $1'
+//     const data = [
+//         userId, 
+//         validationTS
+//     ];
 
-    try {
-        const res = await pool.query(sql, data);
+//     try {
+//         const res = await pool.query(sql, data);
 
-        return res.rowCount;
-    } catch(err) {
-        console.log(err);
-    }
-}
+//         return res.rowCount;
+//     } catch(err) {
+//         console.log(err);
+//     }
+// }
 
-const updateUserPassword = async(userId, oldHash, newHash) => {
-    let sql = 'UPDATE public."user" SET hash = $3 ';
-    sql += 'WHERE "userId" = $1 AND hash = $2'
-    const data = [
-        userId, 
-        oldHash, 
-        newHash
-    ];
+// const updateUserPassword = async(userId, oldHash, newHash) => {
+//     let sql = 'UPDATE public."user" SET hash = $3 ';
+//     sql += 'WHERE "userId" = $1 AND hash = $2'
+//     const data = [
+//         userId, 
+//         oldHash, 
+//         newHash
+//     ];
 
-    try {
-        const res = await pool.query(sql, data);
+//     try {
+//         const res = await pool.query(sql, data);
 
-        return res.rowCount;
-    } catch(err) {
-        console.log(err);
-    }
-}
+//         return res.rowCount;
+//     } catch(err) {
+//         console.log(err);
+//     }
+// }
 
-const setUserPassword = async(userId, hash) => {
-    let sql = 'UPDATE public."user" SET hash = $2 ';
-    sql += 'WHERE "userId" = $1'
-    const data = [
-        userId, 
-        hash
-    ];
+// const setUserPassword = async(userId, hash) => {
+//     let sql = 'UPDATE public."user" SET hash = $2 ';
+//     sql += 'WHERE "userId" = $1'
+//     const data = [
+//         userId, 
+//         hash
+//     ];
 
-    try {
-        const res = await pool.query(sql, data);
+//     try {
+//         const res = await pool.query(sql, data);
 
-        return res.rowCount;
-    } catch(err) {
-        console.log(err);
-    }
-}
+//         return res.rowCount;
+//     } catch(err) {
+//         console.log(err);
+//     }
+// }
 
-const getUserAndAccount = async(id) => {
-    let sql = 'SELECT a.*, b."searchLimit", b."saveLimit", b."name" as "accountType", c."savedHunts" ';
-	sql += 'FROM public."user" a ';
-	sql += 'LEFT JOIN public."accountType" b ';
-    sql += 'on a."accountTypeId" = b.id ';
-	sql += 'LEFT JOIN  (SELECT "userId", Count("userId") as "savedHunts" FROM public."userData" where active = true group by "userId") c ';
-	sql += 'on a."userId" = c."userId" ';
-    sql += 'WHERE a."userId" = $1';
+// const getUserAndAccount = async(id) => {
+//     let sql = 'SELECT a.*, b."searchLimit", b."saveLimit", b."name" as "accountType", c."savedHunts" ';
+// 	sql += 'FROM public."user" a ';
+// 	sql += 'LEFT JOIN public."accountType" b ';
+//     sql += 'on a."accountTypeId" = b.id ';
+// 	sql += 'LEFT JOIN  (SELECT "userId", Count("userId") as "savedHunts" FROM public."userData" where active = true group by "userId") c ';
+// 	sql += 'on a."userId" = c."userId" ';
+//     sql += 'WHERE a."userId" = $1';
 
-    try {
-        const res = await pool.query(sql, [ id ]);
+//     try {
+//         const res = await pool.query(sql, [ id ]);
 
-        return res.rows[0];
-    } catch(err) {
-        console.log(err);
-    }
-}
+//         return res.rows[0];
+//     } catch(err) {
+//         console.log(err);
+//     }
+// }
 
 const getSearchResults = async() => {
     let sql = 'SELECT * FROM public."searchResults"';
@@ -518,223 +518,223 @@ const postTrxToken = async(token) => {
     }
 }
 
-const postUserData = async(userData) => {
-    let sql = 'INSERT INTO public."userData" ( id, "userId", hash, symbol, type, added ) ';
-    sql += 'VALUES ( $1, $2, $3, $4, $5, $6 )';
-    const data = [
-        userData.id,
-        userData.userId, 
-        userData.hash, 
-        userData.symbol, 
-        userData.type, 
-        userData.added
-    ];
+// const postUserData = async(userData) => {
+//     let sql = 'INSERT INTO public."userData" ( id, "userId", hash, symbol, type, added ) ';
+//     sql += 'VALUES ( $1, $2, $3, $4, $5, $6 )';
+//     const data = [
+//         userData.id,
+//         userData.userId, 
+//         userData.hash, 
+//         userData.symbol, 
+//         userData.type, 
+//         userData.added
+//     ];
 
-    try {
-        const res = await pool.query(sql, data);
+//     try {
+//         const res = await pool.query(sql, data);
 
-        return res.rowCount;
-    } catch(err) {
-        console.log(err);
-    }
-}
+//         return res.rowCount;
+//     } catch(err) {
+//         console.log(err);
+//     }
+// }
 
-const getUserData = async(userId) => {
-    let sql = 'SELECT * FROM public."userData" where "userId" = $1';
+// const getUserData = async(userId) => {
+//     let sql = 'SELECT * FROM public."userData" where "userId" = $1';
 
-    try {
-        const res = await pool.query(sql, [userId]);
+//     try {
+//         const res = await pool.query(sql, [userId]);
 
-        return res.rows;
-    } catch(err) {
-        console.log(err);
-    }
-}
+//         return res.rows;
+//     } catch(err) {
+//         console.log(err);
+//     }
+// }
 
-const deleteUserData = async(id) => {
-    let sql = 'DELETE FROM public."userData" where id = $1';
+// const deleteUserData = async(id) => {
+//     let sql = 'DELETE FROM public."userData" where id = $1';
 
-    try {
-        const res = await pool.query(sql, [ id ]);
+//     try {
+//         const res = await pool.query(sql, [ id ]);
 
-        return res.rowCount;
-    } catch(err) {
-        console.log(err);
-    }
-}
+//         return res.rowCount;
+//     } catch(err) {
+//         console.log(err);
+//     }
+// }
 
-const updateUserDataState = async(id, activeState) => {
-    let sql = 'UPDATE public."userData" set active = $2 where id = $1';
-    const data = [
-        id,
-        activeState
-    ];
+// const updateUserDataState = async(id, activeState) => {
+//     let sql = 'UPDATE public."userData" set active = $2 where id = $1';
+//     const data = [
+//         id,
+//         activeState
+//     ];
 
-    try {
-        const res = await pool.query(sql, data);
+//     try {
+//         const res = await pool.query(sql, data);
 
-        return res.rowCount;
-    } catch(err) {
-        console.log(err);
-    }
-}
+//         return res.rowCount;
+//     } catch(err) {
+//         console.log(err);
+//     }
+// }
 
-const postPasswordReset = async(userId, token, TS) => {
-    let sql = 'INSERT INTO public."passwordReset" ( "userId", token, "goodTil" ) ';
-    sql += 'VALUES ( $1, $2, $3 )';
-    const data = [
-        userId, 
-        token, 
-        TS
-    ];
+// const postPasswordReset = async(userId, token, TS) => {
+//     let sql = 'INSERT INTO public."passwordReset" ( "userId", token, "goodTil" ) ';
+//     sql += 'VALUES ( $1, $2, $3 )';
+//     const data = [
+//         userId, 
+//         token, 
+//         TS
+//     ];
 
-    try {
-        const res = await pool.query(sql, data);
+//     try {
+//         const res = await pool.query(sql, data);
 
-        return res.rowCount;
-    } catch(err) {
-        console.log(err);
-    }
-}
+//         return res.rowCount;
+//     } catch(err) {
+//         console.log(err);
+//     }
+// }
 
-const getPasswordReset = async(userId) => {
-    let sql = 'SELECT * FROM public."passwordReset" where "userId" = $1';
+// const getPasswordReset = async(userId) => {
+//     let sql = 'SELECT * FROM public."passwordReset" where "userId" = $1';
 
-    try {
-        const res = await pool.query(sql, [userId]);
+//     try {
+//         const res = await pool.query(sql, [userId]);
 
-        return res.rows[0];
-    } catch(err) {
-        console.log(err);
-    }
-}
+//         return res.rows[0];
+//     } catch(err) {
+//         console.log(err);
+//     }
+// }
 
-const getPasswordResetByToken = async(token) => {
-    let sql = 'SELECT * FROM public."passwordReset" where token = $1';
+// const getPasswordResetByToken = async(token) => {
+//     let sql = 'SELECT * FROM public."passwordReset" where token = $1';
 
-    try {
-        const res = await pool.query(sql, [token]);
+//     try {
+//         const res = await pool.query(sql, [token]);
 
-        return res.rows[0];
-    } catch(err) {
-        console.log(err);
-    }
-}
+//         return res.rows[0];
+//     } catch(err) {
+//         console.log(err);
+//     }
+// }
 
-const deletePasswordReset = async(userId) => {
-    let sql = 'DELETE FROM public."passwordReset" where "userId" = $1';
+// const deletePasswordReset = async(userId) => {
+//     let sql = 'DELETE FROM public."passwordReset" where "userId" = $1';
 
-    try {
-        const res = await pool.query(sql, [ userId ]);
+//     try {
+//         const res = await pool.query(sql, [ userId ]);
 
-        return res.rowCount;
-    } catch(err) {
-        console.log(err);
-    }
-}
+//         return res.rowCount;
+//     } catch(err) {
+//         console.log(err);
+//     }
+// }
 
-const getAccountTypes = async() => {
-    let sql = 'SELECT id, uuid, name, "searchLimit", "saveLimit", monthly, yearly FROM public."accountType" WHERE monthly >= 0 ORDER BY id';
+// const getAccountTypes = async() => {
+//     let sql = 'SELECT id, uuid, name, "searchLimit", "saveLimit", monthly, yearly FROM public."accountType" WHERE monthly >= 0 ORDER BY id';
 
-    try {
-        const res = await pool.query(sql);
+//     try {
+//         const res = await pool.query(sql);
 
-        return res.rows;
-    } catch(err) {
-        console.log(err);
-    }
-}
+//         return res.rows;
+//     } catch(err) {
+//         console.log(err);
+//     }
+// }
 
-const getAccountType = async(id) => {
-    let sql = 'SELECT id, uuid, name, "searchLimit", "saveLimit", monthly, yearly FROM public."accountType" WHERE id = $1';
+// const getAccountType = async(id) => {
+//     let sql = 'SELECT id, uuid, name, "searchLimit", "saveLimit", monthly, yearly FROM public."accountType" WHERE id = $1';
 
-    try {
-        const res = await pool.query(sql, [id]);
+//     try {
+//         const res = await pool.query(sql, [id]);
 
-        return res.rows[0];
-    } catch(err) {
-        console.log(err);
-    }
-}
+//         return res.rows[0];
+//     } catch(err) {
+//         console.log(err);
+//     }
+// }
 
-const getAccountTypeByUuid = async(uuid) => {
-    let sql = 'SELECT id, uuid, name, "searchLimit", "saveLimit", monthly, yearly FROM public."accountType" WHERE uuid = $1';
+// const getAccountTypeByUuid = async(uuid) => {
+//     let sql = 'SELECT id, uuid, name, "searchLimit", "saveLimit", monthly, yearly FROM public."accountType" WHERE uuid = $1';
 
-    try {
-        const res = await pool.query(sql, [uuid]);
+//     try {
+//         const res = await pool.query(sql, [uuid]);
 
-        return res.rows[0];
-    } catch(err) {
-        console.log(err);
-    }
-}
+//         return res.rows[0];
+//     } catch(err) {
+//         console.log(err);
+//     }
+// }
 
-const getAccountTypeByName = async(name) => {
-    let sql = 'SELECT id, uuid, name, "searchLimit", "saveLimit", monthly, yearly FROM public."accountType" WHERE name = $1';
+// const getAccountTypeByName = async(name) => {
+//     let sql = 'SELECT id, uuid, name, "searchLimit", "saveLimit", monthly, yearly FROM public."accountType" WHERE name = $1';
 
-    try {
-        const res = await pool.query(sql, [name]);
+//     try {
+//         const res = await pool.query(sql, [name]);
 
-        return res.rows;
-    } catch(err) {
-        console.log(err);
-    }
-}
+//         return res.rows;
+//     } catch(err) {
+//         console.log(err);
+//     }
+// }
 
-const addAccountType = async(name, searchLimit, saveLimit, monthly, yearly) => {
-    let sql = 'INSERT INTO public."accountType" ( uuid, name, "searchLimit", "saveLimit", monthly, yearly ) ';
-    sql += 'VALUES ( $1, $2, $3, $4, $5, $6 )';
-    const data = [
-        uuid,
-        name,
-        searchLimit,
-        saveLimit,
-        monthly,
-        yearly
-    ]
+// const addAccountType = async(name, searchLimit, saveLimit, monthly, yearly) => {
+//     let sql = 'INSERT INTO public."accountType" ( uuid, name, "searchLimit", "saveLimit", monthly, yearly ) ';
+//     sql += 'VALUES ( $1, $2, $3, $4, $5, $6 )';
+//     const data = [
+//         uuid,
+//         name,
+//         searchLimit,
+//         saveLimit,
+//         monthly,
+//         yearly
+//     ]
 
-    try {
-        const res = await pool.query(sql, data);
+//     try {
+//         const res = await pool.query(sql, data);
 
-        return res.rowCount;
-    } catch(err) {
-        console.log(err);
-    }
-}
+//         return res.rowCount;
+//     } catch(err) {
+//         console.log(err);
+//     }
+// }
 
-const updateAccountType = async(id, name, searchLimit, saveLimit, monthly, yearly) => {
-    let sql = 'UPDATE public."accountType" set name = $2, "searchLimit" = $3, "saveLimit" = $4, monthly = $5, yearly = $6, uuid = $7 ';
-    sql += 'WHERE id = $1';
-    const data = [
-        id,
-        name,
-        searchLimit,
-        saveLimit,
-        monthly,
-        yearly,
-        uuid
-    ]
+// const updateAccountType = async(id, name, searchLimit, saveLimit, monthly, yearly) => {
+//     let sql = 'UPDATE public."accountType" set name = $2, "searchLimit" = $3, "saveLimit" = $4, monthly = $5, yearly = $6, uuid = $7 ';
+//     sql += 'WHERE id = $1';
+//     const data = [
+//         id,
+//         name,
+//         searchLimit,
+//         saveLimit,
+//         monthly,
+//         yearly,
+//         uuid
+//     ]
 
-    try {
-        const res = await pool.query(sql, data);
+//     try {
+//         const res = await pool.query(sql, data);
 
-        return res.rowCount;
-    } catch(err) {
-        console.log(err);
-    }
-}
+//         return res.rowCount;
+//     } catch(err) {
+//         console.log(err);
+//     }
+// }
 
-const deleteAccountType = async(id) => {
-    let sql = 'DELETE FROM public."accountType" where id = $1';
+// const deleteAccountType = async(id) => {
+//     let sql = 'DELETE FROM public."accountType" where id = $1';
 
-    try {
-        const res = await pool.query(sql, [ id ]);
+//     try {
+//         const res = await pool.query(sql, [ id ]);
 
-        return res.rowCount;
-    } catch(err) {
-        console.log(err);
-    }
-}
+//         return res.rowCount;
+//     } catch(err) {
+//         console.log(err);
+//     }
+// }
 
 const getSiteDiscounts = async() => {
     let sql = 'SELECT "discountId", "startDate", "endDate", "percentOff", "accountTypeId", "discountPrice" FROM public."siteDiscount"';
@@ -845,45 +845,45 @@ module.exports = {
     postBlockchain,
     getCountryCounts,
     postCountryCount,
-    getDiscountCodes,
-    getDiscountCode,
-    postDiscountCode,
-    redeemDiscountCode,
-    consumeDiscountCode,
-    deleteDiscountCode,
+    // getDiscountCodes,
+    // getDiscountCode,
+    // postDiscountCode,
+    // redeemDiscountCode,
+    // consumeDiscountCode,
+    // deleteDiscountCode,
     getSymbolCounts,
     postSymbolCount,
-    getUser,
-    getUserByEmail,
-    getUserByUserId,
-    getUsers,
-    postUser,
-    updateUser,
-    updateUserName,
-    updateUserAccount,
-    validateUser,
-    updateUserPassword,
-    setUserPassword,
-    getUserAndAccount,
+    // getUser,
+    // getUserByEmail,
+    // getUserByUserId,
+    // getUsers,
+    // postUser,
+    // updateUser,
+    // updateUserName,
+    // updateUserAccount,
+    // validateUser,
+    // updateUserPassword,
+    // setUserPassword,
+    // getUserAndAccount,
     getSearchResults,
     postSearchResult,
     getTrxTokens,
     postTrxTokens,
-    postUserData,
-    getUserData,
-    deleteUserData,
-    updateUserDataState,
-    postPasswordReset,
-    getPasswordReset,
-    getPasswordResetByToken,
-    deletePasswordReset,
-    getAccountTypes,
-    getAccountType,
-    getAccountTypeByUuid,
-    getAccountTypeByName,
-    addAccountType,
-    updateAccountType,
-    deleteAccountType,
+    // postUserData,
+    // getUserData,
+    // deleteUserData,
+    // updateUserDataState,
+    // postPasswordReset,
+    // getPasswordReset,
+    // getPasswordResetByToken,
+    // deletePasswordReset,
+    // getAccountTypes,
+    // getAccountType,
+    // getAccountTypeByUuid,
+    // getAccountTypeByName,
+    // addAccountType,
+    // updateAccountType,
+    // deleteAccountType,
     getSiteDiscounts,
     getSiteDiscountsActive,
     addSiteDiscount,

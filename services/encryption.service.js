@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt');
 const uuidv4 = require('uuid/v4');
 const jwt = require('jsonwebtoken');
 const config = require('../config');
+const crypto = require('crypto');
 const helperSvc = require('./helper.service');
 
 const decryptHeader = function(message, token) {
@@ -143,6 +144,10 @@ const validateToken = async(req, res, next) => {
 	}
 }
 
+const getIdempotencyKey = function() {
+	return crypto.randomBytes(22).toString('hex');
+}
+
 module.exports = {
 	decryptHeader,
 	hashPassword,
@@ -153,5 +158,6 @@ module.exports = {
 	getUserIdFromToken,
 	getTokenPayload,
 	isTokenValid,
-	validateToken
+	validateToken,
+	getIdempotencyKey
 }

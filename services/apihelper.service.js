@@ -38,13 +38,14 @@ const bootlegMiddleware = async(req, res, next) => {
 const authMiddleware = async(req, res, next) => {
     let token = req.headers['authorization'];
     if(typeof token === 'undefined') {
-        token= req.headers['x-access-token'];
+        token = req.headers['x-access-token'];
     }
-    token = token.substr(7, token.length);
+    
     if(typeof token === 'undefined') {
         res.status(401).json("no token");
         res.end();
     }
+    token = token.substr(7, token.length);
     const tokenValid = await encryptionSvc.isTokenValid(token);
     if(!tokenValid){
         res.status(401).json("invalid token");
@@ -80,6 +81,10 @@ const guestMiddleware = async(req, res, next) => {
  */
 const userMiddleware = async(req, res, next) => {
     let token = req.headers['authorization'];
+    if(typeof token === 'undefined') {
+        res.status(401).json("no token");
+        res.end();
+    }
     token = token.substr(7, token.length);
     const userId = await encryptionSvc.getUserIdFromToken(token);
     

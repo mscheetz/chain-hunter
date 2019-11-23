@@ -90,7 +90,7 @@ export class CreditCardCheckoutComponent implements OnInit {
           if (errors) {
             // Log errors from nonce generation to the Javascript console
             console.log("Encountered errors:");
-            let messagePopup = false;
+            
             errors.forEach(function (error) {
               console.log('  ' + error.message);
             });
@@ -103,7 +103,7 @@ export class CreditCardCheckoutComponent implements OnInit {
           fetch('/api/payment/cc', {
             method: 'POST',
             headers: {
-              'x-access-token': `Bearer ${token}`,
+              'Authorization': `Bearer ${token}`,
               'Accept': 'application/json',
               'Content-Type': 'application/json'
             },

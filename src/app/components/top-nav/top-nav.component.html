@@ -1,11 +1,14 @@
-<ul>
-    <li><a routerLink="/" routerLinkActive="active">Home</a></li>
-    <li><a *ngIf="!loggedIn" routerLink="" (click)="login($event)">Login | Register</a></li>
-    <li><a *ngIf="loggedIn" routerLink="/hunts" routerLinkActive="active">My Hunts</a></li>
-    <li><a *ngIf="loggedIn" routerLink="/mypage" routerLinkActive="active">My Account</a></li>
-    <li><a *ngIf="loggedIn" routerLink="" (click)="logout($event)">Logout</a></li>
-    <li><a routerLink="/accounts" routerLinkActive="active">Account Types</a></li>
-    <li><a routerLink="/info" routerLinkActive="active">Blockchain Info</a></li>
-    <li><a routerLink="/about" routerLinkActive="active">About</a></li>
-    <li><a routerLink="/terms" routerLinkActive="active">Terms</a></li>
-</ul>
+<div class="top-nav" id="topNav">
+    <a href="javascript:void(0);" class="icon" (click)="navExpand()">
+        <i class="fa fa-bars"></i>
+    </a>
+    <a routerLink="/" routerLinkActive="active" (click)="hideNav()">Home</a>
+    <a *ngIf="!loggedIn" routerLink="" (click)="login($event)">Login | Register</a>
+    <a *ngIf="loggedIn" routerLink="/hunts" routerLinkActive="active" (click)="hideNav()">My Hunts</a>
+    <a *ngIf="loggedIn" routerLink="/mypage" routerLinkActive="active" (click)="hideNav()">My Account</a>
+    <a *ngIf="loggedIn" routerLink="" (click)="logout($event)">Logout</a>
+    <a routerLink="/accounts" routerLinkActive="active" (click)="hideNav()">Account Types</a>
+    <a routerLink="/info" routerLinkActive="active" (click)="hideNav()">Blockchain Info</a>
+    <a routerLink="/about" routerLinkActive="active" (click)="hideNav()">About</a>
+    <a routerLink="/terms" routerLinkActive="active" (click)="hideNav()">Terms</a>
+</div>

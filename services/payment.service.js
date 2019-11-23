@@ -86,6 +86,9 @@ const createOrder = async(userId, accountTypeId, paymentTypeId, price, discountC
     order.orderId = encryptionSvc.getUuid();
     order.created = helperSvc.getUnixTS();
     order.validTil = helperSvc.getUnixTsPlus({h: 1});
+    if(discountCode !== "") {
+        order.discountCode = discountCode;
+    }
 
     await orderRepo.add(order);
 
@@ -132,7 +135,6 @@ const processCreditCardPayment = async(paymentDetails) => {
     try{
         const response = await paymentApi.createPayment(body);
 
-        const currentTS = helperSvc.getUnixTsSeconds();
 
         await orderRepo.processOrder(paymentDetails.orderId, paymentDetails.paymentType, currentTS);
 
@@ -148,6 +150,15 @@ const processCreditCardPayment = async(paymentDetails) => {
  * @param {object} order order object
  */
 const processCryptoPayment = async(order) => {
+
+}
+
+const processPayment = async(paymentDetails) => {
+    const currentTS = helperSvc.getUnixTsSeconds();
+
+    await orderRepo.processOrder(paymentDetails.orderId, paymentDetails.paymentType, currentTS);
+
+    await userRepo.updateAccount(paymentDetails.userId, paymentDetails.accountTypeId);
 
 }
 

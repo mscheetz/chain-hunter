@@ -15,7 +15,7 @@ const pool = new Pool({
  * @param {string} orderId order id
  */
 const get = async(orderId) => {
-    let sql = `SELECT "orderId", "userId", "accountTypeId", created, price, "paymentTypeId", "paymentTypeDetail", "validTil", processed 
+    let sql = `SELECT "orderId", "userId", "accountTypeId", created, price, "paymentTypeId", "paymentTypeDetail", "validTil", processed, "discountCode" 
     FROM public."orders" 
     WHERE "orderId" = $1`;
 
@@ -33,7 +33,7 @@ const get = async(orderId) => {
  * @param {string} userId user id
  */
 const getByUser = async(userId) => {
-    let sql = `SELECT "orderId", "userId", "accountTypeId", created, price, "paymentTypeId", "paymentTypeDetail", "validTil", processed 
+    let sql = `SELECT "orderId", "userId", "accountTypeId", created, price, "paymentTypeId", "paymentTypeDetail", "validTil", processed, "discountCode" 
     FROM public."orders" 
     WHERE "userId" = $1`;
 
@@ -51,8 +51,8 @@ const getByUser = async(userId) => {
  * @param {object} order order object
  */
 const add = async(order) => {
-    let sql = `insert into public."orders" ( "orderId", "userId", "accountTypeId", created, price, "paymentTypeId", "validTil" ) 
-    values ( $1, $2, $3, $4, $5, $6, $7 )`;
+    let sql = `insert into public."orders" ( "orderId", "userId", "accountTypeId", created, price, "paymentTypeId", "validTil", "discountCode" ) 
+    values ( $1, $2, $3, $4, $5, $6, $7, $8 )`;
 
     const data = [
         order.orderId, 
@@ -61,7 +61,8 @@ const add = async(order) => {
         order.created,
         order.price,
         order.orderType,
-        order.validTil
+        order.validTil,
+        order.discountCode
     ];
 
     try {

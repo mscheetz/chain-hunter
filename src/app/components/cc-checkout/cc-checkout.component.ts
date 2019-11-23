@@ -48,33 +48,36 @@ export class CreditCardCheckoutComponent implements OnInit {
       // Initialize the payment form elements
       applicationId: this.applicationId,
       locationId: this.locationId,
-      inputClass: 'sq-input',
+      // // inputClass: 'sq-input',
       autoBuild: false,
-      inputStyles: [{
-        fontSize: '14px',
-        lineHeight: '24px',
-        padding: '0.429em',
-        placeholderColor: '#a0a0a0',
-        backgroundColor: '#ffffff',
-        color: '#333333'
-      }],
+      // // inputStyles: [{
+      // //   fontSize: '14px',
+      // //   lineHeight: '24px',
+      // //   padding: '0.429em',
+      // //   placeholderColor: '#a0a0a0',
+      // //   backgroundColor: '#ffffff',
+      // //   color: '#333333'
+      // // }],
       // Initialize the credit card placeholders
-      cardNumber: {
-        elementId: 'sq-card-number',
-        placeholder: 'Card Number'
+      card: {
+        elementId: 'sq-card'
       },
-      cvv: {
-        elementId: 'sq-cvv',
-        placeholder: 'CVV'
-      },
-      expirationDate: {
-        elementId: 'sq-expiration-date',
-        placeholder: 'MM/YY'
-      },
-      postalCode: {
-        elementId: 'sq-postal-code',
-        placeholder: 'Postal'
-      },
+      // // cardNumber: {
+      // //   elementId: 'sq-card-number',
+      // //   placeholder: 'Card Number'
+      // // },
+      // // cvv: {
+      // //   elementId: 'sq-cvv',
+      // //   placeholder: 'CVV'
+      // // },
+      // // expirationDate: {
+      // //   elementId: 'sq-expiration-date',
+      // //   placeholder: 'MM/YY'
+      // // },
+      // // postalCode: {
+      // //   elementId: 'sq-postal-code',
+      // //   placeholder: 'Postal'
+      // // },
       // SqPaymentForm callback functions
       callbacks: {
         /*

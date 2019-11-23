@@ -35,15 +35,14 @@ fieldset {
     border: 0;
 }
 
-#form-container {
-    position: relative;
-    width: 380px;
-    margin: 0 auto;
-    top: 50%;
-    transform: translateY(-50%);
+.pad-top-10 {
+    padding-top: 10px;
 }
 
-.third {
+/*
+Removed for single input
+*/
+/* .third {
     float: left;
     width: calc((100% - 32px) / 3);
     padding: 0;
@@ -52,10 +51,13 @@ fieldset {
 
 .third:last-of-type {
     margin-right: 0;
-}
+} */
 
 /* Define how SqPaymentForm iframes should look */
-.sq-input {
+/*
+Removed for single input
+*/
+/* .sq-input {
     height: 56px;
     box-sizing: border-box;
     border: 1px solid #E0E2E3;
@@ -66,21 +68,21 @@ fieldset {
     -moz-transition: border-color .2s ease-in-out;
     -ms-transition: border-color .2s ease-in-out;
     transition: border-color .2s ease-in-out;
-}
+} */
 
 /* Define how SqPaymentForm iframes should look when they have focus */
-.sq-input--focus {
+/* .sq-input--focus {
     border: 1px solid #4A90E2;
-}
+} */
 
 /* Define how SqPaymentForm iframes should look when they contain invalid values */
-.sq-input--error {
+/* .sq-input--error {
     border: 1px solid #E02F2F;
 }
 
 #sq-card-number {
     margin-bottom: 16px;
-}
+} */
 
 /* Customize the "Pay with Credit Card" button */
 .button-credit-card {
@@ -105,4 +107,35 @@ fieldset {
 
 .button-credit-card:hover {
     background-color: #4281CB;
+}
+
+.outer-container {
+    width: 50%;
+    margin: 0 auto;
+}
+
+@media(max-width: 768px){
+    .outer-container {
+        width: 75%;
+    }
+}
+
+.container {
+    transform: translateY(-50%);
+    display: inline;
+}
+
+.provider {
+    color: #6c757d;
+    padding-top: 30px;
+    font-size: .85em;
+    text-align: center;
+}
+
+.provider img {
+    height: 15px;
+}
+
+.center {
+    text-align: center;
 }

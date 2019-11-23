@@ -135,8 +135,7 @@ const processCreditCardPayment = async(paymentDetails) => {
     try{
         const response = await paymentApi.createPayment(body);
 
-
-        await orderRepo.processOrder(paymentDetails.orderId, paymentDetails.paymentType, currentTS);
+        await processPayment(paymentDetails);
 
         return responseSvc.successMessage(response);
     } catch(err) {
@@ -147,19 +146,26 @@ const processCreditCardPayment = async(paymentDetails) => {
 
 /**
  * Process crypto payment
- * @param {object} order order object
+ * @param {object} paymentDetails payment details object
  */
-const processCryptoPayment = async(order) => {
+const processCryptoPayment = async(paymentDetails) => {
 
 }
 
 const processPayment = async(paymentDetails) => {
     const currentTS = helperSvc.getUnixTsSeconds();
+    const order = await orderRepo.get(paymentDetails.orderId);
+    let expirationDate = null;
+    if(order.discountCode !== null) {
+        const discount = await discountCodeRepo.get(order.discountCode);
+        if(discount.days !== null && discount.days > 0) {
+            expirationDate = helperSvc.getUnixTsPlus({ d: discount.days });
+        }
+    }
 
     await orderRepo.processOrder(paymentDetails.orderId, paymentDetails.paymentType, currentTS);
 
-    await userRepo.updateAccount(paymentDetails.userId, paymentDetails.accountTypeId);
-
+    await userRepo.updateAccount(paymentDetails.userId, paymentDetails.accountTypeId, expirationDate);
 }
 
 /**

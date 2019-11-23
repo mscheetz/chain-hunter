@@ -35,12 +35,12 @@ router.get("/api/payment/order/:id", [ apiHelp.bootlegMiddleware, apiHelp.authMi
     res.status(result.code).json(result.data);
 });
 
-router.post("/api/payment/cc", [ apiHelp.bootlegMiddleware, apiHelp.authMiddleware, apiHelp.userMiddleware ], async (req, res, next) => {
+router.post("/api/payment/cc", [ apiHelp.authMiddleware, apiHelp.userMiddleware ], async (req, res, next) => {
     const userId = res.locals.userId;
-    let order = req.body;
-    order.userId = userId;
+    let payment = req.body;
+    payment.userId = userId;
 
-    const result = await paymentSvc.processCreditCardPayment(order);
+    const result = await paymentSvc.processCreditCardPayment(payment);
 
     res.status(result.code).json(result.data);
 });

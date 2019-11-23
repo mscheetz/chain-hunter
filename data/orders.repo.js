@@ -15,7 +15,7 @@ const pool = new Pool({
  * @param {string} orderId order id
  */
 const get = async(orderId) => {
-    let sql = `SELECT "orderId", "userId", "accountTypeId", created, price, "paymentTypeId", "paymentTypeDetailId", "validTil", processed 
+    let sql = `SELECT "orderId", "userId", "accountTypeId", created, price, "paymentTypeId", "paymentTypeDetail", "validTil", processed 
     FROM public."orders" 
     WHERE "orderId" = $1`;
 
@@ -33,7 +33,7 @@ const get = async(orderId) => {
  * @param {string} userId user id
  */
 const getByUser = async(userId) => {
-    let sql = `SELECT "orderId", "userId", "accountTypeId", created, price, "paymentTypeId", "paymentTypeDetailId", "validTil", processed 
+    let sql = `SELECT "orderId", "userId", "accountTypeId", created, price, "paymentTypeId", "paymentTypeDetail", "validTil", processed 
     FROM public."orders" 
     WHERE "userId" = $1`;
 
@@ -81,7 +81,7 @@ const add = async(order) => {
  */
 const processOrder = async(orderId, detailId, processedTS) => {
     let sql = `UPDATE public."orders" 
-    SET "paymentTypeDetailId" = $2 processed = $3 
+    SET "paymentTypeDetail" = $2, processed = $3 
     WHERE "orderId" = $1`;
     const data = [
         orderId,

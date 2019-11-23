@@ -1,4 +1,4 @@
-const SquareConnect = require('square-connect');
+const squareConnect = require('square-connect');
 const config = require('../config');
 const helperSvc = require('./helper.service');
 const encryptionSvc = require('./encryption.service');
@@ -10,11 +10,11 @@ const orderRepo = require('../data/orders.repo');
 const paymentTypeRepo = require('../data/payment-type.repo');
 const userRepo = require('../data/user.repo');
 
-const squareClient = SquareConnect.ApiClient.instance;
+const squareClient = squareConnect.ApiClient.instance;
 const oauth2 = squareClient.authentications['oauth2'];
 oauth2.accessToken = config.SQUARE_TOKEN;
 
-squareClient.basePath = config.ENV === 'DEV' ? 'https://connect.squareupsandbox.com' : 'https://connect.squareup.com';
+squareClient.basePath = config.SQUARE_BASE_URL;
 
 /**
  * Get payment types
@@ -108,10 +108,39 @@ const getOrder = async(orderId) => {
 
 /**
  * Process credit card payment
- * @param {object} order order object
+ * @param {object} paymentDetails payment details object
  */
-const processCreditCardPayment = async(order) => {
+const processCreditCardPayment = async(paymentDetails) => {
+    const idempotency_key = encryptionSvc.getIdempotencyKey();
+    const order = await orderRepo.get(paymentDetails.orderId);
+    if(typeof order === 'undefined') {
+        return responseSvc.errorMessage("Order not found", 400);
+    }
 
+    const orderAmount = order.price * 100;
+
+    const paymentApi = new squareConnect.PaymentsApi();
+    const body = {
+        source_id: paymentDetails.nonce,
+        amount_money: {
+            amount: orderAmount,
+            currency: 'USD'
+        },
+        idempotency_key: idempotency_key
+    };
+
+    try{
+        const response = await paymentApi.createPayment(body);
+
+        const currentTS = helperSvc.getUnixTsSeconds();
+
+        await orderRepo.processOrder(paymentDetails.orderId, paymentDetails.paymentType, currentTS);
+
+        return responseSvc.successMessage(response);
+    } catch(err) {
+
+        return responseSvc.errorMessage(err.response.text, 400);
+    }
 }
 
 /**

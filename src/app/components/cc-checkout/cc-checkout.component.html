@@ -1,20 +1,25 @@
 <h3>Checkout</h3>
 <div *ngIf="validOrder" id="outer-1">
     <div id="outer-2" class="outer-container">
-        <div id="form-container" class="container"> <!-- style="top: 140px" -->
+        <div id="form-container" class="container">
             <div id="sq-card"></div>
-            <!-- <div id="sq-card-number"></div>
-            <div class="third" id="sq-expiration-date"></div>
-            <div class="third" id="sq-cvv"></div>
-            <div class="third" id="sq-postal-code"></div>
-            <div hidden="true" id="order-id">{{orderId}}</div> -->
-            <button id="sq-creditcard" class="button-credit-card" (click)="onGetCardNonce($event)">Pay ${{order.price}}</button>
+            <div hidden="true" id="order-id">{{orderId}}</div>
+            <div hidden="true" id="error-status" class="error-message"></div>
+            <button id="sq-creditcard" class="button-credit-card display-none" (click)="onGetCardNonce($event)">Pay ${{order.price}}</button>
+            <div hidden="true" id="processing" class="center">
+                <i class="fa fa-cog fa-2x fa-spin" style="color: #464a4e;"></i>
+            </div>
             <div class="provider">
                 Payment Processing provided by <img src="https://xms-production-f.squarecdn.com/xms/assets/logos/square-22d4f700b4c53e104f17cab67cc34b9c27f99f2ea877069c6b2773d821a30004.svg">
             </div>
             <div class="pad-top-10 center">
                 <p-button label="Return to Shopping Cart" (click)="toCart()" styleClass="ui-button-secondary"></p-button>
             </div>
+        </div>
+        <div id="order-complete" class="container display-none width-100">
+            <h3><i class="fa fa-check fa-4x success-check"></i></h3>
+            <h3>Thank you. Your order is complete.</h3>
+            <input type="hidden" id="completed-order" />
         </div>
     </div>
 </div>

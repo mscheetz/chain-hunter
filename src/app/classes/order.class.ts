@@ -4,10 +4,12 @@ export class Order {
     orderId: string;
     userId: string;
     accountTypeId: string;
+    accountType: string;
     created: number;
     price: number;
     paymentTypeId: string;
-    paymentTypeDetailId: string;
+    paymentTypeDetail: string;
     validTil: number;
     processed: number;
+    discountCode: string;
 }

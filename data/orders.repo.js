@@ -15,8 +15,8 @@ const pool = new Pool({
  * @param {string} orderId order id
  */
 const get = async(orderId) => {
-    let sql = `SELECT "orderId", "userId", "accountTypeId", created, price, "paymentTypeId", "paymentTypeDetail", "validTil", processed, "discountCode" 
-    FROM public."orders" 
+    let sql = `SELECT "orderId", "userId", "accountTypeId", created, price, "paymentTypeId", "paymentTypeDetail", "validTil", processed, "discountCode", "cryptoQuantity" 
+    FROM public."order" 
     WHERE "orderId" = $1`;
 
     try {
@@ -33,8 +33,8 @@ const get = async(orderId) => {
  * @param {string} userId user id
  */
 const getByUser = async(userId) => {
-    let sql = `SELECT "orderId", "userId", "accountTypeId", created, price, "paymentTypeId", "paymentTypeDetail", "validTil", processed, "discountCode" 
-    FROM public."orders" 
+    let sql = `SELECT "orderId", "userId", "accountTypeId", created, price, "paymentTypeId", "paymentTypeDetail", "validTil", processed, "discountCode", "cryptoQuantity" 
+    FROM public."order" 
     WHERE "userId" = $1`;
 
     try {
@@ -51,7 +51,7 @@ const getByUser = async(userId) => {
  * @param {object} order order object
  */
 const add = async(order) => {
-    let sql = `insert into public."orders" ( "orderId", "userId", "accountTypeId", created, price, "paymentTypeId", "validTil", "discountCode" ) 
+    let sql = `insert into public."order" ( "orderId", "userId", "accountTypeId", created, price, "paymentTypeId", "validTil", "discountCode" ) 
     values ( $1, $2, $3, $4, $5, $6, $7, $8 )`;
 
     const data = [
@@ -79,15 +79,17 @@ const add = async(order) => {
  * @param {string} orderId order id
  * @param {string} detailId payment type detail id
  * @param {number} processedTS processed timestamp
+ * @param {number} quantity amount in crypto currency (optional)
  */
-const processOrder = async(orderId, detailId, processedTS) => {
-    let sql = `UPDATE public."orders" 
-    SET "paymentTypeDetail" = $2, processed = $3 
+const processOrder = async(orderId, detailId, processedTS, quantity = null) => {
+    let sql = `UPDATE public."order" 
+    SET "paymentTypeDetail" = $2, processed = $3, "cryptoQuantity" = $4 
     WHERE "orderId" = $1`;
     const data = [
         orderId,
         detailId,
-        processedTS
+        processedTS,
+        quantity
     ];
 
     try {
@@ -104,7 +106,7 @@ const processOrder = async(orderId, detailId, processedTS) => {
  * @param {string} orderId order id
  */
 const remove = async(orderId) => {
-    let sql = `DELETE FROM public."orders" 
+    let sql = `DELETE FROM public."order" 
     WHERE "orderId" = $1`;
     const data = [
         orderId

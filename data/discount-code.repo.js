@@ -15,7 +15,7 @@ const pool = new Pool({
  */
 const getAll = async() => {
     let sql = `SELECT code, "percentOff", "validTil", "multiUse", redeemed, "accountTypeId", price, days, "totalUses", "usedUses" 
-    FROM public."discountCodes"`;
+    FROM public."discountCode"`;
 
     try {
         const res = await pool.query(sql);
@@ -32,7 +32,7 @@ const getAll = async() => {
  */
 const get = async(code) => {
     let sql = `SELECT code, "percentOff", "validTil", "multiUse", redeemed, "accountTypeId", price, days, "totalUses", "usedUses" 
-    FROM public."discountCodes"
+    FROM public."discountCode"
     WHERE code = $1`;
 
     try {
@@ -49,7 +49,7 @@ const get = async(code) => {
  * @param {object} discount discount code object
  */
 const add = async(discount) => {
-    let sql = `INSERT INTO public."discountCodes" ( code, "percentOff", "validTil", "multiUse", "accountTypeId", price, days ) 
+    let sql = `INSERT INTO public."discountCode" ( code, "percentOff", "validTil", "multiUse", "accountTypeId", price, days ) 
     VALUES ( $1, $2, $3, $4, $5, $6, $7 ) `;
 
     const data = [
@@ -76,7 +76,7 @@ const add = async(discount) => {
  * @param {string} code discount code
  */
 const remove = async(code) => {
-    let sql = 'DELETE FROM public."discountCodes" WHERE code = $1';
+    let sql = 'DELETE FROM public."discountCode" WHERE code = $1';
 
     try {
         const res = await pool.query(sql, [ code ]);
@@ -92,7 +92,7 @@ const remove = async(code) => {
  * @param {string} code discount code
  */
 const redeem = async(code) => {
-    let sql = `UPDATE public."discountCodes" set redeemed = true 
+    let sql = `UPDATE public."discountCode" set redeemed = true 
     WHERE code = $1 `;
 
     try {
@@ -109,7 +109,7 @@ const redeem = async(code) => {
  * @param {string} code discount code
  */
 const consume = async(code) => {
-    let sql = `UPDATE public."discountCodes" set "usedUses" = "usedUses" + 1 
+    let sql = `UPDATE public."discountCode" set "usedUses" = "usedUses" + 1 
     WHERE code = $1 `;
 
     try {

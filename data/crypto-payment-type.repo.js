@@ -14,7 +14,7 @@ const pool = new Pool({
  * Get all crypto payment types
  */
 const getAll = async() => {
-    let sql = `SELECT id, name, symbol, "paymentTypeId" FROM public."cryptoPaymentTypes"`;
+    let sql = `SELECT id, name, symbol, "paymentTypeId" FROM public."cryptoPaymentType"`;
 
     try {
         const res = await pool.query(sql);
@@ -30,7 +30,7 @@ const getAll = async() => {
  * @param {string} id payment type id
  */
 const get = async(id) => {
-    let sql = `SELECT id, name, symbol, "paymentTypeId" FROM public."cryptoPaymentTypes" WHERE id = $1`;
+    let sql = `SELECT id, name, symbol, "paymentTypeId" FROM public."cryptoPaymentType" WHERE id = $1`;
 
     try {
         const res = await pool.query(sql, [id]);

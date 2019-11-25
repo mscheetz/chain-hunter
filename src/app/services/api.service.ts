@@ -51,6 +51,18 @@ export class ApiService{
     }
 
     /**
+     * Get the current user
+     */
+    getUser(): Observable<UserResponse> {
+        let endpoint: string = "/api/user";
+        let url: string = this.baseUrl + endpoint;
+
+        let result = this.onGet<UserResponse>(url);
+
+        return result;
+    }
+
+    /**
      * Forgot a password
      * @param email email address
      */

@@ -1,17 +1,19 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ApiService } from 'src/app/services/api.service';
 import { AuthenticationService } from 'src/app/services/authentication.service';
 import { User } from 'src/app/classes/User';
 import { HelperService } from 'src/app/services/helper.service';
 import { MessageService } from 'primeng/api';
 import { Router } from '@angular/router';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-my-page',
   templateUrl: './my-page.component.html',
   styleUrls: ['./my-page.component.css']
 })
-export class MyPageComponent implements OnInit {
+export class MyPageComponent implements OnInit, OnDestroy {
   user: User;
   joinDate: string;
   expirationDate: string;
@@ -26,18 +28,30 @@ export class MyPageComponent implements OnInit {
   invalidPassword0: boolean = false;
   invalidPassword1: boolean = false;
   invalidPassword2: boolean = false;
-  
+  unsubscribe$: Subject<boolean> = new Subject();
+
   constructor(private apiSvc: ApiService, 
               private authSvc: AuthenticationService, 
               private helperSvc: HelperService, 
               private messageSvc: MessageService, 
-              private router: Router) { }
+              private router: Router) { 
+              }
 
   ngOnInit() {
-    this.user = this.authSvc.getUser();
+    this.authSvc.currentUser
+      .pipe(takeUntil(this.unsubscribe$))
+      .subscribe(val => {
+          this.user = val
+        });
+        
     this.joinDate = this.helperSvc.unixToUTC(this.user.created, false);
     this.saveLimit = this.user.saveLimit === null ? 'Unlimited' : this.user.saveLimit.toString();
     this.searchLimit = this.user.searchLimit === null ? 'Unlimited' : this.user.searchLimit.toString();
+  }
+
+  ngOnDestroy() {
+    this.unsubscribe$.next(true);
+    this.unsubscribe$.complete();
   }
 
   onToggleEdit(status: boolean) {

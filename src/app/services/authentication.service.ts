@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, EventEmitter } from '@angular/core';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { User } from '../classes/User';
@@ -49,29 +49,30 @@ export class AuthenticationService {
         return this.apiSvc.login(email, password)
         .pipe(map(res => {
                 const jwt = res.token;
-                let user = new User();
-                user.accountType = res.accountType;
-                user.accountTypeId = res.accountTypeId;
-                user.created = res.created;
-                user.email = res.email;
-                user.expirationDate = res.expirationDate;
-                user.message = res.message;
-                user.savedHunts = res.savedHunts;
-                user.saveLimit = res.saveLimit;
-                user.searchLimit = res.searchLimit;
-                user.userId = res.userId;
-                user.username = res.username;
-                user.validated = res.validated;
-                if(res.searchLimit === null) {
-                  this.cookieSvc.set(this.unlimitedCookie, 'unlimited', 1);
-                } else {
-                  this.cookieSvc.set(this.searchLimitCookie, JSON.stringify(res.searchLimit), 1);
-                }
+                this.updateUserDetails(res);
+                // let user = new User();
+                // user.accountType = res.accountType;
+                // user.accountTypeId = res.accountTypeId;
+                // user.created = res.created;
+                // user.email = res.email;
+                // user.expirationDate = res.expirationDate;
+                // user.message = res.message;
+                // user.savedHunts = res.savedHunts;
+                // user.saveLimit = res.saveLimit;
+                // user.searchLimit = res.searchLimit;
+                // user.userId = res.userId;
+                // user.username = res.username;
+                // user.validated = res.validated;
+                // if(res.searchLimit === null) {
+                //   this.cookieSvc.set(this.unlimitedCookie, 'unlimited', 1);
+                // } else {
+                //   this.cookieSvc.set(this.searchLimitCookie, JSON.stringify(res.searchLimit), 1);
+                // }
 
-                this.user = user;
-                this.addLogin(jwt, user);
+                // this.user = user;
+                this.addLogin(jwt, this.user);
                 this.loggedInState = true;
-                this.currentUserSubject.next(user);
+                //this.currentUserSubject.next(this.user);
                 this.loggedInSubject.next(true);
                 return res;
             }));
@@ -86,6 +87,39 @@ export class AuthenticationService {
         this.loggedInSubject.next(false);
     }
 
+    async userRefresh() {
+        await this.apiSvc.getUser().toPromise()
+            .then(res => {
+                this.updateUserDetails(res);
+            })
+    }
+
+    private updateUserDetails(userResponse: User){
+        let user = new User();
+        user.accountType = userResponse.accountType;
+        user.accountTypeId = userResponse.accountTypeId;
+        user.created = userResponse.created;
+        user.email = userResponse.email;
+        user.expirationDate = userResponse.expirationDate;
+        user.message = userResponse.message;
+        user.savedHunts = userResponse.savedHunts;
+        user.saveLimit = userResponse.saveLimit;
+        user.searchLimit = userResponse.searchLimit;
+        user.userId = userResponse.userId;
+        user.username = userResponse.username;
+        user.validated = userResponse.validated;
+        if(userResponse.searchLimit === null) {
+            this.cookieSvc.set(this.unlimitedCookie, 'unlimited', 1);
+        } else {
+            this.cookieSvc.set(this.searchLimitCookie, JSON.stringify(userResponse.searchLimit), 1);
+        }
+
+        this.user = user;
+        this.currentUserSubject.next(user);
+        localStorage.removeItem(environment.currentUserName);
+        localStorage.setItem(environment.currentUserName, JSON.stringify(this.user));
+    }
+
     private validateTokenDate() {
         let expiry = localStorage.getItem(environment.jwtTsName);
         if(expiry) {
@@ -94,7 +128,6 @@ export class AuthenticationService {
             if(expiryElapsed > 24) {
                 this.removeLogin();
             }
-            
         }
     }
 

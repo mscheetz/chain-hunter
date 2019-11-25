@@ -66,16 +66,12 @@ router.post("/api/user/login/shucks", apiHelp.bootlegMiddleware, async (req, res
 
 router.get("/api/logout", apiHelp.asyncMiddleware(async (req, res, next) => { }));
 
-router.get("/api/user/id/:userId", [apiHelp.bootlegMiddleware, apiHelp.authMiddleware, apiHelp.userMiddleware], async (req, res, next) => {
-    const userId = req.params.userId;
-    const tokenUserId = res.locals.userId;
-    if(userId !== tokenUserId) {
-      apiHelp.errorResponse(res);
-    }
+router.get("/api/user", [apiHelp.bootlegMiddleware, apiHelp.authMiddleware, apiHelp.userMiddleware], async (req, res, next) => {
+  const userId = res.locals.userId;
+  
+  const result = await userSvc.getUserByUserId(userId);
 
-    const result = await userSvc.getUserByUserId(userId);
-
-    res.status(result.code).json(result.data);
+  res.status(result.code).json(result.data);
 });
 
 /**
@@ -96,6 +92,17 @@ router.put("/api/user", [ apiHelp.bootlegMiddleware, apiHelp.authMiddleware, api
   const user = req.body;
   
   const result = await userSvc.updateUser(user);
+
+  res.status(result.code).json(result.data);
+});
+
+/**
+ * Get user orders
+ */
+router.get("/api/user/orders", [ apiHelp.bootlegMiddleware, apiHelp.authMiddleware, apiHelp.userMiddleware ], async (req, res, next) => {
+  const userId = res.locals.userId;
+
+  const result = await userSvc.getUserOrders(userId);
 
   res.status(result.code).json(result.data);
 });

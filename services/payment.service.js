@@ -139,8 +139,9 @@ const processCreditCardPayment = async(paymentDetails) => {
 
         return responseSvc.successMessage(response);
     } catch(err) {
+        const error = JSON.parse(err.response.text);
 
-        return responseSvc.errorMessage(err.response.text, 400);
+        return responseSvc.errorMessage(error, 400);
     }
 }
 
@@ -155,6 +156,7 @@ const processCryptoPayment = async(paymentDetails) => {
 const processPayment = async(paymentDetails) => {
     const currentTS = helperSvc.getUnixTsSeconds();
     const order = await orderRepo.get(paymentDetails.orderId);
+    const accountType = await accountTypeRepo.getByUuid(order.accountTypeId);
     let expirationDate = null;
     if(order.discountCode !== null) {
         const discount = await discountCodeRepo.get(order.discountCode);
@@ -165,7 +167,7 @@ const processPayment = async(paymentDetails) => {
 
     await orderRepo.processOrder(paymentDetails.orderId, paymentDetails.paymentType, currentTS);
 
-    await userRepo.updateAccount(paymentDetails.userId, paymentDetails.accountTypeId, expirationDate);
+    await userRepo.updateAccount(paymentDetails.userId, accountType.id, expirationDate);
 }
 
 /**

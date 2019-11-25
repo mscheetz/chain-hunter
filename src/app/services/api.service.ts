@@ -63,6 +63,18 @@ export class ApiService{
     }
 
     /**
+     * Get all orders for the current user
+     */
+    getUserOrders(): Observable<Order[]> {
+        let endpoint: string = "/api/user/orders";
+        let url: string = this.baseUrl + endpoint;
+
+        let result = this.onGet<Order[]>(url);
+
+        return result;
+    }
+
+    /**
      * Forgot a password
      * @param email email address
      */

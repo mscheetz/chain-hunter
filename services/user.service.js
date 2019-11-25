@@ -4,10 +4,12 @@ const discountCodeRepo = require('../data/discount-code.repo');
 const passResetRepo = require('../data/password-reset.repo');
 const userRepo = require('../data/user.repo');
 const userDataRepo = require('../data/user-data.repo');
+const orderRepo = require('../data/orders.repo');
 const encryptionSvc = require('./encryption.service');
 const helperSvc = require('./helper.service');
 const responseSvc = require('./response.service');
 const mailSvc = require('./mail.service');
+const emailRepo = require('../data/email-subscription.repo');
 const _ = require('lodash');
 const fs = require('fs');
 
@@ -40,7 +42,7 @@ const login = async(email, password) => {
     if(validLogin) {
         user = await userRepo.getUserAndAccount(user.userId);// db.getUserAndAccount(user.userId);
 
-        delete user.password;
+        delete user.hash;
 
         user = await accountValidation(user);
         
@@ -245,7 +247,7 @@ const updateUser = async(user, token) => {
  * @param {string} userId 
  */
 const validateUser = async(userId) => {    
-    const user = await getUserByUserId(userId);
+    const user = await userRepo.get(userId);
 
     if(typeof user === 'undefined') {
         return responseSvc.errorMessage("Account not found", 400);
@@ -370,7 +372,7 @@ const forgotPasswordAction = async(token, password) =>{
  * @param {string} newPassword 
  */
 const changePassword = async(userId, oldPassword, newPassword) => {    
-    const user = await getUserByUserId(userId);
+    const user = await userRepo.get(userId);
 
     if(typeof user === 'undefined') {
         return responseSvc.errorMessage("Not a valid user", 400);
@@ -410,9 +412,39 @@ const getUser = async(username) => {
  * @param {string} userId 
  */
 const getUserByUserId = async(userId) => {
-    const user = await userRepo.get(userId); //db.getUserByUserId(userId);
+    let user = await userRepo.get(userId);
+
+    if(typeof user === 'undefined') {
+        return responseSvc.errorMessage("User not found", 400);
+    }
+
+    delete user.hash;
     
-    return user;// responseSvc.successMessage(user[0]);
+    const accountType = await accountTypeRepo.get(user.accountTypeId);
+    
+    user.accountType = accountType.name;
+    user.saveLimit = accountType.saveLimit;
+    user.searchLimit = accountType.searchLimit;
+    user.message = "Your account has been updated!";
+
+    return responseSvc.successMessage(user);
+}
+
+/**
+ * Get orders for a user
+ * @param {string} userId user id
+ */
+const getUserOrders = async(userId) => {
+    let orders = await orderRepo.getByUser(userId);
+    orders = orders.filter(o => o.processed !== null);
+    const accountTypes = await accountTypeRepo.getAll();
+
+    orders.forEach(order => {
+        const accountType = accountTypes.find(a => a.uuid === order.accountTypeId);
+        order.accountType = accountType.name;
+    })
+    
+    return orders;
 }
 
 /**
@@ -569,5 +601,6 @@ module.exports = {
     deleteUserData,
     validateInviteCode,
     getPromoCode,
-    getAccountTypes
+    getAccountTypes,
+    getUserOrders    
 }

@@ -83,6 +83,7 @@ const remove = async(emailAdress) => {
 }
 
 module.exports = {
+    get,
     getAll,
     add,
     remove

@@ -28,7 +28,7 @@ export class HelperService{
     unixToUTC(timestamp: number, includeTime: boolean = true): string {
       let dateTime = new Date(timestamp * 1000);
       const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-      const day = dateTime.getDay();
+      const day = dateTime.getDate();
       const year = dateTime.getFullYear();
       const month = months[dateTime.getMonth()];
       const hour = dateTime.getHours() == 0 ? "00" : dateTime.getHours();

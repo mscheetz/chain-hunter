@@ -4,6 +4,10 @@
         <div>
             <p-card header="About Me">
                 <div class="margin-btm-10">Email: {{user.email}}</div>
+                <div class="margin-btm-10">Email Subscription 
+                    <i class="fa fa-question-circle" title="Get the lastest Chain Hunter news and deals direct to your inbox!"></i>: 
+                    <p-inputSwitch [(ngModel)]="user.emailSubscription" (onChange)="updateEmailSubscription()"></p-inputSwitch>
+                </div>
                 <div class="margin-btm-10">Joined: {{joinDate}}</div>
                 <div class="margin-btm-10">Username: <span *ngIf="!editUser">{{user.username}}</span> 
                     <input type="text" *ngIf="editUser" pInputText name="username" placeholder="Username" [(ngModel)]="user.username" size="20">

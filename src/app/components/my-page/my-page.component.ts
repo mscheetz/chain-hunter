@@ -170,4 +170,17 @@ export class MyPageComponent implements OnInit, OnDestroy {
   onUpgradeAccount(event) {
     this.router.navigate(['accounts']);
   }
+
+  updateEmailSubscription() {
+    this.apiSvc.updateUserEmailSubscription()
+        .subscribe(res => {
+          this.messageSvc.add({
+            key: 'notification-toast',
+            severity:'success', 
+            summary:'Email Subscription', 
+            detail: 'Subscription status updated!',
+            life: 5000
+          });
+        })
+  }
 }

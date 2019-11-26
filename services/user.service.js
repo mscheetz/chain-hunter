@@ -47,6 +47,8 @@ const login = async(email, password) => {
         user = await accountValidation(user);
         
         const token = await encryptionSvc.getToken(user.userId);
+        const subscribed = await emailRepo.get(user.email);
+        user.emailSubscription = subscribed.length > 0 ? true : false;
         user.token = token;
         if(user.savedHunts === null) {
             user.savedHunts = 0;
@@ -160,14 +162,19 @@ const registerUser = async(email, password, inviteCode) => {
     if(typeof userCheck !== 'undefined' && userCheck.userId.length > 0) {
         return responseSvc.errorMessage("An account already exists with that email address", 400);
     }
+    const creationTime = helperSvc.getUnixTsSeconds();
     let user = {
-        created: helperSvc.getUnixTsSeconds(),
+        created: creationTime,
         email: email,
         userId: encryptionSvc.getUuid()
     };
     user.hash = await encryptionSvc.hashPassword(password);
     user.validated = null;
     user.accountTypeId = 1;
+    user.emailSubscription = true;
+
+    await emailRepo.add(user.email, creationTime);
+
     if(inviteCode !== "") {
         const discount = await getAccountTypeFromInviteCode(inviteCode);
         user.accountTypeId = discount.id;
@@ -176,7 +183,9 @@ const registerUser = async(email, password, inviteCode) => {
         }
     }
     
-    delete user.password;
+    delete user.hash;
+
+
 
     const postStatus = await userRepo.add(user); //db.postUser(user);
     
@@ -421,6 +430,8 @@ const getUserByUserId = async(userId) => {
     delete user.hash;
     
     const accountType = await accountTypeRepo.get(user.accountTypeId);
+    const subscribed = await emailRepo.get(user.email);
+    user.emailSubscription = subscribed.length > 0 ? true : false;
     
     user.accountType = accountType.name;
     user.saveLimit = accountType.saveLimit;
@@ -444,7 +455,7 @@ const getUserOrders = async(userId) => {
         order.accountType = accountType.name;
     })
     
-    return orders;
+    return responseSvc.successMessage(orders);
 }
 
 /**

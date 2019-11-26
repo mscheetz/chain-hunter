@@ -49,6 +49,19 @@
             </div>
         </p-card>
     </div>
+    <div class="p-col">
+        <p-card header="Order History">
+            <div *ngIf="orders.length === 0">
+                No orders
+            </div>
+            <div *ngIf="orders.length > 0">
+                <div *ngFor="let order of orders">
+                    <p *ngIf="order.cryptoQuantity === null">{{order.accountType}} ${{order.price}} {{order.paymentTypeDetail}} {{order.processedDate}}</p>
+                    <p *ngIf="order.cryptoQuantity !== null">{{order.accountType}} {{order.cryptoQuantity}} {{order.paymentTypeDetail}} (${{order.price}}) {{order.processedDate}}</p>
+                </div>
+            </div>
+        </p-card>
+    </div>
     <div class="p-col-2">
     </div>
 </div>

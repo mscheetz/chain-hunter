@@ -11,6 +11,22 @@ const pool = new Pool({
 });
 
 /**
+ * Get email subscription for an address
+ * @param {string} address email address
+ */
+const get = async(address) => {
+    let sql = 'SELECT "emailAddress", "createdAt" FROM public."emailSubscription" WHERE "emailAddress" = $1';
+
+    try {
+        const res = await pool.query(sql, [address]);
+
+        return res.rows;
+    } catch(err) {
+        console.log(err);
+    }
+}
+
+/**
  * Get all email subscriptions
  */
 const getAll = async() => {

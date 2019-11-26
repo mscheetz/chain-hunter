@@ -6,7 +6,7 @@ import { CookieService } from 'ngx-cookie-service';
 import { ApiService } from 'src/app/services/api.service';
 import { AccountType } from 'src/app/classes/account-type.class';
 import { AuthenticationService } from 'src/app/services/authentication.service';
-import { User } from 'src/app/classes/User';
+import { User } from 'src/app/classes/user.class';
 import { LoginService } from 'src/app/services/login.service';
 
 @Component({

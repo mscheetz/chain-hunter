@@ -13,4 +13,5 @@ export class User {
     searchLimit: number;
     saveLimit: number;
     savedHunts: number;
+    emailSubscription: boolean;
 }

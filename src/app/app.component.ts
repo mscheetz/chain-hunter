@@ -1,6 +1,6 @@
 import { Component, Output } from '@angular/core';
 import { MessageService } from 'primeng/api';
-import { User } from './classes/User';
+import { User } from './classes/user.class';
 import { Router } from '@angular/router';
 import { AuthenticationService } from './services/authentication.service';
 import { LoginService } from './services/login.service';

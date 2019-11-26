@@ -1,7 +1,7 @@
 import { Injectable, EventEmitter } from '@angular/core';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { User } from '../classes/User';
+import { User } from '../classes/user.class';
 import { ApiService } from './api.service';
 import { HelperService } from './helper.service';
 import { Interval } from '../classes/Enums';

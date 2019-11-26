@@ -3,7 +3,7 @@ import { ApiService } from 'src/app/services/api.service';
 import { UserData } from 'src/app/classes/UserData';
 import { Blockchain } from 'src/app/classes/ChainHunter/Blockchain';
 import { AuthenticationService } from 'src/app/services/authentication.service';
-import { User } from 'src/app/classes/User';
+import { User } from 'src/app/classes/user.class';
 
 @Component({
   selector: 'app-my-hunts',

@@ -1,12 +1,13 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ApiService } from 'src/app/services/api.service';
 import { AuthenticationService } from 'src/app/services/authentication.service';
-import { User } from 'src/app/classes/User';
+import { User } from 'src/app/classes/user.class';
 import { HelperService } from 'src/app/services/helper.service';
 import { MessageService } from 'primeng/api';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { Order } from 'src/app/classes/order.class';
 
 @Component({
   selector: 'app-my-page',
@@ -29,6 +30,7 @@ export class MyPageComponent implements OnInit, OnDestroy {
   invalidPassword1: boolean = false;
   invalidPassword2: boolean = false;
   unsubscribe$: Subject<boolean> = new Subject();
+  orders: Order[] = [];
 
   constructor(private apiSvc: ApiService, 
               private authSvc: AuthenticationService, 
@@ -47,6 +49,7 @@ export class MyPageComponent implements OnInit, OnDestroy {
     this.joinDate = this.helperSvc.unixToUTC(this.user.created, false);
     this.saveLimit = this.user.saveLimit === null ? 'Unlimited' : this.user.saveLimit.toString();
     this.searchLimit = this.user.searchLimit === null ? 'Unlimited' : this.user.searchLimit.toString();
+    this.onGetOrders();
   }
 
   ngOnDestroy() {
@@ -56,6 +59,19 @@ export class MyPageComponent implements OnInit, OnDestroy {
 
   onToggleEdit(status: boolean) {
     this.editUser = status;
+  }
+
+  onGetOrders() {
+    this.apiSvc.getUserOrders()
+        .subscribe(orders => {
+          this.orders = orders;
+          this.orders.forEach(order => {
+            order.processedDate = this.helperSvc.unixToUTC(order.processed, false);
+          })
+        }, err => {
+          console.log('get orders error', err);
+        });
+
   }
 
   onUpdateUsername(event) {

@@ -12,4 +12,6 @@ export class Order {
     validTil: number;
     processed: number;
     discountCode: string;
+    cryptoQuantity: number;
+    processedDate: string;
 }

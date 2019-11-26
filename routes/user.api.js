@@ -119,6 +119,39 @@ router.post("/api/user/password", [ apiHelp.bootlegMiddleware, apiHelp.authMiddl
 });
 
 /**
+ * Update a user's email subscription state
+ */
+router.get("/api/user/email/subscription/", [ apiHelp.bootlegMiddleware, apiHelp.authMiddleware, apiHelp.userMiddleware ], async (req, res, next) => {
+  const userId = res.locals.userId;
+
+  const result = await userSvc.updateEmailSubscription(userId);
+
+  res.status(result.code).json(result.data);
+});
+
+/**
+ * Subscribe a new email address
+ */
+router.post("/api/user/email/subscribe/", [ apiHelp.bootlegMiddleware ], async(req, res, next) => {
+  const email = req.body.email;
+
+  const result = await userSvc.subscribeEmail(email);
+
+  res.status(result.code).json(result.data);
+});
+
+/**
+ * Unsubscribe a new email address
+ */
+router.post("/api/user/email/unsubscribe/", [ apiHelp.bootlegMiddleware ], async(req, res, next) => {
+  const email = req.body.email;
+
+  const result = await userSvc.unSubscribeEmail(email);
+
+  res.status(result.code).json(result.data);
+});
+
+/**
  * Get user data
  */
 router.get("/api/user/data", [ apiHelp.bootlegMiddleware, apiHelp.authMiddleware, apiHelp.userMiddleware ], async (req, res, next) => {

@@ -185,8 +185,6 @@ const registerUser = async(email, password, inviteCode) => {
     
     delete user.hash;
 
-
-
     const postStatus = await userRepo.add(user); //db.postUser(user);
     
     if(typeof postStatus === 'undefined') {
@@ -594,6 +592,64 @@ const getAccountTypes = async() => {
     return responseSvc.successMessage(accounts);
 }
 
+const updateEmailSubscription = async(userId) => {
+    const user = await userRepo.get(userId);
+    const emailSub = await emailRepo.get(user.email);
+    
+    if(emailSub.length === 0) {
+        const createdTime = helperSvc.getUnixTsSeconds();
+        const status = await emailRepo.add(user.email, createdTime);
+    } else {
+        const status = await emailRepo.remove(user.email);
+    }
+
+    return responseSvc.successMessage(true);
+}
+
+/**
+ * Subscribe an email address
+ * @param {string} email email address
+ */
+const subscribeEmail = async(email) => {
+    if(!helperSvc.validateEmail(email)) {
+        return responseSvc.errorMessage("Invalid email address", 400);
+    }
+    const emailSub = await emailRepo.get(email);
+
+    if(emailSub.length === 0) {
+        const createdTime = helperSvc.getUnixTsSeconds();
+        const status = await emailRepo.add(email, createdTime);
+
+        const subject = "The Chain Hunter: Subscription";
+        let template = fs.readFileSync('templates/welcome.html',{encoding: 'utf-8'});
+
+        const year = new Date().getFullYear();
+        
+        template = template.replace('!#year#!', year);
+    
+        const mailStatus = mailSvc.sendEmail(email, subject, template);        
+    }
+
+    return responseSvc.successMessage(true);
+}
+
+/**
+ * Unsubscribe an email address
+ * @param {string} email email address
+ */
+const unSubscribeEmail = async(email) => {
+    if(!helperSvc.validateEmail(email)) {
+        return responseSvc.errorMessage("Invalid email address", 400);
+    }
+    const emailSub = await emailRepo.get(email);
+
+    if(emailSub.length > 0) {
+        const status = await emailRepo.remove(email);
+    }
+
+    return responseSvc.successMessage(true);
+}
+
 module.exports = {
     login,
     guestLogin,
@@ -613,5 +669,8 @@ module.exports = {
     validateInviteCode,
     getPromoCode,
     getAccountTypes,
-    getUserOrders    
+    getUserOrders,
+    updateEmailSubscription,
+    subscribeEmail,
+    unSubscribeEmail
 }

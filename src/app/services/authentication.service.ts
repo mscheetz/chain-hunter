@@ -101,6 +101,7 @@ export class AuthenticationService {
         user.created = userResponse.created;
         user.email = userResponse.email;
         user.expirationDate = userResponse.expirationDate;
+        user.emailSubscription = userResponse.emailSubscription;
         user.message = userResponse.message;
         user.savedHunts = userResponse.savedHunts;
         user.saveLimit = userResponse.saveLimit;

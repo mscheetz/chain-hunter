@@ -7,7 +7,7 @@ import { Asset } from '../classes/ChainHunter/Asset';
 import { Chain } from '../classes/ChainHunter/Chain';
 import { environment } from 'src/environments/environment';
 import { HelperService } from './helper.service';
-import { User } from '../classes/User';
+import { User } from '../classes/user.class';
 import { UserData } from '../classes/UserData';
 import { UserResponse } from '../classes/UserResponse';
 import { ResultType } from '../classes/Enums';

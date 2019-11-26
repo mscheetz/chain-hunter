@@ -9,23 +9,24 @@ import { CookieService } from 'ngx-cookie-service';
 
 import { NgxQRCodeModule } from 'node_modules/ngx-qrcode2';
 
+import { AccordionModule } from 'primeng/accordion';
+import { ButtonModule } from 'primeng/button';
+import { CardModule } from 'primeng/card';
+import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputMaskModule } from 'primeng/inputmask';
-import { ButtonModule } from 'primeng/button';
-import { TabMenuModule } from 'primeng/tabmenu';
-import { TabViewModule } from 'primeng/tabview';
-import { AccordionModule } from 'primeng/accordion';
-import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { PanelModule } from 'primeng/panel';
-import { ProgressBarModule } from 'primeng/progressbar';
+import { InputSwitchModule } from 'primeng/inputswitch';
 import { MessageService } from 'primeng/api';
-import { ToastModule } from 'primeng/toast';
+import { OverlayPanelModule } from 'primeng/overlaypanel';
+import { PanelModule } from 'primeng/panel';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { ProgressBarModule } from 'primeng/progressbar';
+import { SelectButtonModule } from 'primeng/selectbutton';
 import { SlideMenuModule } from 'primeng/slidemenu';
 import { TableModule } from 'primeng/table';
-import { DialogModule } from 'primeng/dialog';
-import { OverlayPanelModule } from 'primeng/overlaypanel';
-import { SelectButtonModule } from 'primeng/selectbutton';
-import { CardModule } from 'primeng/card';
+import { TabMenuModule } from 'primeng/tabmenu';
+import { TabViewModule } from 'primeng/tabview';
+import { ToastModule } from 'primeng/toast';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -61,6 +62,8 @@ import { VerifyComponent } from './components/verify/verify.component';
 import { CartComponent } from './components/cart/cart.component';
 import { SquarePaymentComponent } from './components/square-payment/square-payment.component';
 import { CreditCardCheckoutComponent } from './components/cc-checkout/cc-checkout.component';
+import { EmailSubscriptionComponent } from './components/email-subscription/email-subscription.component';
+import { EmailUnsubscribeComponent } from './components/email-unsubscribe/email-unsubscribe.component';
 
 const appRoutes: Routes = [
   { path: '', component: ChainHunterComponent },
@@ -73,7 +76,9 @@ const appRoutes: Routes = [
   { path: 'password/:id', component: PasswordComponent },
   { path: 'cart', component: CartComponent, canActivate: [AuthGuard] },
   { path: 'verify/:id', component: VerifyComponent },
-  { path: 'cc-checkout/:order', component: CreditCardCheckoutComponent, canActivate: [AuthGuard] }
+  { path: 'cc-checkout/:order', component: CreditCardCheckoutComponent, canActivate: [AuthGuard] },
+  { path: 'subscribe', component: EmailSubscriptionComponent },
+  { path: 'emailunsubscribe', component: EmailUnsubscribeComponent }
 ]
 
 @NgModule({
@@ -107,7 +112,9 @@ const appRoutes: Routes = [
     VerifyComponent,
     CartComponent,
     SquarePaymentComponent,
-    CreditCardCheckoutComponent
+    CreditCardCheckoutComponent,
+    EmailSubscriptionComponent,
+    EmailUnsubscribeComponent
   ],
   imports: [
     AccordionModule,
@@ -120,6 +127,7 @@ const appRoutes: Routes = [
     FormsModule,
     HttpClientModule,
     InputMaskModule,
+    InputSwitchModule,
     InputTextModule,
     NgxQRCodeModule,
     OverlayPanelModule,

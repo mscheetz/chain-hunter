@@ -75,6 +75,50 @@ export class ApiService{
     }
 
     /**
+     * Update user's email subscription status
+     */
+    updateUserEmailSubscription(): Observable<boolean> {
+        let endpoint: string = `/api/user/email/subscription`;
+        let url: string = this.baseUrl + endpoint;
+
+        let result = this.onGet<boolean>(url);
+
+        return result;
+    }
+
+    /**
+     * Subscribe an email address
+     * @param email email address
+     */
+    subscribeEmail(email: string): Observable<boolean> {
+        let endpoint: string = `/api/user/email/subscribe`;
+        let url: string = this.baseUrl + endpoint;
+        const data = {
+            email: email
+        }
+
+        let result = this.onPost<boolean>(url, data);
+
+        return result;
+    }
+
+    /**
+     * Unsubscribe an email address
+     * @param email email address
+     */
+    unSubscribeEmail(email: string): Observable<boolean> {
+        let endpoint: string = `/api/user/email/unsubscribe`;
+        let url: string = this.baseUrl + endpoint;
+        const data = {
+            email: email
+        }
+
+        let result = this.onPost<boolean>(url, data);
+
+        return result;
+    }
+
+    /**
      * Forgot a password
      * @param email email address
      */

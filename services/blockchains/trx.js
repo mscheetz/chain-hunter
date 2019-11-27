@@ -2,7 +2,7 @@ const axios = require('axios');
 const helperSvc = require('../helper.service');
 const base = "https://apilist.tronscan.org/api";
 const enums = require('../../classes/enums');
-const db = require('../../data/data.repo');
+const tokenRepo = require('../../data/trx-tokens.repo');
 const _ = require('lodash');
 
 const getEmptyBlockchain = async() => {
@@ -196,7 +196,7 @@ const getTokens = async(address) => {
                 tokens.push(asset);
             }
         });
-        const trx10Tokens = await db.getTrxTokens();
+        const trx10Tokens = await tokenRepo.getAll();
         addyTokens["10"].forEach(token => {
             const trx10Token = trx10Tokens.find(t => t.id === token.name)
             if(trx10Token !== undefined) {
@@ -332,7 +332,7 @@ const buildTransaction = function(txn, token) {
 const buildTrxTokens = async() => {
     let getTokens = true;
     let i = 0;
-    let trxTokens = await db.getTrxTokens();
+    let trxTokens = await tokenRepo.getAll();
     while(getTokens) {
         console.log("getting token page: '" + i + "'.");
         const tokens = await getTrx10Tokens(i);
@@ -345,7 +345,7 @@ const buildTrxTokens = async() => {
                 console.log(newTokens.length + ' new tokens found.');
                 // console.log('trxTokens', trxTokens);
                 // console.log('tokens', tokens);
-                await db.postTrxTokens(newTokens);
+                await tokenRepo.add(newTokens);
                 trxTokens = trxTokens.concat(newTokens);
             }
         } else {

@@ -1,4 +1,4 @@
-const db = require('./data.repo');
+const searchRepo = require('./search-results.repo');
 const helperSvc = require('../services/helper.service.js')
 
 /**
@@ -21,7 +21,7 @@ const updateSearchResult = async(ipAddress, ipInfo, chain, type) => {
       searchAt: helperSvc.getUnixTS(),
       searchType: type
     };
-    await db.postSearchResult(searchResult);
+    await searchRepo.add(searchResult);
   }
 }
 
@@ -29,7 +29,7 @@ const updateSearchResult = async(ipAddress, ipInfo, chain, type) => {
  * Get search counts by country
  */
 const getResultsByCountry = async() => {    
-    const results = await db.getSearchResults();
+    const results = await searchRepo.getAll();
 
     let countries = results.map(r => r.country)
     .filter((value, idx, self) => self.indexOf(value) === idx);
@@ -57,7 +57,7 @@ const getResultsByCountry = async() => {
  * @param {*} country country to filter on (optional)
  */
 const getResultsByRegion = async(country = null) => {    
-    const results = await db.getSearchResults();
+    const results = await searchRepo.getAll();
 
     let filtered = country === null ? results : results.filter(r => r.country === country);
 
@@ -88,7 +88,7 @@ const getResultsByRegion = async(country = null) => {
  * @param {*} region region to filter on (optional)
  */
 const getResultsByCity = async(country = null, region = null) => {
-    const results = await db.getSearchResults();
+    const results = await searchRepo.getAll();
 
     let filtered = country === null ? results : results.filter(r => r.country === country);
     
@@ -120,7 +120,7 @@ const getResultsByCity = async(country = null, region = null) => {
  * Get search counts by timezone
  */
 const getResultsByTimezone = async() => {    
-    const results = await db.getSearchResults();
+    const results = await searchRepo.getAll();
 
     let timezones = results.map(r => r.timezone)
     .filter((value, idx, self) => self.indexOf(value) === idx);

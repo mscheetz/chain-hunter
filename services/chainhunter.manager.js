@@ -1,8 +1,8 @@
 const dataSvc = require("../data/dataIntegration.service");
+const blockchainRepo = require('../data/blockchain.repo');
 const encryptionSvc = require('./encryption.service');
 const _ = require('lodash');
 const enums = require('../classes/enums');
-const db = require('../data/data.repo');
 const ada = require('./blockchains/ada.js');
 const aion = require('./blockchains/aion.js');
 const ae = require('./blockchains/ae.js');
@@ -105,7 +105,7 @@ const getChains = function() {
  * Get active chains
  */
 const getActiveChains = async() => {    
-    const chains = await db.getActiveBlockchains();
+    const chains = await blockchainRepo.getActive();
 
     return chains;
 }
@@ -114,7 +114,7 @@ const getActiveChains = async() => {
  * Get future chains
  */
 const getFutureChains = async() => {
-    const chains = await db.getFutureBlockchains();
+    const chains = await blockchainRepo.getFuture();
 
     return chains;
 }
@@ -125,7 +125,7 @@ const getFutureChains = async() => {
  * @param {string} symbol chain symbol
  */
 const getEmptyBlockchain = async(symbol) => {
-    let chain = await db.getBlockchainBySymbol(symbol);
+    let chain = await blockchainRepo.get(symbol);
         
     chain.address = null;
     chain.contract = null;
@@ -235,7 +235,7 @@ const getBlockchains = async(toFind) => {
 const getBlockchain = async(chain, toFind, ip, ipInfo, type = enums.searchType.nothing) => {
     let result;
     
-    let blockchain = await db.getBlockchainBySymbol(chain);
+    let blockchain = await blockchainRepo.get(chain);
 
     blockchain.icon = "white/"+ blockchain.symbol.toLowerCase()  +".png";
 

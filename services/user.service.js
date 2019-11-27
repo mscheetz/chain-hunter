@@ -1,4 +1,3 @@
-const db = require('../data/data.repo');
 const accountTypeRepo = require('../data/account-type.repo');
 const discountCodeRepo = require('../data/discount-code.repo');
 const passResetRepo = require('../data/password-reset.repo');
@@ -25,8 +24,8 @@ const login = async(email, password) => {
         return responseSvc.errorMessage("Not a valid email address", 400);
     }
     let user = email.indexOf('@') > 0 
-                ? await userRepo.getByEmail(email) //db.getUserByEmail(email)
-                : await userRepo.getByUsername(email); //db.getUser(email);
+                ? await userRepo.getByEmail(email)
+                : await userRepo.getByUsername(email);
 
     if(typeof user === 'undefined') {
         return responseSvc.errorMessage("Invalid email or password");        
@@ -40,7 +39,7 @@ const login = async(email, password) => {
     let validLogin = await encryptionSvc.checkPassword(password, user.hash);
 
     if(validLogin) {
-        user = await userRepo.getUserAndAccount(user.userId);// db.getUserAndAccount(user.userId);
+        user = await userRepo.getUserAndAccount(user.userId);
 
         delete user.hash;
 
@@ -54,7 +53,7 @@ const login = async(email, password) => {
             user.savedHunts = 0;
         }
 
-        const removeToken = await passResetRepo.remove(user.userId);// db.deletePasswordReset(user.userId);
+        const removeToken = await passResetRepo.remove(user.userId);
 
         return responseSvc.successMessage(user);
     } else {
@@ -72,9 +71,9 @@ const accountValidation = async(user) => {
         user.accountTypeId = 1;
         user.expirationDate = null;
 
-        await userRepo.updateAccount(user.userId, 1); //db.updateUserAccount(user.userId, 1);
+        await userRepo.updateAccount(user.userId, 1);
 
-        user = await userRepo.getUserAndAccount(user.userId); //db.getUserAndAccount(user.userId);
+        user = await userRepo.getUserAndAccount(user.userId);
     } else {
         message = "Welcome back!";
     }
@@ -105,7 +104,7 @@ const userDataManagement = async(user) => {
                 activeCount++;
                 if(activeCount > saveLimit) {
                     deactivatedCount++;
-                    await userDataRepo.updateState(actives[i].id, false); //db.updateUserDataState(actives[i].id, false);
+                    await userDataRepo.updateState(actives[i].id, false);
                 }
             }
             if(deactivatedCount > 0) {
@@ -121,7 +120,7 @@ const userDataManagement = async(user) => {
             activeCount++;
             if(activeCount <= saveLimit) {
                 reactivatedCount++;
-                await userDataRepo.updateState(inactives[i].id, true); //db.updateUserDataState(inactives[i].id, true);
+                await userDataRepo.updateState(inactives[i].id, true);
             }
         }
         if(reactivatedCount > 0) {
@@ -157,7 +156,7 @@ const registerUser = async(email, password, inviteCode) => {
     if(!validEmail) {
         return responseSvc.errorMessage("Not a valid email address", 400);
     }
-    const userCheck = await userRepo.getByEmail(email); //db.getUserByEmail(email);
+    const userCheck = await userRepo.getByEmail(email);
     
     if(typeof userCheck !== 'undefined' && userCheck.userId.length > 0) {
         return responseSvc.errorMessage("An account already exists with that email address", 400);
@@ -185,7 +184,7 @@ const registerUser = async(email, password, inviteCode) => {
     
     delete user.hash;
 
-    const postStatus = await userRepo.add(user); //db.postUser(user);
+    const postStatus = await userRepo.add(user);
     
     if(typeof postStatus === 'undefined') {
         return responseSvc.errorMessage("Error creating account. Please try again.", 400);
@@ -212,7 +211,7 @@ const validateAccountRequest = async(user) => {
 }
 
 const getAccountTypeFromInviteCode = async(code) => {
-    let discountCode = await discountCodeRepo.get(code); //db.getDiscountCode(code);
+    let discountCode = await discountCodeRepo.get(code);
 
     if(typeof discountCode === 'undefined'){
         console.log('no code')
@@ -224,13 +223,13 @@ const getAccountTypeFromInviteCode = async(code) => {
     }
     if(discountCode.multiUse === false) {
         console.log('code to be redeemed')
-        await await db.redeemDiscountCode(code);
+        await await discountCodeRepo.redeem(code);
     } else {
-        await discountCodeRepo.consume(code); //db.consumeDiscountCode(code);
-        discountCode = await discountCodeRepo.get(code); //db.getDiscountCode(code);
+        await discountCodeRepo.consume(code);
+        discountCode = await discountCodeRepo.get(code);
         
         if(discountCode.totalUses === discountCode.usedUses) {
-            await await discountCodeRepo.redeem(code); //db.redeemDiscountCode(code);
+            await await discountCodeRepo.redeem(code);
         }
     }
     const days = discountCode.days !== null ? parseInt(discountCode.days) : 0;
@@ -243,7 +242,7 @@ const getAccountTypeFromInviteCode = async(code) => {
  * @param {object} user 
  */
 const updateUser = async(user, token) => {
-    const status = await userRepo.updateUsername(user.userId, user.username); //db.updateUserName(user.userId, user.username);
+    const status = await userRepo.updateUsername(user.userId, user.username);
 
     return responseSvc.successMessage(status, 202);
 }
@@ -265,7 +264,7 @@ const validateUser = async(userId) => {
     }
 
     const timestamp = helperSvc.getUnixTS();
-    const validated = await userRepo.validate(userId, timestamp); //db.validateUser(userId, timestamp);
+    const validated = await userRepo.validate(userId, timestamp);
 
     if(validated === 1) {
         return responseSvc.successMessage(true, 202);
@@ -285,7 +284,7 @@ const forgotPasswordInit = async(email) => {
         return responseSvc.errorMessage("Not a valid email address", 400);
     }
 
-    const user = await userRepo.getByEmail(email); //db.getUserByEmail(email);
+    const user = await userRepo.getByEmail(email);
 
     if(typeof user === 'undefined') {
         return responseSvc.errorMessage("Not a valid user", 400);
@@ -300,8 +299,8 @@ const forgotPasswordInit = async(email) => {
     const ts = oneHourPlus.getTime() / 1000;
     const token = encryptionSvc.getUuid();
 
-    await passResetRepo.remove(user.userId); //db.deletePasswordReset(user.userId);
-    const dbUpdate = await passResetRepo.add(user.userId, token, ts); //db.postPasswordReset(user.userId, token, ts);
+    await passResetRepo.remove(user.userId);
+    const dbUpdate = await passResetRepo.add(user.userId, token, ts);
 
     const subject = "The Chain Hunter: Forgot Password";
     let template = fs.readFileSync('templates/forgotpassword.html',{encoding: 'utf-8'});
@@ -326,7 +325,7 @@ const forgotPasswordInit = async(email) => {
  */
 const validatePasswordReset = async(token) => {
     const ts = helperSvc.getUnixTsSeconds();
-    const passwordRequest = await passResetRepo.getByToken(token); //db.getPasswordResetByToken(token);
+    const passwordRequest = await passResetRepo.getByToken(token);
 
     if(typeof passwordRequest === 'undefined' || passwordRequest === null) {
         return responseSvc.errorMessage("Invalid request", 400);
@@ -334,19 +333,19 @@ const validatePasswordReset = async(token) => {
     if(passwordRequest.goodTil >= ts) {
         return responseSvc.successMessage(true);
     } else {
-        const removeToken = await passResetRepo.remove(userId); //db.deletePasswordReset(userId);
+        const removeToken = await passResetRepo.remove(userId);
     
         return responseSvc.errorMessage("Expired", 400);
     }
 }
 
 const forgotPasswordAction = async(token, password) =>{
-    const request = await passResetRepo.getByToken(token); //db.getPasswordResetByToken(token);
+    const request = await passResetRepo.getByToken(token);
     if(typeof request === 'undefined') {
         return responseSvc.errorMessage("Invalid request", 400);
     }    
 
-    const user = await userRepo.get(request.userId); //db.getUserByUserId(request.userId);
+    const user = await userRepo.get(request.userId);
 
     if(typeof user === 'undefined') {
         return responseSvc.errorMessage("Not a valid user", 400);
@@ -357,14 +356,14 @@ const forgotPasswordAction = async(token, password) =>{
     let updated = false;
     let attempt = 0;
     while(!updated && attempt < 3) {
-        const pwdUpdated = await userRepo.setPassword(request.userId, hash); //db.setUserPassword(request.userId, hash);
+        const pwdUpdated = await userRepo.setPassword(request.userId, hash);
 
         updated = pwdUpdated === 1 ? true : false;
         attempt++;
     }
 
     if(updated) {
-        const removeToken = await passResetRepo.remove(request.userId); //db.deletePasswordReset(request.userId);
+        const removeToken = await passResetRepo.remove(request.userId);
 
         return responseSvc.successMessage(true);
     } else {
@@ -393,7 +392,7 @@ const changePassword = async(userId, oldPassword, newPassword) => {
 
     const newHash = await encryptionSvc.hashPassword(newPassword);
 
-    const status = await userRepo.updatePassword(userId, user.hash, newHash); //db.updateUserPassword(userId, user.hash, newHash);
+    const status = await userRepo.updatePassword(userId, user.hash, newHash);
 
     if(status === 1) {
         return responseSvc.successMessage("Password updated", 202);
@@ -408,7 +407,7 @@ const changePassword = async(userId, oldPassword, newPassword) => {
  * @param {string} username 
  */
 const getUser = async(username) => {
-    const user = await userRepo.getByUsername(username); //db.getUser(username);
+    const user = await userRepo.getByUsername(username);
 
     return responseSvc.successMessage(user[0]);
 }
@@ -462,7 +461,7 @@ const getUserOrders = async(userId) => {
  * @param {string} userId user id
  */
 const getUserData = async(userId) => {
-    const data = await userDataRepo.get(userId); //db.getUserData(userId);
+    const data = await userDataRepo.get(userId);
     
     return responseSvc.successMessage(_.orderBy(data, "symbol"));
 }
@@ -478,7 +477,7 @@ const getUserData = async(userId) => {
 const addUserData = async(userId, hash, chain, type) => {
     const uuid = encryptionSvc.getUuid();
     let userData = await getUserData(userId);
-    let user = await userRepo.getUserAndAccount(userId); //db.getUserAndAccount(userId);
+    let user = await userRepo.getUserAndAccount(userId);
     if(userData.length >= user.saveLimit) {
         return responseSvc.errorMessage("You have exceeded your save limit", 400);
     }
@@ -494,7 +493,7 @@ const addUserData = async(userId, hash, chain, type) => {
             type: type,
             added: created
         }
-        const status = await userDataRepo.add(userData); //db.postUserData(userData);
+        const status = await userDataRepo.add(userData);
         userData = await getUserData(userId);
         exists = userData.data.filter(u => u.hash === hash && u.symbol === chain && u.type === type);
     }
@@ -510,7 +509,7 @@ const addUserData = async(userId, hash, chain, type) => {
  * @param {string} id saved search id
  */
 const deleteUserData = async(id) => {
-    const result = await userDataRepo.remove(id);// db.deleteUserData(id);
+    const result = await userDataRepo.remove(id);
         
     return responseSvc.successMessage(result, 202);
 }
@@ -521,7 +520,7 @@ const deleteUserData = async(id) => {
  * @param {string} id code id
  */
 const validateInviteCode = async(id) => {
-    const code = await discountCodeRepo.get(id); //db.getDiscountCode(id);
+    const code = await discountCodeRepo.get(id);
 
     if(typeof code === 'undefined') {
         return responseSvc.errorMessage("Invalid code", 400);
@@ -555,7 +554,7 @@ const getPromoCode = async(code, accountUuid) => {
     if(status.code === 400) {
         return status;
     }
-    const promoCode = await discountCodeRepo.get(code); //db.getDiscountCode(code);
+    const promoCode = await discountCodeRepo.get(code);
 
     let returnCode = {
         code: promoCode.code,
@@ -568,7 +567,7 @@ const getPromoCode = async(code, accountUuid) => {
     }
 
     if(promoCode.accountTypeId !== null) {
-        const account = await accountTypeRepo.getByUuid(accountUuid); //db.getAccountTypeByUuid(accountUuid);
+        const account = await accountTypeRepo.getByUuid(accountUuid);
 
         if(typeof account !== 'undefined' && account !== null) {
             if(account.id.toString() !== promoCode.accountTypeId) {
@@ -587,7 +586,7 @@ const getPromoCode = async(code, accountUuid) => {
  * Get all account types
  */
 const getAccountTypes = async() => {
-    const accounts = await accountTypeRepo.getAll(); //db.getAccountTypes();
+    const accounts = await accountTypeRepo.getAll();
 
     return responseSvc.successMessage(accounts);
 }

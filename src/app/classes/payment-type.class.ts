@@ -1,7 +1,7 @@
 import { IdName } from './id-name.class';
-import { CryptoPaymentType } from './crypto-payment-type.class';
+import { PaymentTypeDetail } from './payment-type-detail.class';
 
 export class PaymentType extends IdName {
     
-    cryptoTypes: CryptoPaymentType[];
+    paymentTypeDetails: PaymentTypeDetail[];
 }

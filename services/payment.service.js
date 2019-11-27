@@ -4,11 +4,12 @@ const helperSvc = require('./helper.service');
 const encryptionSvc = require('./encryption.service');
 const responseSvc = require('./response.service');
 const accountTypeRepo = require('../data/account-type.repo');
-const cryptoPaymentTypeRepo = require('../data/crypto-payment-type.repo');
+const paymentTypeDetailRepo = require('../data/payment-type-detail.repo');
 const orderRepo = require('../data/orders.repo');
 const paymentTypeRepo = require('../data/payment-type.repo');
 const discountCodeSvc = require('./discount-code.service');
 const userRepo = require('../data/user.repo');
+const _ = require('lodash');
 
 const squareClient = squareConnect.ApiClient.instance;
 const oauth2 = squareClient.authentications['oauth2'];
@@ -25,11 +26,24 @@ const getPaymentTypes = async() => {
     return responseSvc.successMessage(types);
 }
 
+const getPaymentTypesWithDetails = async() => {
+    let types = await paymentTypeRepo.getAll();
+    const details = await paymentTypeDetailRepo.getAll();
+
+    types.forEach(type => {
+        type.details = details.filter(d => d.paymentTypeId === type.id);
+    });
+
+    return responseSvc.successMessage(types);
+}
+
 /**
- * Get crypto payment types
+ * Get payment type details
  */
-const getCryptoPaymentTypes = async() => {
-    const types = await cryptoPaymentTypeRepo.getAll();
+const getPaymentTypeDetails = async() => {
+    let types = await paymentTypeDetailRepo.getAll();
+
+    types = _.orderBy(types, "name");
 
     return responseSvc.successMessage(types);
 }
@@ -241,7 +255,8 @@ const calculatePrice = function(price, discountCode){
 module.exports = {
     upgradeAccount,
     getPaymentTypes,
-    getCryptoPaymentTypes,
+    getPaymentTypesWithDetails,
+    getPaymentTypeDetails,
     createOrder,
     getOrder,
     processCreditCardPayment,

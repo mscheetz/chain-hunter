@@ -11,8 +11,8 @@ router.get("/api/payment/types", apiHelp.bootlegMiddleware, async (req, res, nex
     res.status(result.code).json(result.data);
 });
 
-router.get("/api/payment/types/crypto", apiHelp.bootlegMiddleware, async (req, res, next) => {
-    const result = await paymentSvc.getCryptoPaymentTypes();
+router.get("/api/payment/types/detail", apiHelp.bootlegMiddleware, async (req, res, next) => {
+    const result = await paymentSvc.getPaymentTypeDetails();
 
     res.status(result.code).json(result.data);
 });

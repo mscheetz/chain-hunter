@@ -23,7 +23,7 @@ router.post("/api/user/guest", apiHelp.bootlegMiddleware, async (req, res, next)
   res.status(result.code).json(result.data);
 });
 
-router.get("/api/user/validate/:userId", apiHelp.asyncMiddleware, async (req, res, next) => {
+router.get("/api/user/validate/:userId", async (req, res, next) => {
   const userId = req.params.userId;
 
   const result = await userSvc.validateUser(userId);

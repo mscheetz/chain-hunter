@@ -166,6 +166,16 @@ export class CartComponent implements OnInit, OnDestroy {
       });
       return;
     }
+    if(this.accountUpgraded) {
+      this.messageSvc.add({
+        key: 'notification-toast',
+        severity: 'error', 
+        summary: 'Error', 
+        detail: 'Your account is already upgraded',
+        life: 5000
+      });
+      return;
+    }
     this.processing = true;
     await this.apiSvc.upgradeAccount(this.account.uuid, this.promoCode)
       .subscribe(res => {

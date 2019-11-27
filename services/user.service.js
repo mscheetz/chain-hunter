@@ -1,5 +1,4 @@
 const accountTypeRepo = require('../data/account-type.repo');
-const discountCodeRepo = require('../data/discount-code.repo');
 const passResetRepo = require('../data/password-reset.repo');
 const userRepo = require('../data/user.repo');
 const userDataRepo = require('../data/user-data.repo');
@@ -7,6 +6,7 @@ const orderRepo = require('../data/orders.repo');
 const encryptionSvc = require('./encryption.service');
 const helperSvc = require('./helper.service');
 const responseSvc = require('./response.service');
+const discountCodeSvc = require('./discount-code.service');
 const mailSvc = require('./mail.service');
 const emailRepo = require('../data/email-subscription.repo');
 const _ = require('lodash');
@@ -32,7 +32,7 @@ const login = async(email, password) => {
     }
 
     if(user.validated === null) {
-        const status = await validateAccountRequest(user);
+        const status = await sendValidationEmail(user);
         return responseSvc.errorMessage("Account not validated. A validation email has been sent to your email address.", 400);
     }
 
@@ -175,22 +175,30 @@ const registerUser = async(email, password, inviteCode) => {
     await emailRepo.add(user.email, creationTime);
 
     if(inviteCode !== "") {
-        const discount = await getAccountTypeFromInviteCode(inviteCode);
+        const discount = await discountCodeSvc.validate(inviteCode);
+        if(helperSvc.validateString(discount)) {
+            return responseSvc.errorMessage(discount, 400);
+        }
         user.accountTypeId = discount.id;
-        if(user.accountTypeId !== 1) {            
+        if(discount.toConsume) {
+            await discountCodeSvc.consume(inviteCode);
+        } else if (discount.toRedeem) {
+            await discountCodeSvc.redeem(inviteCode);
+        }
+        if(user.accountTypeId !== 1 && discount.days > 0) {
             user.expirationDate = helperSvc.getUnixTsPlus({d: discount.days});
         }
     }
     
-    delete user.hash;
-
     const postStatus = await userRepo.add(user);
     
+    delete user.hash;
+
     if(typeof postStatus === 'undefined') {
         return responseSvc.errorMessage("Error creating account. Please try again.", 400);
     }
 
-    const status = await validateAccountRequest(user);
+    const status = await sendValidationEmail(user);
 
     if(status) {
         return responseSvc.successMessage(status, 201);
@@ -199,7 +207,11 @@ const registerUser = async(email, password, inviteCode) => {
     }
 }
 
-const validateAccountRequest = async(user) => {
+/**
+ * Send account validation email
+ * @param {object} user 
+ */
+const sendValidationEmail = async(user) => {
     const verifyUrl = `https://wwww.thechainhunter.com/verify/${user.userId}`;
     const year = new Date().getFullYear();
     let template = fs.readFileSync('templates/verification.html',{encoding: 'utf-8'});
@@ -208,33 +220,6 @@ const validateAccountRequest = async(user) => {
     const subject = "The Chain Hunter: Account Verification";
 
     return mailSvc.sendEmail(user.email, subject, template);
-}
-
-const getAccountTypeFromInviteCode = async(code) => {
-    let discountCode = await discountCodeRepo.get(code);
-
-    if(typeof discountCode === 'undefined'){
-        console.log('no code')
-        return 1;
-    }
-    if(discountCode.redeemed === true) {
-        console.log('code redeemed')
-        return 1;
-    }
-    if(discountCode.multiUse === false) {
-        console.log('code to be redeemed')
-        await await discountCodeRepo.redeem(code);
-    } else {
-        await discountCodeRepo.consume(code);
-        discountCode = await discountCodeRepo.get(code);
-        
-        if(discountCode.totalUses === discountCode.usedUses) {
-            await await discountCodeRepo.redeem(code);
-        }
-    }
-    const days = discountCode.days !== null ? parseInt(discountCode.days) : 0;
-
-    return { id: parseInt(discountCode.accountTypeId), days: days };
 }
 
 /**
@@ -291,7 +276,7 @@ const forgotPasswordInit = async(email) => {
     }
 
     if(user.validated === null) {
-        await validateAccountRequest(user);
+        await sendValidationEmail(user);
         return responseSvc.errorMessage("Account not validated. A validation email has been sent to your email address.", 400);
     }
 
@@ -520,27 +505,13 @@ const deleteUserData = async(id) => {
  * @param {string} id code id
  */
 const validateInviteCode = async(id) => {
-    const code = await discountCodeRepo.get(id);
+    const code = await discountCodeSvc.validate(id);
 
-    if(typeof code === 'undefined') {
-        return responseSvc.errorMessage("Invalid code", 400);
-    }
-
-    if(code.validTil === null || code.validTil === "") {
+    if(helperSvc.validateString(code)) {
+        return responseSvc.errorMessage(code, 400);
+    } else {
         return responseSvc.successMessage(true);
     }
-
-    const now = helperSvc.getUnixTsSeconds();
-
-    if(now > code.validTil) {
-        return responseSvc.errorMessage("Code expired", 400);
-    }
-
-    if(code.redeemed) {
-        return responseSvc.errorMessage("Code already redeemed", 400);
-    }
-
-    return responseSvc.successMessage(true);
 }
 
 /**
@@ -550,33 +521,29 @@ const validateInviteCode = async(id) => {
  * @param {string} accountUuid account uuid
  */
 const getPromoCode = async(code, accountUuid) => {
-    const status = await validateInviteCode(code);
-    if(status.code === 400) {
-        return status;
-    }
-    const promoCode = await discountCodeRepo.get(code);
-
-    let returnCode = {
-        code: promoCode.code,
-        percentOff: promoCode.percentOff,
-        price: promoCode.price
-    };
-
-    if (promoCode.percentOff === null && promoCode.price === null) {
-        return responseSvc.errorMessage("Invalid code", 400);
-    }
-
-    if(promoCode.accountTypeId !== null) {
+    let accountTypeId = 0;
+    if(accountUuid !== null) {
         const account = await accountTypeRepo.getByUuid(accountUuid);
 
-        if(typeof account !== 'undefined' && account !== null) {
-            if(account.id.toString() !== promoCode.accountTypeId) {
-                return responseSvc.errorMessage("Code not valid for this account type.", 400);
-            }
-            returnCode.accountTypeUuid = account.uuid;
-        } else {
-            responseSvc.errorMessage("Invalid code", 400);
+        if(typeof account === 'undefined') {
+            return responseSvc.errorMessage("Account type not found", 400);
         }
+        
+        accountTypeId = account.accountTypeId;
+    }
+    const status = await discountCodeSvc.validate(code, accountTypeId);
+
+    if(helperSvc.validateString(status)) {
+        return responseSvc.errorMessage(status, 400);
+    }
+
+    let returnCode = {
+        code: code,
+        percentOff: status.percentOff,
+        price: status.price
+    };
+    if(accountUuid !== null) {
+        returnCode.accountTypeUuid = accountUuid;
     }
 
     return responseSvc.successMessage(returnCode);

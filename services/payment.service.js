@@ -8,6 +8,7 @@ const cryptoPaymentTypeRepo = require('../data/crypto-payment-type.repo');
 const discountCodeRepo = require('../data/discount-code.repo');
 const orderRepo = require('../data/orders.repo');
 const paymentTypeRepo = require('../data/payment-type.repo');
+const discountCodeSvc = require('./discount-code.service');
 const userRepo = require('../data/user.repo');
 
 const squareClient = squareConnect.ApiClient.instance;
@@ -47,7 +48,7 @@ const createOrder = async(userId, accountTypeId, paymentTypeId, price, discountC
     const user = await userRepo.get(userId);    
     const accountType = await accountTypeRepo.getByUuid(accountTypeId);
     const payment = await paymentTypeRepo.get(paymentTypeId);
-    let discount = discountCode === "" ? null : await discountCodeRepo.get(discountCode);
+    let discount = discountCode === "" ? null : await discountCodeSvc.validate(discountCode, accountTypeId);
 
     if(typeof user === 'undefined') {
         return responseSvc.errorMessage("User account not found", 400);
@@ -58,11 +59,8 @@ const createOrder = async(userId, accountTypeId, paymentTypeId, price, discountC
     if(typeof payment === 'undefined') {
         return responseSvc.errorMessage("Payment type not found", 400);
     }
-    if(typeof discount === 'undefined') {
-        return responseSvc.errorMessage("Discount code not found", 400);
-    }
-    if(discount !== null && discount.accountTypeId !== null && discount.accountTypeId !== accountTypeId) {
-        return responseSvc.errorMessage("Discount code not valid for this order type", 400);
+    if(discount !== null && helperSvc.validateString(discount)) {
+        return responseSvc.errorMessage(discount, 400);
     }
     const userOrders = await orderRepo.getByUser(userId);
 
@@ -158,10 +156,16 @@ const processPayment = async(paymentDetails) => {
     const order = await orderRepo.get(paymentDetails.orderId);
     const accountType = await accountTypeRepo.getByUuid(order.accountTypeId);
     let expirationDate = null;
+
     if(order.discountCode !== null) {
-        const discount = await discountCodeRepo.get(order.discountCode);
+        const discount = await discountCodeSvc.getDetails(order.discountCode);
         if(discount.days !== null && discount.days > 0) {
             expirationDate = helperSvc.getUnixTsPlus({ d: discount.days });
+        }
+        if(discount.toConsume) {
+            await discountCodeSvc.consume(order.discountCode);
+        } else if(discount.toRedeem) {
+            await discountCodeSvc.redeem(order.discountCode);
         }
     }
 

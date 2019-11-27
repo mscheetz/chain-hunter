@@ -86,6 +86,14 @@ const validateString = function(toValidate) {
 }
 
 /**
+ * Rounding for currency
+ * @param {number} value value to round
+ */
+const currencyRound = function(value) {
+    return Math.round(value * 1e2) / 1e2;
+}
+
+/**
  * conver unix time to utc time
  * 
  * @param timestamp Unix timestamp
@@ -875,6 +883,7 @@ const searchType = function(chain, toFind) {
 module.exports = {
     validateEmail,
     validateString,
+    currencyRound,
     getSimpleIO,
     getSimpleIOAddresses,
     getIO,

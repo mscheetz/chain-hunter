@@ -51,6 +51,14 @@ export class HelperService{
     }
 
     /**
+     * Round up/down a currency
+     * @param value value to round
+     */
+    currencyRound(value: number): number {
+      return Math.round(value * 1e2) / 1e2;
+    }
+
+    /**
      * Get future unix timestamp
      * @param timeOffset offset amount
      * @param interval time interval

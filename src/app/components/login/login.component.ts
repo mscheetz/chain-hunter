@@ -229,7 +229,7 @@ export class LoginComponent implements OnInit {
                     key:'login-toast',
                     severity:'warn', 
                     summary:'Invite Code', 
-                    detail: 'Invalid Invite Code',
+                    detail: err.error,
                     life: 5000
                 });
                 return;

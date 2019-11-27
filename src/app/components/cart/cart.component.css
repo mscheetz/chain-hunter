@@ -1,7 +1,16 @@
+.width-180 {
+    width: 180px;
+}
+
 ul > li {
     display: inline-block;
     zoom: 1;
     *display: inline;
+}
+
+.btn-disabled {
+    background-color: #9ad49a !important;
+    border: 1px solid #9ad49a !important;
 }
 
 .no-pad {
@@ -10,6 +19,10 @@ ul > li {
 
 .mini-icon {
     height: 27px;
+}
+
+.mini-cc-icon {
+    height: 25px;
 }
 
 #CCDialog > .ui-dialog > .ui-dialog-content.ui-widget-content {

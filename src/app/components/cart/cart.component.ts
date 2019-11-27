@@ -1,13 +1,11 @@
 import { Component, OnInit, Input, OnDestroy } from '@angular/core';
-import valid from 'card-validator';
 import { CookieService } from 'ngx-cookie-service';
 import { MessageService } from 'primeng/api';
 
 import { environment } from 'src/environments/environment';
 import { AccountType } from 'src/app/classes/account-type.class';
 import { ApiService } from 'src/app/services/api.service';
-import { IdName } from 'src/app/classes/id-name.class';
-import { CryptoPaymentType } from 'src/app/classes/crypto-payment-type.class';
+import { PaymentTypeDetail } from 'src/app/classes/payment-type-detail.class';
 import { PaymentType } from 'src/app/classes/payment-type.class';
 import { Router } from '@angular/router';
 import { HelperService } from 'src/app/services/helper.service';
@@ -21,25 +19,11 @@ import { AuthenticationService } from 'src/app/services/authentication.service';
 export class CartComponent implements OnInit, OnDestroy {
   @Input() total: number;
   promoCode: string = "";
-  showCC: boolean = false;
-  showCrypto: boolean = false;
-  ccName: string;
-  ccIcon: string = "credit-card";
-  iconColor: string = "#333333";
-  ccNumber: string;
-  cardType: string;
-  ccExpiration: string;
-  codeName: string = "CCV";
-  codeSize: number = 3;
-  ccv: number;
-  validCard: boolean = null;
-  applicationId: string = environment.squareApplicationId;
-  locationId: string = environment.squareLocationId;
   account: AccountType;
   validCode: boolean = false;
   promoCodeDetail: string;
   paymentTypes: PaymentType[] = [];
-  cryptoPaymentTypes: CryptoPaymentType[] = [];
+  paymentTypeDetails: PaymentTypeDetail[] = [];
   orderId: string = "";
   accountUpgraded: boolean = false;
   processing: boolean = false;
@@ -81,34 +65,25 @@ export class CartComponent implements OnInit, OnDestroy {
             const type = new PaymentType();
             type.id = r.id;
             type.name = r.name;
-            type.cryptoTypes = [];
+            type.paymentTypeDetails = [];
             this.paymentTypes.push(type);
           })
           this.updatePaymentTypes();
         });
-    this.apiSvc.getCryptoPaymentTypes()
+    this.apiSvc.getPaymentTypeDetails()
         .subscribe(res => {
-          this.cryptoPaymentTypes = res;
+          this.paymentTypeDetails = res;
           this.updatePaymentTypes();
         });
   }
 
   updatePaymentTypes(){
-    if(this.paymentTypes.length > 0 && this.cryptoPaymentTypes.length > 0) {
+    if(this.paymentTypes.length > 0 && this.paymentTypeDetails.length > 0) {
       this.paymentTypes.forEach(payment => {
-        const cryptos = this.cryptoPaymentTypes.filter(c => c.paymentTypeId === payment.id);
-        payment.cryptoTypes = cryptos;
+        const cryptos = this.paymentTypeDetails.filter(c => c.paymentTypeId === payment.id);
+        payment.paymentTypeDetails = cryptos;
       })
     }
-  }
-  
-  toggleCreditCard() {
-    this.showCC = !this.showCC;
-    this.resetCC();
-  }
-
-  toggleCryptocurrency(){
-    this.showCrypto = !this.showCrypto;
   }
 
   onApplyCode(){
@@ -201,6 +176,16 @@ export class CartComponent implements OnInit, OnDestroy {
 
   async createOrder(paymentTypeId: string) {
     const payment = this.paymentTypes.find(f => f.id === paymentTypeId);
+    if(payment.name === "Cryptocurrency") {
+      this.messageSvc.add({
+        key: 'notification-toast',
+        severity: 'warn', 
+        summary: 'Coming Soon', 
+        detail: 'Cryptocurrency payments coming soon!',
+        life: 5000
+      })
+      return;
+    }
     await this.apiSvc.createOrder(this.account.uuid, paymentTypeId, this.total, this.promoCode )
               .subscribe(res => {
                 if(payment.name === "Credit Card") { 
@@ -213,53 +198,4 @@ export class CartComponent implements OnInit, OnDestroy {
                 this.showErrorMessage(err.error);
               })
   }
-
-  onShowCC() {
-    console.log('showing cc form');
-  }
-
-  onHideCC() {
-    console.log('hiding cc form');
-    this.showCC = false;
-    this.resetCC();
-  }
-
-  resetCC() {
-    this.ccExpiration = null;
-    this.ccName = null;
-    this.ccNumber = null;
-    this.ccv = null;
-  }
-
-  ccValidate(event) {
-    this.ccNumber = this.ccNumber.trim();
-    const numberValidation = valid.number(this.ccNumber);
-    
-    if(!numberValidation.isPotentiallyValid) {
-      this.validCard = false;
-      this.ccIcon = "credit-card";
-      this.iconColor = "#bd0202";
-    }
-    if(numberValidation.card) {
-      this.validCard = true;
-      this.cardType = numberValidation.card.type;
-      this.cardType = this.cardType === "american-express" ? "amex" : this.cardType;
-      this.ccIcon = `cc-${this.cardType}`;
-      this.iconColor = "#333333";
-      this.codeName = numberValidation.card.code.name;
-      this.codeSize = numberValidation.card.code.size;
-    }
-  }
-
-  onPaypal(){
-
-  }
-
-  onStripe(){
-
-  }
-
-  onCrypto(symbol: string) {
-    
-  }  
 }

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg width="66px" height="46px" viewBox="0 0 66 46" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
+  <desc>Created with Lunacy</desc>
+  <defs>
+    <linearGradient x1="0.7075196" y1="1" x2="0.3247637" y2="0" id="gradient_1">
+      <stop offset="0" stop-color="#009BE0" />
+      <stop offset="1" stop-color="#006BA8" />
+    </linearGradient>
+    <path d="M2.999 0L63.001 0C64.6573 0 66 1.3427 66 2.999L66 43.001C66 44.6573 64.6573 46 63.001 46L2.999 46C1.3427 46 0 44.6573 0 43.001L0 2.999C0 1.3427 1.3427 0 2.999 0Z" id="path_1" />
+    <clipPath id="clip_1">
+      <use xlink:href="#path_1" />
+    </clipPath>
+  </defs>
+  <g id="color/Dinersclub">
+    <g id="Dinersclub">
+      <g id="Rectangle-Copy-24">
+        <use stroke="none" fill="#FFFFFF" xlink:href="#path_1" />
+        <g clip-path="url(#clip_1)">
+          <use xlink:href="#path_1" fill="none" stroke="#E6E7E8" stroke-width="2" />
+        </g>
+      </g>
+      <g id="Shape-+-Shape-Copy" transform="translate(18 11)">
+        <path d="M17.5521 23.9525C24.0396 23.9838 29.9609 18.6135 29.9609 12.0803C29.9609 4.93592 24.0396 -0.00237538 17.5521 8.57184e-07L11.9689 8.57184e-07C5.40377 -0.00237538 0 4.93739 0 12.0803C0 18.6149 5.40377 23.9838 11.9689 23.9525L17.5521 23.9525L17.5521 23.9525Z" id="Shape" fill="url(#gradient_1)" stroke="none" />
+        <path d="M0 10.965C0.00141287 4.90883 4.86264 0.00190099 10.8617 0C16.8622 0.00190099 21.7243 4.90883 21.7252 10.965C21.7244 17.02 16.8622 21.9265 10.8617 21.9284C4.86259 21.9265 0.00141287 17.02 0 10.965ZM13.3257 4.47878L13.3257 17.452C15.9094 16.4497 17.7438 13.9267 17.7485 10.965C17.7438 8.00417 15.9094 5.47918 13.3257 4.47878ZM3.97677 10.965C3.98242 8.00559 5.81397 5.48203 8.3967 4.47921L8.3967 17.4492C5.81397 16.4469 3.98237 13.9248 3.97677 10.965Z" transform="translate(1.130298 0.9980198)" id="Shape" fill="#F4F6F7" fill-rule="evenodd" stroke="none" />
+      </g>
+    </g>
+  </g>
+</svg>

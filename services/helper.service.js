@@ -74,6 +74,18 @@ const validateEmail = function(email) {
 }
 
 /**
+ * Validate if a variable is a string
+ * @param {*} toValidate variable to validate
+ */
+const validateString = function(toValidate) {
+    if(typeof toValidate === 'string' || toValidate instanceof String) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+/**
  * conver unix time to utc time
  * 
  * @param timestamp Unix timestamp
@@ -862,6 +874,7 @@ const searchType = function(chain, toFind) {
 
 module.exports = {
     validateEmail,
+    validateString,
     getSimpleIO,
     getSimpleIOAddresses,
     getIO,

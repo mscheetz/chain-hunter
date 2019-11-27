@@ -44,12 +44,12 @@ const validate = async(code, accountTypeId = 0) => {
     let discountCode = await discountCodeRepo.get(code);
     const codeType = accountTypeId === 0 ? "Invite" : "Discount";
     const nowTS = helperSvc.getUnixTsSeconds();
-
-    if(accountTypeId > 0 && discountCode.accountTypeId !== accountTypeId) {
-        return `${codeType} Code not valid for this order`;
-    }
+    
     if(typeof discountCode === 'undefined'){
         return `${codeType} Code not found`;
+    }
+    if(accountTypeId > 0 && discountCode.accountTypeId !== null && parseInt(discountCode.accountTypeId) !== accountTypeId) {
+        return `${codeType} Code not valid for this order`;
     }
     if(discountCode.validTil !== null && discountCode.validTil < nowTS) {
         return `${codeType} Code has expired`;

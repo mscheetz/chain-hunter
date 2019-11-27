@@ -16,10 +16,22 @@
         <div class="p-col" *ngFor="let type of paymentTypes; let i = index">
             <div>
                 <h3>{{type.name}}</h3>
-                <button pButton type="button" label="Pay With {{type.name}}" (click)="createOrder(type.id)" class="ui-button-success"></button>            
-                <ul *ngIf="type.cryptoTypes.length > 0" class="no-pad">
-                    <li *ngFor="let chain of type.cryptoTypes">
-                        <img class="chain-logo-pad mini-icon" src="assets/cryptoicons/color/{{chain.symbol.toLowerCase()}}.png" title="Pay with {{chain.name}}" />
+                <button *ngIf="type.name === 'Credit Card'" 
+                        pButton type="button" label="Pay With {{type.name}}" title="Pay With {{type.name}}"
+                        (click)="createOrder(type.id)" class="ui-button-success"></button>
+                <button *ngIf="type.name !== 'Credit Card'" 
+                        pButton type="button" label="Pay With {{type.name}}" title="Pay With {{type.name}}"
+                        (click)="createOrder(type.id)" class="ui-button-success btn-disabled"></button>
+                <ul *ngIf="type.paymentTypeDetails.length > 0" class="no-pad width-180">
+                    <li *ngFor="let detail of type.paymentTypeDetails">
+                        <img *ngIf="type.name === 'Credit Card'" 
+                            class="chain-logo-pad mini-cc-icon" 
+                            src="assets/credit-cards/{{detail.symbol.toLowerCase()}}.svg" 
+                            title="Pay with {{detail.name}}" />
+                        <img *ngIf="type.name !== 'Credit Card'" 
+                            class="chain-logo-pad mini-icon" 
+                            src="assets/cryptoicons/color/{{detail.symbol.toLowerCase()}}.png" 
+                            title="Pay with {{detail.name}}" />
                     </li>
                 </ul>
             </div>
@@ -34,73 +46,4 @@
             </div>
         </div>
     </div>
-    <ul>
-        <li>
-            <p-button label="Paypal" (click)="onPaypal()" styleClass="ui-button-info"></p-button>
-        </li>
-        <li>
-            <p-button label="Stripe" (click)="onStripe()" styleClass="ui-button-info"></p-button>
-        </li>
-        <li>
-            <p-button label="Bitcoin" (click)="onCrypto('BTC')" styleClass="ui-button-info"></p-button>
-        </li>
-        <li>
-            <p-button label="BitcoinCash" (click)="onCrypto('BCH')" styleClass="ui-button-info"></p-button>
-        </li>
-        <li>
-            <p-button label="Ethereum" (click)="onCrypto('ETH')" styleClass="ui-button-info"></p-button>
-        </li>
-        <li>
-            <p-button label="LiteCoin" (click)="onCrypto('LTC')" styleClass="ui-button-info"></p-button>
-        </li>
-        <li>
-            <p-button label="Paypal" (click)="onCrypto('NANO')" styleClass="ui-button-info"></p-button>
-        </li>
-        <li>
-            <p-button label="RavenCoin" (click)="onCrypto('RVN')" styleClass="ui-button-info"></p-button>
-        </li>
-    </ul>
 </div>
-<p-dialog id="CCDialog" [(visible)]="showCC" [style]="{width: '450px', height: '300px'}" [modal]="true"
-        [showHeader]="false" (onShow)="onShowCC()" (onHide)="onHideCC()">
-    <app-square-payment [totalAmount]="total" [showPage]="showCC"></app-square-payment>
-    <!-- <div class="p-grid">
-        <div class="p-col-12">
-            <div class="p-col">Name on Card:</div>
-            <div class="p-col">
-                <input [(ngModel)]="ccName" type="text" pInputText />
-            </div>
-        </div>
-        <div class="p-col-12">
-            <div class="p-col">Credit Card Number:</div>
-            <div class="p-col">
-                <i class="fa fa-{{ccIcon}} fa-2x" [ngStyle]="{'color': iconColor}"></i>
-                &nbsp;
-                <p-inputMask [(ngModel)]="ccNumber" mask="9999 9999 9999 9999" [ngStyle]="{'color': iconColor}" (focusout)="ccValidate($event)"></p-inputMask>
-            </div>
-        </div>
-        <div class="p-col-12">
-            <div class="p-col">Expiration Date:</div>
-            <div class="p-col">
-                <p-inputMask [(ngModel)]="ccExpiration" mask="99/99/9999" placeholder="mm/dd/yyyy" slothChar="mm/dd/yyyy"></p-inputMask>
-            </div>
-        </div>
-        <div class="p-col-12">
-            <div class="p-col">{{codeName}}:</div>
-            <div class="p-col">
-                <input [(ngModel)]="ccv" type="password" pInputText placeholder="{{codeSize}} digits" size="6" />
-            </div>
-        </div>
-        <div class="p-col-12">
-            <div class="p-col">
-                <p-button label="Submit" (click)="onCreditCard()" styleClass="ui-button-success"></p-button>
-            </div>            
-            <div class="p-col">                
-                <p-button label="Cancel" (click)="onCancelCC()" styleClass="ui-button-info"></p-button>
-            </div>
-        </div>
-    </div> -->
-</p-dialog>
-<p-dialog [(visible)]="showCrypto" [showHeader]="false">
-    <h3>Secure Cryptocurrency Payment</h3>
-</p-dialog>

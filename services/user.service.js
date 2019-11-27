@@ -172,7 +172,11 @@ const registerUser = async(email, password, inviteCode) => {
     user.accountTypeId = 1;
     user.emailSubscription = true;
 
-    await emailRepo.add(user.email, creationTime);
+    const emailSub = await emailRepo.get(user.email);
+
+    if(emailSub.length === 0) {
+        await emailRepo.add(user.email, creationTime);
+    }
 
     if(inviteCode !== "") {
         const discount = await discountCodeSvc.validate(inviteCode);
@@ -243,7 +247,6 @@ const validateUser = async(userId) => {
     if(typeof user === 'undefined') {
         return responseSvc.errorMessage("Account not found", 400);
     }
-
     if(user.validated !== null) {
         return responseSvc.errorMessage("Account already validated", 400);
     }
@@ -437,6 +440,8 @@ const getUserOrders = async(userId) => {
         order.accountType = accountType.name;
     })
     
+    orders = _.orderBy(orders, "processed", "desc")
+
     return responseSvc.successMessage(orders);
 }
 
@@ -529,7 +534,7 @@ const getPromoCode = async(code, accountUuid) => {
             return responseSvc.errorMessage("Account type not found", 400);
         }
         
-        accountTypeId = account.accountTypeId;
+        accountTypeId = account.id;
     }
     const status = await discountCodeSvc.validate(code, accountTypeId);
 
@@ -540,7 +545,8 @@ const getPromoCode = async(code, accountUuid) => {
     let returnCode = {
         code: code,
         percentOff: status.percentOff,
-        price: status.price
+        price: status.price,
+        days: status.days
     };
     if(accountUuid !== null) {
         returnCode.accountTypeUuid = accountUuid;

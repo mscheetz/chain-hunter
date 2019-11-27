@@ -14,7 +14,7 @@ import { ResultType } from '../classes/Enums';
 import { AccountType } from '../classes/account-type.class';
 import { PromoCode } from '../classes/promo-code.class';
 import { IdName } from '../classes/id-name.class';
-import { CryptoPaymentType } from '../classes/crypto-payment-type.class';
+import { PaymentTypeDetail } from '../classes/payment-type-detail.class';
 import { Order } from '../classes/order.class';
 
 @Injectable({providedIn: 'root'})
@@ -482,11 +482,11 @@ export class ApiService{
         return result;
     }
 
-    getCryptoPaymentTypes(): Observable<CryptoPaymentType[]> {
-        let endpoint: string = "/api/payment/types/crypto";
+    getPaymentTypeDetails(): Observable<PaymentTypeDetail[]> {
+        let endpoint: string = "/api/payment/types/detail";
         let url: string = this.baseUrl + endpoint;
 
-        let result = this.onGet<CryptoPaymentType[]>(url);
+        let result = this.onGet<PaymentTypeDetail[]>(url);
 
         return result;
     }

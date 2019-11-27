@@ -42,6 +42,7 @@ export class CartComponent implements OnInit, OnDestroy {
   cryptoPaymentTypes: CryptoPaymentType[] = [];
   orderId: string = "";
   accountUpgraded: boolean = false;
+  processing: boolean = false;
 
   constructor(private cookieSvc: CookieService, 
               private apiSvc: ApiService,
@@ -155,8 +156,20 @@ export class CartComponent implements OnInit, OnDestroy {
   }
 
   async upgradeAccount() {
+    if(this.processing) {
+      this.messageSvc.add({
+        key: 'notification-toast',
+        severity: 'error', 
+        summary: 'Error', 
+        detail: 'Account is currently upgrading',
+        life: 5000
+      });
+      return;
+    }
+    this.processing = true;
     await this.apiSvc.upgradeAccount(this.account.uuid, this.promoCode)
       .subscribe(res => {
+        this.processing = false;
         this.accountUpgraded = true;
         this.messageSvc.add({
           key: 'notification-toast',
@@ -166,7 +179,13 @@ export class CartComponent implements OnInit, OnDestroy {
           life: 5000
         })
       }, err => {
-        this.showErrorMessage(err.error);
+        this.messageSvc.add({
+          key: 'notification-toast',
+          severity: 'error', 
+          summary: 'Error', 
+          detail: err.error,
+          life: 5000
+        })
       });
   }
 

@@ -29,6 +29,8 @@
         <div class="p-col">
             <div>
                 <button pButton type="button" label="Upgrade Account" (click)="upgradeAccount()" class="ui-button-success"></button>  
+                &nbsp;&nbsp;
+                <i class="fa fa-cog fa-2x fa-spin" *ngIf="processing"></i>
             </div>
         </div>
     </div>

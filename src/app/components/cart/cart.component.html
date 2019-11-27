@@ -12,7 +12,7 @@
     <div class="p-col-12 p-lg-4">
         <h3>Total Due: ${{total}}</h3>
     </div>
-    <div class="p-col-12 p-lg-4">
+    <div *ngIf="total > 0" class="p-col-12 p-lg-4">
         <div class="p-col" *ngFor="let type of paymentTypes; let i = index">
             <div>
                 <h3>{{type.name}}</h3>
@@ -22,6 +22,13 @@
                         <img class="chain-logo-pad mini-icon" src="assets/cryptoicons/color/{{chain.symbol.toLowerCase()}}.png" title="Pay with {{chain.name}}" />
                     </li>
                 </ul>
+            </div>
+        </div>
+    </div>
+    <div *ngIf="total === 0" class="p-col-12 p-lg-4">
+        <div class="p-col">
+            <div>
+                <button pButton type="button" label="Upgrade Account" (click)="upgradeAccount()" class="ui-button-success"></button>  
             </div>
         </div>
     </div>

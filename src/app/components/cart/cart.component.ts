@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, OnDestroy } from '@angular/core';
 import valid from 'card-validator';
 import { CookieService } from 'ngx-cookie-service';
 import { MessageService } from 'primeng/api';
@@ -10,13 +10,15 @@ import { IdName } from 'src/app/classes/id-name.class';
 import { CryptoPaymentType } from 'src/app/classes/crypto-payment-type.class';
 import { PaymentType } from 'src/app/classes/payment-type.class';
 import { Router } from '@angular/router';
+import { HelperService } from 'src/app/services/helper.service';
+import { AuthenticationService } from 'src/app/services/authentication.service';
 
 @Component({
   selector: 'app-cart',
   templateUrl: './cart.component.html',
   styleUrls: ['./cart.component.css']
 })
-export class CartComponent implements OnInit {
+export class CartComponent implements OnInit, OnDestroy {
   @Input() total: number;
   promoCode: string = "";
   showCC: boolean = false;
@@ -39,23 +41,36 @@ export class CartComponent implements OnInit {
   paymentTypes: PaymentType[] = [];
   cryptoPaymentTypes: CryptoPaymentType[] = [];
   orderId: string = "";
+  accountUpgraded: boolean = false;
 
   constructor(private cookieSvc: CookieService, 
               private apiSvc: ApiService,
               private messageSvc: MessageService,
-              private router: Router) { }
+              private router: Router,
+              private helperSvc: HelperService,
+              private authSvc: AuthenticationService) { }
 
   ngOnInit() {
     this.getTypes();
     const cookie = this.cookieSvc.get("tch-upgrade");
     if(typeof cookie !== "undefined" && cookie !== null && cookie !== "") {
       this.account = JSON.parse(cookie);
-      this.total = this.account.yearly;   
+      this.total = this.helperSvc.currencyRound(this.account.yearly);   
     } else {
       if(typeof this.total === 'undefined') {
         this.total = 10.99;
       }
     }
+  }
+
+  ngOnDestroy(){
+    if(this.accountUpgraded) {
+      this.userRefresh();
+    }
+  }
+
+  async userRefresh(){
+    await this.authSvc.userRefresh();
   }
 
   getTypes() {
@@ -105,12 +120,17 @@ export class CartComponent implements OnInit {
       .subscribe(res => {
         this.validCode = true;
         if(res.percentOff !== null && res.percentOff > 0) {
-          this.promoCodeDetail = `Take ${res.percentOff}% off`;
-          this.total = this.account.yearly * res.percentOff;
+          this.promoCodeDetail = `Take ${res.percentOff*100}% off`;
+          this.total = this.account.yearly - (this.account.yearly * res.percentOff);
         } else {
-          this.promoCodeDetail = `${this.account.name} Account for $${res.price}`;
+          const printPrice = res.price === null ? 0 : res.price;
+          this.promoCodeDetail = `${this.account.name} Account for $${printPrice}`;
           this.total = res.price;
         }
+        if(res.days !== null && res.days > 0) {
+          this.promoCodeDetail += ` for ${res.days} days`;
+        }
+        this.total = this.helperSvc.currencyRound(this.total);
         this.messageSvc.add({
           key: 'notification-toast',
           severity: 'success', 
@@ -132,6 +152,22 @@ export class CartComponent implements OnInit {
           detail: message,
           life: 5000
         })
+  }
+
+  async upgradeAccount() {
+    await this.apiSvc.upgradeAccount(this.account.uuid, this.promoCode)
+      .subscribe(res => {
+        this.accountUpgraded = true;
+        this.messageSvc.add({
+          key: 'notification-toast',
+          severity: 'success', 
+          summary: 'Account Upgraded', 
+          detail: 'Your account has been upgraded',
+          life: 5000
+        })
+      }, err => {
+        this.showErrorMessage(err.error);
+      });
   }
 
   async createOrder(paymentTypeId: string) {

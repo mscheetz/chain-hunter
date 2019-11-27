@@ -506,6 +506,19 @@ export class ApiService{
         return result;
     }
 
+    upgradeAccount(accountTypeId: string, discountCode: string): Observable<boolean> {
+        let endpoint: string = "/api/payment/upgrade";
+        let url: string = this.baseUrl + endpoint;
+        let data = {
+            accountUuid: accountTypeId,
+            promoCode: discountCode
+        }
+
+        let result = this.onPost<boolean>(url, data, true);
+
+        return result;
+    }
+
     getOrder(orderId: string) : Observable<Order> {
         let endpoint: string = `/api/payment/order/${orderId}`;
         let url: string = this.baseUrl + endpoint;

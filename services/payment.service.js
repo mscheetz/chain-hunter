@@ -5,7 +5,6 @@ const encryptionSvc = require('./encryption.service');
 const responseSvc = require('./response.service');
 const accountTypeRepo = require('../data/account-type.repo');
 const cryptoPaymentTypeRepo = require('../data/crypto-payment-type.repo');
-const discountCodeRepo = require('../data/discount-code.repo');
 const orderRepo = require('../data/orders.repo');
 const paymentTypeRepo = require('../data/payment-type.repo');
 const discountCodeSvc = require('./discount-code.service');
@@ -36,18 +35,53 @@ const getCryptoPaymentTypes = async() => {
 }
 
 /**
+ * Upgrade an account
+ * @param {string} userId user id
+ * @param {string} promoCode promo code
+ * @param {string} accountUuid new account type uuid
+ */
+const upgradeAccount = async(userId, promoCode, accountUuid) => {
+    const account = await accountTypeRepo.getByUuid(accountUuid);
+    const discountCode = await discountCodeSvc.validate(promoCode, account.id);
+
+    if(helperSvc.validateString(discountCode)){
+        return responseSvc.errorMessage(discountCode, 400);
+    }
+
+    if(discountCode.price !== null || discountCode.price > 0 || discountCode.percentOff !== null || discountCode.percentOff > 0) {
+        return responseSvc.errorMessage("Invalid promo code", 400);
+    }
+    
+    const order = await createOrder(userId, accountUuid, "", 0, promoCode);
+    
+    if(order.code !== 200){
+        return order;
+    }
+
+    const paymentDetails = {
+        orderId: order.data, 
+        paymentType: "Discount Code",
+        userId: userId,
+        nonce: null
+    };
+
+    await processPayment(paymentDetails);
+
+    return responseSvc.successMessage(true);
+}
+
+/**
  * Create a new order
  * @param {string} userId user id
  * @param {string} accountTypeId account type id
  * @param {string} paymentTypeId payment type id
  * @param {number} price order price
  * @param {string} discountCode discount code (optional)
- * @returns {string} new order Id
  */
 const createOrder = async(userId, accountTypeId, paymentTypeId, price, discountCode) => {
     const user = await userRepo.get(userId);    
     const accountType = await accountTypeRepo.getByUuid(accountTypeId);
-    const payment = await paymentTypeRepo.get(paymentTypeId);
+    let payment = paymentTypeId === "" ? null : await paymentTypeRepo.get(paymentTypeId);
     let discount = discountCode === "" ? null : await discountCodeSvc.validate(discountCode, accountTypeId);
 
     if(typeof user === 'undefined') {
@@ -93,6 +127,10 @@ const createOrder = async(userId, accountTypeId, paymentTypeId, price, discountC
     return responseSvc.successMessage(order.orderId);
 }
 
+/**
+ * Get an order by order id
+ * @param {string} orderId order id
+ */
 const getOrder = async(orderId) => {
     const order = await orderRepo.get(orderId);
     const now = helperSvc.getUnixTsSeconds();
@@ -151,10 +189,15 @@ const processCryptoPayment = async(paymentDetails) => {
 
 }
 
+/**
+ * Process a payment
+ * @param {object} paymentDetails payment details object
+ */
 const processPayment = async(paymentDetails) => {
     const currentTS = helperSvc.getUnixTsSeconds();
     const order = await orderRepo.get(paymentDetails.orderId);
     const accountType = await accountTypeRepo.getByUuid(order.accountTypeId);
+    
     let expirationDate = null;
 
     if(order.discountCode !== null) {
@@ -180,19 +223,23 @@ const processPayment = async(paymentDetails) => {
  * @param {object} discountCode discount code object
  */
 const calculatePrice = function(price, discountCode){
+    let newPrice = 0;
     if(discountCode !== null) {
         if(discountCode.percentOff !== null && discountCode.percentOff > 0) {
-            return (price - (price * discountCode.percentOff));
+            const total = (price - (price * discountCode.percentOff));
+
+            newPrice = helperSvc.currencyRound(total);
         }
 
         if(discountCode.price !== null) {
-            return discountCode.price;
+            newPrice = helperSvc.currencyRound(discountCode.price);
         }
     }
-    return price;
+    return newPrice;
 }
 
 module.exports = {
+    upgradeAccount,
     getPaymentTypes,
     getCryptoPaymentTypes,
     createOrder,

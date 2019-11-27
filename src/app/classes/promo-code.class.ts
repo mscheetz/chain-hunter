@@ -3,4 +3,5 @@ export class PromoCode {
     percentOff: number;
     accountTypeUuid: string; 
     price: number;
+    days: number;
 }

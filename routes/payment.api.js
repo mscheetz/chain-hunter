@@ -17,10 +17,22 @@ router.get("/api/payment/types/crypto", apiHelp.bootlegMiddleware, async (req, r
     res.status(result.code).json(result.data);
 });
 
-router.post("/api/payment/order", [ apiHelp.bootlegMiddleware, apiHelp.authMiddleware, apiHelp.userMiddleware ], async (req, res, next) => {
-    const order = req.body;
+/**
+ * Update a user's account
+ */
+router.post("/api/payment/upgrade", [ apiHelp.bootlegMiddleware, apiHelp.authMiddleware, apiHelp.userMiddleware ], async (req, res, next) => {
+  const userId = res.locals.userId;
+  const accountUuid = req.body.accountUuid;
+  const promoCode = req.body.promoCode;
+  
+  const result = await paymentSvc.upgradeAccount(userId, promoCode, accountUuid);
 
+  res.status(result.code).json(result.data);
+});
+
+router.post("/api/payment/order", [ apiHelp.bootlegMiddleware, apiHelp.authMiddleware, apiHelp.userMiddleware ], async (req, res, next) => {
     const userId = res.locals.userId;
+    const order = req.body;
 
     const result = await paymentSvc.createOrder(userId, order.accountTypeId, order.paymentTypeId, order.price, order.discountCode);
 

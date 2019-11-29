@@ -115,7 +115,7 @@ export class AuthenticationService {
             this.cookieSvc.set(this.searchLimitCookie, JSON.stringify(userResponse.searchLimit), 1);
         }
         if(userResponse.expirationDate !== null) {
-            user.expirationDateFormat = this.helperSvc.unixToUTC(user.expirationDate);
+            user.expirationDateFormat = this.helperSvc.unixToUTC(user.expirationDate, false);
         }
         user.adFree = userResponse.accountTypeId > 1;
 

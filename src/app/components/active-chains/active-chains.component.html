@@ -1,10 +1,10 @@
 <p-panel showHeader="false">
-    <h3>Enter an Address, Contract, or Transaction Hash</h3>
+    <h3>What is Chain Hunter?</h3>
     <p><strong>Chain Hunter</strong> allows you to search an address, contract, or transaction hash for multiple blockchains all from one site.</p>
     <p>Use <strong>Chain Hunter</strong> now to search the following blockchains at once:</p>
     <ul class="no-pad">
         <li *ngFor="let chain of activeChains">
-            <img class="chain-logo-pad" src="assets/cryptoicons/color/{{chain.symbol.toLowerCase()}}.svg" title="{{chain.name}}" />
+            <img class="chain-logo-pad" src="assets/cryptoicons/color/{{chain.symbol.toLowerCase()}}.png" title="{{chain.name}} logo" />
         </li>
     </ul>
 </p-panel>

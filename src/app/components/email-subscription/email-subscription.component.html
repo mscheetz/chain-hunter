@@ -1,0 +1,12 @@
+<h3>Email Subscription</h3>
+<h4>Subscribe to our email list to get the latest news and deals direct to your inbox!</h4>
+
+<div>
+    Enter your email address: 
+    <input type="email" pInputText [(ngModel)]="newAddress" size="40" /> 
+    <p-button label="Subscribe!" (click)="subscribe()" styleClass="ui-button-success"></p-button>
+</div>
+
+<p style="font-size: 14px;color: #333333;">
+    The Chain Hunter does not sell, trade, or disclose your email address or any other information to 3rd parties.
+</p>

@@ -1,0 +1,16 @@
+.margin-btm-10 {
+    margin-bottom: 10px;
+}
+.margin-top-20 {
+    margin-top: 20px;
+}
+:host>>>.ui-card{
+    background-color: #f5f5f5 !important;
+}
+.invalid-input {
+    border: 1px solid #dd0031 !important;
+}
+.biggie {
+    font-size: 18px;
+    font-weight: 900;
+}

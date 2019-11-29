@@ -1,5 +1,57 @@
-<div>
-    <div>&copy; 2019</div>
-    <div class="text-muted">The Chain Hunter is brought to you by <a href="http://cryptax.co" target="_blank">Cryptax</a></div>
-    <span class="fab fa-twitter"></span> <a class="fab fa-twitter" href="https://twitter.com/HunterChain" target="_blank">@HunterChain</a>
+<div class="ui-g">
+    <div class="ui-g-2 ui-md-3 ui-lg-3 top-pad-0">
+        <a routerLink="/" routerLinkActive="active">
+            <img class="mb-2" src="./assets/ch_dark.png" alt="" width="24" height="24">
+        </a>
+        <small class="d-block text-muted">&copy; 2019</small>        
+    </div>
+    <div class="ui-g-4 ui-md-3 ui-lg-3 top-pad-0">
+        <div class="twitter-box">
+            <a title="Follow us on Twitter!" class="twitter-img" href="https://twitter.com/HunterChain" target="_blank">
+                <i class="fa fa-twitter"></i>
+            </a>
+        </div>
+        <div class="border-top brave-box">
+            <a href="https://brave.com/" target="_blank"><img src="assets/brave-bat-partnership.svg"
+                class="brave-img" title="Brave Browse is the preferred browser of Chain Hunter." /></a>
+        </div>
+    </div>
+    <div class="ui-g-3 ui-md-3 ui-lg-3 top-pad-0">        
+        <ul class="list-unstyled text-small mbe-0">
+            <li><span class="text-muted">Donate!</span></li>
+            <li><button type="text" (click)="getQrCode('BTC')" pButton label="BTC" class="ui-button-secondary donate-button"></button></li>
+            <li><button type="text" (click)="getQrCode('ETH')" pButton label="ETH" class="ui-button-secondary donate-button"></button></li>
+            <li><button type="text" (click)="getQrCode('NANO')" pButton label="NANO" class="ui-button-secondary donate-button"></button></li>
+            <li><button type="text" (click)="getQrCode('RVN')" pButton label="RVN" class="ui-button-secondary donate-button"></button></li>
+        </ul>
+    </div>
+    <div class="ui-g-3 ui-md-3 ui-lg-3 top-pad-0">
+        <ul class="list-unstyled text-small mbe-0">
+            <li><a class="text-muted" routerLink="/" routerLinkActive="active">Home</a></li>
+            <li><a class="text-muted" *ngIf="!loggedIn" (click)="onLogin()" routerLink="">Login | Register</a></li>
+            <li><a class="text-muted" *ngIf="loggedIn" routerLink="/hunts" routerLinkActive="active">My Hunts</a></li>
+            <li><a class="text-muted" *ngIf="loggedIn" routerLink="/mypage" routerLinkActive="active">My Account</a></li>
+            <!-- <li><span class="text-muted link-like">Login | Register</span></li> -->
+            <li><a class="text-muted" routerLink="/accounts" routerLinkActive="active">Account Types</a></li>
+            <li><a class="text-muted" routerLink="/info" routerLinkActive="active">Blockchain Info</a></li>
+            <li><a class="text-muted" routerLink="/about" routerLinkActive="active">About</a></li>
+            <li><a class="text-muted" routerLink="/terms" routerLinkActive="active">Terms</a></li>
+        </ul>
+    </div>
 </div>
+<p-dialog 
+    header="{{donateType}}" 
+    [responsive]="true"     
+    [(visible)]="showQRCode"
+    [modal]="true"
+    [draggable]="false"
+    [baseZIndex]="10000">
+    <div class="align-center">
+        <ngx-qrcode
+            [qrc-element-type]="qrType"
+            [qrc-value]="address"
+            qrc-errorCorrectionLevel = "L"
+            (click)="copyAddress()"></ngx-qrcode>
+        <span class="text-muted text-small">Click QR Code to copy address.</span>
+    </div>
+</p-dialog>

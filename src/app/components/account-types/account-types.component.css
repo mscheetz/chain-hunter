@@ -1,0 +1,15 @@
+:host>>>.ui-card{
+    background-color: #f5f5f5 !important;
+}
+.center {
+    text-align: center;
+}
+.biggie {
+    font-size: 18px;
+    font-weight: 900;
+}
+:host>>>.ui-card-title {
+    font-size: 1.75em !important;
+    text-align: center !important;
+    color: #00aeef !important;
+}

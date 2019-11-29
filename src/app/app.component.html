@@ -1,1 +1,45 @@
-<chain-hunter></chain-hunter>
+<div class="wrapper">
+  <!-- Chain Hunter Header -->
+  <header _ngcontent-rap-c0="" class="jumbotron mt-3" _nghost-rap-c1="">
+    <img _ngcontent-rap-c1="" class="logo-main" src="./assets/chainhunterhorizontal.png">
+  </header>
+  <app-top-nav></app-top-nav><!-- [loggedIn]="loggedIn" (toggleLogin)="onToggleLogin($event)" (loginSuccess)="onLoginSuccess($event)"-->
+  <!-- Chain Hunter Login -->
+  <!-- <account class="login-position" [showLogin]="showLogin"></account> -->
+  <div class="ui-g">
+    <div class="ui-g-12 ui-md-12 ui-lg-10">
+      <top-ad class="top-ad" *ngIf="currentUser === null"></top-ad>
+      <!-- Chain Hunter Main -->
+      <div class="main-container">
+        <router-outlet></router-outlet>
+      </div>
+    </div>
+    <div class="right-panel ui-g-12 ui-md-12 ui-lg-1">
+      <right-ad class="right-ad" *ngIf="currentUser === null"></right-ad>
+    </div>
+  </div>
+  <div class="ui-g-12 ui-md-12 ui-lg-10">
+    <bottom-ad class="bottom-ad" *ngIf="currentUser === null"></bottom-ad>
+  </div>
+</div>
+<!-- Chain Hunter Footer -->
+<div class="footer">
+  <footer-component (notification)="notification($event)"></footer-component><!--(toggleLogin)="onToggleLogin($event)" [loggedIn]="loggedIn" -->
+</div>
+<!-- Chain Hunter Cookie notice -->
+<cookies *ngIf="showNotice" (cookiesOk)="cookieOk($event)" class="cookie-box"></cookies>
+<p-toast key="notification-toast"></p-toast>
+<p-toast key="login-notice-toast"></p-toast>
+<p-dialog header="Join Chain Hunter!" 
+          [(visible)]="showLogin" 
+          [modal]="true"
+          (onShow)="resetLoginBools()"
+          (onHide)="loginHidden()"
+          [style]="{width: '400px'}">
+<app-login 
+      [inLoginView]="loginView"
+      [inRegisterView]="registerView"
+      [inConfirmView]="confirmView"
+      (toggleLogin)="onToggleLogin($event)"
+      (loginSuccess)="onLoginSuccess($event)"></app-login>
+</p-dialog>

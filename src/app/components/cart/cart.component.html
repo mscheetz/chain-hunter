@@ -1,0 +1,49 @@
+<h2>Shopping Cart</h2>
+<div class="p-grid">
+    <div class="p-col-12 p-lg-4">
+        <p>Account Selected: {{account.name}}</p>
+        <p>Price: ${{account.yearly}}</p>
+        <p>Promo Code: </p>
+        <input type="text" pInputText [(ngModel)]="promoCode" />
+        <br><br>
+        <p-button label="Apply Code" (click)="onApplyCode()" styleClass="ui-button-info"></p-button>
+        <p *ngIf="validCode">Promo Code Detail: {{promoCodeDetail}}</p>
+    </div>
+    <div class="p-col-12 p-lg-4">
+        <h3>Total Due: ${{total}}</h3>
+    </div>
+    <div *ngIf="total > 0" class="p-col-12 p-lg-4">
+        <div class="p-col" *ngFor="let type of paymentTypes; let i = index">
+            <div>
+                <h3>{{type.name}}</h3>
+                <button *ngIf="type.name === 'Credit Card'" 
+                        pButton type="button" label="Pay With {{type.name}}" title="Pay With {{type.name}}"
+                        (click)="createOrder(type.id)" class="ui-button-success"></button>
+                <button *ngIf="type.name !== 'Credit Card'" 
+                        pButton type="button" label="Pay With {{type.name}}" title="Pay With {{type.name}}"
+                        (click)="createOrder(type.id)" class="ui-button-success btn-disabled"></button>
+                <ul *ngIf="type.paymentTypeDetails.length > 0" class="no-pad width-180">
+                    <li *ngFor="let detail of type.paymentTypeDetails">
+                        <img *ngIf="type.name === 'Credit Card'" 
+                            class="chain-logo-pad mini-cc-icon" 
+                            src="assets/credit-cards/{{detail.symbol.toLowerCase()}}.svg" 
+                            title="Pay with {{detail.name}}" />
+                        <img *ngIf="type.name !== 'Credit Card'" 
+                            class="chain-logo-pad mini-icon" 
+                            src="assets/cryptoicons/color/{{detail.symbol.toLowerCase()}}.png" 
+                            title="Pay with {{detail.name}}" />
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div *ngIf="total === 0" class="p-col-12 p-lg-4">
+        <div class="p-col">
+            <div>
+                <button pButton type="button" label="Upgrade Account" (click)="upgradeAccount()" class="ui-button-success"></button>  
+                &nbsp;&nbsp;
+                <i class="fa fa-cog fa-2x fa-spin" *ngIf="processing"></i>
+            </div>
+        </div>
+    </div>
+</div>

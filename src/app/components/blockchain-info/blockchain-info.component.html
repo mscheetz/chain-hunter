@@ -1,0 +1,68 @@
+<h2>Blockchains Currently Supported by The Chain Hunter</h2>
+<p-overlayPanel #addy>
+    Addresses
+</p-overlayPanel>
+<p-overlayPanel #txn>
+    Transactions
+</p-overlayPanel>
+<p-overlayPanel #tkn>
+    Tokens
+</p-overlayPanel>
+<p-overlayPanel #k>
+    Contracts
+</p-overlayPanel>
+<p-overlayPanel #chainName>
+    {{selectedChain}}
+</p-overlayPanel>
+<p-overlayPanel #chainType>
+    {{selectedChainType}}
+</p-overlayPanel>
+    <p-table [value]="chains">
+        <ng-template pTemplate="header">
+            <tr>
+                <th rowspan="2">Name</th>
+                <th rowspan="2" style="width: 14%;">Type</th>
+                <th colspan="4" style="width: 60%;">Chain Hunter Supports</th>
+            </tr>
+            <tr>
+                <th>
+                    <span *ngIf="screenWidth > 768">Addresses</span>
+                    <u *ngIf="screenWidth <= 768" class="dotted" (click)="addy.toggle($event)">Addy</u>
+                </th>
+                <th>
+                    <span *ngIf="screenWidth > 768">Transactions</span>
+                    <u *ngIf="screenWidth <= 768" class="dotted" (click)="txn.toggle($event)">Txn</u>
+                </th>
+                <th>
+                    <span *ngIf="screenWidth > 768">Tokens</span>
+                    <u *ngIf="screenWidth <= 768" class="dotted" (click)="tkn.toggle($event)">Tkn</u>
+                </th>
+                <th>
+                    <span *ngIf="screenWidth > 768">Contracts</span>
+                    <u *ngIf="screenWidth <= 768" class="dotted" (click)="k.toggle($event)">K</u>
+                </th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-chain>
+            <tr>
+                <td>
+                    <h4>
+                        <img src="assets/cryptoicons/color/{{chain.symbol.toLowerCase()}}.png" 
+                             style="vertical-align: middle" 
+                             title="{{chain.name}} logo" />
+                        &nbsp;
+                        <span *ngIf="screenWidth > 768">{{chain.name}} - ({{chain.symbol}})</span>
+                        <u *ngIf="screenWidth <= 768" class="dotted" (click)="selectChain($event, chain.name, chainName)">{{chain.symbol}}</u>
+                    </h4>
+                </td>
+                <td>
+                    <h4 *ngIf="screenWidth > 768" class="center">{{chain.type}}</h4>
+                    <h4 *ngIf="screenWidth <= 768" class="center" (click)="selectType($event, chain, chainType)"><u class="dotted">{{getAbreviatedType(chain.type)}}</u></h4>
+                </td>
+                <td class="center"><h4>X</h4></td>
+                <td class="center"><h4>X</h4></td>
+                <td class="center"><h4>{{chain.hasTokens ? 'X' : ''}}</h4></td>
+                <td class="center"><h4>{{chain.hasContracts ? 'X' : ''}}</h4></td>
+            </tr>
+        </ng-template>
+    </p-table>

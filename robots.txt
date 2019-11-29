@@ -1,0 +1,5 @@
+User-agent: *
+Crawl-delay: 150
+Allow: *
+
+Sitemap: https://www.thechainhunter.com/sitemap.xml

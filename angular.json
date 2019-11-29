@@ -24,12 +24,12 @@
               "src/assets",
               {
                 "glob": "**/*",
-                "input": "./node_modules/cryptocurrency-icons/svg/color/",
+                "input": "./node_modules/cryptocurrency-icons/32/color/",
                 "output": "./assets/cryptoicons/color"
               },
               {
                 "glob": "**/*",
-                "input": "./node_modules/cryptocurrency-icons/svg/white/",
+                "input": "./node_modules/cryptocurrency-icons/32/white/",
                 "output": "./assets/cryptoicons/white"
               },
               {
@@ -38,8 +38,13 @@
                 "output": "./.well-known/"
               },
               {
-                "glob": "**/*",
-                "input": "./chainhunter.css",
+                "glob": "robots.txt",
+                "input": "./",
+                "output": "./"
+              },
+              {
+                "glob": "sitemap.xml",
+                "input": "./",
                 "output": "./"
               }
             ],
@@ -47,6 +52,8 @@
               "node_modules/primeng/resources/themes/nova-light/theme.css",
               "node_modules/primeng/resources/primeng.min.css",
               "node_modules/primeicons/primeicons.css",
+              "node_modules/font-awesome/css/font-awesome.min.css",
+              "node_modules/primeflex/primeflex.css",
               "src/styles.css"
             ],
             "scripts": []
@@ -59,6 +66,7 @@
                   "with": "src/environments/environment.prod.ts"
                 }
               ],
+              "index": "src/indexes/prod/index.html",
               "optimization": true,
               "outputHashing": "all",
               "sourceMap": false,
@@ -75,6 +83,10 @@
                   "maximumError": "5mb"
                 }
               ]
+            },
+            "dev": {
+              "aot": false,
+              "index": "src/indexes/dev/index.html"
             }
           }
         },
@@ -107,12 +119,12 @@
               "src/assets",
               {
                 "glob": "**/*",
-                "input": "./node_modules/cryptocurrency-icons/svg/color/",
+                "input": "./node_modules/cryptocurrency-icons/32/color/",
                 "output": "./assets/cryptoicons/color"
               },
               {
                 "glob": "**/*",
-                "input": "./node_modules/cryptocurrency-icons/svg/white/",
+                "input": "./node_modules/cryptocurrency-icons/32/white/",
                 "output": "./assets/cryptoicons/white"
               },
               {
@@ -121,8 +133,13 @@
                 "output": "./.well-known/"
               },
               {
-                "glob": "**/*",
-                "input": "./chainhunter.css",
+                "glob": "robots.txt",
+                "input": "./",
+                "output": "./"
+              },
+              {
+                "glob": "sitemap.xml",
+                "input": "./",
                 "output": "./"
               }
             ],
@@ -130,6 +147,8 @@
               "node_modules/primeng/resources/themes/nova-light/theme.css",
               "node_modules/primeng/resources/primeng.min.css",
               "node_modules/primeicons/primeicons.css",
+              "node_modules/font-awesome/css/font-awesome.min.css",
+              "node_modules/primeflex/primeflex.css",
               "src/styles.css"
             ],
             "scripts": []

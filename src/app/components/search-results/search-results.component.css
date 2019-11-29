@@ -6,12 +6,19 @@
 
 ul {
     word-break: break-all;
+    list-style-type: none;
+    padding-inline-start: 2px !important;
 }
 
 li {
     background-color: #fff;
+    padding: 5px 20px;
 }
 
 li:nth-child(odd) {
     background-color: #eff0f1;
+}
+
+.word-break {
+    word-wrap: break-word;
 }

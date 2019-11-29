@@ -12,8 +12,10 @@ export class Blockchain {
     transaction: Transaction;
     contract: Contract;
     icon: string;
+    type: string;
+    source: string = null;
     hasTokens: boolean = false;
-    hasContract: boolean = false;
+    hasContracts: boolean = false;
 
     getIcon(): string {
         let iconBase = ""; //"/assets/cryptoicons/";

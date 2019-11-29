@@ -1,6 +1,12 @@
 import { OnInit, Input, Component, Output, EventEmitter } from '@angular/core';
 import { Blockchain } from 'src/app/classes/ChainHunter/Blockchain';
 import { Chain } from 'src/app/classes/ChainHunter/Chain';
+import { OverlayPanel } from 'primeng/overlaypanel';
+import { ApiService } from 'src/app/services/api.service';
+import { MessageService } from 'primeng/api';
+import { ResultType, Severity } from 'src/app/classes/Enums';
+import { AuthenticationService } from 'src/app/services/authentication.service';
+import { LoginService } from 'src/app/services/login.service';
 
 @Component({
     selector: 'search-results',
@@ -18,8 +24,18 @@ export class SearchResultsComponent implements OnInit{
     @Output() getTokens: EventEmitter<any> = new EventEmitter();
     @Input() selectedChain: string;
     @Input() resultsFound: string[];
+    @Input() tokenContent: string;
+    loggedIn: boolean;
+    saveThisMessage: string;
 
-    constructor() {}
+    constructor(private apiSvc: ApiService, 
+                private messageSvc: MessageService, 
+                private authSvc: AuthenticationService,
+                private loginSvc: LoginService) {
+                    authSvc.getLoggedInStatus().subscribe(val => {
+                        this.loggedIn = val;
+                    })
+                }
 
     ngOnInit() {
     }
@@ -35,5 +51,62 @@ export class SearchResultsComponent implements OnInit{
             }
         }
     }
+    saveAddress(event) {
+        console.log('You want to save an address');
+    }
 
+    saveHover(event, type: string, overlayPanel: OverlayPanel) {
+        this.saveThisMessage = "Save this " + this.blockchain.symbol + " " + type;
+      //this.saveThisMessage = "Coming Soon! Save this " + this.blockchain.symbol + " " + type;
+      
+      overlayPanel.toggle(event);
+    }
+
+    saveResult(event, type: string) {
+        if(!this.loggedIn) {
+            this.loginSvc.toggleLogin();
+            this.messageSvc.add(
+                {
+                    key:'login-toast',
+                    severity:'warn', 
+                    summary:'Login', 
+                    detail: 'You must login before saving results',
+                    life: 5000
+                });
+            return;
+        }
+        let hash = "";
+        let objType: ResultType = ResultType.none;
+        if(type === ResultType[ResultType.address]) {
+            objType = ResultType.address;
+            hash = this.blockchain.address.address;
+        } else if (type === ResultType[ResultType.contract]) {
+            objType = ResultType.contract;
+            hash = this.blockchain.contract.address;
+        } else if (type === ResultType[ResultType.transaction]) {
+            objType = ResultType.transaction;
+            hash = this.blockchain.transaction.hash;
+        }
+        this.apiSvc.saveData(hash, this.blockchain.symbol, objType)
+            .subscribe(res => {
+                const message = `${this.blockchain.symbol} ${type} saved!`;
+                this.addToast('notification-toast', Severity.success, 'Saved', message, 5000);
+            }, err => {
+                const message = `Something happened when attempting to save this ${objType.toString()}`;
+                this.addToast('notification-toast', Severity.error, 'Error', message, 5000);
+            })
+
+    }
+
+    addToast(key: string, severity: Severity, summary: string, message: string, life: number = 5000){
+        const severityString = Severity[severity];
+        this.messageSvc.add(
+            {
+                key: key,
+                severity: severityString, 
+                summary: summary, 
+                detail: message,
+                life: life
+            });
+    }
 }

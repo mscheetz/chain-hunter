@@ -1,0 +1,52 @@
+<p-selectButton *ngIf="loginView || registerView" [options]="actionTypes" [(ngModel)]="selectedAction" (onChange)="typeChange($event)"></p-selectButton>
+<div class="p-grid bottom-pad" *ngIf="loginView">
+    <form #login="ngForm">
+        <div class="p-col-12">
+            <h4>Email</h4>
+            <input type="text" pInputText name="email" formcontrolname="email"
+                            placeholder="Email" [(ngModel)]="email" size="40" 
+                            (ngModelChange)="modelChange($event)" (keyup.enter)="onLogin($event)">
+        </div>
+        <div class="p-col-12">
+            <h4>Password</h4>
+            <input type="password" pInputText name="password" formcontrolname="password"
+                                placeholder="Password" [(ngModel)]="password" size="40" 
+                                (ngModelChange)="modelChange($event)" (keyup.enter)="onLogin($event)">        
+        </div>
+        <div class="p-col-12">
+            <p-button label="Login" (click)="onLogin($event)" styleClass="ui-button-success"></p-button>
+            &nbsp;&nbsp;
+            <p-button label="Forgot Password" (click)="onForgotPassword($event)" styleClass="ui-button-warning"></p-button>
+        </div>
+</form>
+</div>
+<div class="p-grid bottom-pad" *ngIf="registerView">
+    <div class="p-col-12">
+        <h4>Email</h4>
+        <input type="text" pInputText placeholder="Email" [ngClass]="{'invalid-input': invalidEmail}" [(ngModel)]="newEmail" size="40" (ngModelChange)="modelChange($event)">
+    </div>
+    <div class="p-col-12">
+        <h4>Password</h4>
+        <input type="password" pInputText placeholder="Minimum 8 characters" [ngClass]="{'invalid-input': invalidPassword0}" [(ngModel)]="newPassword" size="40" (ngModelChange)="modelChange($event)">
+    </div>
+    <div class="p-col-12">
+        <h4>Confirm Password</h4>
+        <input type="password" pInputText placeholder="Confirm Password" [ngClass]="{'invalid-input': invalidPassword1}" [(ngModel)]="newPasswordConfirm" size="40" (ngModelChange)="modelChange($event)">
+    </div>
+    <div class="p-col-12">
+        <h4>Invite Code</h4>
+        <input type="text" pInputText placeholder="Optional" [ngClass]="{'invalid-input': invalidInvite}" [(ngModel)]="inviteCode" size="40" (ngModelChange)="modelChange($event)">
+    </div>
+    <div class="p-col-12">
+        <p-button label="Register" (click)="onRegister($event)" styleClass="ui-button-success"></p-button>
+    </div>
+</div>
+<div class="p-grid bottom-pad" *ngIf="confirmView">
+    <div class="p-col-12">
+        <h2>Successful Registration</h2>
+        <p>Check your email for a verification link</p>
+        <br>
+        <p-button label="Login" (click)="onReturnLogin($event)" styleClass="ui-button-success"></p-button>
+    </div>
+</div>
+<p-toast key="login-toast"></p-toast>

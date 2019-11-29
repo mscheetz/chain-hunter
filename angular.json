@@ -66,6 +66,7 @@
                   "with": "src/environments/environment.prod.ts"
                 }
               ],
+              "index": "src/indexes/prod/index.html",
               "optimization": true,
               "outputHashing": "all",
               "sourceMap": false,
@@ -82,6 +83,10 @@
                   "maximumError": "5mb"
                 }
               ]
+            },
+            "dev": {
+              "aot": false,
+              "index": "src/indexes/dev/index.html"
             }
           }
         },

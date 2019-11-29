@@ -29,7 +29,7 @@ export const environment = {
   rvn: "${process.env.RVN}",
   squareApplicationId: "${process.env.SQUARE_APP_ID}",
   squareLocationId: "${process.env.SQUARE_LOCATION_ID}",
-  squarePaymentFormUri: "${process.env.SQUARE_JS_URI}"
+  squareReferralUrl: "${process.env.SQUARE_REFERRAL_URL}"
 };
 `
 

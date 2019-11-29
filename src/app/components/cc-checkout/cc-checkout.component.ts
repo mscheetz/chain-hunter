@@ -17,6 +17,7 @@ export class CreditCardCheckoutComponent implements OnInit, OnDestroy {
   paymentForm: any;
   applicationId: string = environment.squareApplicationId;
   locationId: string = environment.squareLocationId;
+  referralUrl: string = environment.squareReferralUrl;
   orderId: string;
   order: Order;
   validOrder: boolean = null;

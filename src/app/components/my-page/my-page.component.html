@@ -48,6 +48,7 @@
             <div class="margin-btm-10">Daily Search Limit: <span class="biggie">{{searchLimit}}</span></div>
             <div class="margin-btm-10">Saved Hunt Limit: <span class="biggie">{{saveLimit}}</span></div>
             <div class="margin-btm-10">Current Saved Hunts: <span class="biggie">{{user.savedHunts}}</span></div>
+            <div *ngIf="user.expirationDate !== null" class="margin-btm-10">Expiration Date: <span class="biggie">{{user.expirationDateFormat}}</span></div>
             <div class="margin-btm-10">
                 <p-button *ngIf="user.accountTypeId < 3" label="Upgrade Account" (click)="onUpgradeAccount($event)" styleClass="ui-button-success"></p-button>
             </div>

@@ -7,6 +7,7 @@ export class User {
     accountTypeId: number;
     accountType: string;
     expirationDate: number;
+    expirationDateFormat: string;
     created: number;
     validated: number;
     message: string;

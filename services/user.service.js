@@ -216,7 +216,7 @@ const registerUser = async(email, password, inviteCode) => {
  * @param {object} user 
  */
 const sendValidationEmail = async(user) => {
-    const verifyUrl = `https://wwww.thechainhunter.com/verify/${user.userId}`;
+    const verifyUrl = `https://www.thechainhunter.com/verify/${user.userId}`;
     const year = new Date().getFullYear();
     let template = fs.readFileSync('templates/verification.html',{encoding: 'utf-8'});
     template = template.replace('!#verifyLink#!', verifyUrl);

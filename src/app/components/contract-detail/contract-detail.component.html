@@ -2,8 +2,8 @@
     {{saveThisMessage}}
 </p-overlayPanel>
 <h3 class="word-break">
-    <i *ngIf="contractSaved" (mouseover)="unSaveHover($event, 'Address', saveThisAddress)" 
-        (mouseleave)="unSaveHover($event, 'Address', saveThisAddress)"
+    <i *ngIf="contractSaved" (mouseover)="unSaveHover($event, 'Address', saveThisContract)" 
+        (mouseleave)="unSaveHover($event, 'Address', saveThisContract)"
         (click)="unSaveResult($event, 'address')" 
         class="fa fa-star" 
         style="color: deeppink; cursor: pointer;"></i>

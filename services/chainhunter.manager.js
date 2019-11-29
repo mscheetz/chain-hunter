@@ -116,7 +116,7 @@ const getActiveChains = async() => {
 const getFutureChains = async() => {
     const chains = await blockchainRepo.getFuture();
 
-    return chains;
+    return _.orderBy(chains, "symbol");
 }
 
 /**

@@ -6,7 +6,8 @@
             <h2 class="center">{{account.name}}</h2>
             <h4 class="center">Daily Hunt Limit: <span class="biggie" *ngIf="account.searchLimit === null">Unlimited</span><span class="biggie" *ngIf="account.searchLimit !== null">{{account.searchLimit}}</span></h4>
             <h4 class="center">Total Saved Hunts: <span class="biggie" *ngIf="account.saveLimit === null">Unlimited</span><span class="biggie" *ngIf="account.saveLimit !== null">{{account.saveLimit}}</span></h4>
-            <h3 class="center">${{account.yearly}}/Year</h3>
+            <h3 *ngIf="i > 0" class="center">Ad Free!</h3>
+            <h3 class="center">${{account.yearly}}</h3>
             <div class="center">
                 <p-button *ngIf="!loggedIn" label="Sign Up!" (click)="onOrder(account.id)" styleClass="ui-button-success"></p-button>
                 <p-button *ngIf="loggedIn && user.accountTypeId < account.id" label="Upgrade Now!" (click)="onUpgrade(account)" styleClass="ui-button-success"></p-button>

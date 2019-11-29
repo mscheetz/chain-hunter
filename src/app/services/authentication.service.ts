@@ -114,6 +114,7 @@ export class AuthenticationService {
         } else {
             this.cookieSvc.set(this.searchLimitCookie, JSON.stringify(userResponse.searchLimit), 1);
         }
+        user.adFree = userResponse.accountTypeId > 1;
 
         this.user = user;
         this.currentUserSubject.next(user);

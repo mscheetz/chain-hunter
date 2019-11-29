@@ -8,18 +8,18 @@
   <!-- <account class="login-position" [showLogin]="showLogin"></account> -->
   <div class="ui-g">
     <div class="ui-g-12 ui-md-12 ui-lg-10">
-      <top-ad class="top-ad" *ngIf="currentUser === null"></top-ad>
+      <top-ad class="top-ad" *ngIf="currentUser === null || !currentUser.adFree"></top-ad>
       <!-- Chain Hunter Main -->
       <div class="main-container">
         <router-outlet></router-outlet>
       </div>
     </div>
     <div class="right-panel ui-g-12 ui-md-12 ui-lg-1">
-      <right-ad class="right-ad" *ngIf="currentUser === null"></right-ad>
+      <right-ad class="right-ad" *ngIf="currentUser === null || !currentUser.adFree"></right-ad>
     </div>
   </div>
   <div class="ui-g-12 ui-md-12 ui-lg-10">
-    <bottom-ad class="bottom-ad" *ngIf="currentUser === null"></bottom-ad>
+    <bottom-ad class="bottom-ad" *ngIf="currentUser === null || !currentUser.adFree"></bottom-ad>
   </div>
 </div>
 <!-- Chain Hunter Footer -->

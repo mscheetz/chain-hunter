@@ -296,9 +296,9 @@ const getBlockchain = async(chain, toFind, ip, ipInfo, type = enums.searchType.n
     } else if (chain === "lsk") {
         result = await lsk.getBlockchain(blockchain, toFind, type);
     } else if (chain === "tomo") {
-        result = await tomo.getBlockchain(blockchain, toFind, type);
+        result = await tomo.getBlockchain(blockchain, toFind);
     } else if (chain === "zen") {
-        result = await zen.getBlockchain(blockchain, toFind, type);
+        result = await zen.getBlockchain(blockchain, toFind);
     // } else if (chain === "dcr") {
     //     return await dcr.getBlockchain(toFind);
     }

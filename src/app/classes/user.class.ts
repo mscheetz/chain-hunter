@@ -14,4 +14,5 @@ export class User {
     saveLimit: number;
     savedHunts: number;
     emailSubscription: boolean;
+    adFree: boolean = false;
 }

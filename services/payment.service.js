@@ -93,8 +93,9 @@ const upgradeAccount = async(userId, promoCode, accountUuid) => {
  * @param {string} discountCode discount code (optional)
  */
 const createOrder = async(userId, accountTypeId, paymentTypeId, price, discountCode) => {
-    const user = await userRepo.get(userId);    
+    const user = await userRepo.get(userId);
     const accountType = await accountTypeRepo.getByUuid(accountTypeId);
+    price = +price;
     let payment = paymentTypeId === "" ? null : await paymentTypeRepo.get(paymentTypeId);
     let discount = discountCode === "" ? null : await discountCodeSvc.validate(discountCode, accountTypeId);
 
@@ -119,7 +120,8 @@ const createOrder = async(userId, accountTypeId, paymentTypeId, price, discountC
     }
 
     const validPrice = calculatePrice(accountType.yearly, discount);
-    if(validPrice !== price) {
+
+    if(+validPrice !== +price) {
         return responseSvc.errorMessage(`Price is not correct, should be: ${validPrice}`, 400);
     }
 
@@ -248,6 +250,8 @@ const calculatePrice = function(price, discountCode){
         if(discountCode.price !== null) {
             newPrice = helperSvc.currencyRound(discountCode.price);
         }
+    } else {
+        newPrice = price;
     }
     return newPrice;
 }

@@ -1,6 +1,6 @@
 <h2>My Account</h2>
 <div class="p-grid">
-    <div class="p-col">
+    <div class="p-col-12 p-lg-4">
         <div>
             <p-card header="About Me">
                 <div class="margin-btm-10">Email: {{user.email}}</div>
@@ -42,7 +42,7 @@
             </p-card>
         </div>
     </div>
-    <div class="p-col">
+    <div class="p-col-12 p-lg-4">
         <p-card header="Account Details">
             <div class="margin-btm-10">Account Type: <span class="biggie">{{user.accountType}}</span></div>
             <div class="margin-btm-10">Daily Search Limit: <span class="biggie">{{searchLimit}}</span></div>
@@ -54,7 +54,7 @@
             </div>
         </p-card>
     </div>
-    <div class="p-col">
+    <div class="p-col-12 p-lg-4">
         <p-card header="Order History">
             <div *ngIf="orders.length === 0">
                 No orders
@@ -67,6 +67,6 @@
             </div>
         </p-card>
     </div>
-    <div class="p-col-2">
-    </div>
+    <!-- <div class="p-col-2">
+    </div> -->
 </div>

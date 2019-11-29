@@ -3,8 +3,14 @@ export const environment = {
   production: false,
   user: "",
   token: "",
+  currentUserName: "",
   btc: "",
   eth: "",
   nano: "",
-  rvn: ""
+  rvn: "",
+  jwtName: "",
+  jwtTsName: "",
+  squareApplicationId: "",
+  squareLocationId: "",
+  squareReferralUrl: ""
 };

@@ -27,6 +27,7 @@ export class CartComponent implements OnInit, OnDestroy {
   orderId: string = "";
   accountUpgraded: boolean = false;
   processing: boolean = false;
+  tosAgreement: boolean = false;
 
   constructor(private cookieSvc: CookieService, 
               private apiSvc: ApiService,
@@ -131,6 +132,16 @@ export class CartComponent implements OnInit, OnDestroy {
   }
 
   async upgradeAccount() {
+    if(!this.tosAgreement) {
+      this.messageSvc.add({
+        key: 'notification-toast',
+        severity: 'error', 
+        summary: 'Terms of Service', 
+        detail: 'Agree to our Terms Of Service before continuing',
+        life: 5000
+      });
+      return;
+    }
     if(this.processing) {
       this.messageSvc.add({
         key: 'notification-toast',
@@ -175,6 +186,16 @@ export class CartComponent implements OnInit, OnDestroy {
   }
 
   async createOrder(paymentTypeId: string) {
+    if(!this.tosAgreement) {
+      this.messageSvc.add({
+        key: 'notification-toast',
+        severity: 'error', 
+        summary: 'Terms of Service', 
+        detail: 'Agree to our Terms Of Service before continuing',
+        life: 5000
+      });
+      return;
+    }
     const payment = this.paymentTypes.find(f => f.id === paymentTypeId);
     if(payment.name === "Cryptocurrency") {
       this.messageSvc.add({

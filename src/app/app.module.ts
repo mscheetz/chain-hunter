@@ -12,6 +12,7 @@ import { NgxQRCodeModule } from 'node_modules/ngx-qrcode2';
 import { AccordionModule } from 'primeng/accordion';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
+import { CheckboxModule } from 'primeng/checkbox';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputMaskModule } from 'primeng/inputmask';
@@ -123,6 +124,7 @@ const appRoutes: Routes = [
     BrowserModule,
     ButtonModule,
     CardModule,
+    CheckboxModule,
     DialogModule,
     FormsModule,
     HttpClientModule,

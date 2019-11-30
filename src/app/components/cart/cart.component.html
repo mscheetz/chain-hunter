@@ -11,6 +11,10 @@
     </div>
     <div class="p-col-12 p-lg-4">
         <h3>Total Due: ${{total}}</h3>
+        <p>
+            <p-checkbox [(ngModel)]="tosAgreement" binary="true"></p-checkbox>
+            &nbsp;I agree to The Chain Hunter's <a routerLink="/terms" routerLinkActive="active" target="_blank">Terms of Service</a>
+        </p>
     </div>
     <div *ngIf="total > 0" class="p-col-12 p-lg-4">
         <div class="p-col" *ngFor="let type of paymentTypes; let i = index">

@@ -9,7 +9,10 @@ const orderRepo = require('../data/orders.repo');
 const paymentTypeRepo = require('../data/payment-type.repo');
 const discountCodeSvc = require('./discount-code.service');
 const userRepo = require('../data/user.repo');
+const mailSvc = require('./mail.service');
+const enums = require('../classes/enums');
 const _ = require('lodash');
+const fs = require('fs');
 
 const squareClient = squareConnect.ApiClient.instance;
 const oauth2 = squareClient.authentications['oauth2'];
@@ -184,6 +187,8 @@ const processCreditCardPayment = async(paymentDetails) => {
         idempotency_key: idempotency_key
     };
 
+    paymentDetails.source = enums.paymentSource.creditCard;
+
     try{
         const response = await paymentApi.createPayment(body);
 
@@ -191,6 +196,7 @@ const processCreditCardPayment = async(paymentDetails) => {
 
         return responseSvc.successMessage(response);
     } catch(err) {
+        console.log('err', err);
         const error = JSON.parse(err.response.text);
 
         return responseSvc.errorMessage(error, 400);
@@ -202,6 +208,8 @@ const processCreditCardPayment = async(paymentDetails) => {
  * @param {object} paymentDetails payment details object
  */
 const processCryptoPayment = async(paymentDetails) => {
+
+    paymentDetails.source = enums.paymentSource.cryptocurrency;
 
 }
 
@@ -231,6 +239,10 @@ const processPayment = async(paymentDetails) => {
     await orderRepo.processOrder(paymentDetails.orderId, paymentDetails.paymentType, currentTS);
 
     await userRepo.updateAccount(paymentDetails.userId, accountType.id, expirationDate);
+
+    const user = await userRepo.get(paymentDetails.userId);
+
+    await sendConfirmationEmail(user, accountType.name, paymentDetails.source, paymentDetails.paymentType, order.price);
 }
 
 /**
@@ -254,6 +266,33 @@ const calculatePrice = function(price, discountCode){
         newPrice = price;
     }
     return newPrice;
+}
+
+/**
+ * Send payment confirmation email to user
+ * @param {object} user user object
+ * @param {string} accountType account type purchasesd
+ * @param {enum} paymentSource payment source
+ * @param {string} paymentType payment type
+ * @param {number} total total paid
+ */
+const sendConfirmationEmail = async(user, accountType, paymentSource, paymentType, total) => {
+    let paymentDetails = "";
+    let username = user.username === null ? user.email : user.username
+    if(paymentSource === enums.paymentSource.creditCard) {
+        paymentDetails = `Your ${paymentType} has been charged $${total}.`;
+    } else if (paymentSource = enums.paymentSource.cryptocurrency) {
+        paymentDetails = `You paid ${total} ${paymentType}`;
+    }
+    const year = new Date().getFullYear();
+    let template = fs.readFileSync('templates/orderConfirmation.html',{encoding: 'utf-8'});
+    template = template.replace('!#user#!', username);
+    template = template.replace(/!#accountType#!/g, accountType);
+    template = template.replace('!#paymentDetails#!', paymentDetails);
+    template = template.replace('!#year#!', year);
+    const subject = "The Chain Hunter: Order Confirmation";
+
+    return mailSvc.sendEmail(user.email, subject, template);
 }
 
 module.exports = {

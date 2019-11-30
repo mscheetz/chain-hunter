@@ -49,7 +49,7 @@
                     <h4>
                         <img src="assets/cryptoicons/color/{{chain.symbol.toLowerCase()}}.png" 
                              style="vertical-align: middle" 
-                             title="{{chain.name}} logo" />
+                             title="{{chain.name}}" />
                         &nbsp;
                         <span *ngIf="screenWidth > 768">{{chain.name}} - ({{chain.symbol}})</span>
                         <u *ngIf="screenWidth <= 768" class="dotted" (click)="selectChain($event, chain.name, chainName)">{{chain.symbol}}</u>

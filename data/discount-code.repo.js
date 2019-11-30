@@ -49,17 +49,59 @@ const get = async(code) => {
  * @param {object} discount discount code object
  */
 const add = async(discount) => {
-    let sql = `INSERT INTO public."discountCode" ( code, "percentOff", "validTil", "multiUse", "accountTypeId", price, days ) 
-    VALUES ( $1, $2, $3, $4, $5, $6, $7 ) `;
+    let sql = `INSERT INTO public."discountCode" ( code, "percentOff", "validTil", "multiUse", redeemed, "accountTypeId", price, days, "totalUses", "usedUses" ) 
+    VALUES ( $1, $2, $3, $4, $5, $6, $7, $8, $9, $10 ) `;
 
     const data = [
         discount.code, 
         discount.percentOff, 
         discount.validTil, 
         discount.multiUse,
+        discount.redeemed,
         discount.accountTypeId,
         discount.price,
-        discount.days
+        discount.days,
+        discount.totalUses,
+        discount.usedUses
+    ];
+
+    try {
+        const res = await pool.query(sql, data);
+
+        return res.rowCount;
+    } catch(err) {
+        console.log(err);
+    }
+}
+
+/**
+ * Update a discount code
+ * @param {object} discount discount code object
+ */
+const update = async(discount) => {
+    let sql = `UPDATE public."discountCode" SET 
+    "percentOff" = $2, 
+    "validTil" = $3, 
+    "multiUse" = $4, 
+    redeemed = $5,
+    "accountTypeId" = $6, 
+    price = $7, 
+    days = $8,
+    "totalUses" = $9,
+    "usedUses" = $10
+    WHERE code = $1`;
+
+    const data = [
+        discount.code, 
+        discount.percentOff, 
+        discount.validTil, 
+        discount.multiUse,
+        discount.redeemed,
+        discount.accountTypeId,
+        discount.price,
+        discount.days,
+        discount.totalUses,
+        discount.usedUses
     ];
 
     try {

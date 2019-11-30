@@ -99,6 +99,31 @@ const userMiddleware = async(req, res, next) => {
 }
 
 /**
+ * Admin middleware, check if valid admin user jwt
+ * @param {object} req request
+ * @param {object} res response
+ * @param {object} next next
+ */
+const adminMiddleware = async(req, res, next) => {
+    let token = req.headers['authorization'];
+    if(typeof token === 'undefined') {
+        res.status(401).json("no token");
+        res.end();
+    }
+    token = token.substr(7, token.length);
+    const userId = await encryptionSvc.getUserIdFromToken(token);
+    
+    const user = await userSvc.getUserByUserId(userId);
+    
+    if(typeof user === 'undefined' || user === null || +user.accountTypeId !== 4){
+        res.status(401).json("invalid account");
+        res.end;
+    }
+    res.locals.userId = userId;
+    next();
+}
+
+/**
  * Error response
  * @param {object} res response
  * @param {string} msg message
@@ -155,6 +180,7 @@ module.exports = {
     authMiddleware,
     guestMiddleware,
     userMiddleware,
+    adminMiddleware,
     errorResponse,
     headerCheck
 }

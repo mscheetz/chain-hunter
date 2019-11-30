@@ -9,9 +9,7 @@ import { Router } from '@angular/router';
   styleUrls: ['./top-nav.component.css']
 })
 export class TopNavComponent implements OnInit {
-  //@Output() toggleLogin: EventEmitter<any> = new EventEmitter();
   loggedIn: boolean;
-  //@Output() loginSuccess: EventEmitter<boolean> = new EventEmitter<boolean>();
 
   constructor(private loginSvc: LoginService, 
               private authSvc: AuthenticationService,
@@ -29,16 +27,13 @@ export class TopNavComponent implements OnInit {
   }
 
   login(event) {
-    console.log("Login toggle from top-nav.component");
     this.loginSvc.toggleLogin();
     this.hideNav();
-    //this.toggleLogin.emit(event);
   }
 
   logout(event) {
     this.authSvc.logout();
     this.hideNav();
-    //this.loginSuccess.emit(false);
   }
 
   navExpand() {

@@ -62,7 +62,7 @@ li a:hover {
   } */
   
   /* Hide the link that should open and close the topnav on small screens */
-  .top-nav .icon {
+  .top-nav .icon, .top-nav .close-out {
     display: none;    
   }
 
@@ -79,15 +79,24 @@ li a:hover {
       height: 34px;
       margin-top: -6px;
     }
+    .close-out {
+      border-bottom: 0.2px solid rgba(242,242,242,0.75);
+      padding-bottom: 18px !important;
+    }
+    .top-link {
+      padding-top: 18px !important;
+    }
 }
   
-/* The "responsive" class is added to the topnav with JavaScript when the user clicks on the icon. This class makes the topnav look good on small screens (display the links vertically instead of horizontally) */
+/* The "responsive" class is added to the topnav with JavaScript when the user clicks on the icon. 
+This class makes the topnav look good on small screens (display the links vertically instead of horizontally) */
 @media screen and (max-width: 800px) {
     .top-nav.responsive {position: relative;}
     .top-nav.responsive a.icon {
-        position: absolute;
+      display: none;
+        /* position: absolute;
         right: 0;
-        top: 0;
+        top: 0; */
     }
     .top-nav.responsive a {
         float: none;

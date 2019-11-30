@@ -2,7 +2,8 @@
     <a href="javascript:void(0);" class="icon" (click)="navExpand()">
         <i class="fa fa-bars"></i>
     </a>
-    <a routerLink="/" routerLinkActive="active" (click)="hideNav()">Home</a>
+    <a href="javascript:void(0);" class="close-out" (click)="hideNav()">&#10005;</a>
+    <a routerLink="/" routerLinkActive="active" class="top-link" (click)="hideNav()">Home</a>
     <a *ngIf="!loggedIn" routerLink="" (click)="login($event)">Login | Register</a>
     <a *ngIf="loggedIn" routerLink="/hunts" routerLinkActive="active" (click)="hideNav()">My Hunts</a>
     <a *ngIf="loggedIn" routerLink="/mypage" routerLinkActive="active" (click)="hideNav()">My Account</a>

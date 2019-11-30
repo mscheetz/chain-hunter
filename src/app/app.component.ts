@@ -33,8 +33,6 @@ export class AppComponent {
     this.cookieCheck();
   }
 
-  //@Output() loggedIn: boolean = this.authSvc.isLoggedIn();
-  
   cookieCheck() {
     let cookieCookie = this.cookieSvc.get("tch-cookie-ok");
     if(cookieCookie != null && cookieCookie !== "") {
@@ -49,7 +47,6 @@ export class AppComponent {
   onToggleLogin(event) {
     console.log("Login toggle from app.component");
     this.loginSvc.toggleLogin();
-    //this.showLogin = this.showLogin ? false : true;
   }
   /**
    * Login to account
@@ -75,9 +72,7 @@ export class AppComponent {
 
   onLoginSuccess(event) {
     this.loggedIn = event;
-    //this.currentUser = this.authSvc.getUser();
     if(!this.loggedIn) {
-      //this.currentUser = null;
       this.authSvc.logout();
     }
   }

@@ -70,9 +70,18 @@ const accountType = {
     ADMIN : 'admin'
 }
 
+/**
+ * Represents a payment source type
+ */
+const paymentSource = {
+    creditCard: 0,
+    cryptocurrency: 1
+}
+
 module.exports = {
     searchType,
     blockchainType,
     transactionType,
-    accountType
+    accountType,
+    paymentSource
 }

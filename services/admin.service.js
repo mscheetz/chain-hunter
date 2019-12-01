@@ -7,7 +7,9 @@ const getUserCounts = async() => {
     const userCounts = {
         total: users.length,
         active: users.filter(u => u.validated !== null).length,
-        paying: users.filter(u => u.accountTypeId > 1).length
+        free: users.filter(u => u.accountTypeId === 1).length,
+        basic: users.filter(u => u.accountTypeId === 2).length,
+        pro: users.filter(u => u.accountTypeId === 3).length
     }
 
     return responseSvc.successMessage(userCounts);

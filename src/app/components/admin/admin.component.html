@@ -1,0 +1,37 @@
+<h2>Admin Page</h2>
+<div class="p-grid">
+    <div class="p-col-12 p-lg-2">
+        <h3>User Counts</h3>
+        <div>Total: {{userCounts.total}}</div>
+        <div>Active: {{userCounts.active}}</div>
+        <div>Free: {{userCounts.free}}</div>
+        <div>Basic: {{userCounts.basic}}</div>
+        <div>Pro: {{userCounts.pro}}</div>
+    </div>
+    <div class="p-col-12 p-lg-10">
+        <p-table [value]="discountCodes">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>Code</th>
+                    <th>Multi</th>
+                    <th>Redeemed</th>
+                    <th>Discount</th>
+                    <th>Days</th>
+                    <th>Usage</th>
+                    <th>Valid</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-code>
+                <tr>
+                    <td>{{code.code}}</td>
+                    <td>{{code.multiUse}}</td>
+                    <td>{{code.redeemed}}</td>
+                    <td>{{code.discount}}</td>
+                    <td>{{code.days === null ? '-' : code.days}}</td>
+                    <td>{{code.totalUses === null ? '-' : code.usedUses + '/' + code.totalUses}}</td>
+                    <td>{{code.validDate}}</td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+</div>

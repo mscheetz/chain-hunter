@@ -16,6 +16,8 @@ import { PromoCode } from '../classes/promo-code.class';
 import { IdName } from '../classes/id-name.class';
 import { PaymentTypeDetail } from '../classes/payment-type-detail.class';
 import { Order } from '../classes/order.class';
+import { DiscountCode } from '../classes/discount-code.class';
+import { UserCounts } from 'src/app/classes/user-counts.class';
 
 @Injectable({providedIn: 'root'})
 export class ApiService{
@@ -528,6 +530,42 @@ export class ApiService{
         return result;
     }
 
+    getUserCounts(): Observable<UserCounts> {
+        let endpoint: string = `/api/admin/users`;
+        let url: string = this.baseUrl + endpoint;
+
+        let result = this.onGet<UserCounts>(url, true);
+
+        return result;
+    }
+
+    getDiscountCodes(): Observable<DiscountCode[]> {
+        let endpoint: string = `/api/admin/codes/discount`;
+        let url: string = this.baseUrl + endpoint;
+
+        let result = this.onGet<DiscountCode[]>(url, true);
+
+        return result;
+    }
+
+    addDiscountCodes(discountCode: DiscountCode): Observable<DiscountCode> {
+        let endpoint: string = `/api/admin/codes/discount`;
+        let url: string = this.baseUrl + endpoint;
+
+        let result = this.onPost<DiscountCode>(url, discountCode, true);
+
+        return result;
+    }
+
+    updateDiscountCodes(discountCode: DiscountCode): Observable<DiscountCode> {
+        let endpoint: string = `/api/admin/codes/discount`;
+        let url: string = this.baseUrl + endpoint;
+
+        let result = this.onPatch<DiscountCode>(url, discountCode, true);
+
+        return result;
+    }
+
     onGet<T>(url: string, secure: boolean = false): Observable<T> {
         let headers = this.getHeaders(secure);
         let requestOptions = {
@@ -553,6 +591,15 @@ export class ApiService{
         }
 
         return this.http.put<T>(url, data, requestOptions);
+    }
+
+    onPatch<T>(url: string, data: any, secure: boolean = false): Observable<T> {
+        let headers = this.getHeaders(secure);
+        let requestOptions = {
+            headers: new HttpHeaders(headers)
+        }
+
+        return this.http.patch<T>(url, data, requestOptions);
     }
 
     onDelete<T>(url: string, secure: boolean = false): Observable<T> {

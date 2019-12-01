@@ -1,5 +1,6 @@
 const discountCodeRepo = require('../data/discount-code.repo');
 const helperSvc = require('./helper.service');
+const responseSvc = require('./response.service');
 
 /**
  * Get discount code details
@@ -8,7 +9,7 @@ const helperSvc = require('./helper.service');
 const getDetails = async(code) => {
     let discountCode = await discountCodeRepo.get(code);
     let toRedeem = false;
-    let toConsume = false;
+    let toConsume = true;
 
     if(discountCode.multiUse === false) {
         toRedeem = true;
@@ -16,7 +17,7 @@ const getDetails = async(code) => {
         if(discountCode.totalUses > 0) {
             toConsume = true;
         }
-        if(discountCode.totalUses === (discountCode.usedUses + 1)) {
+        if(discountCode.totalUses > 0 && discountCode.totalUses === (discountCode.usedUses + 1)) {
             toRedeem = true;
         }
     }
@@ -92,9 +93,102 @@ const redeem = async(code) => {
     return await discountCodeRepo.redeem(code);
 }
 
+/**
+ * Get all discount codes
+ */
+const getAll = async() => {
+    const codes = await discountCodeRepo.getAll();
+
+    return responseSvc.successMessage(codes);
+}
+
+/**
+ * Add a discount code
+ * @param {object} discountCode discount code object
+ */
+const addDiscountCode = async(discountCode) => {
+    discountCode.code = discountCode.code || "";
+    discountCode.percentOff = discountCode.percentOff || null;
+    discountCode.multiUse = discountCode.multiUse || false;
+    discountCode.redeemed = discountCode.redeemed || false;
+    discountCode.price = discountCode.price || null;
+    discountCode.days = discountCode.days || null;
+    discountCode.totalUses = discountCode.totalUses || 0;
+    discountCode.usedUses = discountCode.usedUses || 0;
+    discountCode.accountTypeId = discountCode.accountTypeId || null;
+    discountCode.validTil = discountCode.validTil || null;
+
+    let errorMessage = "";
+    if(discountCode.code === null || discountCode.code === "") {
+        errorMessage = "No code specified";
+    }
+    if(discountCode.validTil !== null) {
+        const now = helperSvc.getUnixTsSeconds();
+        if(now > validTil) {
+            errorMessage = "Valid Til date has already happened";
+        }
+    }
+    
+    if(errorMessage !== "") {
+        return responseSvc.errorMessage(errorMessage, 400);
+    }
+
+    if(discountCode.days === 0) {
+        discountCode.days = null;
+    }
+    if(discountCode.price === 0) {
+        discountCode.price = null;
+    }
+    if(discountCode.percentOff === 0) {
+        discountCode.percentOff = null;
+    }
+
+    try {
+        const status = await discountCodeRepo.add(discountCode);
+
+        return responseSvc.successMessage(true);
+    } catch(err) {
+        return responseSvc.errorMessage(err, 400);
+    }
+}
+
+/**
+ * Update a discount code
+ * @param {object} discountCode discount code object
+ */
+const updateDiscountCode = async(discountCode) => {
+    const code = await discountCodeRepo.get(discountCode.code);
+    discountCode.code = discountCode.code || "";
+    discountCode.percentOff = discountCode.percentOff || code.percentOff;
+    discountCode.multiUse = discountCode.multiUse || code.multiUse;
+    discountCode.redeemed = discountCode.redeemed || code.redeemed;
+    discountCode.price = discountCode.price || code.price;
+    discountCode.days = discountCode.days || code.days;
+    discountCode.totalUses = discountCode.totalUses || code.totalUses;
+    discountCode.usedUses = discountCode.usedUses || code.usedUses;
+    discountCode.accountTypeId = discountCode.accountTypeId || code.accountTypeId;
+    discountCode.validTil = discountCode.validTil || code.validTil;
+
+    if(discountCode.code === null || discountCode.code === "") {
+        return responseSvc.errorMessage("No code specified", 400);
+    }
+
+    try {
+        const status = await discountCodeRepo.updateDiscountCode(discountCode);
+
+        return responseSvc.successMessage(true);
+    } catch(err) {
+        return responseSvc.errorMessage(err, 400);
+    }
+}
+
+
 module.exports = {
     getDetails,
     validate,
     consume,
-    redeem
+    redeem,
+    getAll,
+    addDiscountCode,
+    updateDiscountCode
 }

@@ -12,6 +12,7 @@ import { NgxQRCodeModule } from 'node_modules/ngx-qrcode2';
 import { AccordionModule } from 'primeng/accordion';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
+import { CheckboxModule } from 'primeng/checkbox';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputMaskModule } from 'primeng/inputmask';
@@ -64,6 +65,7 @@ import { SquarePaymentComponent } from './components/square-payment/square-payme
 import { CreditCardCheckoutComponent } from './components/cc-checkout/cc-checkout.component';
 import { EmailSubscriptionComponent } from './components/email-subscription/email-subscription.component';
 import { EmailUnsubscribeComponent } from './components/email-unsubscribe/email-unsubscribe.component';
+import { AdminComponent } from './components/admin/admin.component';
 
 const appRoutes: Routes = [
   { path: '', component: ChainHunterComponent },
@@ -78,7 +80,8 @@ const appRoutes: Routes = [
   { path: 'verify/:id', component: VerifyComponent },
   { path: 'cc-checkout/:order', component: CreditCardCheckoutComponent, canActivate: [AuthGuard] },
   { path: 'subscribe', component: EmailSubscriptionComponent },
-  { path: 'emailunsubscribe', component: EmailUnsubscribeComponent }
+  { path: 'emailunsubscribe', component: EmailUnsubscribeComponent },
+  // { path: 'admin-page', component: AdminComponent, canActivate: [AuthGuard] }
 ]
 
 @NgModule({
@@ -114,7 +117,8 @@ const appRoutes: Routes = [
     SquarePaymentComponent,
     CreditCardCheckoutComponent,
     EmailSubscriptionComponent,
-    EmailUnsubscribeComponent
+    EmailUnsubscribeComponent,
+    AdminComponent
   ],
   imports: [
     AccordionModule,
@@ -123,6 +127,7 @@ const appRoutes: Routes = [
     BrowserModule,
     ButtonModule,
     CardModule,
+    CheckboxModule,
     DialogModule,
     FormsModule,
     HttpClientModule,

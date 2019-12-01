@@ -106,6 +106,7 @@ const userMiddleware = async(req, res, next) => {
  */
 const adminMiddleware = async(req, res, next) => {
     let token = req.headers['authorization'];
+    console.log('admin token', token);
     if(typeof token === 'undefined') {
         res.status(401).json("no token");
         res.end();
@@ -115,7 +116,8 @@ const adminMiddleware = async(req, res, next) => {
     
     const user = await userSvc.getUserByUserId(userId);
     
-    if(typeof user === 'undefined' || user === null || +user.accountTypeId !== 4){
+    console.log('admin user', user);
+    if(typeof user === 'undefined' || user === null || +user.data.accountTypeId !== 4){
         res.status(401).json("invalid account");
         res.end;
     }

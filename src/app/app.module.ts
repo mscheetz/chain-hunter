@@ -81,7 +81,7 @@ const appRoutes: Routes = [
   { path: 'cc-checkout/:order', component: CreditCardCheckoutComponent, canActivate: [AuthGuard] },
   { path: 'subscribe', component: EmailSubscriptionComponent },
   { path: 'emailunsubscribe', component: EmailUnsubscribeComponent },
-  { path: 'admin-page', component: AdminComponent, canActivate: [AuthGuard] }
+  // { path: 'admin-page', component: AdminComponent, canActivate: [AuthGuard] }
 ]
 
 @NgModule({

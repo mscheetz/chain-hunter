@@ -12,7 +12,7 @@
        (click)="saveResult($event, 'contract')" 
        class="fa fa-star-o" 
        style="color: deeppink; cursor: pointer;"></i>
-    {{blockchain.symbol}} {{blockchain.symbol === 'ATOM' ? 'Validator' : 'Contract'}} Address: {{blockchain.contract.address}}
+    {{blockchain.symbol}} {{blockchain.symbol === 'ATOM' ? 'Validator' : 'Contract'}} Address: <span class="wrap-long">{{blockchain.contract.address}}</span>
 </h3>
 <p *ngIf="blockchain.contract.contractName">
     Name: {{blockchain.contract.contractName}}
@@ -22,10 +22,9 @@
 <p *ngIf="blockchain.contract.quantity">
     Balance: {{blockchain.contract.quantity}} {{blockchain.contract.symbol}}
 </p>
-<p *ngIf="blockchain.contract.creator">Creator Address: {{blockchain.contract.creator}}</p>
+<p *ngIf="blockchain.contract.creator">Creator Address: <span class="wrap-long">{{blockchain.contract.creator}}</span></p>
 <div *ngIf="blockchain.source !== undefined">
     <p>
         For more info: <a href="{{blockchain.source}}" target="_blank">{{blockchain.source}}</a>
     </p>
 </div>
-<!-- <p-toast key="contract-toast"></p-toast> -->

@@ -1,4 +1,4 @@
-import { OnInit, Component, Output, Input, isDevMode } from '@angular/core';
+import { OnInit, Component, Output, Input, isDevMode, HostListener } from '@angular/core';
 import { MenuItem, MessageService } from 'primeng/api';
 import { Blockchain } from 'src/app/classes/ChainHunter/Blockchain';
 import { HelperService } from 'src/app/services/helper.service';
@@ -45,6 +45,7 @@ export class ChainHunterComponent implements OnInit {
     searchLimit: boolean = false;
     searchLimitSize: number = 3;
     unlimited: boolean = false;
+    windowWidth: number = 0;
     @Output() tokenContent: string;
 
     constructor(private titleService: Title,
@@ -55,10 +56,16 @@ export class ChainHunterComponent implements OnInit {
                 private messageSvc: MessageService) {
         this.titleService.setTitle("The Chain Hunter : Multi Blockchain Search | BTC, ETH, LTC, BCH, XRP, and more!");}
 
-    ngOnInit() {
+    ngOnInit() {        
+        this.windowWidth = window.innerWidth;
         this.getChains();
         this.nullOut();
         this.updateMenuItems();
+    }
+
+    @HostListener('window:resize', ['$event'])
+    onResize(event){
+        this.windowWidth = window.innerWidth;
     }
 
     /**
@@ -337,12 +344,15 @@ export class ChainHunterComponent implements OnInit {
         this.menuItems = [];
        // this.huntStatus = this.addyTxn === undefined ? 0 : this.notRunning ? 2 : 1;
         this.map.forEach((value: Blockchain, key: string) => {
+            let visible = this.windowWidth < 768 ? false : true;
             if (value.address || value.transaction || value.contract) {
+                visible = true;
          //       this.huntStatus = 3;
             }
             this.menuItems.push({ 
                 label: value.symbol, 
                 icon: value.icon,
+                visible: visible,
                 command: (event) => { this.showItem(value.symbol, event) }
             });
         });

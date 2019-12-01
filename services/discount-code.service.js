@@ -9,7 +9,7 @@ const responseSvc = require('./response.service');
 const getDetails = async(code) => {
     let discountCode = await discountCodeRepo.get(code);
     let toRedeem = false;
-    let toConsume = false;
+    let toConsume = true;
 
     if(discountCode.multiUse === false) {
         toRedeem = true;
@@ -17,7 +17,7 @@ const getDetails = async(code) => {
         if(discountCode.totalUses > 0) {
             toConsume = true;
         }
-        if(discountCode.totalUses === (discountCode.usedUses + 1)) {
+        if(discountCode.totalUses > 0 && discountCode.totalUses === (discountCode.usedUses + 1)) {
             toRedeem = true;
         }
     }

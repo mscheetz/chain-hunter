@@ -11,4 +11,7 @@ export class DiscountCode {
     usedUses: number;
     accountTypeId: number;
     validTil: number;
+    discount: string;
+    validDate: string;
+    accountName: string;
 }

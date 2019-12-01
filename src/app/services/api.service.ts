@@ -17,6 +17,7 @@ import { IdName } from '../classes/id-name.class';
 import { PaymentTypeDetail } from '../classes/payment-type-detail.class';
 import { Order } from '../classes/order.class';
 import { DiscountCode } from '../classes/discount-code.class';
+import { UserCounts } from 'src/app/classes/user-counts.class';
 
 @Injectable({providedIn: 'root'})
 export class ApiService{
@@ -529,20 +530,20 @@ export class ApiService{
         return result;
     }
 
-    getUserCounts(): Observable<any> {
+    getUserCounts(): Observable<UserCounts> {
         let endpoint: string = `/api/admin/users`;
         let url: string = this.baseUrl + endpoint;
 
-        let result = this.onGet<any>(url, true);
+        let result = this.onGet<UserCounts>(url, true);
 
         return result;
     }
 
-    getDiscountCodes(): Observable<DiscountCode> {
+    getDiscountCodes(): Observable<DiscountCode[]> {
         let endpoint: string = `/api/admin/codes/discount`;
         let url: string = this.baseUrl + endpoint;
 
-        let result = this.onGet<any>(url, true);
+        let result = this.onGet<DiscountCode[]>(url, true);
 
         return result;
     }
@@ -551,7 +552,7 @@ export class ApiService{
         let endpoint: string = `/api/admin/codes/discount`;
         let url: string = this.baseUrl + endpoint;
 
-        let result = this.onPost<any>(url, discountCode, true);
+        let result = this.onPost<DiscountCode>(url, discountCode, true);
 
         return result;
     }
@@ -560,7 +561,7 @@ export class ApiService{
         let endpoint: string = `/api/admin/codes/discount`;
         let url: string = this.baseUrl + endpoint;
 
-        let result = this.onPatch<any>(url, discountCode, true);
+        let result = this.onPatch<DiscountCode>(url, discountCode, true);
 
         return result;
     }

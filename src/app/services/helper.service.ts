@@ -42,6 +42,30 @@ export class HelperService{
     }
 
     /**
+     * Convert a date to unix timestamp
+     * @param date date to convert
+     */
+    getUnixTimestampFromDate(date: Date, timeZone: string = "UTC"): number {
+      if(timeZone === "Eastern" ) {
+        timeZone = "America/New_York";
+      } else if (timeZone === "Pacific") {
+        timeZone = "America/Los_Angeles";
+      }
+      const day = date.getDate();
+      const year = date.getFullYear();
+      let month = date.getMonth();
+      const hour = date.getHours();
+      const min = date.getMinutes();
+      const sec = date.getSeconds();
+      const newDate = new Date(year, month, day, hour, min, sec).toLocaleString('en-US', {timeZone: timeZone});
+      //const formatted = `${year}-${month}-${day}T${hour}:${min}:${sec}.000Z`;
+
+      const unix = new Date(newDate).valueOf()/1000;
+
+      return unix;
+    }
+
+    /**
      * Get current unix timestamp
      */
     getUnixTimestamp(): number {

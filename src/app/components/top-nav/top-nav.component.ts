@@ -10,11 +10,13 @@ import { Router } from '@angular/router';
 })
 export class TopNavComponent implements OnInit {
   loggedIn: boolean;
+  isAdmin: boolean;
 
   constructor(private loginSvc: LoginService, 
               private authSvc: AuthenticationService,
               private router: Router) { 
     this.authSvc.isLoggedIn.subscribe(val => this.loggedIn = val);
+    this.authSvc.isAdmin.subscribe(val => this.isAdmin = val);
   }
 
   ngOnInit() {

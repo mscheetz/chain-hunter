@@ -1,6 +1,6 @@
 const axios = require('axios');
 const helperSvc = require('../helper.service.js');
-const base = "https://mainnet-api.aion.network/aion/dashboard";
+const base = "https://mainnet-api.theoan.com/aion/dashboard"
 const enums = require('../../classes/enums');
 
 const getEmptyBlockchain = async() => {
@@ -67,6 +67,7 @@ const getAddress = async(addressToFind) => {
             return address;
         }
     } catch(error) {
+        console.log('aion err', error);
         return null;
     }
 }

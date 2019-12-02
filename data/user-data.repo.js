@@ -88,8 +88,22 @@ const updateState = async(id, activeState) => {
     }
 }
 
+const getCount = async() => {
+    let sql = 'SELECT Count(id) counts FROM public."userData";'
+
+    try {
+        const res = await pool.query(sql);
+
+        return res.rows[0];
+    } catch(err) {
+        console.log(err);
+    }
+
+}
+
 module.exports = {
     get,
+    getCount,
     add,
     remove,
     updateState

@@ -11,9 +11,11 @@ import { NgxQRCodeModule } from 'node_modules/ngx-qrcode2';
 
 import { AccordionModule } from 'primeng/accordion';
 import { ButtonModule } from 'primeng/button';
+import { CalendarModule } from 'primeng/calendar';
 import { CardModule } from 'primeng/card';
 import { CheckboxModule } from 'primeng/checkbox';
 import { DialogModule } from 'primeng/dialog';
+import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputMaskModule } from 'primeng/inputmask';
 import { InputSwitchModule } from 'primeng/inputswitch';
@@ -81,7 +83,7 @@ const appRoutes: Routes = [
   { path: 'cc-checkout/:order', component: CreditCardCheckoutComponent, canActivate: [AuthGuard] },
   { path: 'subscribe', component: EmailSubscriptionComponent },
   { path: 'emailunsubscribe', component: EmailUnsubscribeComponent },
-  // { path: 'admin-page', component: AdminComponent, canActivate: [AuthGuard] }
+  { path: 'admin-page', component: AdminComponent, canActivate: [AuthGuard] }
 ]
 
 @NgModule({
@@ -126,9 +128,11 @@ const appRoutes: Routes = [
     BrowserAnimationsModule,
     BrowserModule,
     ButtonModule,
+    CalendarModule,
     CardModule,
     CheckboxModule,
     DialogModule,
+    DropdownModule,
     FormsModule,
     HttpClientModule,
     InputMaskModule,

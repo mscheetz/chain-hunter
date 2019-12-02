@@ -20,13 +20,18 @@ export class AuthenticationService {
         this.currentUserSubject = new BehaviorSubject<User>(JSON.parse(localStorage.getItem('currentUser')));
         this.currentUser = this.currentUserSubject.asObservable();
         this.loggedInSubject = new BehaviorSubject<boolean>(this.loggedInState);
+        this.adminSubject = new BehaviorSubject<boolean>(this.adminState);
         this.isLoggedIn = this.loggedInSubject.asObservable();
+        this.isAdmin = this.adminSubject.asObservable();
         this.validateTokenDate();
     }
     loggedInState: boolean = false;
+    adminState: boolean = false;
     isLoggedIn: Observable<boolean>;
+    isAdmin: Observable<boolean>;
 
     private loggedInSubject: BehaviorSubject<boolean>;
+    private adminSubject: BehaviorSubject<boolean>;
 
     public get currentUserValue(): User {
         return this.currentUserSubject.value;
@@ -34,6 +39,10 @@ export class AuthenticationService {
 
     public getLoggedInStatus(): Observable<boolean> {
         return this.loggedInSubject.asObservable();
+    }
+
+    public getAdminStatus(): Observable<boolean> {
+        return this.adminSubject.asObservable();
     }
 
     getUser(): User{
@@ -74,6 +83,9 @@ export class AuthenticationService {
                 this.loggedInState = true;
                 //this.currentUserSubject.next(this.user);
                 this.loggedInSubject.next(true);
+                let adminStatus = +this.user.accountTypeId === 4;
+                this.adminState = adminStatus;
+                this.adminSubject.next(adminStatus);
                 return res;
             }));
     }
@@ -83,8 +95,10 @@ export class AuthenticationService {
         this.cookieSvc.delete(this.unlimitedCookie);
         this.cookieSvc.delete(this.searchLimitCookie);
         this.loggedInState = false;
+        this.adminState = false;
         this.currentUserSubject.next(null);
         this.loggedInSubject.next(false);
+        this.adminSubject.next(false);
     }
 
     async userRefresh() {

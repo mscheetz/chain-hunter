@@ -7,6 +7,7 @@
     <a *ngIf="!loggedIn" routerLink="" (click)="login($event)">Login | Register</a>
     <a *ngIf="loggedIn" routerLink="/hunts" routerLinkActive="active" (click)="hideNav()">My Hunts</a>
     <a *ngIf="loggedIn" routerLink="/mypage" routerLinkActive="active" (click)="hideNav()">My Account</a>
+    <a *ngIf="isAdmin" routerLink="/admin-page" routerLinkActive="active" (click)="hideNav()">Admin</a>
     <a *ngIf="loggedIn" routerLink="" (click)="logout($event)">Logout</a>
     <a routerLink="/accounts" routerLinkActive="active" (click)="hideNav()">Account Types</a>
     <a routerLink="/info" routerLinkActive="active" (click)="hideNav()">Blockchain Info</a>

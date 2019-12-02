@@ -7,9 +7,55 @@
         <div>Free: {{userCounts.free}}</div>
         <div>Basic: {{userCounts.basic}}</div>
         <div>Pro: {{userCounts.pro}}</div>
+        <div>Saves: {{userCounts.saves}}</div>
     </div>
-    <div class="p-col-12 p-lg-10">
-        <p-table [value]="discountCodes">
+    <div class="p-col-12 p-lg-5">
+        <p-button label="Blockchains" (onClick)="toggleBlockchains()"></p-button>
+        &nbsp;&nbsp;
+        <p-button label="Discount Codes" (onClick)="toggleDiscountCodes()"></p-button>
+    </div>
+    <div *ngIf="viewDiscountCodes" class="p-col-12 p-lg-10">
+        <p-button label="New Code" (onClick)="createCode()"></p-button>
+        &nbsp;&nbsp;
+        Active Codes: <p-checkbox [(ngModel)]="activeCodes" binary="true" (onChange)="onFilterList()"></p-checkbox>
+        <div *ngIf="showCodeDialog">
+            <p-card>
+                <h3>{{dialogHeader}}</h3>
+                <div>
+                    Code: <input type="text" pInputText [(ngModel)]="editDiscountCode.code" />
+                </div>
+                <div>
+                    Multi Use: <p-checkbox [(ngModel)]="editDiscountCode.multiUse" binary="true"></p-checkbox>
+                    &nbsp;&nbsp;
+                    Redeemed: <p-checkbox [(ngModel)]="editDiscountCode.redeemed" binary="true"></p-checkbox>
+                </div>
+                <div>
+                    Price: $<input type="number" pInputText [(ngModel)]="editDiscountCode.price" />
+                    &nbsp;or&nbsp;
+                    Percent Off: <input type="number" pInputText [(ngModel)]="editDiscountCode.percentOff" />%
+                </div>
+                <div>
+                    Days Active: <input type="number" pInputText [(ngModel)]="editDiscountCode.days" />
+                </div>
+                <div>
+                    Usage: Max Amount <input type="number" pInputText [(ngModel)]="editDiscountCode.totalUses" /> 
+                    &nbsp;&nbsp;
+                    Used <input type="number" pInputText [(ngModel)]="editDiscountCode.usedUses" />
+                </div>
+                <div>
+                    Valid Til: <p-calendar [(ngModel)]="dateVal" [showTime]="true" dateFormat="yy-mm-dd" (onClose)="onTimeSet()"></p-calendar>
+                    <p-dropdown [options]="timeZones" [(ngModel)]="timeZone" (onChange)="onTimeSet()"></p-dropdown>
+                    Unix: <input type="number" pInputText [(ngModel)]="editDiscountCode.validTil" />
+                </div>
+                <div>
+                    Account Type: <p-dropdown [options]="accounts" [(ngModel)]="editDiscountCode.accountTypeId"></p-dropdown>
+                </div>
+                <p-button label="Save Code" (onClick)="saveCode()"></p-button>
+                &nbsp;&nbsp;
+                <p-button label="Cancel" (onClick)="cancelCode()"></p-button>
+            </p-card>
+        </div>
+        <p-table *ngIf="!showCodeDialog" [value]="discountCodes" selectionMode="single" [(selection)]="editDiscountCode" (onRowSelect)="editCode($event)">
             <ng-template pTemplate="header">
                 <tr>
                     <th>Code</th>
@@ -19,10 +65,11 @@
                     <th>Days</th>
                     <th>Usage</th>
                     <th>Valid</th>
+                    <th>Type</th>
                 </tr>
             </ng-template>
             <ng-template pTemplate="body" let-code>
-                <tr>
+                <tr [pSelectableRow]="code">
                     <td>{{code.code}}</td>
                     <td>{{code.multiUse}}</td>
                     <td>{{code.redeemed}}</td>
@@ -30,6 +77,7 @@
                     <td>{{code.days === null ? '-' : code.days}}</td>
                     <td>{{code.totalUses === null ? '-' : code.usedUses + '/' + code.totalUses}}</td>
                     <td>{{code.validDate}}</td>
+                    <td>{{code.accountName}}</td>
                 </tr>
             </ng-template>
         </p-table>

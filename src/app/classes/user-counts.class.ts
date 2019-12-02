@@ -6,4 +6,5 @@ export class UserCounts {
     free: number;
     basic: number;
     pro: number;
+    saves: number;
 }

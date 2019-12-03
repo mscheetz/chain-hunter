@@ -1,7 +1,7 @@
 import { Observable } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Blockchain } from '../classes/ChainHunter/Blockchain';
+import { Blockchain } from '../classes/ChainHunter/blockchain.class';
 import { Transaction } from '../classes/ChainHunter/Transaction';
 import { Asset } from '../classes/ChainHunter/Asset';
 import { Chain } from '../classes/ChainHunter/Chain';
@@ -562,6 +562,33 @@ export class ApiService{
         let url: string = this.baseUrl + endpoint;
 
         let result = this.onPatch<DiscountCode>(url, discountCode, true);
+
+        return result;
+    }
+
+    getAllBlockchains(): Observable<Blockchain[]> {
+        let endpoint: string = `/api/blockchain`;
+        let url: string = this.baseUrl + endpoint;
+
+        let result = this.onGet<Blockchain[]>(url, true);
+
+        return result;
+    }
+
+    addBlockchain(data: Blockchain): Observable<boolean> {
+        let endpoint: string = `/api/blockchain`;
+        let url: string = this.baseUrl + endpoint;
+
+        let result = this.onPost<boolean>(url, data, true);
+
+        return result;
+    }
+
+    updateBlockchain(data: Blockchain): Observable<boolean> {
+        let endpoint: string = `/api/blockchain`;
+        let url: string = this.baseUrl + endpoint;
+
+        let result = this.onPatch<boolean>(url, data, true);
 
         return result;
     }

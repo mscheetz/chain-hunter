@@ -29,7 +29,17 @@
               },
               {
                 "glob": "**/*",
+                "input": "src/assets/icons/color/",
+                "output": "./assets/cryptoicons/color"
+              },
+              {
+                "glob": "**/*",
                 "input": "./node_modules/cryptocurrency-icons/32/white/",
+                "output": "./assets/cryptoicons/white"
+              },
+              {
+                "glob": "**/*",
+                "input": "src/assets/icons/white/",
                 "output": "./assets/cryptoicons/white"
               },
               {

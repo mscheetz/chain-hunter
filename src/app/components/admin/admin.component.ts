@@ -7,6 +7,7 @@ import { DiscountCode } from 'src/app/classes/discount-code.class';
 import { UserCounts } from 'src/app/classes/user-counts.class';
 import { AccountType } from 'src/app/classes/account-type.class';
 import { ThrowStmt } from '@angular/compiler';
+import { Blockchain } from 'src/app/classes/ChainHunter/blockchain.class';
 
 @Component({
   selector: 'app-admin',
@@ -19,17 +20,21 @@ export class AdminComponent implements OnInit {
   editDiscountCode: DiscountCode = new DiscountCode();
   accountTypes: AccountType[] = [];
   userCounts: UserCounts = new UserCounts();
-  newDiscountCode: boolean = false;
-  updateDiscountCode: boolean = false;
+  newObject: boolean = false;
+  updateObject: boolean = false;
   showCodeDialog: boolean = false;
+  showBCDialog: boolean = false;
   dialogHeader: string = "";
   activeCodes: boolean = true;
+  bcStatus: number = null;
   accounts: SelectItem[] = [];
   dateVal: Date = null;
   timeZone: string = "UTC";
   timeZones: SelectItem[] = [];
   viewBlockchains: boolean = false;
   viewDiscountCodes: boolean = false;
+  blockchains: Blockchain[] = [];
+  editBlockchain: Blockchain = new Blockchain();
 
   constructor(private apiSvc: ApiService, 
               private helperSvc: HelperService,
@@ -55,6 +60,7 @@ export class AdminComponent implements OnInit {
           this.updateDiscountCodes();
         });
     this.getDiscountCodes();
+    this.getBlockchains();
   }
 
   toggleBlockchains() {
@@ -74,6 +80,14 @@ export class AdminComponent implements OnInit {
           this.discountCodes = res;
           this.updateDiscountCodes();
         });
+  }
+
+  getBlockchains() {
+    this.blockchains = [];
+    this.apiSvc.getAllBlockchains()
+        .subscribe(res => {
+          this.blockchains = res;
+        })
   }
 
   updateDiscountCodes(){
@@ -108,15 +122,30 @@ export class AdminComponent implements OnInit {
     this.editDiscountCode = new DiscountCode();
     this.dialogHeader = "Create Code";
     this.showCodeDialog = true;
-    this.newDiscountCode = true;
-    this.updateDiscountCode = false;
+    this.newObject = true;
+    this.updateObject = false;
   }
 
   editCode(event) {
     this.dialogHeader = "Edit Code";
     this.showCodeDialog = true;
-    this.newDiscountCode = false;
-    this.updateDiscountCode = true;
+    this.newObject = false;
+    this.updateObject = true;
+  }
+
+  createBlockchain() {
+    this.editBlockchain = new Blockchain();
+    this.dialogHeader = "Create Blockchain"
+    this.showBCDialog = true;
+    this.newObject = true;
+    this.updateObject = false;
+  }
+
+  onEditBlockchain(event) {
+    this.dialogHeader = "Edit Blockchain"
+    this.showBCDialog = true;
+    this.newObject = false;
+    this.updateObject = true;
   }
 
   onTimeSet() {
@@ -127,7 +156,7 @@ export class AdminComponent implements OnInit {
   }
 
   saveCode() {
-    if(this.newDiscountCode) {
+    if(this.newObject) {
       this.apiSvc.addDiscountCodes(this.editDiscountCode)
           .subscribe(res => {
             this.messageSvc.add({
@@ -150,7 +179,7 @@ export class AdminComponent implements OnInit {
           });
       return;
     }
-    if(this.updateDiscountCode) {
+    if(this.updateObject) {
       this.apiSvc.updateDiscountCodes(this.editDiscountCode)
           .subscribe(res => {
             this.messageSvc.add({
@@ -175,10 +204,66 @@ export class AdminComponent implements OnInit {
     }
   }
 
+  saveBC() {
+    if(this.newObject) {
+      this.apiSvc.addBlockchain(this.editBlockchain)
+          .subscribe(res => {
+            this.messageSvc.add({
+              key: 'notification-toast',
+              severity: 'success', 
+              summary: 'Blockchain Added', 
+              detail: 'Blockchain was added',
+              life: 5000
+            })
+            this.showBCDialog = false;
+            this.getBlockchains();
+          }, err => {
+            this.messageSvc.add({
+              key: 'notification-toast',
+              severity: 'error', 
+              summary: 'Blockchain Added', 
+              detail: `An error occurred: ${err.message}`,
+              life: 5000
+            })
+          });
+      return;
+    }
+    if(this.updateObject) {
+      this.apiSvc.updateBlockchain(this.editBlockchain)
+          .subscribe(res => {
+            this.messageSvc.add({
+              key: 'notification-toast',
+              severity: 'success', 
+              summary: 'Blockchain Added', 
+              detail: 'Blockchain was added',
+              life: 5000
+            })
+            this.showBCDialog = false;
+            this.getBlockchains();            
+          }, err => {
+            this.messageSvc.add({
+              key: 'notification-toast',
+              severity: 'error', 
+              summary: 'Blockchain Added', 
+              detail: `An error occurred: ${err.message}`,
+              life: 5000
+            })
+          });
+      return;
+    }
+  }
+
   cancelCode() {
     this.showCodeDialog = false;
-    this.newDiscountCode = false;
-    this.updateDiscountCode = false;
+    this.newObject = false;
+    this.updateObject = false;
     this.editDiscountCode = new DiscountCode();
+  }
+
+  cancelBC() {
+    this.showBCDialog = false;
+    this.newObject = false;
+    this.updateObject = false;
+    this.editBlockchain = new Blockchain();
   }
 }

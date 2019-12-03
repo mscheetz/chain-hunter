@@ -82,4 +82,56 @@
             </ng-template>
         </p-table>
     </div>
+    <div *ngIf="viewBlockchains" class="p-col-12 p-lg-10">
+        <p-button label="New Blockchain" (onClick)="createBlockchain()"></p-button>
+        &nbsp;&nbsp;
+        <!-- Status: <p-checkbox [(ngModel)]="bcStatus" binary="true" (onChange)="onFilterBCList()"></p-checkbox> -->
+        <div *ngIf="showBCDialog">
+            <p-card>
+                <h3>{{dialogHeader}}</h3>
+                <div>
+                    Name: <input type="text" pInputText [(ngModel)]="editBlockchain.name" />
+                </div>
+                <div>
+                    Symbol: <input type="text" pInputText [(ngModel)]="editBlockchain.symbol" />
+                </div>
+                <div>
+                    Contracts: <p-checkbox [(ngModel)]="editBlockchain.hasContracts" binary="true"></p-checkbox>
+                    &nbsp;&nbsp;
+                    Tokens: <p-checkbox [(ngModel)]="editBlockchain.hasTokens" binary="true"></p-checkbox>
+                </div>
+                <div>
+                    Type: <input type="string" pInputText [(ngModel)]="editBlockchain.type" />
+                </div>
+                <div>
+                    Status: <input type="string" pInputText [(ngModel)]="editBlockchain.status" />
+                </div>
+                <p-button label="Save" (onClick)="saveBC()"></p-button>
+                &nbsp;&nbsp;
+                <p-button label="Cancel" (onClick)="cancelBC()"></p-button>
+            </p-card>
+        </div>
+        <p-table *ngIf="!showBCDialog" [value]="blockchains" selectionMode="single" [(selection)]="editBlockchain" (onRowSelect)="onEditBlockchain($event)">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>Name</th>
+                    <th>Symbol</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                    <th>Tokens</th>
+                    <th>Contracts</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-bc>
+                <tr [pSelectableRow]="bc">
+                    <td>{{bc.name}}</td>
+                    <td>{{bc.symbol}}</td>
+                    <td>{{bc.type}}</td>
+                    <td>{{bc.status === '1' ? 'Active' : 'Future'}}</td>
+                    <td>{{bc.hasTokens ? 'X' : ''}}</td>
+                    <td>{{bc.hasContracts ? 'X' : ''}}</td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
 </div>

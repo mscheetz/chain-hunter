@@ -5,6 +5,7 @@ import { Contract } from './Contract';
 export class Blockchain {
     constructor () {}
 
+    id: string;
     name: string;
     symbol: string;
     found: boolean;
@@ -16,6 +17,7 @@ export class Blockchain {
     source: string = null;
     hasTokens: boolean = false;
     hasContracts: boolean = false;
+    status: number;
 
     getIcon(): string {
         let iconBase = ""; //"/assets/cryptoicons/";

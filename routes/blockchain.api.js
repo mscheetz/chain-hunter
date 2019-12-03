@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const manager = require("../services/chainhunter.manager");
+const blockchainSvc = require("../services/blockchain.service");
 const dataSvc = require("../data/dataIntegration.service");
 const apiHelp = require("../services/apihelper.service");
 const enums = require('../classes/enums');
@@ -100,6 +101,26 @@ router.get("/api/blockchain/empty", apiHelp.bootlegMiddleware, async (req, res, 
     );
 
     res.status(200).json(true);
+});
+
+router.get("/api/blockchain", [apiHelp.bootlegMiddleware, apiHelp.authMiddleware, apiHelp.adminMiddleware], async (req, res, next) => {
+    const result = await blockchainSvc.getAll();
+
+    res.status(result.code).json(result.data);
+});
+
+router.post("/api/blockchain", [apiHelp.bootlegMiddleware, apiHelp.authMiddleware, apiHelp.adminMiddleware], async (req, res, next) => {
+    const data = req.body;
+    const result = await blockchainSvc.add(data);
+
+    res.status(result.code).json(result.data);
+});
+
+router.patch("/api/blockchain", [apiHelp.bootlegMiddleware, apiHelp.authMiddleware, apiHelp.adminMiddleware], async (req, res, next) => {
+    const data = req.body;
+    const result = await blockchainSvc.update(data);
+
+    res.status(result.code).json(result.data);
 });
 
 module.exports = router;

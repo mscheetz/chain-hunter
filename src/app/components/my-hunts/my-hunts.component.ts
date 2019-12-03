@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from 'src/app/services/api.service';
 import { UserData } from 'src/app/classes/UserData';
-import { Blockchain } from 'src/app/classes/ChainHunter/Blockchain';
+import { Blockchain } from 'src/app/classes/ChainHunter/blockchain.class';
 import { AuthenticationService } from 'src/app/services/authentication.service';
 import { User } from 'src/app/classes/user.class';
 

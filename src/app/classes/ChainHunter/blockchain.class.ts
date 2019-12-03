@@ -5,6 +5,7 @@ import { Contract } from './Contract';
 export class Blockchain {
     constructor () {}
 
+    id: string;
     name: string;
     symbol: string;
     found: boolean;

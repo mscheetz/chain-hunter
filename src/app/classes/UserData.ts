@@ -1,4 +1,4 @@
-import { Blockchain } from './ChainHunter/Blockchain';
+import { Blockchain } from './ChainHunter/blockchain.class';
 
 export class UserData {
     constructor() {}

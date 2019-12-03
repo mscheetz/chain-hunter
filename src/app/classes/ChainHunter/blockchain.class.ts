@@ -17,6 +17,7 @@ export class Blockchain {
     source: string = null;
     hasTokens: boolean = false;
     hasContracts: boolean = false;
+    status: number;
 
     getIcon(): string {
         let iconBase = ""; //"/assets/cryptoicons/";

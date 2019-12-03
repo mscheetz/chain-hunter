@@ -401,7 +401,6 @@ const cleanIO = function(ios) {
             addyMap[thisAddress] = datas;
         }
     })
-    
     let ioDatas = [];
     
     Object.keys(addyMap).forEach(function(address){
@@ -428,7 +427,7 @@ const cleanIO = function(ios) {
                     }
                     let thisQuantity = 0;
                     if(_.isString(quants[j].quantity)) {
-                        const thisQuant = quants[j].quantity.replace(",", "");
+                        const thisQuant = quants[j].quantity.replace(/,/g, "");
                         thisQuantity = parseFloat(thisQuant);
                         if(thisQuantity.toString().indexOf('e') >= 0) {
                             thisQuantity = exponentialToNumber(thisQuantity);
@@ -541,6 +540,12 @@ const searchType = function(chain, toFind) {
                 return enums.searchType.address;
             } else {
                 return enums.searchType.transaction;
+            }
+        } else if(chain === "zil") {
+            if(toFind.length === 66) {
+                return enums.searchType.transaction;
+            } else {
+                return enums.searchType.nothing;
             }
         } else {
             return enums.searchType.nothing;
@@ -874,6 +879,13 @@ const searchType = function(chain, toFind) {
             return enums.searchType.address;
         } else {
             return enums.searchType.transaction;
+        }
+    }
+    if(toFind.substr(0, 3) === "zil") {
+        if(chain === "zil") {
+            return enums.searchType.address;
+        } else {
+            return enums.searchType.nothing;
         }
     }
 

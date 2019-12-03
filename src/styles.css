@@ -59,10 +59,10 @@ div {
     /* font-family: "Open Sans","Helvetica Neue",sans-serif; */
 }
 
-:host ::ng-deep 
+/*:host ::ng-deep 
 	.ui-widget, div .ui-panel {
 		font-family: "Nunito";
-}
+}*/
 
 .wrapper {
 	min-height: calc(100vh - 110px);

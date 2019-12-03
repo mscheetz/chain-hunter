@@ -97,7 +97,6 @@ const getTransactions = async(address) => {
 
         return transactions;
     } catch(error) {
-        console.log(error);
         return null;
     }
 }

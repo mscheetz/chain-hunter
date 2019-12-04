@@ -4,13 +4,12 @@
     </a>
     <a href="javascript:void(0);" class="close-out" (click)="hideNav()">&#10005;</a>
     <a routerLink="/" routerLinkActive="active" class="top-link" (click)="hideNav()">Home</a>
-    <a *ngIf="!loggedIn" routerLink="" (click)="login($event)">Login | Register</a>
+    <a *ngIf="!loggedIn" routerLink="" (click)="login($event)">Login | Free Registration</a>
     <a *ngIf="loggedIn" routerLink="/hunts" routerLinkActive="active" (click)="hideNav()">My Hunts</a>
     <a *ngIf="loggedIn" routerLink="/mypage" routerLinkActive="active" (click)="hideNav()">My Account</a>
     <a *ngIf="isAdmin" routerLink="/admin-page" routerLinkActive="active" (click)="hideNav()">Admin</a>
-    <a *ngIf="loggedIn" routerLink="" (click)="logout($event)">Logout</a>
-    <a routerLink="/accounts" routerLinkActive="active" (click)="hideNav()">Account Types</a>
-    <a routerLink="/info" routerLinkActive="active" (click)="hideNav()">Blockchain Info</a>
+    <a routerLink="/accounts" routerLinkActive="active" (click)="hideNav()">Upgrade</a>
+    <a routerLink="/info" routerLinkActive="active" (click)="hideNav()">Supported Blockchains</a>
     <a routerLink="/about" routerLinkActive="active" (click)="hideNav()">About</a>
-    <a routerLink="/terms" routerLinkActive="active" (click)="hideNav()">Terms</a>
+    <a *ngIf="loggedIn" routerLink="" (click)="logout($event)">Logout</a>
 </div>

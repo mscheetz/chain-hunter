@@ -48,7 +48,7 @@ export class LoginComponent implements OnInit {
     this.confirmView = this.inConfirmView;
     this.actionTypes = [
       { label: 'Login', value: 0 },
-      { label: 'Register', value: 1 }
+      { label: 'Free Registration', value: 1 }
     ]
   }
 

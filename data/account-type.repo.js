@@ -14,7 +14,10 @@ const pool = new Pool({
  * Get all account types
  */
 const getAll = async() => {
-    let sql = 'SELECT id, uuid, name, "searchLimit", "saveLimit", monthly, yearly FROM public."accountType" WHERE monthly >= 0 ORDER BY id';
+    let sql = `SELECT id, name, "searchLimit", "saveLimit", monthly, yearly, uuid, description, tag, "registrationRequired", "sortOrder", "adFree"
+     FROM public."accountType" 
+     WHERE monthly >= 0 
+     ORDER BY id`;
 
     try {
         const res = await pool.query(sql);
@@ -30,7 +33,9 @@ const getAll = async() => {
  * @param {number} id account type id
  */
 const get = async(id) => {
-    let sql = 'SELECT id, uuid, name, "searchLimit", "saveLimit", monthly, yearly FROM public."accountType" WHERE id = $1';
+    let sql = `SELECT id, name, "searchLimit", "saveLimit", monthly, yearly, uuid, description, tag, "registrationRequired", "sortOrder", "adFree" 
+    FROM public."accountType" 
+    WHERE id = $1`;
 
     try {
         const res = await pool.query(sql, [id]);
@@ -46,7 +51,9 @@ const get = async(id) => {
  * @param {string} uuid account type uuid
  */
 const getByUuid = async(uuid) => {
-    let sql = 'SELECT id, uuid, name, "searchLimit", "saveLimit", monthly, yearly FROM public."accountType" WHERE uuid = $1';
+    let sql = `SELECT id, name, "searchLimit", "saveLimit", monthly, yearly, uuid, description, tag, "registrationRequired", "sortOrder", "adFree" 
+    FROM public."accountType" 
+    WHERE uuid = $1`;
 
     try {
         const res = await pool.query(sql, [uuid]);
@@ -62,7 +69,9 @@ const getByUuid = async(uuid) => {
  * @param {string} name account type name
  */
 const getByName = async(name) => {
-    let sql = 'SELECT id, uuid, name, "searchLimit", "saveLimit", monthly, yearly FROM public."accountType" WHERE name = $1';
+    let sql = `SELECT id, name, "searchLimit", "saveLimit", monthly, yearly, uuid, description, tag, "registrationRequired", "sortOrder", "adFree" 
+    FROM public."accountType" 
+    WHERE name = $1`;
 
     try {
         const res = await pool.query(sql, [name]);
@@ -75,23 +84,33 @@ const getByName = async(name) => {
 
 /**
  * Add an account type
- * @param {string} uuid account type uuid
  * @param {string} name account type name
  * @param {number} searchLimit search limit
  * @param {number} saveLimit save limit
  * @param {number} monthly monthly cost
  * @param {number} yearly yearly cost
+ * @param {string} uuid account type uuid
+ * @param {string} description account description
+ * @param {string} tag account tag
+ * @param {boolean} registration account registration required
+ * @param {number} sortOrder account sort order
+ * @param {boolean} adFree account ad free?
  */
-const add = async(uuid, name, searchLimit, saveLimit, monthly, yearly) => {
-    let sql = 'INSERT INTO public."accountType" ( uuid, name, "searchLimit", "saveLimit", monthly, yearly ) ';
+const add = async(name, searchLimit, saveLimit, monthly, yearly, uuid, description, tag, registration, sortOrder, adFree) => {
+    let sql = 'INSERT INTO public."accountType" ( name, "searchLimit", "saveLimit", monthly, yearly, uuid, description, tag, "registrationRequired", "sortOrder", "adFree" ) ';
     sql += 'VALUES ( $1, $2, $3, $4, $5, $6 )';
     const data = [
-        uuid,
         name,
         searchLimit,
         saveLimit,
         monthly,
-        yearly
+        yearly,
+        uuid,
+        description,
+        tag,
+        registration,
+        sortOrder,
+        adFree
     ]
 
     try {
@@ -111,10 +130,26 @@ const add = async(uuid, name, searchLimit, saveLimit, monthly, yearly) => {
  * @param {number} saveLimit save limit
  * @param {number} monthly monthly cost
  * @param {number} yearly yearly cost
+ * @param {string} description account description
+ * @param {string} tag account tag
+ * @param {boolean} registration account registration required
+ * @param {number} sortOrder account sort order
+ * @param {boolean} adFree account ad free?
  */
-const update = async(uuid, name, searchLimit, saveLimit, monthly, yearly) => {
-    let sql = 'UPDATE public."accountType" set name = $2, "searchLimit" = $3, "saveLimit" = $4, monthly = $5, yearly = $6 ';
-    sql += 'WHERE uuid = $1';
+const update = async(uuid, name, searchLimit, saveLimit, monthly, yearly, description, tag, registration, sortOrder, adFree) => {
+    let sql = `UPDATE public."accountType" 
+    SET name = $2
+    , "searchLimit" = $3
+    , "saveLimit" = $4
+    , monthly = $5
+    , yearly = $6
+    , description = $7
+    , tag = $8
+    , "registrationRequired" = $9
+    , "sortOrder" = $10
+    , "adFree" = $11
+    WHERE uuid = $1`;
+
     const data = [
         uuid,
         name,
@@ -122,7 +157,11 @@ const update = async(uuid, name, searchLimit, saveLimit, monthly, yearly) => {
         saveLimit,
         monthly,
         yearly,
-        uuid
+        description,
+        tag,
+        registration,
+        sortOrder,
+        adFree
     ]
 
     try {

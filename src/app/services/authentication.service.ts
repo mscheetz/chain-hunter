@@ -123,6 +123,7 @@ export class AuthenticationService {
         user.userId = userResponse.userId;
         user.username = userResponse.username;
         user.validated = userResponse.validated;
+        user.adFree = userResponse.adFree;
         if(userResponse.searchLimit === null) {
             this.cookieSvc.set(this.unlimitedCookie, 'unlimited', 1);
         } else {
@@ -131,7 +132,6 @@ export class AuthenticationService {
         if(userResponse.expirationDate !== null) {
             user.expirationDateFormat = this.helperSvc.unixToUTC(user.expirationDate, false);
         }
-        user.adFree = userResponse.accountTypeId > 1;
 
         this.user = user;
         this.currentUserSubject.next(user);

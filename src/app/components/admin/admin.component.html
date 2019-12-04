@@ -101,10 +101,11 @@
                     Tokens: <p-checkbox [(ngModel)]="editBlockchain.hasTokens" binary="true"></p-checkbox>
                 </div>
                 <div>
-                    Type: <input type="string" pInputText [(ngModel)]="editBlockchain.type" />
+                    Type: <p-dropdown [options]="blockchainTypes" [(ngModel)]="editBlockchain.type" placeholder="Select a type"></p-dropdown>
+                    <br> reference <a href="https://steemitimages.com/p/JvFFVmatwWHRfvmtd53nmEJ94xpKydwmbSC5H5svBACH7z9fCvxPj3CUpU5kRMqxvo3QmGpg9v2A69xAuWstsksJTeppQPZHkdEz9cKdbch8TSxpsm43E3KokjEFFRqzaREev4uQqU?format=match&mode=fit&width=640" target="_blank">here</a> and <a href="https://coinnewstelegraph.com/wp-content/uploads/2018/06/cryptocurrency-periodic-table-chart-9-types-of-blockchain-assets-categories.jpg" target="_blank">here</a>
                 </div>
                 <div>
-                    Status: <input type="string" pInputText [(ngModel)]="editBlockchain.status" />
+                    Status: <p-dropdown [options]="blockchainStatuses" [(ngModel)]="editBlockchain.status" placeholder="Select a status"></p-dropdown>
                 </div>
                 <p-button label="Save" (onClick)="saveBC()"></p-button>
                 &nbsp;&nbsp;

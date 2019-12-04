@@ -1,17 +1,44 @@
 <h2>Chain Hunter Accounts</h2>
 
 <div class="p-grid">
-    <div class="p-col-12 p-lg-4" *ngFor="let account of accounts; let i = index">
-        <p-card header="{{i === 0 ? 'Good' : i === 1 ? 'Better' : 'Best'}}">
-            <h2 class="center">{{account.name}}</h2>
-            <h4 class="center">Daily Hunt Limit: <span class="biggie" *ngIf="account.searchLimit === null">Unlimited</span><span class="biggie" *ngIf="account.searchLimit !== null">{{account.searchLimit}}</span></h4>
-            <h4 class="center">Total Saved Hunts: <span class="biggie" *ngIf="account.saveLimit === null">Unlimited</span><span class="biggie" *ngIf="account.saveLimit !== null">{{account.saveLimit}}</span></h4>
-            <h3 *ngIf="i > 0" class="center">Ad Free!</h3>
-            <h3 class="center">${{account.yearly}}</h3>
-            <div class="center">
-                <p-button *ngIf="!loggedIn" label="Sign Up!" (click)="onOrder(account.id)" styleClass="ui-button-success"></p-button>
-                <p-button *ngIf="loggedIn && user.accountTypeId < account.id" label="Upgrade Now!" (click)="onUpgrade(account)" styleClass="ui-button-success"></p-button>
+    <!-- <div class="p-col-12 p-lg-4" *ngFor="let account of accounts">
+        <p-card> -->
+            <div class="pricing-table p-col-12 p-lg-2" *ngFor="let account of accounts">
+                <h3 class="pricing-title">{{account.name}}</h3>
+                <div class="price">${{account.yearly}}<sup *ngIf="account.yearly > 0">one time</sup></div>
+                <ul class="table-list">
+                    <li>
+                        <span class="biggie" *ngIf="account.saveLimit === null">Unlimited</span>
+                        <span class="biggie" *ngIf="account.saveLimit !== null">{{account.saveLimit}}</span>
+                        &nbsp;Saved Hunts
+                    </li>
+                    <li>
+                        <span class="biggie" *ngIf="account.searchLimit === null">Unlimited</span>
+                        <span class="biggie" *ngIf="account.searchLimit !== null">{{account.searchLimit}}</span>
+                        &nbsp;Daily Searches
+                    </li>
+                    <li *ngIf="account.adFree">
+                        <span class="biggie">Ad Free</span>
+                    </li>
+                </ul>
+                <div class="table-detail">{{account.description}}</div>
+                <div *ngIf="account.name !== 'Guest'" class="table-buy">
+                    <!-- <a *ngIf="!loggedIn" routerLink="" (click)="onOrder(account.id)" class="pricing-action">Sign Up!</a>
+                    <a *ngIf="loggedIn && user.accountTypeId < account.id" routerLink="" (click)="onUpgrade(account)" class="pricing-action">Upgrade Now!</a> -->
+                    <p-button *ngIf="!loggedIn" label="Sign Up!" (click)="onOrder(account.id)" styleClass="ui-button-success"></p-button>
+                    <p-button *ngIf="loggedIn && user.accountTypeId < account.id" label="Upgrade Now!" (click)="onUpgrade(account)" styleClass="ui-button-success"></p-button>
+                </div>
+
+                <!-- <p class="center">{{account.description}}</p>
+                <h4 class="center">Daily Hunt Limit: <span class="biggie" *ngIf="account.searchLimit === null">Unlimited</span><span class="biggie" *ngIf="account.searchLimit !== null">{{account.searchLimit}}</span></h4>
+                <h4 class="center">Total Saved Hunts: <span class="biggie" *ngIf="account.saveLimit === null">Unlimited</span><span class="biggie" *ngIf="account.saveLimit !== null">{{account.saveLimit}}</span></h4>
+                <h3 class="center">Ad Free!</h3>
+                <h3 class="center">${{account.yearly}}</h3>
+                <div *ngIf="account.name !== 'Guest'" class="center">
+                    <p-button *ngIf="!loggedIn" label="Sign Up!" (click)="onOrder(account.id)" styleClass="ui-button-success"></p-button>
+                    <p-button *ngIf="loggedIn && user.accountTypeId < account.id" label="Upgrade Now!" (click)="onUpgrade(account)" styleClass="ui-button-success"></p-button>
+                </div> -->
             </div>
-        </p-card>
-    </div>
+        <!-- </p-card>
+    </div> -->
 </div>

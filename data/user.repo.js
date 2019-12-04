@@ -14,7 +14,8 @@ const pool = new Pool({
  * Get all users
  */
 const getAll = async() => {
-    let sql = 'SELECT * from public."user"';
+    let sql = `SELECT email, "userId", created, "expirationDate", username, hash, validated, "accountTypeId" 
+    from public."user"`;
 
     try {
         const res = await pool.query(sql);
@@ -30,7 +31,9 @@ const getAll = async() => {
  * @param {string} email email address
  */
 const getByEmail = async(email) => {
-    let sql = 'SELECT * FROM public."user" WHERE email = $1';
+    let sql = `SELECT email, "userId", created, "expirationDate", username, hash, validated, "accountTypeId" 
+    FROM public."user" 
+    WHERE email = $1`;
 
     try {
         const res = await pool.query(sql, [email]);
@@ -46,7 +49,9 @@ const getByEmail = async(email) => {
  * @param {string} username username
  */
 const getByUsername = async(username) => {
-    let sql = 'SELECT * FROM public."user" WHERE "username" = $1';
+    let sql = `SELECT email, "userId", created, "expirationDate", username, hash, validated, "accountTypeId" 
+    FROM public."user" 
+    WHERE "username" = $1`;
 
     try {
         const res = await pool.query(sql, [username]);
@@ -62,7 +67,9 @@ const getByUsername = async(username) => {
  * @param {string} userId user id
  */
 const get = async(userId) => {
-    let sql = 'SELECT * FROM public."user" WHERE "userId" = $1';
+    let sql = `SELECT email, "userId", created, "expirationDate", username, hash, validated, "accountTypeId" 
+    FROM public."user" 
+    WHERE "userId" = $1`;
 
     try {
         const res = await pool.query(sql, [userId]);
@@ -78,8 +85,9 @@ const get = async(userId) => {
  * @param {object} user user object
  */
 const add = async(user) => {
-    let sql = 'INSERT INTO public."user" ( email, created, "userId", "accountTypeId", username, "expirationDate", hash, validated ) ';
-    sql += 'VALUES ( $1, $2, $3, $4, $5, $6, $7, $8 )';
+    let sql = `INSERT INTO public."user" ( email, created, "userId", "accountTypeId", username, "expirationDate", hash, validated ) 
+    VALUES ( $1, $2, $3, $4, $5, $6, $7, $8 )`;
+
     const data = [
         user.email,
         user.created, 
@@ -105,8 +113,9 @@ const add = async(user) => {
  * @param {object} user user object
  */
 const update = async(user) => {
-    let sql = 'UPDATE public."user" SET email = $1, "accountTypeId" = $2, username = $3, "expirationDate" = $4 ';
-    sql += 'WHERE "userId" = $5'
+    let sql = `UPDATE public."user" SET email = $1, "accountTypeId" = $2, username = $3, "expirationDate" = $4 
+    WHERE "userId" = $5`;
+
     const data = [
         user.email, 
         user.created, 
@@ -131,8 +140,9 @@ const update = async(user) => {
  * @param {string} username user name
  */
 const updateUsername = async(userId, username) => {
-    let sql = 'UPDATE public."user" SET username = $2 ';
-    sql += 'WHERE "userId" = $1'
+    let sql = `UPDATE public."user" SET username = $2 
+    WHERE "userId" = $1`;
+
     const data = [
         userId, 
         username
@@ -154,8 +164,9 @@ const updateUsername = async(userId, username) => {
  * @param {number} expirationDate account type expiration date
  */
 const updateAccount = async(userId, accountTypeId, expirationDate = null) => {
-    let sql = 'UPDATE public."user" SET "accountTypeId" = $2, "expirationDate" = $3 ';
-    sql += 'WHERE "userId" = $1'
+    let sql = `UPDATE public."user" SET "accountTypeId" = $2, "expirationDate" = $3 
+    WHERE "userId" = $1`;
+
     const data = [
         userId, 
         accountTypeId,
@@ -177,8 +188,9 @@ const updateAccount = async(userId, accountTypeId, expirationDate = null) => {
  * @param {number} validationTS validate date
  */
 const validate = async(userId, validationTS) => {
-    let sql = 'UPDATE public."user" SET validated = $2 ';
-    sql += 'WHERE "userId" = $1'
+    let sql = `UPDATE public."user" SET validated = $2 
+    WHERE "userId" = $1`;
+
     const data = [
         userId, 
         validationTS
@@ -200,8 +212,9 @@ const validate = async(userId, validationTS) => {
  * @param {string} newHash new password hash
  */
 const updatePassword = async(userId, oldHash, newHash) => {
-    let sql = 'UPDATE public."user" SET hash = $3 ';
-    sql += 'WHERE "userId" = $1 AND hash = $2'
+    let sql = `UPDATE public."user" SET hash = $3 
+    WHERE "userId" = $1 AND hash = $2`;
+
     const data = [
         userId, 
         oldHash, 
@@ -223,8 +236,9 @@ const updatePassword = async(userId, oldHash, newHash) => {
  * @param {string} hash password hash
  */
 const setPassword = async(userId, hash) => {
-    let sql = 'UPDATE public."user" SET hash = $2 ';
-    sql += 'WHERE "userId" = $1'
+    let sql = `UPDATE public."user" SET hash = $2 
+    WHERE "userId" = $1`;
+
     const data = [
         userId, 
         hash
@@ -244,13 +258,17 @@ const setPassword = async(userId, hash) => {
  * @param {string} userId user id
  */
 const getUserAndAccount = async(userId) => {
-    let sql = 'SELECT a.*, b."searchLimit", b."saveLimit", b."name" as "accountType", c."savedHunts" ';
-	sql += 'FROM public."user" a ';
-	sql += 'LEFT JOIN public."accountType" b ';
-    sql += 'on a."accountTypeId" = b.id ';
-	sql += 'LEFT JOIN  (SELECT "userId", Count("userId") as "savedHunts" FROM public."userData" where active = true group by "userId") c ';
-	sql += 'on a."userId" = c."userId" ';
-    sql += 'WHERE a."userId" = $1';
+    let sql = `SELECT a.email, a."userId", a.created, a."expirationDate", a.username, a.hash, a.validated, a."accountTypeId"
+    , b."searchLimit", b."saveLimit", b."name" as "accountType", c."savedHunts", b."adFree"
+    , case when d."emailAddress" isnull then false else true end "emailSubscription" 
+    FROM public."user" a 
+    LEFT JOIN public."accountType" b 
+    on a."accountTypeId" = b.id 
+    LEFT JOIN  (SELECT "userId", Count("userId") as "savedHunts" FROM public."userData" where active = true group by "userId") c 
+    on a."userId" = c."userId" 
+	LEFT JOIN public."emailSubscription" d
+	on a.email = d."emailAddress"
+    WHERE a."userId" = $1`;
 
     try {
         const res = await pool.query(sql, [ userId ]);

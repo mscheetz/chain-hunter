@@ -8,4 +8,9 @@ export class AccountType {
     saveLimit: number;
     monthly: number;
     yearly: number;
+    description: string;
+    tag: string;
+    registrationRequired: boolean;
+    sortOrder: number;
+    adFree: boolean;
 }

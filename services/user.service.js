@@ -46,8 +46,8 @@ const login = async(email, password) => {
         user = await accountValidation(user);
         
         const token = await encryptionSvc.getToken(user.userId);
-        const subscribed = await emailRepo.get(user.email);
-        user.emailSubscription = subscribed.length > 0 ? true : false;
+        // const subscribed = await emailRepo.get(user.email);
+        // user.emailSubscription = subscribed.length > 0 ? true : false;
         user.token = token;
         if(user.savedHunts === null) {
             user.savedHunts = 0;
@@ -559,7 +559,9 @@ const getPromoCode = async(code, accountUuid) => {
  * Get all account types
  */
 const getAccountTypes = async() => {
-    const accounts = await accountTypeRepo.getAll();
+    let accounts = await accountTypeRepo.getAll();
+
+    accounts = _.orderBy(accounts, "sortOrder");
 
     return responseSvc.successMessage(accounts);
 }

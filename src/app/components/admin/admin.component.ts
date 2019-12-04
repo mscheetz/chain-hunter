@@ -35,6 +35,8 @@ export class AdminComponent implements OnInit {
   viewDiscountCodes: boolean = false;
   blockchains: Blockchain[] = [];
   editBlockchain: Blockchain = new Blockchain();
+  blockchainStatuses: SelectItem[] = [];
+  blockchainTypes: SelectItem[] = [];
 
   constructor(private apiSvc: ApiService, 
               private helperSvc: HelperService,
@@ -49,6 +51,9 @@ export class AdminComponent implements OnInit {
           this.userCounts = res;
         });
 
+    this.blockchainStatuses.push({ label: 'Active', value: 1 });
+    this.blockchainStatuses.push({ label: 'Future', value: 0 });
+
     this.apiSvc.getAccountTypes()
         .subscribe(res => {
           this.accountTypes = res;
@@ -61,6 +66,14 @@ export class AdminComponent implements OnInit {
         });
     this.getDiscountCodes();
     this.getBlockchains();
+    this.getBlockchainTypes();
+  }
+
+  getBlockchainTypes() {
+    const types = ['Payment','Protocol','Storage','Platform','Privacy','Computation','Stable Coin','Exchange','Streaming','Content','Enterprise','Gaming','Social','IoT', 'Database'];
+    types.forEach(type => {
+      this.blockchainTypes.push({ label: type, value: type });
+    })
   }
 
   toggleBlockchains() {

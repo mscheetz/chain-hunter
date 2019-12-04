@@ -86,6 +86,14 @@ const validateString = function(toValidate) {
 }
 
 /**
+ * Upper Case the 1st letter of a string
+ * @param {string} string string to modify
+ */
+const firstCharUpperCase = function(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+/**
  * Rounding for currency
  * @param {number} value value to round
  */
@@ -94,7 +102,7 @@ const currencyRound = function(value) {
 }
 
 /**
- * conver unix time to utc time
+ * convert unix time to utc time
  * 
  * @param timestamp Unix timestamp
  */
@@ -895,6 +903,7 @@ const searchType = function(chain, toFind) {
 module.exports = {
     validateEmail,
     validateString,
+    firstCharUpperCase,
     currencyRound,
     getSimpleIO,
     getSimpleIOAddresses,

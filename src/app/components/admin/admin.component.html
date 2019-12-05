@@ -13,6 +13,8 @@
         <p-button label="Blockchains" (onClick)="toggleBlockchains()"></p-button>
         &nbsp;&nbsp;
         <p-button label="Discount Codes" (onClick)="toggleDiscountCodes()"></p-button>
+        &nbsp;&nbsp;
+        <p-button label="Searches" (onClick)="toggleSearches()"></p-button>
     </div>
     <div *ngIf="viewDiscountCodes" class="p-col-12 p-lg-10">
         <p-button label="New Code" (onClick)="createCode()"></p-button>
@@ -131,6 +133,35 @@
                     <td>{{bc.status === '1' ? 'Active' : 'Future'}}</td>
                     <td>{{bc.hasTokens ? 'X' : ''}}</td>
                     <td>{{bc.hasContracts ? 'X' : ''}}</td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+    <div *ngIf="viewSearches" class="p-col-12 p-lg-10">
+        <div>Last {{lastSearches.length}} Searches</div>
+        <p-table [value]="lastSearches">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>Country</th>
+                    <th>Region</th>
+                    <th>City</th>
+                    <th>Metro</th>
+                    <th>Timezone</th>
+                    <th>Chain</th>
+                    <th>Search Type</th>
+                    <th>Date</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-bc>
+                <tr>
+                    <td>{{bc.country}}</td>
+                    <td>{{bc.region}}</td>
+                    <td>{{bc.city}}</td>
+                    <td>{{bc.metro}}</td>
+                    <td class="word-break">{{bc.timezone}}</td>
+                    <td>{{bc.chain.toUpperCase()}}</td>
+                    <td class="word-break">{{bc.searchType}}</td>
+                    <td>{{bc.searchDate}}</td>
                 </tr>
             </ng-template>
         </p-table>

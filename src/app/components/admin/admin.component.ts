@@ -8,6 +8,7 @@ import { UserCounts } from 'src/app/classes/user-counts.class';
 import { AccountType } from 'src/app/classes/account-type.class';
 import { ThrowStmt } from '@angular/compiler';
 import { Blockchain } from 'src/app/classes/ChainHunter/blockchain.class';
+import { SearchResult } from 'src/app/classes/search-result.class';
 
 @Component({
   selector: 'app-admin',
@@ -33,10 +34,13 @@ export class AdminComponent implements OnInit {
   timeZones: SelectItem[] = [];
   viewBlockchains: boolean = false;
   viewDiscountCodes: boolean = false;
+  viewSearches: boolean = false;
   blockchains: Blockchain[] = [];
   editBlockchain: Blockchain = new Blockchain();
   blockchainStatuses: SelectItem[] = [];
   blockchainTypes: SelectItem[] = [];
+  lastSearches: SearchResult[] = [];
+  searchResults: any;
 
   constructor(private apiSvc: ApiService, 
               private helperSvc: HelperService,
@@ -67,6 +71,7 @@ export class AdminComponent implements OnInit {
     this.getDiscountCodes();
     this.getBlockchains();
     this.getBlockchainTypes();
+    this.getSearchData();
   }
 
   getBlockchainTypes() {
@@ -76,13 +81,32 @@ export class AdminComponent implements OnInit {
     })
   }
 
+  getSearchData() {
+    this.apiSvc.getResultsByBlockchain()
+        .subscribe(res => {
+          this.searchResults = res;
+        });
+    this.apiSvc.getLastSearch()
+        .subscribe(res => {
+          this.lastSearches = res;
+        });
+  }
+
   toggleBlockchains() {
     this.viewBlockchains = !this.viewBlockchains;
     this.viewDiscountCodes = false;
+    this.viewSearches = false
   }
 
   toggleDiscountCodes() {
     this.viewDiscountCodes = !this.viewDiscountCodes;
+    this.viewBlockchains = false;
+    this.viewSearches = false
+  }
+
+  toggleSearches() {
+    this.viewSearches = !this.viewSearches;
+    this.viewDiscountCodes = false;
     this.viewBlockchains = false;
   }
 

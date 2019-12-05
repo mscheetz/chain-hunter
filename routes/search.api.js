@@ -1,93 +1,57 @@
 const express = require("express");
 const router = express.Router();
-const dataSvc = require("../data/dataIntegration.service");
+const searchSvc = require("../services/search-result.service");
 const apiHelp = require("../services/apihelper.service");
 
-router.get(
-  "/api/results/country",
-  apiHelp.asyncMiddleware(async (req, res, next) => {
-    const headerMsg = apiHelp.headerCheck(req);
-    if (!headerMsg.status) {
-      apiHelp.errorResponse(res);
-    } else {
-      const results = await dataSvc.getResultsByCountry();
+router.get("/api/results/country", apiHelp.bootlegMiddleware, async(req,res,next) => {  
+  const result = await searchSvc.getResultsByCountry();
 
-      res.status(200).json(results);
-    }
-  })
-);
+  res.status(result.code).json(result.data);
+});
 
-router.get(
-  "/api/results/country/:country/region",
-  apiHelp.asyncMiddleware(async (req, res, next) => {
-    const headerMsg = apiHelp.headerCheck(req);
-    if (!headerMsg.status) {
-      apiHelp.errorResponse(res);
-    } else {
-      const country = req.params.country;
-      const results = await dataSvc.getResultsByRegion(country);
+router.get("/api/results/country/:country/region", apiHelp.bootlegMiddleware, async(req,res,next) => {  
+  const country = req.params.country;
+  const result = await searchSvc.getResultsByRegion(country);
 
-      res.status(200).json(results);
-    }
-  })
-);
+  res.status(result.code).json(result.data);
+});
 
-router.get(
-  "/api/results/country/:country/region/:region/city",
-  apiHelp.asyncMiddleware(async (req, res, next) => {
-    const headerMsg = apiHelp.headerCheck(req);
-    if (!headerMsg.status) {
-      apiHelp.errorResponse(res);
-    } else {
-      const country = req.params.country;
-      const region = req.params.region;
-      const results = await dataSvc.getResultsByCity(country, region);
+router.get("/api/results/country/:country/region/:region/city", apiHelp.bootlegMiddleware, async(req,res,next) => {  
+  const country = req.params.country;
+  const region = req.params.region;
+  const result = await searchSvc.getResultsByCity(country, region);
 
-      res.status(200).json(results);
-    }
-  })
-);
+  res.status(result.code).json(result.data);
+});
 
-router.get(
-  "/api/results/region",
-  apiHelp.asyncMiddleware(async (req, res, next) => {
-    const headerMsg = apiHelp.headerCheck(req);
-    if (!headerMsg.status) {
-      apiHelp.errorResponse(res);
-    } else {
-      const results = await dataSvc.getResultsByRegion();
+router.get("/api/results/region", apiHelp.bootlegMiddleware, async(req,res,next) => {  
+  const result = await searchSvc.getResultsByRegion();
 
-      res.status(200).json(results);
-    }
-  })
-);
+  res.status(result.code).json(result.data);
+});
 
-router.get(
-  "/api/results/city",
-  apiHelp.asyncMiddleware(async (req, res, next) => {
-    const headerMsg = apiHelp.headerCheck(req);
-    if (!headerMsg.status) {
-      apiHelp.errorResponse(res);
-    } else {
-      const results = await dataSvc.getResultsByCity();
+router.get("/api/results/city", apiHelp.bootlegMiddleware, async(req,res,next) => {  
+  const result = await searchSvc.getResultsByCity();
 
-      res.status(200).json(results);
-    }
-  })
-);
+  res.status(result.code).json(result.data);
+});
 
-router.get(
-  "/api/results/timezone",
-  apiHelp.asyncMiddleware(async (req, res, next) => {
-    const headerMsg = apiHelp.headerCheck(req);
-    if (!headerMsg.status) {
-      apiHelp.errorResponse(res);
-    } else {
-      const results = await dataSvc.getResultsByTimezone();
+router.get("/api/results/timezone", apiHelp.bootlegMiddleware, async (req, res, next) => {
+  const result = await searchSvc.getResultsByTimezone();
 
-      res.status(200).json(results);
-    }
-  })
-);
+  res.status(result.code).json(result.data);
+});
+
+router.get("/api/results/blockchains", apiHelp.bootlegMiddleware, async(req,res,next) => {  
+  const result = await searchSvc.getResultsByBlockchain();
+
+  res.status(result.code).json(result.data);
+});
+
+router.get("/api/results/latest", apiHelp.bootlegMiddleware, async(req,res,next) => {  
+  const result = await searchSvc.getLastSearch();
+
+  res.status(result.code).json(result.data);
+});
 
 module.exports = router;

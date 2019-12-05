@@ -18,6 +18,7 @@ import { PaymentTypeDetail } from '../classes/payment-type-detail.class';
 import { Order } from '../classes/order.class';
 import { DiscountCode } from '../classes/discount-code.class';
 import { UserCounts } from 'src/app/classes/user-counts.class';
+import { SearchResult } from '../classes/search-result.class';
 
 @Injectable({providedIn: 'root'})
 export class ApiService{
@@ -589,6 +590,24 @@ export class ApiService{
         let url: string = this.baseUrl + endpoint;
 
         let result = this.onPatch<boolean>(url, data, true);
+
+        return result;
+    }
+
+    getResultsByBlockchain(): Observable<any> {
+        let endpoint: string = `/api/results/blockchains`;
+        let url: string = this.baseUrl + endpoint;
+
+        let result = this.onGet<any>(url);
+
+        return result;
+    }
+
+    getLastSearch(): Observable<SearchResult[]> {
+        let endpoint: string = `/api/results/latest`;
+        let url: string = this.baseUrl + endpoint;
+
+        let result = this.onGet<SearchResult[]>(url);
 
         return result;
     }

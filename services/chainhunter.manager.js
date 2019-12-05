@@ -1,4 +1,4 @@
-const dataSvc = require("../data/dataIntegration.service");
+const dataSvc = require("./search-result.service");
 const blockchainRepo = require('../data/blockchain.repo');
 const encryptionSvc = require('./encryption.service');
 const _ = require('lodash');
@@ -35,6 +35,7 @@ const xtz = require('./blockchains/xtz.js');
 const zel = require('./blockchains/zel.js');
 const zen = require('./blockchains/zen.js');
 const zil = require('./blockchains/zil.js');
+const vsys = require('./blockchains/vsys.js');
 
 const getChains = function() {
     const chains = [
@@ -106,7 +107,9 @@ const getChains = function() {
  * Get active chains
  */
 const getActiveChains = async() => {    
-    const chains = await blockchainRepo.getActive();
+    let chains = await blockchainRepo.getActive();
+    // let vsys = await blockchainRepo.get('VSYS');
+    // chains.push(vsys);
 
     return chains;
 }
@@ -218,6 +221,8 @@ const getBlockchains = async(toFind) => {
             blockchains["ZEN"] = await zen.getBlockchain(blockchain, toFind);
         } else if(chains[i].symbol === 'ZIL') {
             blockchains["ZIL"] = await zil.getBlockchain(blockchain, toFind);
+        } else if(chains[i].symbol === 'VSYS') {
+            blockchains["VSYS"] = await vsys.getBlockchain(blockchain, toFind);
         // } else if(chains[i].symbol === 'DCR') {
         //     blockchains["DCR"] = await dcr.getBlockchain(toFind);
         }
@@ -304,6 +309,8 @@ const getBlockchain = async(chain, toFind, ip, ipInfo, type = enums.searchType.n
         result = await zen.getBlockchain(blockchain, toFind, type);
     } else if (chain === "zil") {
         result = await zil.getBlockchain(blockchain, toFind, type);
+    } else if (chain === "vsys") {
+        result = await vsys.getBlockchain(blockchain, toFind, type);
     // } else if (chain === "dcr") {
     //     return await dcr.getBlockchain(toFind);
     }
@@ -439,6 +446,8 @@ const getTransactions = async(chain, address, ip, ipInfo) => {
         transactions = await zen.getTransactions(address);
     } else if (chain === "zil") {
         transactions = await zil.getTransactions(address);
+    } else if (chain === "vsys") {
+        transactions = await vsys.getTransactions(address);
     // } else if (chain === "dcr") {
     //     return await dcr.getTransactions(address);
     }

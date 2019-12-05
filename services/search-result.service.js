@@ -1,5 +1,6 @@
-const searchRepo = require('./search-results.repo');
-const helperSvc = require('../services/helper.service.js')
+const searchRepo = require('../data/search-results.repo');
+const helperSvc = require('./helper.service.js')
+const responseSvc = require('./response.service');
 
 /**
  * Update search results table in database
@@ -11,16 +12,30 @@ const helperSvc = require('../services/helper.service.js')
 const updateSearchResult = async(ipAddress, ipInfo, chain, type) => {
 
   if(ipAddress !== "::1") {
-    let searchResult = {
-      country: ipInfo.country, 
-      region: ipInfo.region, 
-      city: ipInfo.city, 
-      metro: ipInfo.metro,
-      timezone: ipInfo.timezone, 
-      chain: chain,
-      searchAt: helperSvc.getUnixTS(),
-      searchType: type
-    };
+    let searchResult = {};
+    if(typeof ipInfo === 'undefined' || ipInfo === null) {
+      searchResult = {
+        country: '?', 
+        region: '?', 
+        city: '?', 
+        metro: 0,
+        timezone: '?', 
+        chain: chain,
+        searchAt: helperSvc.getUnixTS(),
+        searchType: type
+      };
+    } else {
+      searchResult = {
+        country: ipInfo.country, 
+        region: ipInfo.region, 
+        city: ipInfo.city, 
+        metro: ipInfo.metro,
+        timezone: ipInfo.timezone, 
+        chain: chain,
+        searchAt: helperSvc.getUnixTS(),
+        searchType: type
+      };
+    }
     await searchRepo.add(searchResult);
   }
 }
@@ -48,7 +63,7 @@ const getResultsByCountry = async() => {
       counts.push(country, ...chainCounts);
     })
 
-    return counts;
+    return responseSvc.successMessage(counts);
 }
 
 /**
@@ -78,7 +93,7 @@ const getResultsByRegion = async(country = null) => {
         counts.push(region, ...chainCounts);
     })
     
-    return counts;
+    return responseSvc.successMessage(counts);
 }
 
 /**
@@ -113,7 +128,7 @@ const getResultsByCity = async(country = null, region = null) => {
       counts.push(city, ...chainCounts);
     })
     
-    return counts;
+    return responseSvc.successMessage(counts);
 }
 
 /**
@@ -139,7 +154,42 @@ const getResultsByTimezone = async() => {
       counts.push(timezone, ...chainCounts);
     })
 
-    return counts;
+    return responseSvc.successMessage(counts);
+}
+
+const getResultsByBlockchain = async() => {
+  const results = await searchRepo.getAll();
+
+
+  let chains = results.map(r => r.chain)
+  .filter((value, idx, self) => self.indexOf(value) === idx);
+
+  let searchTypes = results.map(r => r.searchType)
+  .filter((value, idx, self) => self.indexOf(value) === idx);
+
+  let counts = [];
+
+  chains.forEach(chain => {
+    let typeCounts = [];
+    searchTypes.forEach(type => {
+      let count = results.filter(r => r.chain === chain && r.searchType === type).length;
+      typeCounts.push({ type, count});
+    })
+    counts.push(chain, ...typeCounts);
+  })
+
+  return responseSvc.successMessage(counts);
+}
+
+const getLastSearch = async() => {
+  let searches = await searchRepo.getLastSearch();
+
+  searches.forEach(s => {
+    const ts = Math.floor(s.searchAt/1000);
+    s.searchDate = helperSvc.unixToUTC(ts);
+  });
+
+  return responseSvc.successMessage(searches);
 }
 
 module.exports = {
@@ -147,5 +197,7 @@ module.exports = {
     getResultsByCountry,
     getResultsByRegion,
     getResultsByCity,
-    getResultsByTimezone
+    getResultsByTimezone,
+    getResultsByBlockchain,
+    getLastSearch
 }

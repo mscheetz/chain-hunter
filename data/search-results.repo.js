@@ -14,7 +14,23 @@ const pool = new Pool({
  * Get all search results
  */
 const getAll = async() => {
-    let sql = 'SELECT * FROM public."searchResults"';
+    let sql = `SELECT country, region, city, metro, timezone, chain, "searchType", "searchAt" 
+    FROM public."searchResults"`;
+
+    try {
+        const res = await pool.query(sql);
+
+        return res.rows;
+    } catch(err) {
+        console.log(err);
+    }
+}
+
+const getLastSearch = async() => {
+    let sql = `SELECT country, region, city, metro, timezone, chain, "searchType", "searchAt"
+	FROM public."searchResults"
+	order by "searchAt" desc
+	limit 5;`;
 
     try {
         const res = await pool.query(sql);
@@ -30,8 +46,9 @@ const getAll = async() => {
  * @param {object} searchResult search result object
  */
 const add = async(searchResult) => {
-    let sql = 'INSERT INTO public."searchResults" ( country, region, city, metro, timezone, chain, "searchType", "searchAt" ) ';
-    sql += 'VALUES ( $1, $2, $3, $4, $5, $6, $7, $8 )';
+    let sql = `INSERT INTO public."searchResults" ( country, region, city, metro, timezone, chain, "searchType", "searchAt" ) 
+    VALUES ( $1, $2, $3, $4, $5, $6, $7, $8 )`;
+
     const data = [ 
         searchResult.country, 
         searchResult.region, 
@@ -54,5 +71,6 @@ const add = async(searchResult) => {
 
 module.exports = {
     getAll,
+    getLastSearch,
     add
 }

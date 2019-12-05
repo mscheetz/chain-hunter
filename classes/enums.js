@@ -29,7 +29,8 @@ const blockchainType = {
     ENTERPRISE : 'Enterprise',
     GAMING : 'Gaming',
     SOCIAL : 'Social',
-    IOT : 'IoT'
+    IOT : 'IoT',
+    DATABASE: 'Database'
 }
 
 /**

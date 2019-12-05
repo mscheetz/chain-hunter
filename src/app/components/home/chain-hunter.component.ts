@@ -56,8 +56,9 @@ export class ChainHunterComponent implements OnInit {
                 private messageSvc: MessageService) {
         this.titleService.setTitle("The Chain Hunter : Multi Blockchain Search | BTC, ETH, LTC, BCH, XRP, and more!");}
 
-    ngOnInit() {        
+    ngOnInit() {
         this.windowWidth = window.innerWidth;
+        this.guestAccountSearchLimit();
         this.getChains();
         this.nullOut();
         this.updateMenuItems();
@@ -66,6 +67,17 @@ export class ChainHunterComponent implements OnInit {
     @HostListener('window:resize', ['$event'])
     onResize(event){
         this.windowWidth = window.innerWidth;
+    }
+
+    guestAccountSearchLimit() {
+        this.apiSvc.getAccountTypes()
+            .subscribe(res => {
+                res.forEach(r =>{
+                    if(r.name === 'Guest') {
+                        this.searchLimitSize = +r.searchLimit;
+                    }
+                })
+            })
     }
 
     /**
@@ -213,7 +225,7 @@ export class ChainHunterComponent implements OnInit {
             this.cookieData = new CookieData();
             this.cookieData.requests = [];
         }
-        if(this.cookieData.requests.length > this.searchLimitSize) {
+        if(this.cookieData.requests.length > +this.searchLimitSize) {
             this.searchLimit = true;
         } else {
             this.searchLimit = false;

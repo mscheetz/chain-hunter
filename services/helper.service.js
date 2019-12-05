@@ -109,12 +109,14 @@ const currencyRound = function(value) {
 const unixToUTC = function(timestamp) {
     let dateTime = new Date(timestamp * 1000);
     let months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    let day = dateTime.getDate();
     let year = dateTime.getFullYear();
     let month = months[dateTime.getMonth()];
     let hour = dateTime.getHours() == 0 ? "00" : dateTime.getHours();
     let min = dateTime.getMinutes() == 0 ? "00" : dateTime.getMinutes();
     let sec = dateTime.getSeconds() == 0 ? "00" : dateTime.getSeconds();
-    let time = dateTime + '-' + month + '-' + year + ' ' + hour + ':' + min + ':' + sec ;
+    let time = day + '-' + month + '-' + year + ' ' + hour + ':' + min + ':' + sec ;
+    
     return time;
 }
 

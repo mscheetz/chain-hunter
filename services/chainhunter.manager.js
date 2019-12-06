@@ -108,8 +108,6 @@ const getChains = function() {
  */
 const getActiveChains = async() => {    
     let chains = await blockchainRepo.getActive();
-    // let vsys = await blockchainRepo.get('VSYS');
-    // chains.push(vsys);
 
     return chains;
 }
@@ -364,6 +362,8 @@ const getTokens = async(chain, address, ip, ipInfo) => {
         tokens = await iost.getTokens(address);
     } else if (chain === "tomo") {
         tokens = await tomo.getTokens(address);
+    } else if (chain === "vsys") {
+        tokens = await vsys.getTokens(address);
     }
 
     await dataSvc.updateSearchResult(

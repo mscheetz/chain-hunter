@@ -898,6 +898,24 @@ const searchType = function(chain, toFind) {
             return enums.searchType.nothing;
         }
     }
+    if(toFind.substr(0,2) === "AR" && toFind.length === 35) {
+        if(chain === "vsys") {
+            return enums.searchType.address;
+        } else {
+            return enums.searchType.transaction;
+        }
+    }
+    if(chain === "vsys") {
+        if(toFind.substr(0,2) === "AR" && toFind.length === 35) {
+            return enums.searchType.address;
+        } else if (toFind.length === 44) {
+            return enums.searchType.transaction;
+        } else if (toFind.length === 41) {
+            return enums.searchType.contract;
+        } else {
+            return enums.searchType.none;
+        }
+    }
 
     return enums.searchType.address | enums.searchType.transaction | enums.searchType.contract;
 }

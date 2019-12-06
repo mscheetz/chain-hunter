@@ -88,7 +88,7 @@ const getTransaction = async(hash) => {
     let url = base + endpoint;
 
     try{
-        const response = await axios.get(url);
+        const response = await axios.get(url, { timeout: 5000 });
         if(response.data !== null) {
             const data = response.data;
 

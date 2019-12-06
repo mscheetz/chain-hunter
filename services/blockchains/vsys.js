@@ -2,14 +2,15 @@ const axios = require('axios');
 const helperSvc = require('../helper.service.js');
 const base = "https://explorer.v.systems/api";
 const enums = require('../../classes/enums');
+const _ = require('lodash');
 const delay = time => new Promise(res=>setTimeout(res,time));
 
 const getEmptyBlockchain = async() => {
     const chain = {};
     chain.name = 'V Systems';
     chain.symbol = 'VSYS';
-    chain.hasTokens = false;
-    chain.hasContracts = false;
+    chain.hasTokens = true;
+    chain.hasContracts = true;
     chain.type = enums.blockchainType.PROTOCOL;
     chain.icon = "white/"+ chain.symbol.toLowerCase()  +".png";
 
@@ -18,6 +19,7 @@ const getEmptyBlockchain = async() => {
 
 const getBlockchain = async(chain, toFind, type) => {
     //const chain = await getEmptyBlockchain(blockchain);
+    let block = null;
     let address = null;
     let contract = null;
     let transaction = null;
@@ -26,25 +28,62 @@ const getBlockchain = async(chain, toFind, type) => {
             ? helperSvc.searchType(chain.symbol.toLowerCase(), toFind)
             : type;
 
+    if(searchType & enums.searchType.block) {
+        block = await getBlock(toFind);
+    }
     if(searchType & enums.searchType.address) {
         address = await getAddress(toFind);
     }
     if(searchType & enums.searchType.contract) {
         contract = await getContract(toFind);
     }
-    if(searchType & enums.searchType.transaction) {
+    if(contract === null && searchType & enums.searchType.transaction) {
         transaction = await getTransaction(toFind);
     }
     
+    chain.block = block;
     chain.address = address;
     chain.contract = contract;
     chain.transaction = transaction;
 
-    if(chain.address || chain.contract || chain.transaction) {
+    if(chain.block || chain.address || chain.contract || chain.transaction) {
         chain.icon = "color/"+ chain.symbol.toLowerCase()  +".png";
     }
 
     return chain;
+}
+
+const getBlock = async(blockNumber) => {
+    let endpoint = "/blocks/" + blockNumber;
+    let url = base + endpoint;
+
+    try{
+        const response = await axios.get(url);
+        if(typeof response.data.data !== "undefined" && response.data.data !== null && response.data.data.Height > 0) {
+            const datas = response.data.data;
+            let ts = datas.TimeStamp/1000000000;
+            let block = {
+                validator: datas.Generator,
+                transactionCount: datas.Txs,
+                date: helperSvc.unixToUTC(ts),
+                hasTransactions: true
+            };
+            if(datas.list.length > 0) {
+                const latestBlock = await getLatestBlock();
+                let transactions = []
+                for(let i = 0; i < datas.list.length; i++){
+                    const transaction = await buildTransaction(datas.list[i], latestBlock);
+                    transactions.push(transaction);
+                }
+                block.transactions = transactions;
+            }
+            return block;
+        } else {
+            return null;
+        }
+    } catch(error) {
+        return null;
+    }
 }
 
 const getAddress = async(addressToFind) => {
@@ -72,6 +111,43 @@ const getAddress = async(addressToFind) => {
     }
 }
 
+const getTokens = async(address) => {
+    let endpoint = `/getAddressTokenList/${address}`;
+    let url = base + endpoint;
+
+    try{        
+        const response = await axios.get(url);
+        if(typeof response.data.data === "undefined" || response.data.data === null || response.data.data.length === 0) {
+            return null;
+        }
+        const datas = response.data.data;
+        let tokens = [];
+        datas.forEach(data => {
+            tokens.push(buildToken(data));
+        })
+
+        return tokens;
+    } catch(error) {
+        return null;
+    }
+}
+
+const buildToken = function(data) {
+    const total = helperSvc.commaBigNumber(data.Balance);
+    const cleanedTotal = helperSvc.decimalCleanup(total);
+    let asset = {
+        quantity: cleanedTotal,
+        symbol: data.Token.Description,
+        name: data.Token.Name,
+        id: data.Token.Id
+    };
+    const icon = 'color/' + asset.symbol.toLowerCase() + '.png';
+    const iconStatus = helperSvc.iconExists(icon);
+    asset.hasIcon = iconStatus;
+
+    return asset;
+}
+
 const getContract = async(address) => {
     let endpoint = "/getTokenDetail";
     let url = base + endpoint;
@@ -79,23 +155,22 @@ const getContract = async(address) => {
         tokenId: address
     };
 
-    try{        
+    try{
         const response = await axios.post(url, data);
-        if(typeof response.data.data === "undefined" || response.data.data === null || response.data.data.List.length === 0) {
+        if(typeof response.data.data === "undefined" || response.data.data === null) {
             return null;
         }
         const datas = response.data.data;
-        const quantity = datas.TotalSupply;
-        const commad = helperSvc.commaBigNumber(quantity);
+        const quantity = datas.TotalSupply/1000000000;
+        const commad = helperSvc.commaBigNumber(quantity.toString());
 
         let contract = {
-            address: datas.ContractId,
+            address: datas.Id,
             quantity: commad,
             symbol: datas.Description,
             creator: datas.CreatorAddress,
             contractName: datas.Name
         };
-
         const icon = 'color/' + contract.symbol.toLowerCase() + '.png';
         const iconStatus = helperSvc.iconExists(icon);
         contract.hasIcon = iconStatus;
@@ -106,7 +181,64 @@ const getContract = async(address) => {
     }
 }
 
+const getTokenTransactions = async(address, contract, symbol) => {
+    let endpoint = "/getAddressTokenTransactions";
+    let url = base + endpoint;
+    let data = {
+        address: address,
+        tokenId: contract,
+        current: 1,
+        size: 10
+    };
+
+    try{        
+        const response = await axios.post(url, data);
+        if(typeof response.data.data === "undefined" || response.data.data === null || response.data.data.List.length === 0) {
+            return [];
+        }
+        const latestBlock = await getLatestBlock();
+        const datas = response.data.data.List;
+        let transactions = [];
+        for(let i = 0; i < datas.length; i++) {
+            let transaction = await buildTransaction(datas[i], latestBlock, symbol);
+
+            transaction = helperSvc.inoutCalculation(address, transaction);
+
+            transactions.push(transaction);
+        }
+
+        return transactions;
+    } catch(error) {
+        return [];
+    }
+}
+
 const getTransactions = async(address) => {
+    let transactions = await getAddressTransactions(address);
+    const tokens = await getTokens(address);
+    let tokensTxns = [];    
+    if(tokens.length > 0) {
+        for(let i = 0; i < tokens.length; i++){
+            const tokenTxns = await getTokenTransactions(address, tokens[i].id, tokens[i].symbol);
+            if(tokenTxns.length > 0){
+                tokenTxns.forEach(t => {
+                    tokensTxns.push(t);
+                });
+            }
+        }
+    }
+    if(tokensTxns.length > 0){
+        tokensTxns.forEach(t => {
+            transactions.push(t);
+        });
+    }
+    transactions = _.orderBy(transactions, "ts", "desc");
+    const sliceSize = transactions.length < 10 ? transactions.length : 10;
+
+    return transactions.slice(0, sliceSize);
+}
+
+const getAddressTransactions = async(address) => {
     let endpoint = "/addressTrans";
     let url = base + endpoint;
     let data = {
@@ -119,7 +251,7 @@ const getTransactions = async(address) => {
     try{        
         const response = await axios.post(url, data);
         if(typeof response.data.data === "undefined" || response.data.data === null || response.data.data.List.length === 0) {
-            return null;
+            return [];
         }
         const latestBlock = await getLatestBlock();
         const datas = response.data.data.List;
@@ -134,7 +266,7 @@ const getTransactions = async(address) => {
 
         return transactions;
     } catch(error) {
-        return null;
+        return [];
     }
 }
 
@@ -150,7 +282,6 @@ const getTransaction = async(hash) => {
         if(typeof response.data.data !== "undefined" && response.data.data !== null) {
             const datas = response.data.data;
             const latestBlock = await getLatestBlock();
-            
             const transaction = await buildTransaction(datas, latestBlock);
 
             return transaction;
@@ -174,8 +305,8 @@ const getLatestBlock = async() => {
         const response = await axios.post(url, data);
         if(typeof response.data.data !== "undefined" && response.data.data !== null && response.data.data.list.length > 0) {
             const datas = response.data.data.list;
-            
-            return datas.BlockId;
+
+            return datas[0].BlockId;
         } else {
             return 0;
         }
@@ -184,28 +315,44 @@ const getLatestBlock = async() => {
     }
 }
 
-const buildTransaction = async(txn, latestBlock) => {
+const buildTransaction = async(txn, latestBlock, symbol = "") => {
     let froms = [];
     let tos = [];    
-    let fromAddress = txn.SenderAddress;
+    let fromAddress = (typeof txn.SenderAddress === 'undefined') ? "" : txn.SenderAddress;
     let toAddress = txn.Recipient;
     let type = "";
-    let quantityString = txn.Amount.substr(0, txn.Amount.indexOf(' ')).trim();
-    let symbol = txn.Amount.substr(txn.Amount.indexOf(' ')).trim();
-    if(txn.TypeName === 'minting') {
-        type = enums.transactionType.STAKING;
-        fromAddress = "Minting";
-    } else if (txn.TypeName === 'payment') {
-        type = enums.transactionType.PAYMENT;
-    } else if (txn.TypeName === 'execute contract') {
+    let quantityString = "";
+    let ts = 0;
+    let height = (typeof txn.Height === 'undefined') ? 0 : txn.Height;
+    if(symbol === "")  {
+        symbol = txn.Amount.substr(txn.Amount.indexOf(' ')).trim();
+    }
+    if(typeof txn.TypeName === 'undefined') {
         type = enums.transactionType.TRANSFER;
-        const contract = await getContract(txn.ExplainParmList[0]);
-        symbol = contract.symbol;
-        quantityString = txn.ExplainParmList[1];
-        fromAddress = txn.ExplainParmList[2];
-        toAddress = txn.ExplainParmList[3];
+        fromAddress = txn.Sender;
+        toAddress = txn.Recipient;
+        quantityString = (txn.Amount / 1000000000).toString();
+        ts = txn.Timestamp;
     } else {
-        type = helperSvc.firstCharUpperCase(txn>TypeName);
+        quantityString = txn.Amount.substr(0, txn.Amount.indexOf(' ')).trim();
+        ts = txn.TimeStamp;
+        if(txn.TypeName === 'minting') {
+            type = enums.transactionType.STAKING;
+            fromAddress = "Minting";
+        } else if (txn.TypeName === 'payment') {
+            type = enums.transactionType.PAYMENT;
+        } else if (txn.TypeName === 'execute contract') {
+            type = enums.transactionType.CONTRACT;
+            if(typeof txn.ExplainParmList !== 'undefined' && txn.ExplainParmList !== null) {
+                const contract = await getContract(txn.ExplainParmList[0]);
+                symbol = contract.symbol;
+                quantityString = txn.ExplainParmList[1];
+                fromAddress = txn.ExplainParmList[2];
+                toAddress = txn.ExplainParmList[3];
+            }
+        } else {
+            type = helperSvc.firstCharUpperCase(txn.TypeName);
+        }
     }
     const quantity = parseFloat(quantityString);
 
@@ -216,16 +363,19 @@ const buildTransaction = async(txn, latestBlock) => {
 
     const fromData = helperSvc.cleanIO(froms);
     const toData = helperSvc.cleanIO(tos);
-    const confirmations = latestBlock - txn.Height;
-
+    const confirmations = latestBlock - height;
+    ts = ts / 1000000000;
+    
     let transaction = {
         type: type,
         hash: txn.Id,
-        block: txn.Height,
+        block: height,
         confirmations: confirmations,
-        date: helperSvc.unixToUTC(txn.TimeStamp),
+        date: helperSvc.unixToUTC(ts),        
         froms: fromData,
-        tos: toData
+        tos: toData,
+        success: txn.Status === "Success" ? "success" : "fail",
+        ts: ts
     };
 
     return transaction;
@@ -236,5 +386,8 @@ module.exports = {
     getBlockchain,
     getAddress,
     getTransactions,
-    getTransaction
+    getTransaction,
+    getContract,
+    getTokens,
+    getBlock
 }

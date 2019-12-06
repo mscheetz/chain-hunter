@@ -118,7 +118,7 @@ const getTokens = async(address) => {
     try{        
         const response = await axios.get(url);
         if(typeof response.data.data === "undefined" || response.data.data === null || response.data.data.length === 0) {
-            return null;
+            return [];
         }
         const datas = response.data.data;
         let tokens = [];
@@ -128,7 +128,7 @@ const getTokens = async(address) => {
 
         return tokens;
     } catch(error) {
-        return null;
+        return [];
     }
 }
 

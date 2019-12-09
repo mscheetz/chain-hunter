@@ -73,8 +73,7 @@ const getBlock = async(blockNumber) => {
                 let transactions = [];
 
                 for(const [key, value] of Object.entries(datas.micro_blocks)) {
-                    for(const [txnKey, txnValue] of Object.entries(value.transactions)) {
-                        console.log('value', txnValue);
+                    for(const [txnKey, txnValue] of Object.entries(value.transactions)) {                        
                         values.push(helperSvc.exponentialToNumber(txnValue.tx.amount)/1000000000000000000);
                         if(i < 10) {
                             const transaction = buildTransaction(txnValue, "", latestblock, ts, enums.searchType.block);

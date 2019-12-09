@@ -61,22 +61,41 @@ const getBlock = async(blockNumber) => {
         const response = await axios.get(url);
         if(typeof response.data.data !== "undefined" && response.data.data !== null && response.data.data.Height > 0) {
             const datas = response.data.data;
-            let ts = datas.TimeStamp/1000000000;
+            
+            let ts = datas.TimeStamp.toString().substr(0,10);
+            let size = datas.Size.replace("B","");
             let block = {
                 validator: datas.Generator,
                 transactionCount: datas.Txs,
                 date: helperSvc.unixToUTC(ts),
+                size: `${helperSvc.commaBigNumber(size)} bytes`,
+                hash: datas.Signature,
                 hasTransactions: true
             };
+            
             if(datas.list.length > 0) {
                 const latestBlock = await getLatestBlock();
-                let transactions = []
+                let values = [];
+                let transactions = [];
                 for(let i = 0; i < datas.list.length; i++){
+                    const txn = datas.list[i];
+                    if(txn.Amount.indexOf("VSYS") > 0) {
+                        const quantityString = txn.Amount.substr(0, txn.Amount.indexOf(' ')).trim();
+                        const quantity = parseFloat(quantityString);
+                        values.push(quantity);
+                    }
                     const transaction = await buildTransaction(datas.list[i], latestBlock);
                     transactions.push(transaction);
                 }
+                if(values.length > 0) {
+                    const summed = values.reduce((a, b) => a + b, 0);
+                    const total = helperSvc.commaBigNumber(summed.toString());
+
+                    block.txnVolume = total;
+                }
                 block.transactions = transactions;
             }
+            
             return block;
         } else {
             return null;

@@ -524,6 +524,9 @@ const inoutCalculation = function(address, transaction) {
  * @param {*} toFind search string
  */
 const searchType = function(chain, toFind) {
+    if(!isNaN(toFind)) {
+        return enums.searchType.block;
+    }
     if((chain === "aion" || chain === "etc" || chain === "eth" || chain === "tomo" || chain === "vet") 
         && toFind.substr(0, 2) !== "0x") {
         return enums.searchType.nothing;

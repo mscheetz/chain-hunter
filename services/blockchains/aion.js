@@ -18,6 +18,7 @@ const getEmptyBlockchain = async() => {
 const getBlockchain = async(chain, toFind, type) => {
     //const chain = await getEmptyBlockchain(blockchain);
 
+    let block = null;
     let address = null;
     let transaction = null;
     let contract = null;
@@ -26,6 +27,9 @@ const getBlockchain = async(chain, toFind, type) => {
             ? helperSvc.searchType(chain.symbol.toLowerCase(), toFind)
             : type;
 
+    if(searchType & enums.searchType.block) {
+        block = await getBlock(toFind);
+    }
     if(searchType & enums.searchType.address) {
         address = await getAddress(toFind);
     }
@@ -35,15 +39,44 @@ const getBlockchain = async(chain, toFind, type) => {
     if((searchType & enums.searchType.contract) && transaction === null) {
         contract = await getContract(toFind);
     }
+    chain.block = block
     chain.address = address;
     chain.transaction = transaction;
     chain.contract = contract;
     
-    if(chain.address || chain.transaction || chain.contract) {
+    if(chain.block || chain.address || chain.transaction || chain.contract) {
         chain.icon = "color/"+ chain.symbol.toLowerCase()  +".png";
     }
 
     return chain;
+}
+
+const getBlock = async(blockNumber) => {
+    let endpoint = `/block?blockNumber=${blockNumber}`;
+    let url = base.replace("dashboard", "v2/dashboard") + endpoint;
+
+    try{
+        const response = await axios.get(url);
+        if(typeof response.data !== "undefined" && response.data !== null && response.data.content !== null && response.data.content.length > 0) {
+            const datas = response.data.content[0];
+            let ts = datas.blockTimestamp;
+
+            let block = {
+                validator: hashCleanup(datas.minerAddress),
+                transactionCount: datas.numTransactions,
+                date: helperSvc.unixToUTC(ts),
+                size: `${helperSvc.commaBigNumber(datas.size.toString())} bytes`,
+                hash: hashCleanup(datas.blockHash),
+                hasTransactions: true
+            };
+
+            return block;
+        } else {
+            return null;
+        }
+    } catch(error) {
+        return null;
+    }
 }
 
 const getAddress = async(addressToFind) => {
@@ -129,8 +162,14 @@ const getAddressTokenContracts = async(address) => {
 }
 
 const getTransactions = async(address) => {
-    let endpoint = "/getTransactionsByAddress?accountAddress="+ address +"&page=0&size=10";
-    let url = base + endpoint;
+    let endpoint = "", url = "";
+    if(isNaN(address)) {
+        endpoint = "/getTransactionsByAddress?accountAddress="+ address +"&page=0&size=10";
+        url = base + endpoint;
+    } else {
+        endpoint = `/transactions?blockNumber=${blockNumber}`;
+        url = base.replace("dashboard", "v2/dashboard") + endpoint;
+    }
 
     try{
         const response = await axios.get(url);

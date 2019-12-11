@@ -57,6 +57,7 @@ const getBlock = async(blockNumber) => {
 
     try{
         const response = await axios.get(url);
+        
         if(typeof response.data !== "undefined" && response.data !== null && response.data.content !== null && response.data.content.length > 0) {
             const datas = response.data.content[0];
             let ts = datas.blockTimestamp;
@@ -101,7 +102,6 @@ const getAddress = async(addressToFind) => {
             return address;
         }
     } catch(error) {
-        console.log('aion err', error);
         return null;
     }
 }
@@ -164,12 +164,14 @@ const getAddressTokenContracts = async(address) => {
 
 const getTransactions = async(address) => {
     let endpoint = "", url = "";
-    if(isNaN(address)) {
+    let divide = false;
+    if(helperSvc.hasLetters(address)) {
         endpoint = "/getTransactionsByAddress?accountAddress="+ address +"&page=0&size=10";
         url = base + endpoint;
     } else {
-        endpoint = `/transactions?blockNumber=${blockNumber}`;
+        endpoint = `/transactions?blockNumber=${address}`;
         url = base.replace("dashboard", "v2/dashboard") + endpoint;
+        divide = true;
     }
 
     try{
@@ -180,8 +182,10 @@ const getTransactions = async(address) => {
             const latestBlock = await getLatestBlock();
             if(datas.length > 0) {
                 datas.forEach(data => {
-                    let transaction = buildTransaction(data, latestBlock);
-                    transaction = helperSvc.inoutCalculation(address, transaction);
+                    let transaction = buildTransaction(data, latestBlock, divide);
+                    if(!divide) {
+                        transaction = helperSvc.inoutCalculation(address, transaction);
+                    }
 
                     transactions.push(transaction);
                 })
@@ -274,11 +278,14 @@ const getLatestBlock = async() => {
     }
 }
 
-const buildTransaction = function(txn, latestBlock) {
+const buildTransaction = function(txn, latestBlock, divide = false) {
     let symbol = "AION";
     let fromAddy = txn.fromAddr;
     let toAddy = txn.toAddr;
     let quantity = parseFloat(txn.value);
+    if(divide) {
+        quantity = quantity/1000000000000000000;
+    }
     let froms = [];
     let tos = [];
     if((typeof txn.tokenTransfers !== 'undefined') && txn.tokenTransfers.length > 0) {

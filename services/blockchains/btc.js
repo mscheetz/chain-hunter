@@ -59,6 +59,7 @@ const getBlock = async(blockNumber) => {
             
             let ts = datas.time;
             let block = {
+                blockNumber: blockNumber,
                 //validator: datas.Generator,
                 transactionCount: datas.n_tx,
                 date: helperSvc.unixToUTC(datas.time),

@@ -62,6 +62,7 @@ const getBlock = async(blockNumber) => {
             let ts = datas.blockTimestamp;
 
             let block = {
+                blockNumber: blockNumber,
                 validator: hashCleanup(datas.minerAddress),
                 transactionCount: datas.numTransactions,
                 date: helperSvc.unixToUTC(ts),

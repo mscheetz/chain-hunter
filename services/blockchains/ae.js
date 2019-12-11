@@ -58,6 +58,7 @@ const getBlock = async(blockNumber) => {
             let ts = datas.time.toString().substr(0,10);
 
             let block = {
+                blockNumber: blockNumber,
                 validator: datas.miner,
                 transactionCount: txnCount,
                 date: helperSvc.unixToUTC(ts),

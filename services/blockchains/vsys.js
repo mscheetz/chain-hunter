@@ -65,6 +65,7 @@ const getBlock = async(blockNumber) => {
             let ts = datas.TimeStamp.toString().substr(0,10);
             let size = datas.Size.replace("B","");
             let block = {
+                blockNumber: blockNumber,
                 validator: datas.Generator,
                 transactionCount: datas.Txs,
                 date: helperSvc.unixToUTC(ts),

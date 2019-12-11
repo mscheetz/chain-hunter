@@ -4,10 +4,11 @@ export class Block {
     constructor() {}
 
     blockNumber: number;
-    validator: string;
-    transactionCount: number;
     date: string;
-    size: string;
     hash: string;
+    size: string;
+    transactionCount: number;
     transactions: Transaction[];
+    validator: string;
+    volume: number;
 }

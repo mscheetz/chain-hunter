@@ -1,5 +1,5 @@
 import { Transaction } from './Transaction';
-import { Asset } from './Asset';
+import { Asset } from './asset.class';
 
 export class Address {
     constructor() {} 

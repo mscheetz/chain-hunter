@@ -8,7 +8,7 @@ import { DomSanitizer, Title } from '@angular/platform-browser';
 import { CookieData } from 'src/app/classes/ChainHunter/CookieData';
 import { CookieService } from 'ngx-cookie-service';
 import { CookieRequest } from 'src/app/classes/ChainHunter/CookieRequest';
-import { Asset } from 'src/app/classes/ChainHunter/Asset';
+import { Asset } from 'src/app/classes/ChainHunter/asset.class';
 import { Interval } from '../../classes/Enums';
 
 @Component({

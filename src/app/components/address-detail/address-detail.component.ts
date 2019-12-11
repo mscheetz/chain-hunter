@@ -1,7 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { Blockchain } from 'src/app/classes/ChainHunter/blockchain.class';
 import { ApiService } from 'src/app/services/api.service';
-import { Asset } from 'src/app/classes/ChainHunter/Asset';
+import { Asset } from 'src/app/classes/ChainHunter/asset.class';
 import { OverlayPanel } from 'primeng/overlaypanel';
 import { Severity, ResultType } from 'src/app/classes/Enums';
 import { MessageService } from 'primeng/api';

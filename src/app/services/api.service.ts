@@ -3,7 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Blockchain } from '../classes/ChainHunter/blockchain.class';
 import { Transaction } from '../classes/ChainHunter/Transaction';
-import { Asset } from '../classes/ChainHunter/Asset';
+import { Asset } from '../classes/ChainHunter/asset.class';
 import { Chain } from '../classes/ChainHunter/Chain';
 import { environment } from 'src/environments/environment';
 import { HelperService } from './helper.service';

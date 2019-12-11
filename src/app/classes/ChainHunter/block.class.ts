@@ -3,7 +3,7 @@ import { Transaction } from './transaction.class';
 export class Block {
     constructor() {}
 
-    blockNumber: number;
+    blockNumber: string;
     date: string;
     hash: string;
     size: string;

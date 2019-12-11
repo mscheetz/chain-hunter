@@ -430,7 +430,7 @@ export class ApiService{
      * @param chain Blockchain to query
      * @param block Block to query
      */
-    getBlockTransactions(chain: string, block: number): Observable<Transaction[]>{
+    getBlockTransactions(chain: string, block: string): Observable<Transaction[]>{
         let endpoint: string = "/api/blockchain/block/" + chain + "/" + block +"/txs";
         let url: string = this.baseUrl + endpoint;
 

@@ -5,4 +5,5 @@ export class IO {
     symbol: string;
     quantity: number;
     icon: string;
+    type: string;
 }

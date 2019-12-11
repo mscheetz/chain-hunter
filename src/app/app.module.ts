@@ -68,6 +68,7 @@ import { CreditCardCheckoutComponent } from './components/cc-checkout/cc-checkou
 import { EmailSubscriptionComponent } from './components/email-subscription/email-subscription.component';
 import { EmailUnsubscribeComponent } from './components/email-unsubscribe/email-unsubscribe.component';
 import { AdminComponent } from './components/admin/admin.component';
+import { BlockComponent } from './components/block/block.component';
 
 const appRoutes: Routes = [
   { path: '', component: ChainHunterComponent },
@@ -120,7 +121,8 @@ const appRoutes: Routes = [
     CreditCardCheckoutComponent,
     EmailSubscriptionComponent,
     EmailUnsubscribeComponent,
-    AdminComponent
+    AdminComponent,
+    BlockComponent
   ],
   imports: [
     AccordionModule,

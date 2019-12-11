@@ -1,0 +1,61 @@
+<p-overlayPanel #saveThisBlock>
+    {{saveThisMessage}}
+</p-overlayPanel>
+<div class="p-grid">
+    <h3 class="word-break">
+        <i *ngIf="blockSaved" (mouseover)="unSaveHover($event, 'Block', saveThisBlock)" 
+            (mouseleave)="unSaveHover($event, 'Block', saveThisBlock)"
+            (click)="unSaveResult($event, 'block')" 
+            class="fa fa-star" 
+            style="color: deeppink; cursor: pointer;"></i>
+        <i *ngIf="!blockSaved" (mouseover)="saveHover($event, 'Block', saveThisBlock)" 
+            (mouseleave)="saveHover($event, 'Block', saveThisBlock)"
+            (click)="saveResult($event, 'block')" 
+            class="fa fa-star-o" 
+            style="color: deeppink; cursor: pointer;"></i>
+        {{blockchain.symbol}} Block: <span class="wrap-long">{{blockchain.block.blockNumer}}</span>
+    </h3>
+</div>
+<div class="m-bottom-1">Balance: {{blockchain.address.quantity}} {{blockchain.symbol}}</div>
+<p-accordion 
+        *ngIf="blockchain.address.hasTransactions || blockchain.hasTokens" 
+        (onOpen)="onTxnsOpen($event)">
+    <!-- Address Transactions -->
+    <p-accordionTab 
+            header="Most recent {{blockchain.symbol}} address transactions" 
+            *ngIf="blockchain.address.hasTransactions">
+        <div *ngIf="!transactionsComplete">
+            Hunting down Transactions <i class="fa fa-cog fa-2x fa-spin" style="color: #464a4e;"></i>
+        </div>
+        <div *ngIf="transactionsComplete && (blockchain.address.transactions === undefined || blockchain.address.transactions === null || blockchain.address.transactions.length === 0)">
+            No transactions found
+        </div>
+        <ul>
+            <li class="address-txn" *ngFor="let txn of blockchain.address.transactions">
+                <transaction [transaction]="txn" 
+                             [address]="blockchain.address.address"
+                             [showHash]="true"></transaction>
+            </li>
+        </ul>
+    </p-accordionTab>
+    <!-- Address Tokens -->
+    <p-accordionTab 
+            header="{{blockchain.symbol}} Address Tokens" 
+            *ngIf="blockchain.hasTokens">
+        <div *ngIf="!tokensComplete">
+            Hunting down tokens <i class="fa fa-cog fa-2x fa-spin" style="color: #464a4e;"></i>
+        </div>
+        <div *ngIf="tokensComplete && (blockchain.address.tokens === undefined || blockchain.address.tokens === null || blockchain.address.tokens.length === 0)">
+            No tokens found
+        </div>
+        <div *ngIf="blockchain.address.tokens !== undefined && blockchain.address.tokens !== null && blockchain.address.tokens.length > 0" 
+            [innerHtml]="tokenContent"
+            class="p-grid"></div>
+    </p-accordionTab>
+</p-accordion>
+<div *ngIf="blockchain.source !== undefined">
+    <p>
+        For more info: <a href="{{blockchain.source}}" target="_blank">{{blockchain.source}}</a>
+    </p>
+</div>
+<!-- <p-toast key="address-toast"></p-toast> -->

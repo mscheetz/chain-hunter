@@ -59,7 +59,8 @@ const transactionType = {
     CANCEL_ORDER : 'Cancel Order',
     NEW_ORDER : 'Place Order',
     CLAIM : 'Gas Claim',
-    CREATE_ACCOUNT : 'Create Account'
+    CREATE_ACCOUNT : 'Create Account',
+    UNDELEGATE : 'Undelegate'
 }
 
 /**

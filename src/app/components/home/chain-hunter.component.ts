@@ -185,7 +185,7 @@ export class ChainHunterComponent implements OnInit {
                     .subscribe(chain => {
                         this.requestedChains--;
                         this.setMap(chain);
-                        if(chain.address || chain.transaction || chain.contract) {
+                        if(chain.block || chain.address || chain.transaction || chain.contract) {
                             this.resultsFound.push(chain.name);
                         }
                         this.updateMenuItems();

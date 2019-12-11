@@ -24,6 +24,17 @@
                     <app-address-detail [addressSaved]="true" [saveId]="data.id" [blockchain]="data.blockchain"></app-address-detail>
                 </div>
             </div>
+            <div *ngIf="data.type==='block' && data.active">
+                <div *ngIf="data.blockchain === null">
+                    <h3>Hunting...<i class="fa fa-refresh fa-2x fa-spin"></i></h3>
+                </div>
+                <div *ngIf="data.blockchain !== null">
+                    <div>
+                        <p-button label="Refresh" (click)="onRefresh($event, data)" styleClass="ui-button-secondary"></p-button>
+                    </div>
+                    <app-block [blockSaved]="true" [saveId]="data.id" [blockchain]="data.blockchain"></app-block>
+                </div>
+            </div>
             <div *ngIf="data.type==='contract' && data.active">
                 <div *ngIf="data.blockchain === null">
                     <h3>Hunting...<i class="fa fa-refresh fa-2x fa-spin"></i></h3>

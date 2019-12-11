@@ -472,6 +472,105 @@ const cleanIO = function(ios) {
 }
 
 /**
+ * Clean up IOs with types
+ * @param {any[]} ios array of ios
+ */
+const cleanIOTypes = function(ios) {
+    let addyMap = [];
+    ios.forEach(io => {
+        let data = null;
+        if(typeof io.quantity !== 'undefined') {
+            data = {
+                symbol: io.symbol,
+                quantity: io.quantity
+            }
+            if(typeof io.icon !== 'undefined') {
+                data.icon = io.icon;
+            }
+            if(typeof io.type !== 'undefined') {
+                data.type = io.type;
+            }      
+        }
+        for(let i = 0; i < io.addresses.length; i++) {
+            let thisAddress = io.addresses[i];
+            
+            let datas = [];
+            if(!(thisAddress in addyMap)) {
+                addyMap[thisAddress] = datas;
+            }
+            datas = addyMap[thisAddress];
+            if(data !== null) {
+                datas.push(data);
+            }
+            addyMap[thisAddress] = datas;
+        }
+    })
+    let ioDatas = [];
+    
+    Object.keys(addyMap).forEach(function(address){
+        if(addyMap[address].length === 0) {
+            let addys = [];
+            addys.push(address);
+            let data = {
+                addresses: addys
+            };
+            ioDatas.push(data);
+        } else {
+            let symbols = addyMap[address].map(a => a.symbol);
+            let types = addyMap[address].map(a => a.type);
+            symbols = _.uniq(symbols);
+            types = _.uniq(types);
+            
+            for(let i = 0; i < symbols.length; i++) {
+                for(let j = 0; j < types.length; j++) {
+                    let quants = addyMap[address].filter(a => a.symbol === symbols[i] && a.type === types[j]);
+                    let quantity = 0;
+                    let icon = "";
+                    let iconExists = false;
+                    for(let j = 0; j < quants.length; j++) {
+                        if(typeof quants[j].icon !== 'undefined') {
+                            icon = quants[j].icon;
+                            iconExists = true;
+                        }
+                        let thisQuantity = 0;
+                        if(_.isString(quants[j].quantity)) {
+                            const thisQuant = quants[j].quantity.replace(/,/g, "");
+                            thisQuantity = parseFloat(thisQuant);
+                            if(thisQuantity.toString().indexOf('e') >= 0) {
+                                thisQuantity = exponentialToNumber(thisQuantity);
+                            }
+                        } else {
+                            thisQuantity = quants[j].quantity;
+                        }
+                        if(quantity === 0) {
+                            quantity = thisQuantity;
+                        } else {
+                            quantity = +quantity + +thisQuantity;
+                        }
+                        //quantity += +thisQuantity;
+                    }
+                    const totalQuantity = commaBigNumber(quantity.toString());
+                    let addys = [];
+                    addys.push(address);
+                    let data = {
+                        addresses: addys,
+                        symbol: symbols[i],
+                        type: types[j],
+                        quantity: totalQuantity
+                    };
+                    if(iconExists) {
+                        data.icon = icon;
+                    }
+                    ioDatas.push(data);
+                }
+            }
+        }
+    });
+
+    return ioDatas;
+}
+
+/**
  * InOut calculation for address transaction
  * 
  * @param {*} address address searching for
@@ -946,6 +1045,7 @@ module.exports = {
     getSimpleIOAddresses,
     getIO,
     cleanIO,
+    cleanIOTypes,
     inoutCalculation,
     getDatefromTs,
     getUnixTS,

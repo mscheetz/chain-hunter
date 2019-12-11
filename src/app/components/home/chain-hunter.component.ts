@@ -5,7 +5,7 @@ import { HelperService } from 'src/app/services/helper.service';
 import { ApiService } from 'src/app/services/api.service';
 import { Chain } from 'src/app/classes/ChainHunter/chain.class';
 import { DomSanitizer, Title } from '@angular/platform-browser';
-import { CookieData } from 'src/app/classes/ChainHunter/CookieData';
+import { CookieData } from 'src/app/classes/ChainHunter/cookie-data.class';
 import { CookieService } from 'ngx-cookie-service';
 import { CookieRequest } from 'src/app/classes/ChainHunter/CookieRequest';
 import { Asset } from 'src/app/classes/ChainHunter/asset.class';

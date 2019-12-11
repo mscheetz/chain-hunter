@@ -22,7 +22,6 @@ export class TransactionComponent implements OnInit {
 
   saveHover(event, type: string, overlayPanel: OverlayPanel) {
       this.saveThisMessage = "Save this " + this.blockchain.symbol + " " + type;
-    //this.saveThisMessage = "Coming Soon! Save this " + this.blockchain.symbol + " " + type;
     
     overlayPanel.toggle(event);
   }

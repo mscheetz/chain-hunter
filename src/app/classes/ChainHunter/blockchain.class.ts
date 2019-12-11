@@ -1,4 +1,4 @@
-import { Address } from './Address';
+import { Address } from './address.class';
 import { Transaction } from './Transaction';
 import { Contract } from './Contract';
 import { Block } from './block.class';

@@ -1,6 +1,7 @@
 import { Address } from './Address';
 import { Transaction } from './Transaction';
 import { Contract } from './Contract';
+import { Block } from './block.class';
 
 export class Blockchain {
     constructor () {}
@@ -12,6 +13,7 @@ export class Blockchain {
     address: Address;
     transaction: Transaction;
     contract: Contract;
+    block: Block;
     icon: string;
     type: string;
     source: string = null;

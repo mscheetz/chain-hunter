@@ -142,7 +142,27 @@ export class BlockComponent implements OnInit {
     this.apiSvc.getBlockTransactions(this.blockchain.symbol, this.blockchain.block.blockNumber)
         .subscribe(txns => {
             this.blockchain.block.transactions = txns;
+            this.getVolume();
             this.transactionsComplete = true;
         });
+  }
+
+  getVolume() {            
+    if (this.blockchain.block.transactions === null || this.blockchain.block.transactions.length === 0) {
+        this.blockchain.block.volume = 0;
+        return;
+    }
+    if(!this.blockchain.block.transactionCount) {
+        this.blockchain.block.transactionCount = this.blockchain.block.transactions.length;
+    }
+    let volume = 0;
+    this.blockchain.block.transactions.forEach(txn => {
+        for(let i = 0; i < txn.tos.length; i++) {
+            if(txn.tos[i].symbol === this.blockchain.symbol) {
+                volume += +txn.tos[i].quantity;
+            }
+        }
+      });
+    this.blockchain.block.volume = volume;
   }
 }

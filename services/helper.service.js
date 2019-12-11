@@ -519,12 +519,26 @@ const inoutCalculation = function(address, transaction) {
 }
 
 /**
+ * Check if a string has letters
+ * 
+ * @param {string} toValidate value to validate
+ */
+const hasLetters = function(toValidate) {
+    const letters = /[a-z]/i;
+    if(toValidate.match(letters)) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+/**
  * Type of search to perform
  * @param {*} chain chain to search
  * @param {*} toFind search string
  */
 const searchType = function(chain, toFind) {
-    if(!isNaN(toFind)) {
+    if(!hasLetters(toFind)) {        
         return enums.searchType.block;
     }
     if((chain === "aion" || chain === "etc" || chain === "eth" || chain === "tomo" || chain === "vet") 
@@ -947,5 +961,6 @@ module.exports = {
     iconExists,
     searchType,
     generatePassword,
-    getTimePlus
+    getTimePlus,
+    hasLetters
 }

@@ -463,6 +463,30 @@ const getTransactions = async(chain, address, ip, ipInfo) => {
 }
 
 /**
+ * Get transactions for a block
+ * 
+ * @param {string} chain chain symbol to hunt
+ * @param {string} blockNumber block to search
+ * @param {string} ip requestor's ip address
+ * @param {object} ipInfo requestor's ip info
+ */
+const getBlockTransactions = async(chain, blockNumber, ip, ipInfo) => {
+    let transactions = [];
+    if(chain === "btc") {
+        transactions = await btc.getBlockTransactions(blockNumber);
+    }
+
+    await dataSvc.updateSearchResult(
+      ip,
+      ipInfo,
+      chain,
+      "blockTransactions"
+    );
+
+    return transactions;
+}
+
+/**
  * Log an empty search
  * 
  * @param {string} ip requestor's ip address
@@ -487,5 +511,6 @@ module.exports = {
     getBlockchain,
     getTokens,
     getTransactions,
+    getBlockTransactions,
     emptySearch
 }

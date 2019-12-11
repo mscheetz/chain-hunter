@@ -73,6 +73,15 @@ router.get("/api/blockchain/address/:chain/:address/tokens", apiHelp.bootlegMidd
     res.status(200).json(result);
 });
 
+router.get("/api/blockchain/block/:chain/:blockNumber/txs", apiHelp.bootlegMiddleware, async (req, res, next) => {
+    const chain = req.params.chain.toLowerCase();
+    const blockNumber = req.params.blockNumber;
+    const ip = res.locals.ip;
+    const result = await manager.getBlockTransactions(chain, blockNumber, ip, req.ipInfo);
+
+    res.status(200).json(result);
+});
+
 router.get("/api/blockchain/contract/:chain/:address", apiHelp.bootlegMiddleware, async (req, res, next) => {
     const chain = req.params.chain.toLowerCase();
     const address = req.params.address;

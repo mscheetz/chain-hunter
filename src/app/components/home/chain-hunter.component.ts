@@ -3,7 +3,7 @@ import { MenuItem, MessageService } from 'primeng/api';
 import { Blockchain } from 'src/app/classes/ChainHunter/blockchain.class';
 import { HelperService } from 'src/app/services/helper.service';
 import { ApiService } from 'src/app/services/api.service';
-import { Chain } from 'src/app/classes/ChainHunter/Chain';
+import { Chain } from 'src/app/classes/ChainHunter/chain.class';
 import { DomSanitizer, Title } from '@angular/platform-browser';
 import { CookieData } from 'src/app/classes/ChainHunter/CookieData';
 import { CookieService } from 'ngx-cookie-service';

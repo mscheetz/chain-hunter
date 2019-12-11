@@ -4,7 +4,7 @@ import { Injectable } from '@angular/core';
 import { Blockchain } from '../classes/ChainHunter/blockchain.class';
 import { Transaction } from '../classes/ChainHunter/Transaction';
 import { Asset } from '../classes/ChainHunter/asset.class';
-import { Chain } from '../classes/ChainHunter/Chain';
+import { Chain } from '../classes/ChainHunter/chain.class';
 import { environment } from 'src/environments/environment';
 import { HelperService } from './helper.service';
 import { User } from '../classes/user.class';

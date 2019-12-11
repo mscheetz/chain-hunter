@@ -7,7 +7,7 @@ import { Chain } from 'src/app/classes/ChainHunter/chain.class';
 import { DomSanitizer, Title } from '@angular/platform-browser';
 import { CookieData } from 'src/app/classes/ChainHunter/cookie-data.class';
 import { CookieService } from 'ngx-cookie-service';
-import { CookieRequest } from 'src/app/classes/ChainHunter/CookieRequest';
+import { CookieRequest } from 'src/app/classes/ChainHunter/cookie-request.class';
 import { Asset } from 'src/app/classes/ChainHunter/asset.class';
 import { Interval } from '../../classes/Enums';
 

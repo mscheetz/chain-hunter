@@ -425,6 +425,19 @@ export class ApiService{
     }
 
     /**
+     * Get Transactions for a Block
+     * 
+     * @param chain Blockchain to query
+     * @param block Block to query
+     */
+    getBlockTransactions(chain: string, block: number): Observable<Transaction[]>{
+        let endpoint: string = "/api/blockchain/block/" + chain + "/" + block +"/txs";
+        let url: string = this.baseUrl + endpoint;
+
+        return this.onGet<Transaction[]>(url);
+    }
+
+    /**
      * Capture an empty search
      */
     emptySearch(): Observable<boolean>{

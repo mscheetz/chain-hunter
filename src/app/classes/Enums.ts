@@ -16,6 +16,7 @@ export enum Interval {
 export enum ResultType {
     none,
     address,
+    block,
     contract,
     transaction
 }

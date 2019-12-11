@@ -1,6 +1,6 @@
 import { Address } from './address.class';
 import { Transaction } from './Transaction';
-import { Contract } from './Contract';
+import { Contract } from './contract.class';
 import { Block } from './block.class';
 
 export class Blockchain {

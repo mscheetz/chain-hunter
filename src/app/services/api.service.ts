@@ -2,7 +2,7 @@ import { Observable } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Blockchain } from '../classes/ChainHunter/blockchain.class';
-import { Transaction } from '../classes/ChainHunter/Transaction';
+import { Transaction } from '../classes/ChainHunter/transaction.class';
 import { Asset } from '../classes/ChainHunter/asset.class';
 import { Chain } from '../classes/ChainHunter/chain.class';
 import { environment } from 'src/environments/environment';

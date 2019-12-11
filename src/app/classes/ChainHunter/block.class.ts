@@ -1,4 +1,4 @@
-import { Transaction } from './Transaction';
+import { Transaction } from './transaction.class';
 
 export class Block {
     constructor() {}

@@ -1,5 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { Transaction } from 'src/app/classes/ChainHunter/Transaction';
+import { Transaction } from 'src/app/classes/ChainHunter/transaction.class';
 import { OverlayPanel } from 'primeng/overlaypanel';
 import { Blockchain } from 'src/app/classes/ChainHunter/blockchain.class';
 

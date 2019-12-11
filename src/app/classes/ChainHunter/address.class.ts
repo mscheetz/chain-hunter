@@ -1,4 +1,4 @@
-import { Transaction } from './Transaction';
+import { Transaction } from './transaction.class';
 import { Asset } from './asset.class';
 
 export class Address {

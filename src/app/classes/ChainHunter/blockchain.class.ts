@@ -1,5 +1,5 @@
 import { Address } from './address.class';
-import { Transaction } from './Transaction';
+import { Transaction } from './transaction.class';
 import { Contract } from './contract.class';
 import { Block } from './block.class';
 

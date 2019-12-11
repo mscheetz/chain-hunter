@@ -21,6 +21,7 @@ const getEmptyBlockchain = async() => {
 const getBlockchain = async(chain, toFind, type) => {
     //const chain = await getEmptyBlockchain(blockchain);
     let address = null;
+    let block = null;
     let contract = null;
     let transaction = null;
 
@@ -28,6 +29,9 @@ const getBlockchain = async(chain, toFind, type) => {
             ? helperSvc.searchType(chain.symbol.toLowerCase(), toFind)
             : type;
 
+    if(searchType & enums.searchType.block) {
+        block = await getBlock(toFind);
+    }
     if(searchType & enums.searchType.address) {
         address = await getAddress(toFind);
     }
@@ -39,14 +43,65 @@ const getBlockchain = async(chain, toFind, type) => {
     }
     
     chain.address = address;
+    chain.block = block;
     chain.contract = contract;
     chain.transaction = transaction;
     
-    if(chain.address || chain.contract || chain.transaction) {
+    if(chain.block || chain.address || chain.contract || chain.transaction) {
         chain.icon = "color/"+ chain.symbol.toLowerCase()  +".png";
     }
 
     return chain;
+}
+
+const getBlock = async(blockNumber) => {
+    blockNumber = +blockNumber;
+    const searchNumber = blockNumber - 1;
+    let endpoint = `/v1/blocks?limit=1&afterBlock=${searchNumber}`;
+    let url = addressBase + endpoint;
+
+    try{
+        const response = await axios.get(url);
+        if(typeof response.data.error_code === 'undefined' && response.data !== null && response.data.length > 0 && response.data[0].height === blockNumber) {
+            const datas = response.data[0];
+
+            let block = {
+                blockNumber: blockNumber,
+                validator: datas.operator_address,
+                transactionCount: datas.num_txs,
+                date: datas.time,
+                hash: datas.block_hash,
+                hasTransactions: true
+            };
+            if(datas.tx_data !== null && datas.tx_data.txs !== null && datas.tx_data.txs.length > 0) {
+                try {
+                let transactions = [];
+                let volume = 0;
+                for(let i = 0; i < datas.tx_data.txs.length; i++) {
+                    const transaction = await getTransaction(datas.tx_data.txs[i]);
+                    if(transaction !== null) {
+                        transaction.tos.forEach(to => {
+                            if(to.symbol === "ATOM") {
+                                volume+= +to.quantity;
+                            }
+                        });
+                        transactions.push(transaction);
+                    }
+                }
+                block.volume = volume;
+                block.transactions = transactions;
+            } catch(err) {
+                console.log(err);
+            }
+            }
+
+            return block;
+        } else {
+            return null;
+        }
+    } catch(error) {
+        return null;
+    }
 }
 
 const getAddress = async(addressToFind) => {
@@ -224,16 +279,13 @@ const getTransaction = async(hash) => {
 
     try{
         const response = await axios.get(url);
+
         if(typeof response.data.error === "undefined") {
             const datas = response.data;
-            try{
+
             const transaction = buildTransaction(datas);
 
             return transaction;
-            } catch(err) {
-                console.log(err);
-            }
-
         } else {
             return null;
         }
@@ -319,41 +371,126 @@ const buildRewardTransaction = function(txn, address = null) {
                 amount = parseFloat(amount)/1000000;
                 quantity += amount;
             }
-        }
-        let addIt = false;
-        if(tag.key === "delegator") {
-            if(address !== null) {
-                if(tag.value === address || tags[i+1].value === address) {
-                    addIt = true;
-                }
-            } else {
-                addIt = true;
+            let fromAddy = "", toAddy = "";
+            if(tags[i+1].key === "delegator") {
+                toAddy = tags[i+1].value;
+            } 
+            if(tags[i+2].key === "delegator" && toAddy === "") {
+                toAddy = tags[i+2].value;
+            } 
+            if(tags[i+1].key === "source-validator") {
+                fromAddy = tags[i+1].value;
+            } 
+            if(tags[i+2].key === "source-validator" && fromAddy === "") {
+                fromAddy = tags[i+2].value;
+            } 
+            if(fromAddy !== "") {
+                let from = helperSvc.getSimpleIO(symbol, fromAddy, quantity);
+                from.type = enums.transactionType.REWARD;
+                froms.push(from);
             }
-            if(addIt) {
-                const to = helperSvc.getSimpleIO(symbol, tag.value, quantity);
+            if(toAddy !== "") {
+                const to = helperSvc.getSimpleIO(symbol, toAddy, quantity);
+                to.type = enums.transactionType.REWARD;
                 tos.push(to);
             }
         }
-        if(tag.key === "source-validator") {
-            if(address !== null) {
-                if(tag.value === address || tags[i-1].value === address) {
-                    addIt = true;
-                }
-            } else {
-                addIt = true;
-            }
-            if(addIt) {
-                const from = helperSvc.getSimpleIO(symbol, tag.value, quantity);
-                froms.push(from);
-            }
-        }
+        // let addIt = false;
+        // if(tag.key === "delegator") {
+        //     if(address !== null) {
+        //         if(tag.value === address || tags[i+1].value === address) {
+        //             addIt = true;
+        //         }
+        //     } else {
+        //         addIt = true;
+        //     }
+        //     if(addIt) {
+        //         const to = helperSvc.getSimpleIO(symbol, tag.value, quantity);
+        //         tos.push(to);
+        //     }
+        // }
+        // if(tag.key === "source-validator") {
+        //     if(address !== null) {
+        //         if(tag.value === address || tags[i-1].value === address) {
+        //             addIt = true;
+        //         }
+        //     } else {
+        //         addIt = true;
+        //     }
+        //     if(addIt) {
+        //         const from = helperSvc.getSimpleIO(symbol, tag.value, quantity);
+        //         froms.push(from);
+        //     }
+        // }
     }
     
-    const fromData = helperSvc.cleanIO(froms);
-    const toData = helperSvc.cleanIO(tos);
+    for(let [key, value] of Object.entries(txn.tx.value.msg)) {
+        if(value.type.indexOf('Delegate') >= 0) {
+            quantity = +value.value.amount.amount/1000000;
+            let from = helperSvc.getSimpleIO(symbol, value.value.validator_address, quantity);
+            from.type = enums.transactionType.DELEGATION;
+            froms.push(from);
+            let to = helperSvc.getSimpleIO(symbol, value.value.delegator_address, quantity);
+            to.type = enums.transactionType.DELEGATION;
+            tos.push(to);
+        }
+    }
+
+    const fromData = helperSvc.cleanIOTypes(froms);
+    const toData = helperSvc.cleanIOTypes(tos);
 
     let transaction = {
         type: enums.transactionType.REWARD,
+        hash: hash,
+        block: block,
+        date: time,
+        froms: fromData,
+        tos: toData,
+        success: success ? 'success' : 'fail'
+    };
+    
+    return transaction;
+}
+
+const buildUnbondingTransaction = function(txn, address = null) {
+    let froms = [];
+    let tos = [];
+    let quantity = 0;
+    const symbol = "ATOM";
+    let tags = [];
+    const block = txn.height;
+    let time = "";
+    let hash = "";
+    let success = false;
+    if(typeof txn.tags !== 'undefined') {
+        hash = txn.txhash;
+        tags = txn.tags;
+        time = txn.timestamp;
+        success = txn.logs[0].success;
+    } else {
+        hash = txn.hash;
+        tags = txn.result.tags;
+        time = txn.time;
+        success = txn.result.log[0].success;
+    }
+    
+    for(let [key, value] of Object.entries(txn.tx.value.msg)) {
+        if(value.type.indexOf('Undelegate') >= 0) {
+            quantity = +value.value.amount.amount/1000000;
+            let from = helperSvc.getSimpleIO(symbol, value.value.validator_address, quantity);
+            from.type = enums.transactionType.UNDELEGATE;
+            froms.push(from);
+            let to = helperSvc.getSimpleIO(symbol, value.value.delegator_address, quantity);
+            to.type = enums.transactionType.UNDELEGATE;
+            tos.push(to);
+        }
+    }
+    
+    const fromData = helperSvc.cleanIOTypes(froms);
+    const toData = helperSvc.cleanIOTypes(tos);
+
+    let transaction = {
+        type: enums.transactionType.UNDELEGATE,
         hash: hash,
         block: block,
         date: time,
@@ -377,6 +514,8 @@ const buildTransaction = function(txn, address = null) {
         return buildSendTransaction(txn, address);
     } else if (txnType === "withdraw_delegator_reward") {
         return buildRewardTransaction(txn, address);
+    } else if(txnType === "begin_unbonding") {
+        return buildUnbondingTransaction(txn, address);
     } else {
         return null;
     }

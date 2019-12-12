@@ -29,10 +29,28 @@
 <div *ngIf="transaction.froms && transaction.tos && (transaction.froms.length > 0 || transaction.tos.length > 0)" 
   class="p-grid">
   <div class="p-sm-6">
-    <p-table *ngIf="transaction.tos.length > 0" [value]="transaction.tos">
+    <p-table *ngIf="transaction.froms.length > 0" [value]="transaction.froms">
       <ng-template pTemplate="header">
         <tr>
           <th>OUT</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-from>
+        <tr>
+          <td>
+            <div class="word-break">{{from.addresses.join(",")}}</div>
+            <div *ngIf="from.type">{{from.type}}</div>
+            <div *ngIf="from.symbol !== null">{{from.quantity}} {{from.symbol}}</div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+  <div class="p-sm-6">
+    <p-table *ngIf="transaction.tos.length > 0" [value]="transaction.tos">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>IN</th>
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-to>
@@ -41,26 +59,6 @@
             <div class="word-break">{{to.addresses.join(",")}}</div>
             <div *ngIf="to.type">{{to.type}}</div>
             <div *ngIf="to.symbol !== null">{{to.quantity}} {{to.symbol}}</div>
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
-  </div>
-  <div class="p-sm-6">
-    <p-table *ngIf="transaction.froms.length > 0" [value]="transaction.froms">
-      <ng-template pTemplate="header">
-        <tr>
-          <th>IN</th>
-        </tr>
-      </ng-template>
-      <ng-template pTemplate="body" let-from>
-        <tr>
-          <td>
-            <!-- {{from.addresses.join(",")}}<br>
-            {{from.quantity}} {{from.symbol}} -->
-            <div class="word-break">{{from.addresses.join(",")}}</div>
-            <div *ngIf="from.type">{{from.type}}</div>
-            <div *ngIf="from.symbol !== null">{{from.quantity}} {{from.symbol}}</div>
           </td>
         </tr>
       </ng-template>

@@ -32,7 +32,7 @@
     <p-table *ngIf="transaction.froms.length > 0" [value]="transaction.froms">
       <ng-template pTemplate="header">
         <tr>
-          <th>OUT</th>
+          <th>IN</th>
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-from>
@@ -50,7 +50,7 @@
     <p-table *ngIf="transaction.tos.length > 0" [value]="transaction.tos">
       <ng-template pTemplate="header">
         <tr>
-          <th>IN</th>
+          <th>OUT</th>
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-to>

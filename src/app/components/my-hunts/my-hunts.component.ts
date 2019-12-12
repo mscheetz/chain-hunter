@@ -75,8 +75,7 @@ export class MyHuntsComponent implements OnInit {
             this.blockchains[idx] = -1
           });
     } else if (toSearch.type === "block"){
-      // TODO: get block
-      this.apiSvc.getContract(toSearch.symbol, toSearch.hash)
+      this.apiSvc.getBlock(toSearch.symbol, toSearch.hash)
           .subscribe(data => {
             this.savedSearches[idx].blockchain = data;
             this.blockchains[idx] = data;

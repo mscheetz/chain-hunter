@@ -462,6 +462,20 @@ export class ApiService{
     }
 
     /**
+     * Get a block
+     * @param chain blockchain symbol
+     * @param blockNumber block number
+     */
+    getBlock(chain: string, blockNumber: string): Observable<Blockchain>{
+        let endpoint: string = "/api/blockchain/block/"+ chain + "/" + blockNumber;
+        let url: string = this.baseUrl + endpoint;
+
+        let result = this.onGet<Blockchain>(url);
+    
+        return result;
+    }
+
+    /**
      * Get a contract
      * @param chain blockchain symbol
      * @param address address

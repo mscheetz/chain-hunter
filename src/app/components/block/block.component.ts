@@ -148,8 +148,9 @@ export class BlockComponent implements OnInit {
   }
 
   getVolume() {            
-    if (this.blockchain.block.transactions === null || this.blockchain.block.transactions.length === 0) {
-        this.blockchain.block.volume = 0;
+    if (this.blockchain.block.transactions === null || this.blockchain.block.transactions.length === 0 || 
+        this.blockchain.block.transactionCount !== this.blockchain.block.transactions.length) {
+        //this.blockchain.block.volume = 0;
         return;
     }
     if(!this.blockchain.block.transactionCount) {

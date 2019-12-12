@@ -472,8 +472,11 @@ const getTransactions = async(chain, address, ip, ipInfo) => {
  */
 const getBlockTransactions = async(chain, blockNumber, ip, ipInfo) => {
     let transactions = [];
+
     if(chain === "aion") {
         transactions = await aion.getTransactions(blockNumber);
+    } else if (chain === "bch") {
+        transactions = await bch.getTransactions(blockNumber);
     }
 
     await dataSvc.updateSearchResult(

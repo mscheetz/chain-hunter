@@ -483,6 +483,8 @@ const getBlockTransactions = async(chain, blockNumber, ip, ipInfo) => {
         transactions = await etc.getBlockTransactions(blockNumber);
     } else if (chain === "icx") {
         transactions = await icx.getBlockTransactions(blockNumber);
+    } else if (chain === "iost") {
+        transactions = await iost.getBlockTransactions(blockNumber);
     }
 
     await dataSvc.updateSearchResult(

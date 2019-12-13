@@ -1,8 +1,9 @@
 const axios = require('axios');
 const helperSvc = require('../helper.service.js');
-const apiKey = "67de405a0cb8a9e2fe5e33000cf9a88a";
-const base = "https://api.iostabc.com/api/?apikey=" + apiKey;
 const enums = require('../../classes/enums');
+const config = require('../../config');
+const apiKey = config.IOSTABC_API_KEY;
+const base = "https://api.iostabc.com/api/?apikey=" + apiKey;
 const delay = time => new Promise(res=>setTimeout(res,time));
 
 const getEmptyBlockchain = async() => {
@@ -21,6 +22,7 @@ const getEmptyBlockchain = async() => {
 const getBlockchain = async(chain, toFind, type) => {
     //const chain = await getEmptyBlockchain(blockchain);
     let address = null;
+    let block = null;
     let transaction = null;
     let contract = null;
 
@@ -31,6 +33,9 @@ const getBlockchain = async(chain, toFind, type) => {
     if(searchType & enums.searchType.address) {
         address = await getAddress(toFind);
     }
+    if(searchType & enums.searchType.block) {
+        block = await getBlock(toFind);
+    }
     if(searchType & enums.searchType.transaction) {
         transaction = await getTransaction(toFind);
     }
@@ -39,10 +44,11 @@ const getBlockchain = async(chain, toFind, type) => {
     }
     
     chain.address = address;
+    chain.block = block;
     chain.transaction = transaction;
     chain.contract = contract;
 
-    if(chain.address || chain.transaction || chain.contract) {
+    if(chain.address || chain.block || chain.transaction || chain.contract) {
         chain.icon = "color/"+ chain.symbol.toLowerCase()  +".png";
     }
     return chain;
@@ -66,6 +72,60 @@ const getAddress = async(addressToFind) => {
         return address;
     } catch(error) {
         return null;
+    }
+}
+
+const getBlock = async(blockNumber) => {
+    let endpoint = "&module=block&action=get-block-detail&number=" + blockNumber;
+    let url = base + endpoint;
+
+    try{
+        const response = await axios.get(url);
+        if(response.data.code === 0) {
+            const datas = response.data.data.block;
+            
+            const ts = datas.time/1000000000;
+
+            let block = {
+                blockNumber: blockNumber,
+                validator: datas.witness,
+                transactionCount: datas.tx_count,
+                date: helperSvc.unixToUTC(ts),
+                //size: `${helperSvc.commaBigNumber(datas.blockSize.toString())} bytes`,
+                hash: datas.hash,
+                hasTransactions: true,
+                //volume: helperSvc.commaBigNumber(datas.amount)
+            };
+
+            return block;
+        }
+        return null;
+    } catch(error) {
+        return null;
+    }
+}
+
+const getBlockTransactions = async(blockNumber) => {
+    let endpoint = "&module=block&action=get-block-tx&number=" + blockNumber;
+    let url = base + endpoint;
+
+    try{
+        const response = await axios.get(url);
+        let transactions = [];
+        if(response.data.code === 0 && response.data.data.transactions.length > 0) {
+            const datas = response.data.data.transactions;
+            
+            for(let i = 0; i < datas.length; i++) {
+                const transaction = await getTransaction(datas[i]);
+
+                if(transaction !== null) {
+                    transactions.push(transaction);
+                }
+            }
+        }
+        return transactions;
+    } catch(error) {
+        return [];
     }
 }
 
@@ -192,8 +252,8 @@ const buildTransaction = function(txn, latestBlock) {
     const block = parseInt(txn.block);
     const confirmations = latestBlock - block;
     const datas = JSON.parse(txn.data);
-    const quantity = parseFloat(datas[3]);
-    const symbol = datas[0].toUpperCase();
+    let quantity = +datas[3];
+    let symbol = datas[0].toUpperCase();
     let froms = [];
     let tos = [];
     const from = helperSvc.getSimpleIO(symbol, txn.from, quantity);
@@ -224,20 +284,63 @@ const buildTransactionII = function(txn, latestBlock) {
     const confirmations = latestBlock - block;
     const ts = txn.transaction.time.toString().substr(0, 10);
     const datas = JSON.parse(txn.transaction.actions[0].data);
-    const quantity = parseFloat(datas[3]);
-    const symbol = datas[0].toUpperCase();
+    let type = enums.transactionType.TRANSFER;
     let froms = [];
     let tos = [];
-    const from = helperSvc.getSimpleIO(symbol, datas[1], quantity);
-    froms.push(from);
-    const to = helperSvc.getSimpleIO(symbol, datas[2], quantity);
-    tos.push(to);
+    let quantity = null;
+    let symbol = "";
+    if(datas.length > 3 && !helperSvc.hasLetters(datas[3])) {
+        quantity = parseFloat(datas[3]);
+        symbol = helperSvc.hasLetters(datas[0]) ? datas[0].toUpperCase() : "";
+    }
+    if(quantity !== null) {
+        const from = helperSvc.getSimpleIO(symbol, datas[1], quantity);
+        froms.push(from);
+        const to = helperSvc.getSimpleIO(symbol, datas[2], quantity);
+        tos.push(to);
+    }
 
+    if(txn.transaction.tx_receipt !== null && txn.transaction.tx_receipt.receipts.length > 0) {
+        txn.transaction.tx_receipt.receipts.forEach(receipt => {
+            let r = [];
+            try{
+                r = JSON.parse(receipt.content);
+            } catch(err) {
+                r = [];             
+            }
+
+            if(r.length > 0){
+                if(receipt.func_name === "token.iost/issue") {
+                    type = enums.transactionType.ISSUE;
+                    symbol = "IOST";
+                    quantity = r[2];
+                    const fromAddress = "coinbase";
+                    const toAddress = r[1];
+                    const from = helperSvc.getSimpleIO(symbol, fromAddress, quantity);
+                    froms.push(from);
+                    const to = helperSvc.getSimpleIO(symbol, toAddress, quantity);
+                    tos.push(to);
+                } else {
+                    type = enums.transactionType.CONTRACT;
+                    symbol = r[0].toUpperCase();
+                    if(helperSvc.hasLetters(r[2])) {
+                        const from = helperSvc.getSimpleIO(symbol, r[1], r[3]);
+                        froms.push(from);
+                        const to = helperSvc.getSimpleIO(symbol, r[2], r[3]);
+                        tos.push(to);
+                    } else {
+                        const from = helperSvc.getSimpleIO(symbol, r[1], r[2]);
+                        froms.push(from);
+                    }
+                }
+            }
+        })
+    }
     const fromData = helperSvc.cleanIO(froms);
     const toData = helperSvc.cleanIO(tos);
 
     const transaction = {
-        type: enums.transactionType.TRANSFER,
+        type: type,
         hash: txn.transaction.hash,
         block: block,
         latestBlock: latestBlock,
@@ -257,6 +360,7 @@ module.exports = {
     getAddress,
     getTokens,
     getTransactions,
+    getBlockTransactions,
     getTransaction,
     getContract
 }

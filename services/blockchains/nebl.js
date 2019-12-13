@@ -124,8 +124,8 @@ const getBlock = async(blockNumber) => {
 
                 if(transaction.tos.length > 0) {
                     let txnValues = transaction.tos.map(t => +t.quantity.replace(',',''));
-                    values = _.concat(values, txnValues);                    
-                }                
+                    values = _.concat(values, txnValues);
+                }
                 transactions.push(transaction);
             }
             if(block.transactionCount === transactions.length) {

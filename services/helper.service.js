@@ -102,6 +102,16 @@ const currencyRound = function(value) {
 }
 
 /**
+ * Get month by number
+ * @param {number} number month number
+ */
+const getMonth = function(number) {
+    let months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+    return months[+number - 1];
+}
+
+/**
  * convert unix time to utc time
  * 
  * @param timestamp Unix timestamp
@@ -1069,6 +1079,7 @@ module.exports = {
     cleanIOTypes,
     inoutCalculation,
     getDatefromTs,
+    getMonth,
     getUnixTS,
     getUnixTsSeconds,
     getUnixTsPlus,

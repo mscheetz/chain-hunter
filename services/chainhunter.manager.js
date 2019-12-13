@@ -489,6 +489,8 @@ const getBlockTransactions = async(chain, blockNumber, ip, ipInfo) => {
         transactions = await ltc.getTransactions(blockNumber);
     } else if (chain === "neo") {
         transactions = await neo.getBlockTransactions(blockNumber);
+    } else if (chain === "rvn") {
+        transactions = await rvn.getBlockTransactions(blockNumber);
     }
 
     await dataSvc.updateSearchResult(

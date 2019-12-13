@@ -19,6 +19,7 @@ const getEmptyBlockchain = async() => {
 const getBlockchain = async(chain, toFind, type) => {
     //const chain = await getEmptyBlockchain(blockchain);
     let address = null;
+    let block = null;
     let transaction = null;
 
     const searchType = type === enums.searchType.nothing 
@@ -28,14 +29,18 @@ const getBlockchain = async(chain, toFind, type) => {
     if(searchType & enums.searchType.address) {
         address = await getAddress(toFind);
     }
+    if(searchType & enums.searchType.block) {
+        block = await getBlock(toFind);
+    }
     if(searchType & enums.searchType.transaction) {
         transaction = await getTransaction(toFind);
     }
     
     chain.address = address;
+    chain.block = block;
     chain.transaction = transaction;
     
-    if(chain.address || chain.transaction) {
+    if(chain.address || chain.block || chain.transaction) {
         chain.icon = "color/"+ chain.symbol.toLowerCase()  +".png";
     }
 
@@ -64,6 +69,80 @@ const getAddress = async(addressToFind) => {
         }
     } catch(error) {
         return null;
+    }
+}
+
+const getBlockHash = async(blockNumber) => {
+    let endpoint = "/block-index/" + blockNumber;
+    let url = base + endpoint;
+
+    try{
+        const response = await axios.get(url);
+
+        if(typeof response.data === 'string') {
+            return null;
+        }
+
+        return response.data.blockHash;
+    } catch (err) {
+        return null;
+    }
+}
+
+const getBlock = async(blockNumber) => {
+    const hash = await getBlockHash(blockNumber);
+
+    if(hash === null) {
+        return null;
+    }
+    let endpoint = "/block/" + hash;
+    let url = base + endpoint;
+
+    try{
+        const response = await axios.get(url);
+        const datas = response.data;
+
+        let block = {
+            blockNumber: blockNumber,
+            validator: datas.minedBy,
+            transactionCount: datas.tx.length,
+            date: helperSvc.unixToUTC(datas.time),
+            size: `${helperSvc.commaBigNumber(datas.size.toString())} bytes`,
+            hash: hash,
+            hasTransactions: true
+        };
+
+        return block;
+    } catch(error) {
+        return null;
+    }
+}
+
+const getBlockTransactions = async(blockNumber) => {
+    const hash = await getBlockHash(blockNumber);
+
+    if(hash === null) {
+        return null;
+    }
+    let endpoint = `/txs?block=${hash}&pageNum=0`;
+    let url = base + endpoint;
+
+    try{
+        const response = await axios.get(url);
+        const datas = response.data.txs;
+        
+        let transactions = [];
+        if(datas.length > 0) {
+            datas.forEach(txn => {
+                const transaction = buildTransaction(txn);
+
+                transactions.push(transaction);
+            })
+        }
+
+        return transactions;
+    } catch(err) {
+        return [];
     }
 }
 
@@ -118,7 +197,13 @@ const buildTransaction = function(txn) {
         let tos = [];
         const symbol = "RVN";
         txn.vin.forEach(vin => {
-            const from = helperSvc.getSimpleIO(symbol, vin.addr, vin.value);
+            let fromAddress = "";
+            if(typeof vin.coinbase !== 'undefined') {
+                fromAddress = "coinbase";
+            } else {
+                fromAddress = vin.addr;
+            }
+            const from = helperSvc.getSimpleIO(symbol, fromAddress, vin.value);
             froms.push(from);
         });
         txn.vout.forEach(out => {
@@ -150,6 +235,7 @@ module.exports = {
     getEmptyBlockchain,
     getBlockchain,
     getAddress,
+    getBlockTransactions,
     getTransactions,
     getTransaction
 }

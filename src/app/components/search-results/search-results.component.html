@@ -45,6 +45,6 @@
     <span>Results found: {{resultsFound.join(', ')}}</span>
 </p-panel>
 <p-panel showHeader="false"
-    *ngIf="(huntStatus === 2 || huntStatus === 3) && selectedChain !== '' && blockchain !== null && !blockchain.address && !blockchain.transaction && !blockchain.contract">
+    *ngIf="(huntStatus === 2 || huntStatus === 3) && selectedChain !== '' && blockchain !== null && !blockchain.address && !blockchain.block && !blockchain.transaction && !blockchain.contract">
     <h3>No {{blockchain.symbol}} Data found</h3>
 </p-panel>

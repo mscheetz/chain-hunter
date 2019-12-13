@@ -20,6 +20,7 @@ const getEmptyBlockchain = async() => {
 const getBlockchain = async(chain, toFind, type) => {
     //const chain = await getEmptyBlockchain(blockchain);
     let address = null;
+    let block = null;
     let transaction = null;
 
     const searchType = type === enums.searchType.nothing 
@@ -29,14 +30,18 @@ const getBlockchain = async(chain, toFind, type) => {
     if(searchType & enums.searchType.address) {
         address = await getAddress(toFind);
     }
+    if(searchType & enums.searchType.block) {
+        block = await getBlock(toFind);
+    }
     if(searchType & enums.searchType.transaction) {
         transaction = await getTransaction(toFind);
     }
     
     chain.address = address;
+    chain.block = block;
     chain.transaction = transaction;
 
-    if(chain.address || chain.transaction) {
+    if(chain.address || chain.block || chain.transaction) {
         chain.icon = "color/"+ chain.symbol.toLowerCase()  +".png";
     }
 
@@ -65,6 +70,78 @@ const getAddress = async(addressToFind) => {
             return null;
         }
     } catch(error) {
+        return null;
+    }
+}
+
+const blockCheck = async(blockNumber) => {
+    let endpoint = `/api/getblockhash?index=${blockNumber}`;
+    let url = base + endpoint;
+    
+    try{
+        const response = await axios.get(url);
+        if(response.data.indexOf("There was") >= 0) {
+            return null;
+        }
+
+        return response.data;
+    } catch (err) {
+        return null;
+    }
+}
+
+const getBlock = async(blockNumber) => {
+    const hash = await blockCheck(blockNumber);
+    
+    if(hash === null) {
+        return null;
+    }
+    let endpoint = `/api/getblock?hash=${hash}`;
+    let url = base + endpoint;
+
+    try{
+        const response = await axios.get(url);
+        
+        if(typeof response.data === 'string') {
+            return null;
+        }
+        const datas = response.data;
+        
+        let block = {
+            blockNumber: blockNumber,
+            transactionCount: datas.tx.length,
+            date: helperSvc.unixToUTC(datas.time),
+            size: `${helperSvc.commaBigNumber(datas.size.toString())} bytes`,
+            hash: hash,
+            hasTransactions: true
+        };
+        
+        let transactions = [];
+        if(datas.tx.length > 0) {
+            let values = [];
+            for(let tx of datas.tx) {
+                const transaction = await getTransaction(tx);
+
+                if(transaction.tos.length > 0) {
+                    let txnValues = transaction.tos.map(t => +t.quantity.replace(',',''));
+                    values = _.concat(values, txnValues);                    
+                }                
+                transactions.push(transaction);
+            }
+            if(block.transactionCount === transactions.length) {
+                let totalVolume = 0;
+                if(values.length > 0) {
+                    const quantity = values.reduce((a, b) => a + b, 0);
+                    totalVolume = helperSvc.commaBigNumber(quantity.toString());
+                }
+                block.volume = totalVolume;
+            }
+        }
+
+        block.transactions = transactions;
+
+        return block;
+    } catch (err) {
         return null;
     }
 }
@@ -109,7 +186,7 @@ const getTransaction = async(hash) => {
     }
 }
 
-const getTransactionSource = async(hash, tos) => {
+const getTransactionSource = async(hash, index, tos) => {
     let endpoint = "/api/getrawtransaction?txid=" + hash + "&decrypt=1";
     let url = base + endpoint;
     
@@ -118,6 +195,15 @@ const getTransactionSource = async(hash, tos) => {
         const datas = response.data;
         
         let sources = [];
+
+        const output = datas.vout.filter(v => v.n === index);
+        if(output.length > 0){
+            let source = getIOs(output[0], null);
+            sources.push(source);
+
+            return sources;
+        }
+
         for(let i = 0; i < datas.vout.length; i++) {
             if(_.has(datas.vout[i].scriptPubKey, 'addresses')){
                 const out = datas.vout[i];
@@ -129,6 +215,10 @@ const getTransactionSource = async(hash, tos) => {
                     sources.push(source);
                 }
             }
+        }
+        if(sources.length === 0 && datas.vout.length === 1) {
+            let source = getIOs(datas.vout[0], null);
+            sources.push(source);
         }
         
         return sources;
@@ -225,13 +315,13 @@ const getIOs = function(io, tos = null) {
         quantity: total,
         symbol: symbol,
         icon: icon
-    }    
+    };
 
     return source;
 }
 
 const getBlockHeight = async(hash) => {
-    let endpoint = "/api/getrawtransaction?txid=" + hash + "&decrypt=1";
+    let endpoint = "/api/getblock?hash=" + hash;
     let url = base + endpoint;
 
     try{
@@ -245,20 +335,26 @@ const getBlockHeight = async(hash) => {
 }
 
 const buildTransaction = async(txn) => {
+    let type = enums.transactionType.TRANSFER;
     let froms = [];
     let tos = [];
-    for(let i = 0; i < txn.vout.length; i++) {
-        const to = getIOs(txn.vout[i]);
-        if(to !== null) {
-            tos.push(to);
-        }
+    if(txn.vout.length === 1 && txn.vout[0].scriptPubKey.type === "nonstandard"){
+        type = enums.transactionType.NONSTANDARD;
     }
+    if(type !== enums.transactionType.NONSTANDARD) {
+        for(let i = 0; i < txn.vout.length; i++) {
+            const to = getIOs(txn.vout[i]);
+            if(to !== null) {
+                tos.push(to);
+            }
+        }
 
-    for(let i =0; i < txn.vin.length; i++) {
-        const from = await getTransactionSource(txn.vin[i].txid, tos);
-        from.forEach(fr => {
-            froms.push(fr);
-        })
+        for(let i =0; i < txn.vin.length; i++) {
+            const from = await getTransactionSource(txn.vin[i].txid, txn.vin[i].vout, tos);        
+            from.forEach(fr => {
+                froms.push(fr);
+            })
+        }
     }
 
     const toDatas = helperSvc.cleanIO(tos);
@@ -267,7 +363,7 @@ const buildTransaction = async(txn) => {
     const block = await getBlockHeight(txn.blockhash);
 
     let transaction = {
-        type: enums.transactionType.TRANSFER,
+        type: type,
         hash: txn.txid,
         block: block,
         confirmations: txn.confirmations,
@@ -277,58 +373,6 @@ const buildTransaction = async(txn) => {
     };
 
     return transaction;
-}
-
-const cleanIO = function(ios) {
-    
-    let addyMap = [];
-    ios.forEach(io => {
-        let data = {
-            symbol: io.symbol,
-            quantity: io.quantity,
-            icon: io.icon
-        }
-        for(let i = 0; i < io.addresses.length; i++) {
-            let thisAddress = io.addresses[i];
-            
-            let datas = [];
-            if(!(thisAddress in addyMap)) {
-                addyMap[thisAddress] = datas;
-            }
-            datas = addyMap[thisAddress];
-            datas.push(data);
-            addyMap[thisAddress] = datas;
-        }
-    })
-    let ioDatas = [];
-    
-    Object.keys(addyMap).forEach(function(address){
-        let symbols = addyMap[address].map(a => a.symbol);
-        symbols = _.uniq(symbols);
-        
-        for(let i = 0; i < symbols.length; i++) {
-            let quants = addyMap[address].filter(a => a.symbol === symbols[i]);
-            let quantity = 0;
-            let icon = "";
-            for(let j = 0; j < quants.length; j++) {
-                icon = quants[j].icon;
-                const thisQuant = quants[j].quantity.replace(",", "");
-                quantity += parseFloat(thisQuant);
-            }
-            const totalQuantity = helperSvc.commaBigNumber(quantity.toString());
-            let addys = [];
-            addys.push(address);
-            let data = {
-                addresses: addys,
-                symbol: symbols[i],
-                quantity: totalQuantity,
-                icon: icon
-            };
-            ioDatas.push(data);
-        }
-    });
-
-    return ioDatas;
 }
 
 module.exports = {

@@ -61,7 +61,8 @@ const transactionType = {
     CLAIM : 'Gas Claim',
     CREATE_ACCOUNT : 'Create Account',
     UNDELEGATE : 'Undelegate',
-    ISSUE: 'Issue'
+    ISSUE: 'Issue',
+    NONSTANDARD: 'Non-Standard'
 }
 
 /**

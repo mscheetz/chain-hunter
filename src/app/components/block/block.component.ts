@@ -160,7 +160,8 @@ export class BlockComponent implements OnInit {
     this.blockchain.block.transactions.forEach(txn => {
         for(let i = 0; i < txn.tos.length; i++) {
             if(txn.tos[i].symbol === this.blockchain.symbol) {
-                volume += +txn.tos[i].quantity;
+                let quantity = txn.tos[i].quantity.toString().replace(",", "");
+                volume += +quantity;
             }
         }
       });

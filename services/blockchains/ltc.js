@@ -19,6 +19,7 @@ const getEmptyBlockchain = async() => {
 const getBlockchain = async(chain, toFind, type) => {
     //const chain = await getEmptyBlockchain(blockchain);
     let address = null;
+    let block = null;
     let transaction = null;
 
     const searchType = type === enums.searchType.nothing 
@@ -28,14 +29,18 @@ const getBlockchain = async(chain, toFind, type) => {
     if(searchType & enums.searchType.address) {
         address = await getAddress(toFind);
     }
+    if(searchType & enums.searchType.block) {
+        block = await getBlock(toFind);
+    }
     if(searchType & enums.searchType.transaction) {
         transaction = await getTransaction(toFind);
     }
     
     chain.address = address;
+    chain.block = block;
     chain.transaction = transaction;
     
-    if(chain.address || chain.transaction) {
+    if(chain.address || chain.block || chain.transaction) {
         chain.icon = "color/"+ chain.symbol.toLowerCase()  +".png";
     }
 
@@ -67,19 +72,86 @@ const getAddress = async(addressToFind) => {
     }
 }
 
-const getTransactions = async(address) => {
-    let endpoint = "/txs?address=" + address;
+const blockCheck = async(blockNumber) => {
+    let endpoint = "/blocks";
+    let url = base + endpoint;
+    
+    try{
+        const response = await axios.get(url);
+        const datas = response.data.blocks;
+        if(+datas[0].height < +blockNumber) {
+            return null;
+        }
+        const block = datas.filter(d => d.height === +blockNumber);
+
+        if(block.length === 0) {
+            return null;
+        }
+        return block[0].hash;        
+    } catch (err) {
+        return null;
+    }
+}
+
+const getBlock = async(blockNumber) => {
+    const hash = await blockCheck(blockNumber);
+    if(hash === null) {
+        return null;
+    }
+    let endpoint = `/block/${hash}`;
     let url = base + endpoint;
 
     try{
         const response = await axios.get(url);
-        const datas = response.data.txs.splice(0, 10);
+        const datas = response.data;
+        
+        let validator = null;
+        if(typeof datas.poolInfo !== 'undefined') {
+            validator = datas.poolInfo.poolName;
+        }
+
+        let block = {
+            blockNumber: blockNumber,
+            validator: validator,
+            transactionCount: datas.tx.length,
+            date: helperSvc.unixToUTC(datas.time),
+            size: `${helperSvc.commaBigNumber(datas.size.toString())} bytes`,
+            hash: hash,
+            hasTransactions: true
+        };
+
+        return block;
+    } catch (err) {
+        return null;
+    }
+}
+
+const getTransactions = async(address) => {
+    let endpoint = "";
+    let block = false;
+    if(helperSvc.hasLetters(address)) {
+        endpoint = "/txs?address=" + address;
+    } else {
+        const hash = await blockCheck(address);
+        if(hash === null) {
+            return [];
+        }
+        block = true;
+        endpoint = `/txs?block=${hash}`;
+    }
+    let url = base + endpoint;
+
+    try{
+        const response = await axios.get(url);
+        
+        const datas = response.data.txs;//.splice(0, 10);
         const transactions = [];
         if(datas.length > 0) {
             datas.forEach(data => {
                 let txn = buildTransaction(data);
-
-                txn = helperSvc.inoutCalculation(address, txn);
+                if(!block) {
+                    txn = helperSvc.inoutCalculation(address, txn);
+                }
 
                 transactions.push(txn);
             })
@@ -111,11 +183,19 @@ const getTransaction = async(hash) => {
 
 const buildTransaction = function(txn) {
     if(txn != null) {
+        let type = enums.transactionType.TRANSFER;
         let froms = [];
         let tos = [];
         const symbol = "LTC";
         txn.vin.forEach(vin => {
-            const from = helperSvc.getSimpleIO(symbol, vin.addr, vin.value);
+            let fromAddress = "";
+            if(typeof vin.coinbase !== 'undefined') {
+                fromAddress = "coinbase";
+                type = enums.transactionType.MINING;
+            } else {
+                fromAddress = vin.addr;
+            }
+            const from = helperSvc.getSimpleIO(symbol, fromAddress, vin.value);
             froms.push(from);
         });
         txn.vout.forEach(vout => {
@@ -128,7 +208,7 @@ const buildTransaction = function(txn) {
         const toData = helperSvc.cleanIO(tos);
 
         let transaction = {
-            type: enums.transactionType.TRANSFER,
+            type: type,
             hash: txn.txid,
             block: txn.blockheight,
             confirmations: txn.confirmations,

@@ -1036,6 +1036,15 @@ const searchType = function(chain, toFind) {
     return enums.searchType.address | enums.searchType.transaction | enums.searchType.contract;
 }
 
+/**
+ * Convert a hexidecimal to a string
+ * 
+ * @param {string} hex hexidecimal value
+ */
+const hexToNumber = function(hex) {
+    return parseInt(hex, 16);
+}
+
 module.exports = {
     validateEmail,
     validateString,
@@ -1062,5 +1071,6 @@ module.exports = {
     searchType,
     generatePassword,
     getTimePlus,
-    hasLetters
+    hasLetters,
+    hexToNumber
 }

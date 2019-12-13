@@ -62,7 +62,8 @@ const transactionType = {
     CREATE_ACCOUNT : 'Create Account',
     UNDELEGATE : 'Undelegate',
     ISSUE: 'Issue',
-    NONSTANDARD: 'Non-Standard'
+    NONSTANDARD: 'Non-Standard',
+    INVOCATION: 'Invocation'
 }
 
 /**

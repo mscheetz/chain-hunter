@@ -20,7 +20,7 @@
 <div class="m-bottom-1">Date: {{blockchain.block.date}}</div>
 <div class="m-bottom-1" *ngIf="blockchain.block.size">Size: {{blockchain.block.size}}</div>
 <div class="m-bottom-1" *ngIf="blockchain.block.transactionCount">Transaction Count: {{blockchain.block.transactionCount}}</div>
-<div class="m-bottom-1" *ngIf="blockchain.block.volume">Transaction Total Volume: {{blockchain.block.volume}} {{blockchain.symbol}}</div>
+<div class="m-bottom-1" *ngIf="blockchain.block.volume">Block Total Volume: {{blockchain.block.volume}} {{blockchain.symbol}}</div>
 <p-accordion 
         *ngIf="blockchain.block.hasTransactions" 
         (onOpen)="onTxnsOpen($event)">

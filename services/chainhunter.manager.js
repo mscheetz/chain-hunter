@@ -302,7 +302,7 @@ const getBlockchain = async(chain, toFind, ip, ipInfo, type = enums.searchType.n
     } else if (chain === "lsk") {
         result = await lsk.getBlockchain(blockchain, toFind, type);
     } else if (chain === "tomo") {
-        result = await tomo.getBlockchain(blockchain, toFind);
+        result = await tomo.getBlockchain(blockchain, toFind, type);
     } else if (chain === "zen") {
         result = await zen.getBlockchain(blockchain, toFind, type);
     } else if (chain === "zil") {
@@ -491,6 +491,8 @@ const getBlockTransactions = async(chain, blockNumber, ip, ipInfo) => {
         transactions = await neo.getBlockTransactions(blockNumber);
     } else if (chain === "rvn") {
         transactions = await rvn.getBlockTransactions(blockNumber);
+    } else if (chain === "tomo") {
+        transactions = await tomo.getTransactions(blockNumber);
     }
 
     await dataSvc.updateSearchResult(

@@ -20,6 +20,7 @@ const getEmptyBlockchain = async() => {
 const getBlockchain = async(chain, toFind, type) => {
     //const chain = await getEmptyBlockchain(blockchain);
     let address = null;
+    let block = null;
     let contract = null;
     let transaction = null;
 
@@ -37,15 +38,19 @@ const getBlockchain = async(chain, toFind, type) => {
             }
         }
     }
+    if(searchType & enums.searchType.block) {
+        block = await getBlock(toFind);
+    }
     if(searchType & enums.searchType.transaction) {
         transaction = await getTransaction(toFind);
     }
     
     chain.address = address;
+    chain.block = block;
     chain.contract = contract;
     chain.transaction = transaction;
 
-    if(chain.address || chain.contract || chain.transaction) {
+    if(chain.address || chain.block || chain.contract || chain.transaction) {
         chain.icon = "color/"+ chain.symbol.toLowerCase()  +".png";
     }
 
@@ -250,8 +255,49 @@ const tokenCleanup = function(tokens) {
     return assets;
 }
 
+const getBlock = async(blockNumber) => {
+    let endpoint = "/blocks/" + blockNumber;
+    let url = base + endpoint;
+
+    try{
+        const response = await axios.get(url, { timeout: 5000 });
+        const datas = response.data;
+
+        let ts = datas.timestamp;
+        let yr = ts.substr(0,4);
+        let mo = ts.substr(5,2);
+        let day = ts.substr(8,2);
+        let time = ts.substr(11,8);
+
+        ts = `${day}-${mo}-${yr} ${time}`;
+
+        let block = {
+            blockNumber: blockNumber,
+            validator: datas.m2,
+            transactionCount: datas.e_tx,
+            date: ts,
+            size: `${helperSvc.commaBigNumber(datas.size.toString())} bytes`,
+            hash: datas.hash,
+            hasTransactions: true
+        };
+
+        return block;
+    } catch (err) {
+        return null;
+    }
+}
+
 const getTransactions = async(address) => {
-    let endpoint = "/txs/listByAccount/" + address + "?page=1&limit=10";
+    let method = "";
+    let block = false;
+    if(helperSvc.hasLetters(address)) {
+        method = "listByAccount";
+    } else {
+        block = true;
+        method = "listByBlock"
+    }
+
+    let endpoint = `/txs/${method}/${address}?page=1&limit=20`;
     let url = base + endpoint;
 
     try{
@@ -259,13 +305,15 @@ const getTransactions = async(address) => {
 
         const datas = response.data.items;
         let transactions = [];
-        
+
         for(let i = 0; i < datas.length; i++) {
             let transaction = await buildTransaction(datas[i], true);
+            
+            if(!block) {
+                transaction = helperSvc.inoutCalculation(address, transaction);
+            }
 
-            transaction = helperSvc.inoutCalculation(address, transaction);
-
-            transactions.push(transaction);
+            transactions.push(transaction);            
         }
 
         return transactions;
@@ -342,11 +390,15 @@ const buildTransaction = async(txn, canExpand = false) => {
             });            
         } else {
             let contract = false;
-            if((typeof txn.from_model.isContract) && txn.from_model.isContract != null && txn.from_model.isContract){
-                contract = true;
+            if(typeof txn.from_model !== 'undefined'){
+                if((typeof txn.from_model.isContract !== 'undefined') && txn.from_model.isContract != null && txn.from_model.isContract){
+                    contract = true;
+                }
             }
-            if(!contract && (typeof txn.to_model.isContract) && txn.to_model.isContract != null && txn.to_model.isContract){
-                contract = true;
+            if(typeof txn.to_model !== 'undefined'){
+                if(!contract && (typeof txn.to_model.isContract !== 'undefined') && txn.to_model.isContract != null && txn.to_model.isContract){
+                    contract = true;
+                }
             }
             if(contract){
                 type = enums.transactionType.CONTRACT;

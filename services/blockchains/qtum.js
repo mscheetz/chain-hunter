@@ -3,6 +3,7 @@ const helperSvc = require('../helper.service.js');
 const base = "https://qtum.info/api/";
 const enums = require('../../classes/enums');
 const divisor = 100000000;
+const _ = require('lodash');
 
 const getEmptyBlockchain = async() => {
     const chain = {};
@@ -19,6 +20,7 @@ const getEmptyBlockchain = async() => {
 const getBlockchain = async(chain, toFind, type) => {
     //const chain = await getEmptyBlockchain(blockchain);
     let address = null;
+    let block = null;
     let contract = null;
     let transaction = null;
 
@@ -29,6 +31,9 @@ const getBlockchain = async(chain, toFind, type) => {
     if(searchType & enums.searchType.address) {
         address = await getAddress(toFind);
     }
+    if(searchType & enums.searchType.block) {
+        block = await getBlock(toFind);
+    }
     if(searchType & enums.searchType.contract) {
         contract = await getContract(toFind);
     }
@@ -37,10 +42,11 @@ const getBlockchain = async(chain, toFind, type) => {
     }
     
     chain.address = address;
+    chain.block = block;
     chain.contract = contract;
     chain.transaction = transaction;
     
-    if(chain.address || chain.contract || chain.transaction) {
+    if(chain.address || chain.block || chain.contract || chain.transaction) {
         chain.icon = "color/"+ chain.symbol.toLowerCase()  +".png";
     }
 
@@ -112,6 +118,78 @@ const buildTokens = function(datas) {
     return assets;
 }
 
+const getBlock = async(blockNumber) => {
+    let endpoint = "/block/" + blockNumber;
+    let url = base + endpoint;
+
+    try{
+        const response = await axios.get(url, { timeout: 5000 });
+        const datas = response.data;
+
+        let block = {
+            blockNumber: blockNumber,
+            validator: datas.miner,
+            transactionCount: datas.transactions.length,
+            date: helperSvc.unixToUTC(datas.timestamp),
+            size: `${helperSvc.commaBigNumber(datas.size.toString())} bytes`,
+            hash: datas.hash,
+            hasTransactions: true
+        };
+
+        let transactions = [];
+        if(datas.transactions.length > 0) {
+            let values = [];
+            const txns = datas.transactions.join(",");
+
+            transactions = await getMultipleTransactions(txns, false);
+
+            transactions.forEach(txn => {
+                if(txn.tos.length > 0) {
+                    let txnValues = txn.tos.map(t => +t.quantity.replace(',',''));
+                    values = _.concat(values, txnValues);
+                }
+            });
+            if(block.transactionCount === transactions.length) {
+                let totalVolume = 0;
+                if(values.length > 0) {
+                    const quantity = values.reduce((a, b) => a + b, 0);
+                    totalVolume = helperSvc.commaBigNumber(quantity.toString());
+                }
+                block.volume = totalVolume;
+            }
+        }
+
+        block.transactions = transactions;
+        return block;
+    } catch(error) {
+        return null;
+    }
+}
+
+const getMultipleTransactions = async(hashes, address = "") => {
+    let endpoint = "/txs/" + hashes;
+    let url = base + endpoint;
+    
+    try{
+        const response = await axios.get(url, { timeout: 5000 });
+    
+        const datas = response.data;
+
+        let transactions = [];
+        datas.forEach(data => {
+            let transaction = buildTransaction(data);
+            if(address != "") {
+                transaction = helperSvc.inoutCalculation(address, transaction);
+            }
+            transactions.push(transaction);
+        })
+
+        return transactions;
+    } catch(err) {
+        return [];
+    }
+}
+
 const getTransactions = async(address) => {
     let endpoint = "/address/" + address + "/txs?limit=10&offset=0";
     let url = base + endpoint;
@@ -120,14 +198,9 @@ const getTransactions = async(address) => {
         const response = await axios.get(url, { timeout: 5000 });
 
         const datas = response.data.transactions;
-        let transactions = [];
-        for(let i = 0; i < datas.length; i++) {
-            let transaction = await getTransaction(datas[i]);
-
-            transaction = helperSvc.inoutCalculation(address, transaction);
-
-            transactions.push(transaction);
-        }
+        
+        const hashes = datas.join(",");
+        const transactions = await getMultipleTransactions(hashes, address);
         
         return transactions;
     } catch(error) {
@@ -171,7 +244,7 @@ const getTransaction = async(hash) => {
         
         const datas = response.data;
 
-        const transaction = await buildTransaction(datas);
+        const transaction = buildTransaction(datas);
 
         return transaction;
     } catch(error) {
@@ -179,7 +252,7 @@ const getTransaction = async(hash) => {
     }
 }
 
-const buildTransaction = async(txn) => {
+const buildTransaction = function(txn) {    
     const symbol = "QTUM";
     let froms = [];
     let tos = [];
@@ -194,15 +267,17 @@ const buildTransaction = async(txn) => {
         })
     }
     txn.inputs.forEach(input => {
-        const value = parseFloat(input.value)/divisor;
-        const from = helperSvc.getSimpleIO(symbol, input.address, value);
-        froms.push(from);
+        if(typeof input.value !== 'undefined'){
+            const value = parseFloat(input.value)/divisor;
+            const from = helperSvc.getSimpleIO(symbol, input.address, value);
+            froms.push(from);
+        }
     })
     txn.outputs.forEach(output => {
         if(output.scriptPubKey.type === "evm_call"){
             type = enums.transactionType.CONTRACT;
         }
-        if(typeof output.address !== "undefined" && output.value !== "0") {
+        if(typeof output.address !== "undefined" && output.value !== "0" && output.scriptPubKey.type !== "empty" && output.scriptPubKey.type !== "nulldata") {
             const value = parseFloat(output.value)/divisor;
             const to = helperSvc.getSimpleIO(symbol, output.address, value);
             tos.push(to);
@@ -223,7 +298,7 @@ const buildTransaction = async(txn) => {
         tos: toData
     };
 
-    return transaction;
+    return transaction;    
 }
 
 module.exports = {

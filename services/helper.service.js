@@ -1037,12 +1037,24 @@ const searchType = function(chain, toFind) {
 }
 
 /**
- * Convert a hexidecimal to a string
+ * Convert a hexidecimal to a number
  * 
  * @param {string} hex hexidecimal value
  */
 const hexToNumber = function(hex) {
     return parseInt(hex, 16);
+}
+
+/**
+ * Convert a number to a hexidecimal
+ * 
+ * @param {number} toConvert number value
+ */
+const numberToHex = function(toConvert) {
+    const numberVal = +toConvert;
+    let hex = numberVal.toString(16);
+        
+    return `0x${hex}`;
 }
 
 module.exports = {
@@ -1072,5 +1084,6 @@ module.exports = {
     generatePassword,
     getTimePlus,
     hasLetters,
-    hexToNumber
+    hexToNumber,
+    numberToHex
 }

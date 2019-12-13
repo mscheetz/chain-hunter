@@ -268,7 +268,8 @@ const getBlock = async(blockNumber) => {
         let mo = ts.substr(5,2);
         let day = ts.substr(8,2);
         let time = ts.substr(11,8);
-
+        mo = helperSvc.getMonth(mo);
+        
         ts = `${day}-${mo}-${yr} ${time}`;
 
         let block = {

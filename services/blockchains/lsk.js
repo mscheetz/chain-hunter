@@ -19,6 +19,7 @@ const getEmptyBlockchain = async() => {
 const getBlockchain = async(chain, toFind, type) => {
     //const chain = await getEmptyBlockchain(blockchain);
     let address = null;
+    let block = null;
     let transaction = null;
 
     const searchType = type === enums.searchType.nothing 
@@ -28,14 +29,18 @@ const getBlockchain = async(chain, toFind, type) => {
     if(searchType & enums.searchType.address) {
         address = await getAddress(toFind);
     }
+    if(searchType & enums.searchType.block) {
+        block = await getBlock(toFind);
+    }
     if(searchType & enums.searchType.transaction) {
         transaction = await getTransaction(toFind);
     }
     
     chain.address = address;
+    chain.block = block;
     chain.transaction = transaction;
 
-    if(chain.address || chain.transaction) {
+    if(chain.address || chain.block || chain.transaction) {
         chain.icon = "color/"+ chain.symbol.toLowerCase()  +".png";
     }
 
@@ -64,6 +69,98 @@ const getAddress = async(addressToFind) => {
         }
     } catch(error) {
         return null;
+    }
+}
+
+const blockCheck = async(blockNumber) => {
+    let endpoint = `/unifiedSearch?q=${blockNumber}`;
+    let url = base + endpoint;
+    
+    try{
+        const response = await axios.get(url);
+        let blockId = 0;
+        if(response.data.success && response.data.result.length > 0) {
+            for(let res of response.data.result){
+                if(res.type === "block"){
+                    blockId = res.id;
+                    break;
+                }
+            }
+        }
+
+        return blockId;
+    } catch (err) {
+        return 0;
+    }
+}
+
+const getBlock = async(blockNumber) => {
+    const blockId = await blockCheck(blockNumber);
+
+    if(blockId === 0) {
+        return null;
+    }
+
+    let endpoint = "/getBlock?blockId=" + blockId;
+    let url = base + endpoint;
+    
+    try{
+        const response = await axios.get(url);
+
+        if(response.data.success) {
+            const datas = response.data.block;
+            
+            let amount = +datas.totalAmount/100000000;
+            
+            let block = {
+                blockNumber: blockNumber,
+                validator: datas.generatorId,
+                transactionCount: datas.numberOfTransactions,
+                date: getTime(datas.timestamp),
+                //size: `${helperSvc.commaBigNumber(datas.blockSize.toString())} bytes`,
+                hash: blockId,
+                hasTransactions: true,
+                volume: helperSvc.commaBigNumber(amount.toString())
+            };
+
+            let transactions = [];
+            if(block.transactionCount > 0) {
+                transactions = await getBlockTransactions(blockId);
+            }
+
+            block.transactions = transactions;
+
+            return block;
+        } else {
+            return null;
+        }
+    } catch(error) {
+        return null;
+    }
+}
+
+const getBlockTransactions = async(blockId) => {
+    let endpoint = "/getTransactions?blockId=" + blockId + "&limit=10&offset=0";
+    let url = base + endpoint;
+
+    try{
+        const response = await axios.get(url);
+        if(response.data.success) {
+            const datas = response.data.transactions;
+            let transactions = [];
+
+            datas.forEach(data => {
+                let transaction = buildTransaction(data);
+
+                transactions.push(transaction);
+            })
+
+            return transactions;
+        } else {
+            return [];
+        }
+    } catch(error) {
+        return [];
     }
 }
 
@@ -130,12 +227,16 @@ const buildTransaction = function(txn) {
     let transaction = {
         type: enums.transactionType.TRANSFER,
         hash: txn.id,
-        date: helperSvc.unixToUTC(txn.timestamp + 1464109200),
+        date: getTime(txn.timestamp),
         froms: fromData,
         tos: toData
     };
 
     return transaction;
+}
+
+const getTime = function(ts) {
+    return helperSvc.unixToUTC(ts + 1464109200);
 }
 
 module.exports = {

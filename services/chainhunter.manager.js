@@ -479,6 +479,8 @@ const getBlockTransactions = async(chain, blockNumber, ip, ipInfo) => {
         transactions = await bch.getTransactions(blockNumber);
     } else if (chain === "bnb") {
         transactions = await bnb.getTransactions(blockNumber);
+    } else if (chain === "etc") {
+        transactions = await etc.getBlockTransactions(blockNumber);
     }
 
     await dataSvc.updateSearchResult(

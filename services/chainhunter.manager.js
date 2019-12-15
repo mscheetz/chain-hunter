@@ -493,6 +493,8 @@ const getBlockTransactions = async(chain, blockNumber, ip, ipInfo) => {
         transactions = await rvn.getBlockTransactions(blockNumber);
     } else if (chain === "tomo") {
         transactions = await tomo.getTransactions(blockNumber);
+    } else if (chain === "trx") {
+        transactions = await trx.getTransactions(blockNumber);
     }
 
     await dataSvc.updateSearchResult(

@@ -21,7 +21,6 @@ const getBlockchain = async(chain, toFind, type) => {
     //const chain = await getEmptyBlockchain(blockchain);
     let address = null;
     let transaction = null;
-    let contract = null;
 
     const searchType = type === enums.searchType.nothing 
             ? helperSvc.searchType(chain.symbol.toLowerCase(), toFind)

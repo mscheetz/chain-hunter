@@ -125,6 +125,15 @@ const unixToUTC = function(timestamp) {
     let hour = dateTime.getHours() == 0 ? "00" : dateTime.getHours();
     let min = dateTime.getMinutes() == 0 ? "00" : dateTime.getMinutes();
     let sec = dateTime.getSeconds() == 0 ? "00" : dateTime.getSeconds();
+    if(hour < 10) {
+        hour = `0${hour}`;
+    }
+    if(min < 10) {
+        min = `0${min}`;
+    }
+    if(sec < 10) {
+        sec = `0${sec}`;
+    }
     let time = day + '-' + month + '-' + year + ' ' + hour + ':' + min + ':' + sec ;
     
     return time;

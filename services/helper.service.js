@@ -988,7 +988,7 @@ const searchType = function(chain, toFind) {
             return enums.searchType.transaction;
         }
     }
-    if((toFind.substr(0, 2) === "KT" || toFind.substr(0, 2) === "tz") && toFind.length === 36) {
+    if((toFind.substr(0, 2) === "KT" || toFind.substr(0, 2) === "tz" || toFind.substr(0, 3) === "dn1") && toFind.length === 36) {
         if(chain === "xtz") {
             return enums.searchType.address;
         } else {
@@ -1003,7 +1003,7 @@ const searchType = function(chain, toFind) {
         }
     }
     if(chain === "xtz") {
-        if((toFind.substr(0, 2) === "KT" || toFind.substr(0, 2) === "tz") && toFind.length === 36) {
+        if((toFind.substr(0, 2) === "KT" || toFind.substr(0, 2) === "tz" || toFind.substr(0, 3) === "dn1") && toFind.length === 36) {
             return enums.searchType.address;
         } else if (toFind.substr(0, 1) === "o" && toFind.length == 51) {
             return enums.searchType.transaction;

@@ -19,6 +19,7 @@ const getEmptyBlockchain = async() => {
 const getBlockchain = async(chain, toFind, type) => {
     //const chain = await getEmptyBlockchain(blockchain);
     let address = null;
+    let block = null;
     let transaction = null;
 
     const searchType = type === enums.searchType.nothing 
@@ -28,14 +29,18 @@ const getBlockchain = async(chain, toFind, type) => {
     if(searchType & enums.searchType.address) {
         address = await getAddress(toFind);
     }
+    if(searchType & enums.searchType.block) {
+        block = await getBlock(toFind);
+    }
     if(searchType & enums.searchType.transaction) {
         transaction = await getTransaction(toFind);
     }
 
     chain.address = address;
+    chain.block = block;
     chain.transaction = transaction;
 
-    if(chain.address || chain.transaction) {
+    if(chain.address || chain.block || chain.transaction) {
         chain.icon = "color/"+ chain.symbol.toLowerCase()  +".png";
     }
 
@@ -67,6 +72,51 @@ const getAddress = async(addressToFind) => {
     }
 }
 
+const getBlock = async(blockNumber) => {
+    let endpoint = "/v1/ledger/" + blockNumber;
+    let url = base + endpoint;
+
+    try{
+        const response = await axios.get(url, { timeout: 5000 });
+        const datas = response.data;
+
+        let block = {
+            blockNumber: blockNumber,
+            transactionCount: datas.tx_count,
+            date: helperSvc.unixToUTC(datas.close_time),
+            hash: datas.ledger_hash,
+            hasTransactions: true
+        };
+
+        return block;
+    } catch (err) {
+        return null;
+    }
+}
+
+const getBlockTransactions = async(blockNumber) => {
+    let endpoint = "/v1/ledger/" + blockNumber +"/transactions";
+    let url = base + endpoint;
+
+    try{
+        const response = await axios.get(url);
+        let transactions = [];
+        if(response.data !== null && response.data.length > 0) {
+            const datas = response.data;
+            
+            datas.forEach(data => {
+                let transaction = buildTransaction(data);
+
+                transactions.push(transaction);
+            })
+        }
+
+        return transactions;
+    } catch(error) {
+        return [];
+    }
+}
+
 const getTransactions = async(address) => {
     let endpoint = "/v1/account/" + address +"/payments";
     let url = base + endpoint;
@@ -92,22 +142,65 @@ const getTransactions = async(address) => {
 }
 
 const buildTransaction = function(txn) {
+    let type = txn.TransactionType === "Payment" 
+                ? enums.transactionType.PAYMENT : 
+                txn.TransactionType === "OfferCreate" 
+                ? enums.transactionType.OFFERCREATE 
+                : txn.TransactionType === "OfferCancel"
+                ? enums.transactionType.OFFERCANCEL
+                : enums.transactionType.TRANSFER
     let froms = [];
     let tos = [];
-    const symbol = "XRP";
-    const from = helperSvc.getSimpleIO(symbol, txn.source, txn.delivered_amount);
-    froms.push(from);
-    const to = helperSvc.getSimpleIO(symbol, txn.destination, txn.delivered_amount);
-    tos.push(to);
+    let symbol = "XRP";
+    let hash = typeof txn.hash !== 'undefined' ? txn.hash : txn._txhash;
+    if(typeof txn.TakerPays !== 'undefined') {
+        const from = helperSvc.getSimpleIO(txn.TakerPays.currency, txn.Account, txn.TakerPays.value);
+        froms.push(from);
+    }
+    if(typeof txn.TakerGets !== 'undefined') {
+        const to = helperSvc.getSimpleIO(txn.TakerGets.currency, txn.Account, txn.TakerGets.value);
+        tos.push(to);
+    }
+    if(typeof txn.source !== 'undefined') {
+        const from = helperSvc.getSimpleIO(symbol, txn.source, txn.delivered_amount);
+        froms.push(from);
+    }
+    if(typeof txn.destination !== 'undefined') {
+        const to = helperSvc.getSimpleIO(symbol, txn.destination, txn.delivered_amount);
+        tos.push(to);
+    }
+    if(typeof txn.Amount !== 'undefined') {
+        symbol = txn.Amount.currency;
+        const from = helperSvc.getSimpleIO(symbol, txn.Account, txn.Amount.value);
+        froms.push(from);
+        if(typeof txn.Destination !== 'undefined'){
+            const to = helperSvc.getSimpleIO(symbol, txn.Destination, txn.Amount.value);
+            tos.push(to);
+        }
+    }
+
+    if(typeof txn.Account !== 'undefined' && froms.length === 0) {
+        const from = helperSvc.getSimpleIO(symbol, txn.Account, 0);
+        froms.push(from);
+    }
 
     const fromData = helperSvc.cleanIO(froms);
     const toData = helperSvc.cleanIO(tos);
 
+    let ts = typeof txn.date !== 'undefined' ? txn.date : txn.executed_time;
+    let yr = ts.substr(0,4);
+    let mo = ts.substr(5,2);
+    let day = ts.substr(8,2);
+    let time = ts.substr(11,8);
+    mo = helperSvc.getMonth(mo);
+    
+    ts = `${day}-${mo}-${yr} ${time}`;
+    
     let transaction = {
-        type: enums.transactionType.TRANSFER,
-        hash: txn.tx_hash,
+        type: type,
+        hash: hash,
         block: txn.ledger_index,
-        date: txn.executed_time,
+        date: ts,
         froms: fromData,
         tos: toData
     };
@@ -123,7 +216,7 @@ const getTransaction = async(hash) => {
         const response = await axios.get(url);
         if(response.data) {
             const data = response.data;
-
+            
             const transaction = buildTransactionII(data);
 
             return transaction;
@@ -136,26 +229,57 @@ const getTransaction = async(hash) => {
 }
 
 const buildTransactionII = function(txn) {
+    let type = txn.TransactionType === "Payment" 
+                ? enums.transactionType.PAYMENT : 
+                txn.TransactionType === "OfferCreate" 
+                ? enums.transactionType.OFFERCREATE 
+                : enums.transactionType.TRANSFER
     let froms = [];
     let tos = [];
-    const symbol = txn.Amount.currency;
-    const from = helperSvc.getSimpleIO(symbol, txn.Account, txn.Amount.value);
-    froms.push(from);
-    const to = helperSvc.getSimpleIO(symbol, txn.Destination, txn.Amount.value);
-    tos.push(to);
+    if(typeof txn.TakerPays !== 'undefined') {
+        const from = helperSvc.getSimpleIO(txn.TakerPays.currency, txn.Account, txn.TakerPays.value);
+        froms.push(from);
+    }
+    if(typeof txn.TakerGets !== 'undefined') {
+        const to = helperSvc.getSimpleIO(txn.TakerGets.currency, txn.Account, txn.TakerGets.value);
+        tos.push(to);
+    }
+    if(typeof txn.Amount !== 'undefined') {
+        const symbol = txn.Amount.currency;
+        const from = helperSvc.getSimpleIO(symbol, txn.Account, txn.Amount.value);
+        froms.push(from);
+        if(typeof txn.Destination !== 'undefined'){
+            const to = helperSvc.getSimpleIO(symbol, txn.Destination, txn.Amount.value);
+            tos.push(to);
+        }
+    }
 
+    if(typeof txn.Account !== 'undefined' && froms.length === 0) {
+        const from = helperSvc.getSimpleIO(symbol, txn.Account, 0);
+        froms.push(from);
+    }
+    
     const fromData = helperSvc.cleanIO(froms);
     const toData = helperSvc.cleanIO(tos);
+    
+    let ts = txn.date;
+    let yr = ts.substr(0,4);
+    let mo = ts.substr(5,2);
+    let day = ts.substr(8,2);
+    let time = ts.substr(11,8);
+    mo = helperSvc.getMonth(mo);
+    
+    ts = `${day}-${mo}-${yr} ${time}`;
 
     let transaction = {
-        type: enums.transactionType.TRANSFER,
+        type: type,
         hash: txn.hash,
         block: txn.ledger_index,
-        date: txn.date,
+        date: ts,
         froms: fromData,
         tos: toData
     };
-
+    
     return transaction;
 }
 
@@ -163,6 +287,7 @@ module.exports = {
     getEmptyBlockchain,
     getBlockchain,
     getAddress,
+    getBlockTransactions,
     getTransactions,
     getTransaction
 }

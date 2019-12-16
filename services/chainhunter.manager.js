@@ -499,6 +499,8 @@ const getBlockTransactions = async(chain, blockNumber, ip, ipInfo) => {
         transactions = await vet.getBlockTransactions(blockNumber);
     } else if (chain === "xlm") {
         transactions = await xlm.getTransactions(blockNumber);
+    } else if (chain === "xrp") {
+        transactions = await xrp.getBlockTransactions(blockNumber);
     }
 
     await dataSvc.updateSearchResult(

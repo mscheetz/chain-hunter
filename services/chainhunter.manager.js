@@ -495,6 +495,8 @@ const getBlockTransactions = async(chain, blockNumber, ip, ipInfo) => {
         transactions = await tomo.getTransactions(blockNumber);
     } else if (chain === "trx") {
         transactions = await trx.getTransactions(blockNumber);
+    } else if (chain === "vet") {
+        transactions = await vet.getBlockTransactions(blockNumber);
     }
 
     await dataSvc.updateSearchResult(

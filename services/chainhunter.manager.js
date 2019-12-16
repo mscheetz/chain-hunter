@@ -501,6 +501,8 @@ const getBlockTransactions = async(chain, blockNumber, ip, ipInfo) => {
         transactions = await xlm.getTransactions(blockNumber);
     } else if (chain === "xrp") {
         transactions = await xrp.getBlockTransactions(blockNumber);
+    } else if (chain === "xtz") {
+        transactions = await xtz.getTransactions(blockNumber);
     }
 
     await dataSvc.updateSearchResult(

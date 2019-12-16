@@ -63,7 +63,9 @@ const transactionType = {
     UNDELEGATE : 'Undelegate',
     ISSUE: 'Issue',
     NONSTANDARD: 'Non-Standard',
-    INVOCATION: 'Invocation'
+    INVOCATION: 'Invocation',
+    OFFERCREATE: 'Offer Create',
+    OFFERCANCEL: 'Offer Cancel'
 }
 
 /**

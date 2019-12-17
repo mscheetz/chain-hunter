@@ -72,8 +72,26 @@ const getAddress = async(addressToFind) => {
     }
 }
 
+const getBlockHash = async(blockNumber) => {
+    let endpoint = `/block-index/${blockNumber}`;
+    let url = base + endpoint;
+    
+    try{
+        const response = await axios.get(url);
+        const datas = response.data;
+
+        return datas.blockHash;      
+    } catch (err) {
+        return null;
+    }
+}
+
 const getBlock = async(blockNumber) => {
-    let endpoint = `/block/${blockNumber}`;
+    const hash = await getBlockHash(blockNumber);
+    if(hash === null) {
+        return null;
+    }
+    let endpoint = `/block/${hash}`;
     let url = base + endpoint;
 
     try{
@@ -87,7 +105,7 @@ const getBlock = async(blockNumber) => {
                 blockNumber: blockNumber,
                 confirmations: datas.confirmations,
                 date: helperSvc.unixToUTC(datas.time),
-                hash: datas.hash,
+                hash: hash,
                 hasTransactions: true,
                 size: `${helperSvc.commaBigNumber(datas.size.toString())} bytes`,
                 transactionCount: datas.tx.length,
@@ -99,9 +117,8 @@ const getBlock = async(blockNumber) => {
                 let i = 0;
                 let transactions = []
                 
-                for(let i = 0; i < 10; i++) {
-                    const txn = await getTransaction(datas.tx[i]);
-
+                for(let tx of datas.tx) {
+                    const txn = await getTransaction(tx);
                     if(txn.tos.length > 0) {
                         let txnValues = txn.tos.map(t => +t.quantity);
                         values = _.concat(values, txnValues);

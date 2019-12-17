@@ -49,7 +49,7 @@ const getBlockchain = async(chain, toFind, type) => {
 const getBlock = async(blockNumber) => {
     let endpoint = `/middleware/generations/${blockNumber}/${blockNumber}`;
     let url = base + endpoint;
-console.log(url);
+
     try{
         const response = await axios.get(url);
         if(typeof response.data !== "undefined" && response.data !== null && response.data.data !== null && response.data.total_micro_blocks > 0) {

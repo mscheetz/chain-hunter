@@ -456,14 +456,19 @@ const cleanIO = function(ios) {
                     }
                     let thisQuantity = 0;
                     if(_.isString(quants[j].quantity)) {
-                        const thisQuant = quants[j].quantity.replace(/,/g, "");
-                        thisQuantity = parseFloat(thisQuant);
+                        const thisQuant = quants[j].quantity.indexOf(',') >= 0 
+                            ? quants[j].quantity.replace(/,/g, "") 
+                            : quants[j].quantity;
+                        //thisQuantity = parseFloat(thisQuant);
+                        thisQuantity = thisQuant;// (typeof thisQuant === 'string') ? +thisQuant : thisQuant;
+                        
                         if(thisQuantity.toString().indexOf('e') >= 0) {
                             thisQuantity = exponentialToNumber(thisQuantity);
                         }
                     } else {
                         thisQuantity = quants[j].quantity;
                     }
+                    
                     if(quantity === 0) {
                         quantity = thisQuantity;
                     } else {
@@ -471,7 +476,8 @@ const cleanIO = function(ios) {
                     }
                     //quantity += +thisQuantity;
                 }
-                const totalQuantity = commaBigNumber(quantity.toString());
+                const cleaned = decimalCleanup(quantity);
+                const totalQuantity = commaBigNumber(cleaned);
                 let addys = [];
                 addys.push(address);
                 let data = {

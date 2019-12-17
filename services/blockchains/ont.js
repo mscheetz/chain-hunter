@@ -4,6 +4,7 @@ const base = "https://explorer.ont.io/v2";
 const enums = require('../../classes/enums');
 const delay = time => new Promise(res=>setTimeout(res,time));
 const tokenTypes = [ 'native', 'oep4', 'oep5', 'oep8'];
+const _ = require('lodash');
 
 const getEmptyBlockchain = async() => {
     const chain = {};
@@ -20,6 +21,7 @@ const getEmptyBlockchain = async() => {
 const getBlockchain = async(chain, toFind, type) => {
     //const chain = await getEmptyBlockchain(blockchain);
     let address = null;
+    let block = null;
     let transaction = null;
     let contract = null;
 
@@ -30,6 +32,9 @@ const getBlockchain = async(chain, toFind, type) => {
     if(searchType & enums.searchType.address) {
         address = await getAddress(toFind);
     }
+    if(searchType & enums.searchType.block) {
+        block = await getBlock(toFind);
+    }
     if(searchType & enums.searchType.transaction) {
         transaction = await getTransaction(toFind);
     }
@@ -38,10 +43,11 @@ const getBlockchain = async(chain, toFind, type) => {
     }
     
     chain.address = address;
+    chain.block = block;
     chain.transaction = transaction;
     chain.contract = contract;
 
-    if(chain.address || chain.transaction || chain.contract) {
+    if(chain.address || chain.block || chain.transaction || chain.contract) {
         chain.icon = "color/"+ chain.symbol.toLowerCase()  +".png";
     }
 
@@ -78,6 +84,60 @@ const getAddress = async(addressToFind) => {
             };
 
             return address;
+        } else {
+            return null;
+        }
+    } catch(error) {
+        return null;
+    }
+}
+
+const getBlock = async(blockNumber) => {
+    let endpoint = "/blocks/" + blockNumber;
+    let url = base + endpoint;
+
+    try{
+        const response = await axios.get(url);
+        if(response.data.code === 0){
+            const datas = response.data.result;
+
+            let block = {
+                blockNumber: blockNumber,
+                //validator: datas.nextconsensus,
+                transactionCount: datas.tx_count,
+                date: helperSvc.unixToUTC(datas.block_time),
+                size: `${helperSvc.commaBigNumber(datas.block_size.toString())} bytes`,
+                hash: datas.block_hash,
+                hasTransactions: true
+            };
+
+            let transactions = [];
+            if(datas.txs.length > 0){
+                let values = [];
+                for(let txn of datas.txs) {
+                    const transaction = await getTransaction(txn.tx_hash);
+
+                    if(transaction.tos.length > 0) {
+                        const tos = transaction.tos.filter(t => t.symbol === 'ONT');
+                        if(tos.length > 0) {
+                            let txnValues = tos.map(t => +t.quantity.replace(/,/g, ""));
+                            values = _.concat(values, txnValues);
+                        }
+                    }
+
+                    transactions.push(transaction);
+                }
+                if(block.transactionCount === transactions.length) {
+                    let quantity = 0;
+                    if(values.length > 0) {
+                        quantity = values.reduce((a, b) => a + b, 0);
+                    }
+                    block.volume = quantity;
+                }
+            }
+            block.transactions = transactions;
+
+            return block;
         } else {
             return null;
         }

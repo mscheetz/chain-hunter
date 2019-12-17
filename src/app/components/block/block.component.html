@@ -1,0 +1,51 @@
+<p-overlayPanel #saveThisBlock>
+    {{saveThisMessage}}
+</p-overlayPanel>
+<div class="p-grid">
+    <h3 class="word-break">
+        <i *ngIf="blockSaved" (mouseover)="unSaveHover($event, 'Block', saveThisBlock)" 
+            (mouseleave)="unSaveHover($event, 'Block', saveThisBlock)"
+            (click)="unSaveResult($event, 'block')" 
+            class="fa fa-star" 
+            style="color: deeppink; cursor: pointer;"></i>
+        <i *ngIf="!blockSaved" (mouseover)="saveHover($event, 'Block', saveThisBlock)" 
+            (mouseleave)="saveHover($event, 'Block', saveThisBlock)"
+            (click)="saveResult($event, 'block')" 
+            class="fa fa-star-o" 
+            style="color: deeppink; cursor: pointer;"></i>
+        {{blockchain.symbol}} Block: <span>{{blockchain.block.blockNumber}}</span>
+    </h3>
+</div>
+<div class="m-bottom-1 wrap-long" *ngIf="blockchain.block.hash">Hash: {{blockchain.block.hash}}</div>
+<div class="m-bottom-1">Date: {{blockchain.block.date}}</div>
+<div class="m-bottom-1" *ngIf="blockchain.block.size">Size: {{blockchain.block.size}}</div>
+<div class="m-bottom-1" *ngIf="blockchain.block.validator">Miner/Validator: {{blockchain.block.validator}}</div>
+<div class="m-bottom-1" *ngIf="blockchain.block.transactionCount > -1">Transaction Count: {{blockchain.block.transactionCount}}</div>
+<div class="m-bottom-1" *ngIf="blockchain.block.volume">Block Total Volume: {{blockchain.block.volume | number}} {{blockchain.symbol}}</div>
+<p-accordion 
+        *ngIf="blockchain.block.hasTransactions" 
+        (onOpen)="onTxnsOpen($event)">
+    <!-- Block Transactions -->
+    <p-accordionTab 
+            header="{{blockchain.symbol}} block transactions" 
+            *ngIf="blockchain.block.hasTransactions">
+        <div *ngIf="!transactionsComplete">
+            Hunting down Transactions <i class="fa fa-cog fa-2x fa-spin" style="color: #464a4e;"></i>
+        </div>
+        <div *ngIf="transactionsComplete && (blockchain.block.transactions === undefined || blockchain.block.transactions === null || blockchain.block.transactions.length === 0)">
+            No transactions found
+        </div>
+        <ul>
+            <li class="address-txn" *ngFor="let txn of blockchain.block.transactions">
+                <transaction [transaction]="txn" 
+                             [address]=""
+                             [showHash]="true"></transaction>
+            </li>
+        </ul>
+    </p-accordionTab>
+</p-accordion>
+<div *ngIf="blockchain.source !== undefined">
+    <p>
+        For more info: <a href="{{blockchain.source}}" target="_blank">{{blockchain.source}}</a>
+    </p>
+</div>

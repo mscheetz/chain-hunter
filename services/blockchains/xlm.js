@@ -18,6 +18,7 @@ const getEmptyBlockchain = async() => {
 const getBlockchain = async(chain, toFind, type) => {
     //const chain = await getEmptyBlockchain(blockchain);
     let address = null;
+    let block = null;
     let transaction = null;
 
     const searchType = type === enums.searchType.nothing 
@@ -27,14 +28,18 @@ const getBlockchain = async(chain, toFind, type) => {
     if(searchType & enums.searchType.address) {
         address = await getAddress(toFind);
     }
+    if(searchType & enums.searchType.block) {
+        block = await getBlock(toFind);
+    }
     if(searchType & enums.searchType.transaction) {
         transaction = await getTransaction(toFind);
     }
     
     chain.address = address;
+    chain.block = block;
     chain.transaction = transaction;
     
-    if(chain.address || chain.transaction) {
+    if(chain.address || chain.block || chain.transaction) {
         chain.icon = "color/"+ chain.symbol.toLowerCase()  +".png";
     }
 
@@ -74,6 +79,43 @@ const getAddress = async(addressToFind) => {
     }
 }
 
+const getBlock = async(blockNumber) => {
+    let endpoint = "/ledgers/" + blockNumber;
+    let url = base + endpoint;
+
+    try{
+        const response = await axios.get(url);
+        if(response.data !== null) {
+            const datas = response.data;
+
+            let ts = datas.closed_at;
+            let yr = ts.substr(0,4);
+            let mo = ts.substr(5,2);
+            let day = ts.substr(8,2);
+            let time = ts.substr(11,8);
+            mo = helperSvc.getMonth(mo);
+            
+            ts = `${day}-${mo}-${yr} ${time}`;
+    
+            let block = {
+                blockNumber: blockNumber,
+                //validator: datas.signer,
+                transactionCount: datas.successful_transaction_count + datas.failed_transaction_count,
+                date: ts,
+                //size: `${helperSvc.commaBigNumber(datas.size.toString())} bytes`,
+                hash: datas.hash,
+                hasTransactions: true
+            };
+
+            return block;
+        } else {
+            return null;
+        }
+    } catch(error) {
+        return null;
+    }
+}
+
 const buildToken = function(token) {
     const total = helperSvc.commaBigNumber(token.balance.toString());
     let asset = {
@@ -89,7 +131,15 @@ const buildToken = function(token) {
 }
 
 const getTransactions = async(address) => {
-    let endpoint = "/accounts/" + address + "/transactions?limit=10&order=desc";
+    let method = "";
+    let isBlock = false;
+    if(helperSvc.hasLetters(address)) {
+        method = "accounts";
+    } else {
+        method = "ledgers";
+        isBlock = true;
+    }
+    let endpoint = `/${method}/${address}/transactions?limit=100&order=desc`;
     let url = base + endpoint;
 
     try{
@@ -98,11 +148,16 @@ const getTransactions = async(address) => {
         const datas = response.data._embedded.records;
         const latestBlock = await getLatestBlock();
         const transactions = [];
+        if(isBlock) {
+            address = null;
+        }
         if(datas.length > 0) {
             for(let i = 0; i < datas.length; i++){
                 let transaction = await buildTransaction(datas[i], latestBlock, address);
 
-                transaction = helperSvc.inoutCalculation(address, transaction);
+                if(!isBlock) {
+                    transaction = helperSvc.inoutCalculation(address, transaction);
+                }
 
                 transactions.push(transaction);
             }

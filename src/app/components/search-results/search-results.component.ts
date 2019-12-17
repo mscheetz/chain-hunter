@@ -1,6 +1,6 @@
 import { OnInit, Input, Component, Output, EventEmitter } from '@angular/core';
 import { Blockchain } from 'src/app/classes/ChainHunter/blockchain.class';
-import { Chain } from 'src/app/classes/ChainHunter/Chain';
+import { Chain } from 'src/app/classes/ChainHunter/chain.class';
 import { OverlayPanel } from 'primeng/overlaypanel';
 import { ApiService } from 'src/app/services/api.service';
 import { MessageService } from 'primeng/api';

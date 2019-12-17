@@ -1,5 +1,5 @@
 import { OnInit, Input, Component } from '@angular/core';
-import { Chain } from 'src/app/classes/ChainHunter/Chain';
+import { Chain } from 'src/app/classes/ChainHunter/chain.class';
 
 @Component({
     selector: 'active-chains',

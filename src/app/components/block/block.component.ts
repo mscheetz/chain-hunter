@@ -1,29 +1,28 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { Blockchain } from 'src/app/classes/ChainHunter/blockchain.class';
-import { ApiService } from 'src/app/services/api.service';
-import { Asset } from 'src/app/classes/ChainHunter/asset.class';
+
 import { OverlayPanel } from 'primeng/overlaypanel';
-import { Severity, ResultType } from 'src/app/classes/Enums';
 import { MessageService } from 'primeng/api';
+
+import { Severity, ResultType } from 'src/app/classes/Enums';
+import { ApiService } from 'src/app/services/api.service';
 import { AuthenticationService } from 'src/app/services/authentication.service';
 import { LoginService } from 'src/app/services/login.service';
+import { Blockchain } from 'src/app/classes/ChainHunter/blockchain.class';
 
 @Component({
-  selector: 'app-address-detail',
-  templateUrl: './address-detail.component.html',
-  styleUrls: ['./address-detail.component.css']
+  selector: 'app-block',
+  templateUrl: './block.component.html',
+  styleUrls: ['./block.component.css']
 })
-export class AddressDetailComponent implements OnInit {
+export class BlockComponent implements OnInit {
   @Input() blockchain: Blockchain;
-  // @Input() address: string;
-  // @Input() showHash: boolean;
   transactionsComplete: boolean = true;
   tokensComplete: boolean = true;
   tokenContent: string;
   saveThisMessage: string;
   loggedIn: boolean = false;
   @Input() saveId: string;
-  @Input() addressSaved: boolean = false;
+  @Input() blockSaved: boolean = false;
 
   constructor(private apiSvc: ApiService, 
               private messageSvc: MessageService, 
@@ -39,14 +38,12 @@ export class AddressDetailComponent implements OnInit {
 
   saveHover(event, type: string, overlayPanel: OverlayPanel) {
       this.saveThisMessage = "Save this " + this.blockchain.symbol + " " + type;
-    //this.saveThisMessage = "Coming Soon! Save this " + this.blockchain.symbol + " " + type;
     
     overlayPanel.toggle(event);
   }
 
   unSaveHover(event, type: string, overlayPanel: OverlayPanel) {
       this.saveThisMessage = "Un-save this " + this.blockchain.symbol + " " + type;
-    //this.saveThisMessage = "Coming Soon! Save this " + this.blockchain.symbol + " " + type;
     
     overlayPanel.toggle(event);
   }
@@ -62,6 +59,9 @@ export class AddressDetailComponent implements OnInit {
       if(type === ResultType[ResultType.address]) {
           objType = ResultType.address;
           hash = this.blockchain.address.address;
+      } else if (type === ResultType[ResultType.block]) {
+          objType = ResultType.block;
+          hash = this.blockchain.block.blockNumber.toString();
       } else if (type === ResultType[ResultType.contract]) {
           objType = ResultType.contract;
           hash = this.blockchain.contract.address;
@@ -71,7 +71,7 @@ export class AddressDetailComponent implements OnInit {
       }
       this.apiSvc.saveData(hash, this.blockchain.symbol, objType)
           .subscribe(res => {
-              this.addressSaved = true;
+              this.blockSaved = true;
               this.saveId = res;
               const message = `${this.blockchain.symbol} ${type} saved!`;
               this.addToast('notification-toast', Severity.success, 'Saved', message, 5000);
@@ -93,6 +93,9 @@ export class AddressDetailComponent implements OnInit {
       if(type === ResultType[ResultType.address]) {
           objType = ResultType.address;
           hash = this.blockchain.address.address;
+      } else if (type === ResultType[ResultType.block]) {
+          objType = ResultType.block;
+          hash = this.blockchain.block.blockNumber.toString();
       } else if (type === ResultType[ResultType.contract]) {
           objType = ResultType.contract;
           hash = this.blockchain.contract.address;
@@ -102,7 +105,7 @@ export class AddressDetailComponent implements OnInit {
       }
       this.apiSvc.deleteData(this.saveId)
           .subscribe(res => {
-              this.addressSaved = false;
+              this.blockSaved = false;
               const message = `${this.blockchain.symbol} ${type} un-saved!`;
               this.addToast('notification-toast', Severity.success, 'Un-Saved', message, 5000);
           }, err => {
@@ -125,90 +128,42 @@ export class AddressDetailComponent implements OnInit {
 
   onTxnsOpen(e: any) {
       if(e.index === 0) {
-          if(this.blockchain.address.transactions === null || this.blockchain.address.transactions === undefined) {
-            this.getAddressTxns();
-          }
-      } else if(e.index === 1) {
-          if(this.blockchain.address.tokens === null || this.blockchain.address.tokens === undefined) {
-            this.getAddressTokens();
-          } else {
-            this.buildTokens();
+          if(this.blockchain.block.transactions === null || this.blockchain.block.transactions === undefined) {
+            this.getTransactions();
           }
       }
   }
 
   /**
-   * Get Address transactions
+   * Get Block transactions
    */
-  getAddressTxns(): any {
+  getTransactions(): any {
     this.transactionsComplete = false;
-    this.apiSvc.getAddressTransactions(this.blockchain.symbol, this.blockchain.address.address)
+    this.apiSvc.getBlockTransactions(this.blockchain.symbol, this.blockchain.block.blockNumber)
         .subscribe(txns => {
-            this.blockchain.address.transactions = txns;
+            this.blockchain.block.transactions = txns;
+            this.getVolume();
             this.transactionsComplete = true;
         });
   }
 
-  /**
-   * Get Address tokens
-   */
-  getAddressTokens(): any {
-      this.tokensComplete = false;
-      this.apiSvc.getAddressTokens(this.blockchain.symbol, this.blockchain.address.address)
-          .subscribe(tokens => {
-              this.tokensComplete = true;
-              this.blockchain.address.tokens = tokens;
-              this.buildTokens();
-          });
-  }
-
-  /**
-   * Build token display
-   */
-  buildTokens() {
-      let i = 1;
-      this.tokenContent = ``;
-      this.blockchain.address.tokens.forEach(token => {            
-          this.tokenContent += `<div class="p-col-12 p-md-6 p-lg-4"><div class="box token-format">` + this.getTokenInfo(token) + `</div></div>`;
-          if(i === 3) {
-              i = 1;
-          } else {
-              i++;
-          }
-      });
-
-      while(i < 3) {
-          i++;
-          this.tokenContent += `<div class="p-col-12 p-md-6 p-lg-4"></div>`;
-      }
-  }
-
-    /**
-     * Get token information to display
-     * 
-     * @param token Token object
-     */
-    getTokenInfo(token: Asset): string {
-        let info = ``;
-        if(token.name !== null) {
-            info += `<p>Name: ` + token.name + `</p>`;
-        }
-        if(token.symbol !== null || token.hasIcon) {
-            info += `<p>`;
-            if(token.symbol !== null) {
-                info += `Symbol: ` + token.symbol;
-            }
-            if(token.hasIcon) {
-                if(token.symbol !== null) {
-                    info += `&nbsp;&nbsp;`;
-                }
-                info += `<img src="/assets/cryptoicons/color/` + token.symbol.toLowerCase() + `.png" />`;
-            }
-            info += `</p>`;
-        }
-        info += `<p>Quantity: ` + token.quantity + `</p>`;        
-
-        return info;        
+  getVolume() {            
+    if (this.blockchain.block.transactions === null || this.blockchain.block.transactions.length === 0 || 
+        this.blockchain.block.transactionCount !== this.blockchain.block.transactions.length) {
+        return;
     }
-
+    if(!this.blockchain.block.transactionCount) {
+        this.blockchain.block.transactionCount = this.blockchain.block.transactions.length;
+    }
+    let volume = 0;
+    this.blockchain.block.transactions.forEach(txn => {
+        for(let i = 0; i < txn.tos.length; i++) {
+            if(txn.tos[i].symbol === this.blockchain.symbol) {
+                let quantity = txn.tos[i].quantity.toString().replace(/,/g, "");
+                volume += +quantity;
+            }
+        }
+      });
+    this.blockchain.block.volume = volume;
+  }
 }

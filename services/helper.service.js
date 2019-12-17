@@ -102,6 +102,16 @@ const currencyRound = function(value) {
 }
 
 /**
+ * Get month by number
+ * @param {number} number month number
+ */
+const getMonth = function(number) {
+    let months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+    return months[+number - 1];
+}
+
+/**
  * convert unix time to utc time
  * 
  * @param timestamp Unix timestamp
@@ -115,6 +125,15 @@ const unixToUTC = function(timestamp) {
     let hour = dateTime.getHours() == 0 ? "00" : dateTime.getHours();
     let min = dateTime.getMinutes() == 0 ? "00" : dateTime.getMinutes();
     let sec = dateTime.getSeconds() == 0 ? "00" : dateTime.getSeconds();
+    if(hour < 10) {
+        hour = `0${hour}`;
+    }
+    if(min < 10) {
+        min = `0${min}`;
+    }
+    if(sec < 10) {
+        sec = `0${sec}`;
+    }
     let time = day + '-' + month + '-' + year + ' ' + hour + ':' + min + ':' + sec ;
     
     return time;
@@ -437,14 +456,19 @@ const cleanIO = function(ios) {
                     }
                     let thisQuantity = 0;
                     if(_.isString(quants[j].quantity)) {
-                        const thisQuant = quants[j].quantity.replace(/,/g, "");
-                        thisQuantity = parseFloat(thisQuant);
+                        const thisQuant = quants[j].quantity.indexOf(',') >= 0 
+                            ? quants[j].quantity.replace(/,/g, "") 
+                            : quants[j].quantity;
+                        //thisQuantity = parseFloat(thisQuant);
+                        thisQuantity = thisQuant;// (typeof thisQuant === 'string') ? +thisQuant : thisQuant;
+                        
                         if(thisQuantity.toString().indexOf('e') >= 0) {
                             thisQuantity = exponentialToNumber(thisQuantity);
                         }
                     } else {
                         thisQuantity = quants[j].quantity;
                     }
+                    
                     if(quantity === 0) {
                         quantity = thisQuantity;
                     } else {
@@ -452,7 +476,8 @@ const cleanIO = function(ios) {
                     }
                     //quantity += +thisQuantity;
                 }
-                const totalQuantity = commaBigNumber(quantity.toString());
+                const cleaned = decimalCleanup(quantity);
+                const totalQuantity = commaBigNumber(cleaned);
                 let addys = [];
                 addys.push(address);
                 let data = {
@@ -464,6 +489,105 @@ const cleanIO = function(ios) {
                     data.icon = icon;
                 }
                 ioDatas.push(data);
+            }
+        }
+    });
+
+    return ioDatas;
+}
+
+/**
+ * Clean up IOs with types
+ * @param {any[]} ios array of ios
+ */
+const cleanIOTypes = function(ios) {
+    let addyMap = [];
+    ios.forEach(io => {
+        let data = null;
+        if(typeof io.quantity !== 'undefined') {
+            data = {
+                symbol: io.symbol,
+                quantity: io.quantity
+            }
+            if(typeof io.icon !== 'undefined') {
+                data.icon = io.icon;
+            }
+            if(typeof io.type !== 'undefined') {
+                data.type = io.type;
+            }      
+        }
+        for(let i = 0; i < io.addresses.length; i++) {
+            let thisAddress = io.addresses[i];
+            
+            let datas = [];
+            if(!(thisAddress in addyMap)) {
+                addyMap[thisAddress] = datas;
+            }
+            datas = addyMap[thisAddress];
+            if(data !== null) {
+                datas.push(data);
+            }
+            addyMap[thisAddress] = datas;
+        }
+    })
+    let ioDatas = [];
+    
+    Object.keys(addyMap).forEach(function(address){
+        if(addyMap[address].length === 0) {
+            let addys = [];
+            addys.push(address);
+            let data = {
+                addresses: addys
+            };
+            ioDatas.push(data);
+        } else {
+            let symbols = addyMap[address].map(a => a.symbol);
+            let types = addyMap[address].map(a => a.type);
+            symbols = _.uniq(symbols);
+            types = _.uniq(types);
+            
+            for(let i = 0; i < symbols.length; i++) {
+                for(let j = 0; j < types.length; j++) {
+                    let quants = addyMap[address].filter(a => a.symbol === symbols[i] && a.type === types[j]);
+                    let quantity = 0;
+                    let icon = "";
+                    let iconExists = false;
+                    for(let j = 0; j < quants.length; j++) {
+                        if(typeof quants[j].icon !== 'undefined') {
+                            icon = quants[j].icon;
+                            iconExists = true;
+                        }
+                        let thisQuantity = 0;
+                        if(_.isString(quants[j].quantity)) {
+                            const thisQuant = quants[j].quantity.replace(/,/g, "");
+                            thisQuantity = parseFloat(thisQuant);
+                            if(thisQuantity.toString().indexOf('e') >= 0) {
+                                thisQuantity = exponentialToNumber(thisQuantity);
+                            }
+                        } else {
+                            thisQuantity = quants[j].quantity;
+                        }
+                        if(quantity === 0) {
+                            quantity = thisQuantity;
+                        } else {
+                            quantity = +quantity + +thisQuantity;
+                        }
+                        //quantity += +thisQuantity;
+                    }
+                    const totalQuantity = commaBigNumber(quantity.toString());
+                    let addys = [];
+                    addys.push(address);
+                    let data = {
+                        addresses: addys,
+                        symbol: symbols[i],
+                        type: types[j],
+                        quantity: totalQuantity
+                    };
+                    if(iconExists) {
+                        data.icon = icon;
+                    }
+                    ioDatas.push(data);
+                }
             }
         }
     });
@@ -519,11 +643,28 @@ const inoutCalculation = function(address, transaction) {
 }
 
 /**
+ * Check if a string has letters
+ * 
+ * @param {string} toValidate value to validate
+ */
+const hasLetters = function(toValidate) {
+    const letters = /[a-z]/i;
+    if(toValidate.match(letters)) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+/**
  * Type of search to perform
  * @param {*} chain chain to search
  * @param {*} toFind search string
  */
 const searchType = function(chain, toFind) {
+    if(!hasLetters(toFind)) {        
+        return enums.searchType.block;
+    }
     if((chain === "aion" || chain === "etc" || chain === "eth" || chain === "tomo" || chain === "vet") 
         && toFind.substr(0, 2) !== "0x") {
         return enums.searchType.nothing;
@@ -853,7 +994,7 @@ const searchType = function(chain, toFind) {
             return enums.searchType.transaction;
         }
     }
-    if((toFind.substr(0, 2) === "KT" || toFind.substr(0, 2) === "tz") && toFind.length === 36) {
+    if((toFind.substr(0, 2) === "KT" || toFind.substr(0, 2) === "tz" || toFind.substr(0, 3) === "dn1") && toFind.length === 36) {
         if(chain === "xtz") {
             return enums.searchType.address;
         } else {
@@ -868,7 +1009,7 @@ const searchType = function(chain, toFind) {
         }
     }
     if(chain === "xtz") {
-        if((toFind.substr(0, 2) === "KT" || toFind.substr(0, 2) === "tz") && toFind.length === 36) {
+        if((toFind.substr(0, 2) === "KT" || toFind.substr(0, 2) === "tz" || toFind.substr(0, 3) === "dn1") && toFind.length === 36) {
             return enums.searchType.address;
         } else if (toFind.substr(0, 1) === "o" && toFind.length == 51) {
             return enums.searchType.transaction;
@@ -920,6 +1061,27 @@ const searchType = function(chain, toFind) {
     return enums.searchType.address | enums.searchType.transaction | enums.searchType.contract;
 }
 
+/**
+ * Convert a hexidecimal to a number
+ * 
+ * @param {string} hex hexidecimal value
+ */
+const hexToNumber = function(hex) {
+    return parseInt(hex, 16);
+}
+
+/**
+ * Convert a number to a hexidecimal
+ * 
+ * @param {number} toConvert number value
+ */
+const numberToHex = function(toConvert) {
+    const numberVal = +toConvert;
+    let hex = numberVal.toString(16);
+        
+    return `0x${hex}`;
+}
+
 module.exports = {
     validateEmail,
     validateString,
@@ -929,8 +1091,10 @@ module.exports = {
     getSimpleIOAddresses,
     getIO,
     cleanIO,
+    cleanIOTypes,
     inoutCalculation,
     getDatefromTs,
+    getMonth,
     getUnixTS,
     getUnixTsSeconds,
     getUnixTsPlus,
@@ -944,5 +1108,8 @@ module.exports = {
     iconExists,
     searchType,
     generatePassword,
-    getTimePlus
+    getTimePlus,
+    hasLetters,
+    hexToNumber,
+    numberToHex
 }

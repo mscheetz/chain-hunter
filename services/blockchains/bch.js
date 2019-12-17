@@ -19,6 +19,7 @@ const getEmptyBlockchain = async() => {
 const getBlockchain = async(chain, toFind, type) => {
     //const chain = await getEmptyBlockchain(blockchain);
     let address = null;
+    let block = null;
     let transaction = null;
 
     const searchType = type === enums.searchType.nothing 
@@ -31,14 +32,18 @@ const getBlockchain = async(chain, toFind, type) => {
         }
         address = await getAddress(toFind);
     }
+    if(searchType & enums.searchType.block) {
+        block = await getBlock(toFind);
+    }
     if(searchType & enums.searchType.transaction) {
         transaction = await getTransaction(toFind);
     }
     
     chain.address = address;
+    chain.block = block;
     chain.transaction = transaction;
     
-    if(chain.address || chain.transaction) {
+    if(chain.address || chain.block || chain.transaction) {
         chain.icon = "color/"+ chain.symbol.toLowerCase()  +".png";
     }
 
@@ -57,6 +62,36 @@ const addressConvert = async(address) => {
             return null;
         }
     } catch(err) {
+        return null;
+    }
+}
+
+const getBlock = async(blockNumber) => {
+    let endpoint = `/block/${blockNumber}`;
+    let url = base + endpoint;
+
+    try{
+        const response = await axios.get(url);
+
+        if(typeof response.data.data !== 'undefined' && response.data.data !== null && response.data.err_no === 0) {
+            const datas = response.data.data;
+            
+            let block = {
+                blockNumber: blockNumber,
+                confirmations: datas.confirmations,
+                date: helperSvc.unixToUTC(datas.timestamp),
+                hash: datas.hash,
+                hasTransactions: true,
+                size: `${helperSvc.commaBigNumber(datas.size.toString())} bytes`,
+                transactionCount: datas.tx_count,
+                //validator: datas.Generator,
+            };
+
+            return block;
+        } else {
+            return null;
+        }
+    } catch(error) {
         return null;
     }
 }
@@ -88,7 +123,15 @@ const getAddress = async(addressToFind) => {
 }
 
 const getTransactions = async(address) => {
-    let endpoint = "/address/" + address + "/tx";
+    let endpoint = "", block = false;
+
+    if(helperSvc.hasLetters(address)) {
+        endpoint = `/address/${address}/tx`;
+    } else {
+        block = true;
+        endpoint = `/block/${address}/tx`;
+    }
+    
     let url = base + endpoint;
 
     try{
@@ -99,7 +142,9 @@ const getTransactions = async(address) => {
             if(datas.length > 0) {
                 datas.forEach(data => {
                     let transaction = buildTransaction(data);
-                    transaction = helperSvc.inoutCalculation(address, transaction);
+                    if(!block) {
+                        transaction = helperSvc.inoutCalculation(address, transaction);
+                    }
 
                     transactions.push(transaction);
                 })
@@ -115,7 +160,7 @@ const getTransactions = async(address) => {
 }
 
 const getTransaction = async(hash) => {
-    let endpoint = "/tx/" + hash + "?verbose=3";
+    let endpoint = `/tx/${hash}?verbose=3`;
     let url = base + endpoint;
 
     try{
@@ -137,9 +182,11 @@ const buildTransaction = function(txn) {
     let froms = [];
     let tos = [];
     const symbol = "BCH";
+    let type = enums.transactionType.TRANSFER;
     txn.inputs.forEach(input => {
         let from = null;
         if(txn.is_coinbase){
+            type = enums.transactionType.MINING;
             from = {
                 addresses: ["coinbase"]
             }
@@ -159,7 +206,7 @@ const buildTransaction = function(txn) {
     const toDatas = helperSvc.cleanIO(tos);
 
     const transaction = {
-        type: enums.transactionType.TRANSFER,
+        type: type,
         hash: txn.hash,
         block: txn.block_height,
         confirmations: txn.confirmations,

@@ -1,6 +1,7 @@
 const axios = require('axios');
 const helperSvc = require('../helper.service.js');
 const base = "https://blockscout.com/etc/mainnet/api";
+const blockBase = "https://blockexplorer.one/ajax/etc/mainnet";
 const enums = require('../../classes/enums');
 const _ = require('lodash');
 const delay = time => new Promise(res=>setTimeout(res,time));
@@ -20,6 +21,7 @@ const getEmptyBlockchain = async() => {
 const getBlockchain = async(chain, toFind, type) => {
     //const chain = await getEmptyBlockchain(blockchain);
     let address = null;
+    let block = null;
     let contract = null;
     let transaction = null;
 
@@ -30,6 +32,9 @@ const getBlockchain = async(chain, toFind, type) => {
     if(searchType & enums.searchType.address) {
         address = await getAddress(toFind);
     }
+    if(searchType & enums.searchType.block) {
+        block = await getBlock(toFind);
+    }
     if(searchType & enums.searchType.contract) {
         contract = await getContract(toFind);
     }
@@ -38,10 +43,11 @@ const getBlockchain = async(chain, toFind, type) => {
     }
     
     chain.address = address;
+    chain.block = block;
     chain.contract = contract;
     chain.transaction = transaction;
 
-    if(chain.address || chain.contract || chain.transaction) {
+    if(chain.address || chain.block || chain.contract || chain.transaction) {
         chain.icon = "color/"+ chain.symbol.toLowerCase()  +".png";
     }
 
@@ -70,6 +76,66 @@ const getAddress = async(addressToFind) => {
         }
     } catch(error) {
         return null;
+    }
+}
+
+const getBlock = async(blockNumber) => {
+    let endpoint = `/block-info/${blockNumber}`;
+    let url = blockBase + endpoint;
+
+    try{
+        const response = await axios.get(url);
+        if(typeof response.data.message === "undefined") {
+            const datas = response.data;
+
+            let ts = datas.time;
+            let day = ts.substr(0,2);
+            let mo = ts.substr(3,2);
+            let yr = ts.substr(6,4);
+            let time = ts.substr(13);
+            mo = helperSvc.getMonth(mo);
+            time = time.replace(" UTC", "");
+            ts = `${day}-${mo}-${yr} ${time}`;
+
+            let block = {
+                blockNumber: blockNumber,
+                //validator: datas.Generator,
+                transactionCount: datas.transactions,
+                date: ts,
+                size: `${helperSvc.commaBigNumber(datas.size.toString())} bytes`,
+                hash: datas.hash,
+                hasTransactions: true
+            };
+            
+            return block;
+        } else {
+            return null;
+        }
+    } catch(error) {
+        return null;
+    }
+}
+
+const getBlockTransactions = async(blockNumber) => {
+    let endpoint = `/block-transactions/${blockNumber}?page=0`;
+    let url = blockBase + endpoint;
+
+    try{
+        const response = await axios.get(url);
+        let transactions = [];        
+        if(typeof response.data.message === "undefined" && response.data.data.length > 0) {
+            const datas = response.data.data;
+            
+            for(let i = 0; i < datas.length; i++) {
+                const transaction = await getTransaction(datas[i].tx);
+
+                transactions.push(transaction);
+            }
+        }
+
+        return transactions;
+    } catch(err) {
+        return [];
     }
 }
 
@@ -326,6 +392,7 @@ module.exports = {
     getBlockchain,
     getAddress,
     getTokens,
+    getBlockTransactions,
     getTransactions,
     getTransaction
 }

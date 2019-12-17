@@ -20,6 +20,7 @@ const getEmptyBlockchain = async() => {
 const getBlockchain = async(chain, toFind, type) => {
     //const chain = await getEmptyBlockchain(blockchain);
     let address = null;
+    let block = null;
     let transaction = null;
     let contract = null;
 
@@ -30,18 +31,22 @@ const getBlockchain = async(chain, toFind, type) => {
     if(searchType & enums.searchType.address) {
         address = await getAddress(toFind);
     }
-    if(searchType & enums.searchType.transaction) {
-        transaction = await getTransaction(toFind);
+    if(searchType & enums.searchType.block) {
+        block = await getBlock(toFind);
     }
     if(searchType & enums.searchType.contract) {
         contract = await getContract(toFind);
     }
+    if(searchType & enums.searchType.transaction) {
+        transaction = await getTransaction(toFind);
+    }
     
     chain.address = address;
-    chain.transaction = transaction;
+    chain.block = block;
     chain.contract = contract;
+    chain.transaction = transaction;
     
-    if(chain.address || chain.transaction) {
+    if(chain.address || chain.block || chain.contract || chain.transaction) {
         chain.icon = "color/"+ chain.symbol.toLowerCase()  +".png";
     }
 
@@ -68,6 +73,35 @@ const getAddress = async(addressToFind) => {
                 hasTransactions: true
             };
             return address;
+        }
+    } catch(error) {
+        return null;
+    }
+}
+
+const getBlock = async(blockNumber) => {
+    let endpoint = "/block?number=" + blockNumber;
+    let url = base + endpoint;
+
+    try{
+        const response = await axios.get(url);
+        if(response.data.data.length > 0) {
+            const datas = response.data.data[0];
+            let ts = +datas.timestamp/1000;
+
+            let block = {
+                blockNumber: blockNumber,
+                validator: datas.witnessAddress,
+                transactionCount: datas.nrOfTrx,
+                date: helperSvc.unixToUTC(ts),
+                size: `${helperSvc.commaBigNumber(datas.size.toString())} bytes`,
+                hash: datas.hash,
+                hasTransactions: true
+            };
+
+            return block;
+        } else {
+            return null;
         }
     } catch(error) {
         return null;
@@ -125,7 +159,9 @@ const getAddressTokens = async(address) => {
 }
 
 const getTransactions = async(address) => {
-    let endpoint = "/transaction?sort=-timestamp&count=true&limit=10&start=0&address=" + address;
+    let isBlock = helperSvc.hasLetters(address) ? false : true;
+    let method = isBlock ? "block" : "address";
+    let endpoint = `/transaction?sort=-timestamp&count=true&limit=50&start=0&${method}=${address}`;
     let url = base + endpoint;
 
     try{
@@ -144,7 +180,9 @@ const getTransactions = async(address) => {
                 }
                 let transaction = buildTransaction(data, token);
 
-                transaction = helperSvc.inoutCalculation(address, transaction);
+                if(!isBlock) {
+                    transaction = helperSvc.inoutCalculation(address, transaction);
+                }
 
                 transactions.push(transaction);
             }
@@ -302,6 +340,7 @@ const getTrx10Tokens = async(page) => {
 }
 
 const buildTransaction = function(txn, token) {
+    let type = enums.transactionType.TRANSFER;
     let quantity = txn.contractData.amount;
     if(token.precision > 0) {
         quantity = quantity / Math.pow(10, token.precision);
@@ -312,12 +351,15 @@ const buildTransaction = function(txn, token) {
     froms.push(from);
     const to = helperSvc.getSimpleIO(token.symbol, txn.toAddress, quantity);
     tos.push(to);
+    if(typeof txn.contractData !== 'undefined' && typeof txn.contractData.contract_address !== 'undefined') {
+        type = enums.transactionType.CONTRACT;
+    }
 
     const fromData = helperSvc.cleanIO(froms);
     const toData = helperSvc.cleanIO(tos);
 
     const transaction = {
-        type: enums.transactionType.TRANSFER,
+        type: type,
         hash: txn.hash,
         block: txn.block,
         confirmations: -1,

@@ -21,6 +21,7 @@ const getEmptyBlockchain = async() => {
 const getBlockchain = async(chain, toFind, type) => {
     //const chain = await getEmptyBlockchain(blockchain);
     let address = null;
+    let block = null;
     let transaction = null;
 
     const searchType = type === enums.searchType.nothing 
@@ -30,19 +31,55 @@ const getBlockchain = async(chain, toFind, type) => {
     if(searchType & enums.searchType.address) {
         address = await getAddress(toFind);
     }
+    if(searchType & enums.searchType.block) {
+        block = await getBlock(toFind);
+    }
     if(searchType & enums.searchType.transaction) {
         transaction = await getTransaction(toFind);
     }
     
     chain.address = address;
+    chain.block = block;
     chain.transaction = transaction;
     
-    if(chain.address || chain.transaction) {
+    if(chain.address || chain.block || chain.transaction) {
         chain.icon = "color/"+ chain.symbol.toLowerCase()  +".png";
     }
 
     return chain;
 }
+
+const getBlock = async(blockNumber) => {
+    let endpoint = `/block/${blockNumber}`;
+    let url = base2 + endpoint;
+
+    try{
+        const response = await axios.get(url);
+
+        if(typeof response.data !== 'undefined' && response.data !== null) {
+            const datas = response.data;
+            
+            const ts = datas.timeStamp/1000;
+            let block = {
+                blockNumber: blockNumber,
+                //confirmations: datas.confirmations,
+                date: helperSvc.unixToUTC(ts),
+                hash: datas.blockHash,
+                hasTransactions: true,
+                size: `${helperSvc.commaBigNumber(datas.size.toString())} bytes`,
+                transactionCount: datas.txNum,
+                validator: datas.blockFeeList[0].address,
+            };
+
+            return block;
+        } else {
+            return null;
+        }
+    } catch(error) {
+        return null;
+    }
+}
+
 
 const getAddress = async(addressToFind) => {
     let endpoint = "/account/" + addressToFind;
@@ -122,21 +159,44 @@ const tokenDefs = async() => {
 }
 
 const getTransactions = async(address) => {
-    let endpoint = "/txs?page=1&rows=10&address=" + address;
-    let url = base2 + endpoint;
+    let endpoint = "", url = "", block = false;
+    if(helperSvc.hasLetters(address)) {
+        endpoint = `/txs?page=1&rows=10&address=${address}`;
+        url = base2 + endpoint;
+    } else {
+        endpoint = `/transactions-in-block/${address}`;
+        url = base + endpoint;
+        block = true;
+    }
 
     try{
         const response = await axios.get(url);
-        const datas = response.data.txArray;
+        const datas = block ? response.data.tx : response.data.txArray;        
         const transactions = [];
+
         if(datas !== null && datas.length > 0) {
             for(let i = 0; i < datas.length; i++) {
                 const data = datas[i];
                 
                 let froms = [];
                 let tos = [];
-                const symbol = (typeof data.txQuoteAsset !== "undefined") ? data.txQuoteAsset : data.txAsset;
-                const quantity = data.value;
+                let symbol = (typeof data.txQuoteAsset !== "undefined") ? data.txQuoteAsset : null;// data.txAsset;
+                let quantity = data.value;
+                const detail = JSON.parse(data.data);
+                if(symbol === null) {
+                    symbol = detail.orderData.symbol;
+                    symbol = symbol.indexOf("BNB") >= 0 
+                                ? "BNB"
+                                : symbol.indexOf("BTC") >= 0
+                                    ? "BTC"
+                                    : symbol;
+                    if(detail.orderData.symbol.startsWith(symbol) && quantity === null) {
+                        quantity = +detail.orderData.quantity;
+                    }
+                }
+                if(quantity === null) {
+                    quantity = +detail.orderData.quantity * +detail.orderData.price;
+                }
                 let type = getTransactionType(data.txType);
                 const from = helperSvc.getSimpleIO(symbol, data.fromAddr, quantity);
                 froms.push(from);
@@ -147,13 +207,16 @@ const getTransactions = async(address) => {
 
                 const fromData = helperSvc.cleanIO(froms);
                 const toData = helperSvc.cleanIO(tos);
+                const ts = helperSvc.hasLetters(data.timeStamp)
+                            ? data.timeStamp
+                            : helperSvc.unixToUTC(data.timeStamp/1000)
 
                 let transaction = {
                     type: type,
                     hash: data.txHash,
                     block: data.blockHeight,
                     confirmations: -1,
-                    date: helperSvc.unixToUTC(data.timeStamp/1000),
+                    date: ts,
                     froms: fromData,
                     tos: toData
                 };
@@ -162,7 +225,7 @@ const getTransactions = async(address) => {
                     transaction.quantity = quantity;
                 }
 
-                if(transaction.type === enums.transactionType.TRANSFER) {
+                if(transaction.type === enums.transactionType.TRANSFER && !block) {
                     transaction = helperSvc.inoutCalculation(address, transaction);
                 } 
 

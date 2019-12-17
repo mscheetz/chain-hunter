@@ -33,6 +33,7 @@ const getEmptyBlockchain = async() => {
 const getBlockchain = async(chain, toFind, type) => {
     //const chain = await getEmptyBlockchain(blockchain);
     let address = null;
+    let block = null;
     let transaction = null;
     let contract = null;
 
@@ -43,6 +44,9 @@ const getBlockchain = async(chain, toFind, type) => {
     if(searchType & enums.searchType.address) {
         address = await getAddress(toFind);
     }
+    if(searchType & enums.searchType.block) {
+        block = await getBlock(toFind);
+    }
     if(searchType & enums.searchType.transaction) {
         transaction = await getTransaction(toFind);
     }
@@ -51,10 +55,11 @@ const getBlockchain = async(chain, toFind, type) => {
     }
     
     chain.address = address;
+    chain.block = block;
     chain.transaction = transaction;
     chain.contract = contract;
 
-    if(chain.address || chain.transaction || chain.contract) {
+    if(chain.address || chain.block || chain.transaction || chain.contract) {
         chain.icon = "color/"+ chain.symbol.toLowerCase()  +".png";
     }
 
@@ -93,6 +98,72 @@ const getAddress = async(addressToFind) => {
         //console.log(error);
         return null;
     }
+}
+
+const getBlock = async(blockNumber) => {    
+    let data = {
+        jsonrpc: "2.0",
+        method: "getblock",
+        params: [ blockNumber.toString() ],
+        id: 1
+    };
+    let options = {
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    }
+    let url = tokenTxnBase;
+    
+    try{
+        const response = await axios.post(url, JSON.stringify(data), options);
+        
+        if(typeof response.data.error === 'undefined') {
+            const datas = response.data.result[0];
+            let hash = datas.hash;
+            if(hash.substr(0,2) === "0x") {
+                hash = hash.substr(2);
+            }
+
+            let block = {
+                blockNumber: blockNumber,
+                validator: datas.nextconsensus,
+                transactionCount: datas.tx.length,
+                date: helperSvc.unixToUTC(datas.time),
+                size: `${helperSvc.commaBigNumber(datas.size.toString())} bytes`,
+                hash: hash,
+                hasTransactions: true
+            };
+
+            return block;
+        } else {
+            return null;
+        }
+    } catch(error) {
+        return null;
+    }
+}
+
+const getBlockTransactions = async(blockNumber) => {
+    let endpoint = "/v1/get_block/" + blockNumber;
+    let url = base + endpoint;
+
+    try{
+        const response = await axios.get(url);        
+        const datas = response.data;
+        
+        let transactions = [];
+        for(let txn of datas.transactions) {
+            const transaction = await getTransaction(txn);
+
+            transactions.push(transaction);
+        }
+
+        return transactions;
+    } catch(err) {
+        return [];
+    }
+
+
 }
 
 const getContract = async(addressToFind) => {
@@ -390,17 +461,20 @@ const getTransaction = async(hash) => {
 }
 
 const getTransactionType = function(type) {    
-    return type === "ContractTransaction" 
+    return type === "ContractTransaction"
             ? enums.transactionType.CONTRACT
             : type === "ClaimTransaction"
                 ? enums.transactionType.CLAIM
-                : enums.transactionType.TRANSFER;
+                : type === "InvocationTransaction"
+                    ? enums.transactionType.INVOCATION
+                    : enums.transactionType.TRANSFER;
 }
 
 module.exports = {
     getEmptyBlockchain,
     getBlockchain,
     getAddress,
+    getBlockTransactions,
     getTransactions,
     getTransaction
 }

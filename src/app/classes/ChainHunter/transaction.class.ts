@@ -1,4 +1,4 @@
-import { IO } from './IO';
+import { IO } from './io.class';
 
 export class Transaction{
     constructor () {}

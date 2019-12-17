@@ -2,9 +2,9 @@ import { Observable } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Blockchain } from '../classes/ChainHunter/blockchain.class';
-import { Transaction } from '../classes/ChainHunter/Transaction';
-import { Asset } from '../classes/ChainHunter/Asset';
-import { Chain } from '../classes/ChainHunter/Chain';
+import { Transaction } from '../classes/ChainHunter/transaction.class';
+import { Asset } from '../classes/ChainHunter/asset.class';
+import { Chain } from '../classes/ChainHunter/chain.class';
 import { environment } from 'src/environments/environment';
 import { HelperService } from './helper.service';
 import { User } from '../classes/user.class';
@@ -425,6 +425,19 @@ export class ApiService{
     }
 
     /**
+     * Get Transactions for a Block
+     * 
+     * @param chain Blockchain to query
+     * @param block Block to query
+     */
+    getBlockTransactions(chain: string, block: string): Observable<Transaction[]>{
+        let endpoint: string = "/api/blockchain/block/" + chain + "/" + block +"/txs";
+        let url: string = this.baseUrl + endpoint;
+
+        return this.onGet<Transaction[]>(url);
+    }
+
+    /**
      * Capture an empty search
      */
     emptySearch(): Observable<boolean>{
@@ -441,6 +454,20 @@ export class ApiService{
      */
     getAddress(chain: string, address: string): Observable<Blockchain>{
         let endpoint: string = "/api/blockchain/address/"+ chain + "/" + address;
+        let url: string = this.baseUrl + endpoint;
+
+        let result = this.onGet<Blockchain>(url);
+    
+        return result;
+    }
+
+    /**
+     * Get a block
+     * @param chain blockchain symbol
+     * @param blockNumber block number
+     */
+    getBlock(chain: string, blockNumber: string): Observable<Blockchain>{
+        let endpoint: string = "/api/blockchain/block/"+ chain + "/" + blockNumber;
         let url: string = this.baseUrl + endpoint;
 
         let result = this.onGet<Blockchain>(url);

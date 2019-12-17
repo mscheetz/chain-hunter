@@ -6,6 +6,10 @@
     <p-panel header="{{blockchain.symbol}} Address" *ngIf="blockchain.address">
         <app-address-detail [addressSaved]="false" [saveId]="" [blockchain]="blockchain"></app-address-detail>
     </p-panel>
+    <!-- Block Results -->
+    <p-panel header="{{blockchain.symbol}} Block" *ngIf="blockchain.block">
+        <app-block [blockSaved]="false" [saveId]="" [blockchain]="blockchain"></app-block>
+    </p-panel>
     <!-- Contract Results -->
     <p-panel header="{{blockchain.symbol}} {{blockchain.symbol === 'ATOM' ? 'Validator' : 'Contract'}}" *ngIf="blockchain.hasContracts && blockchain.contract">
         <app-contract-detail [contractSaved]="false" [saveId]="" [blockchain]="blockchain"></app-contract-detail>
@@ -41,6 +45,6 @@
     <span>Results found: {{resultsFound.join(', ')}}</span>
 </p-panel>
 <p-panel showHeader="false"
-    *ngIf="(huntStatus === 2 || huntStatus === 3) && selectedChain !== '' && blockchain !== null && !blockchain.address && !blockchain.transaction && !blockchain.contract">
+    *ngIf="(huntStatus === 2 || huntStatus === 3) && selectedChain !== '' && blockchain !== null && !blockchain.address && !blockchain.block && !blockchain.transaction && !blockchain.contract">
     <h3>No {{blockchain.symbol}} Data found</h3>
 </p-panel>

@@ -20,6 +20,7 @@ const getEmptyBlockchain = async() => {
 const getBlockchain = async(chain, toFind, type) => {
     //const chain = await getEmptyBlockchain(blockchain);
     let address = null;
+    let block = null;
     let transaction = null;
 
     const searchType = type === enums.searchType.nothing 
@@ -29,14 +30,18 @@ const getBlockchain = async(chain, toFind, type) => {
     if(searchType & enums.searchType.address) {
         address = await getAddress(toFind);
     }
+    if(searchType & enums.searchType.block) {
+        block = await getBlock(toFind);
+    }
     if(searchType & enums.searchType.transaction) {
         transaction = await getTransaction(toFind);
     }
     
     chain.address = address;
+    chain.block = block;
     chain.transaction = transaction;
 
-    if(chain.address || chain.transaction) {
+    if(chain.address || chain.block || chain.transaction) {
         chain.icon = "color/"+ chain.symbol.toLowerCase()  +".png";
     }
 
@@ -67,6 +72,33 @@ const getAddress = async(addressToFind) => {
 
         return address;
     } catch(error) {
+        return null;
+    }
+}
+
+const getBlock = async(blockNumber) => {    
+    let endpoint = "/blocks/" + blockNumber;
+    let url = base + endpoint;
+
+    try{
+        let options = {
+            headers: {
+                'X-APIKEY': apiKey
+            }
+        }
+        const response = await axios.get(url, options);
+        const datas = response.data;
+
+        let ts = datas.timestamp/1000;
+        let block = {
+            blockNumber: blockNumber,
+            transactionCount: datas.txCount,
+            date: helperSvc.unixToUTC(ts),
+            hasTransactions: false
+        };
+
+        return block;
+    } catch (err) {
         return null;
     }
 }

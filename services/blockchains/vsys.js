@@ -88,13 +88,12 @@ const getBlock = async(blockNumber) => {
                     const transaction = await buildTransaction(datas.list[i], latestBlock);
                     transactions.push(transaction);
                 }
-                let totalVolume = 0;
+                let summed = 0;
                 if(values.length > 0) {
-                    const summed = values.reduce((a, b) => a + b, 0);
-                    totalVolume = helperSvc.commaBigNumber(summed.toString());
+                    summed = values.reduce((a, b) => a + b, 0);
 
                 }
-                block.volume = totalVolume;
+                block.volume = summed;
                 block.transactions = transactions;
             }
             

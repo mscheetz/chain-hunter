@@ -109,12 +109,11 @@ const getBlock = async(blockNumber) => {
                     transactions.push(txn);
                 }
                 if(block.transactionCount === transactions.length) {
-                    let totalVolume = 0;
+                    let quantity = 0;
                     if(values.length > 0) {
-                        const quantity = values.reduce((a, b) => a + b, 0);
-                        totalVolume = helperSvc.commaBigNumber(quantity.toString());
+                        quantity = values.reduce((a, b) => a + b, 0);
                     }
-                    block.volume = totalVolume;
+                    block.volume = quantity;
                 }
                 block.transactions = transactions;
             }

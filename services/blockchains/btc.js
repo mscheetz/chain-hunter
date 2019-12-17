@@ -88,13 +88,12 @@ const getBlock = async(blockNumber) => {
                     }
                     i++;
                 });
-                let totalVolume = 0;
+                let quantity = 0;
                 if(values.length > 0) {
                     const summed = values.reduce((a, b) => a + b, 0);
-                    const quantity = summed/100000000;
-                    totalVolume = helperSvc.commaBigNumber(quantity.toString());
+                    quantity = summed/100000000;
                 }
-                block.volume = totalVolume;
+                block.volume = quantity;
                 block.transactions = transactions;
             }
             return block;

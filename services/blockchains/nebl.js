@@ -120,21 +120,23 @@ const getBlock = async(blockNumber) => {
         if(datas.tx.length > 0) {
             let values = [];
             for(let tx of datas.tx) {
+                
                 const transaction = await getTransaction(tx);
-
                 if(transaction.tos.length > 0) {
-                    let txnValues = transaction.tos.map(t => +t.quantity.replace(',',''));
-                    values = _.concat(values, txnValues);
+                    const tos = transaction.tos.filter(t => t.symbol === 'NEBL');
+                    if(tos.length > 0) {
+                        let txnValues = tos.map(t => +t.quantity.replace(',',''));
+                        values = _.concat(values, txnValues);
+                    }
                 }
                 transactions.push(transaction);
             }
             if(block.transactionCount === transactions.length) {
-                let totalVolume = 0;
+                let quantity = 0;
                 if(values.length > 0) {
-                    const quantity = values.reduce((a, b) => a + b, 0);
-                    totalVolume = helperSvc.commaBigNumber(quantity.toString());
+                    quantity = values.reduce((a, b) => a + b, 0);
                 }
-                block.volume = totalVolume;
+                block.volume = quantity;
             }
         }
 

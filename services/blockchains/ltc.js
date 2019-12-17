@@ -72,29 +72,22 @@ const getAddress = async(addressToFind) => {
     }
 }
 
-const blockCheck = async(blockNumber) => {
-    let endpoint = "/blocks";
+const getBlockHash = async(blockNumber) => {
+    let endpoint = `/block-index/${blockNumber}`;
     let url = base + endpoint;
     
     try{
         const response = await axios.get(url);
-        const datas = response.data.blocks;
-        if(+datas[0].height < +blockNumber) {
-            return null;
-        }
-        const block = datas.filter(d => d.height === +blockNumber);
+        const datas = response.data;
 
-        if(block.length === 0) {
-            return null;
-        }
-        return block[0].hash;        
+        return datas.blockHash;      
     } catch (err) {
         return null;
     }
 }
 
 const getBlock = async(blockNumber) => {
-    const hash = await blockCheck(blockNumber);
+    const hash = await getBlockHash(blockNumber);
     if(hash === null) {
         return null;
     }
@@ -132,7 +125,7 @@ const getTransactions = async(address) => {
     if(helperSvc.hasLetters(address)) {
         endpoint = "/txs?address=" + address;
     } else {
-        const hash = await blockCheck(address);
+        const hash = await getBlockHash(address);
         if(hash === null) {
             return [];
         }

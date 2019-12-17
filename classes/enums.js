@@ -65,7 +65,8 @@ const transactionType = {
     NONSTANDARD: 'Non-Standard',
     INVOCATION: 'Invocation',
     OFFERCREATE: 'Offer Create',
-    OFFERCANCEL: 'Offer Cancel'
+    OFFERCANCEL: 'Offer Cancel',
+    NAMEPRECLAIM: 'Name Preclaim'
 }
 
 /**

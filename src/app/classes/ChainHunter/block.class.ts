@@ -11,4 +11,5 @@ export class Block {
     transactions: Transaction[];
     validator: string;
     volume: number;
+    hasTransactions: boolean = true;
 }

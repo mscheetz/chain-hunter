@@ -91,7 +91,14 @@ const getBlock = async(blockNumber) => {
                 }
                 let summed = 0;
                 if(values.length > 0) {
-                    summed = values.reduce((a, b) => +a + +b, 0);
+                    summed = values.reduce((a, b) => a + b, 0);
+                    if(summed.toString().indexOf('e')>=0){
+                        summed = helperSvc.exponentialToNumber(summed);
+                        summed = helperSvc.bigNumberToDecimal(summed.toString(), 18);
+                    }
+                    if(summed.substr(0, 3) === '00.'){
+                        summed = summed.replace('00.', '0.');
+                    }
                 }
                 block.volume = summed;
                 block.transactions = transactions;

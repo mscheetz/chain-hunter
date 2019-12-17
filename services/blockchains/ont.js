@@ -120,7 +120,7 @@ const getBlock = async(blockNumber) => {
                     if(transaction.tos.length > 0) {
                         const tos = transaction.tos.filter(t => t.symbol === 'ONT');
                         if(tos.length > 0) {
-                            let txnValues = tos.map(t => +t.quantity.replace(',',''));
+                            let txnValues = tos.map(t => +t.quantity.replace(/,/g, ""));
                             values = _.concat(values, txnValues);
                         }
                     }

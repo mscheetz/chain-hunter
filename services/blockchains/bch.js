@@ -182,9 +182,11 @@ const buildTransaction = function(txn) {
     let froms = [];
     let tos = [];
     const symbol = "BCH";
+    let type = enums.transactionType.TRANSFER;
     txn.inputs.forEach(input => {
         let from = null;
         if(txn.is_coinbase){
+            type = enums.transactionType.MINING;
             from = {
                 addresses: ["coinbase"]
             }
@@ -204,7 +206,7 @@ const buildTransaction = function(txn) {
     const toDatas = helperSvc.cleanIO(tos);
 
     const transaction = {
-        type: enums.transactionType.TRANSFER,
+        type: type,
         hash: txn.hash,
         block: txn.block_height,
         confirmations: txn.confirmations,

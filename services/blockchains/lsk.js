@@ -120,7 +120,7 @@ const getBlock = async(blockNumber) => {
                 //size: `${helperSvc.commaBigNumber(datas.blockSize.toString())} bytes`,
                 hash: blockId,
                 hasTransactions: true,
-                volume: helperSvc.commaBigNumber(amount.toString())
+                volume: amount
             };
 
             let transactions = [];

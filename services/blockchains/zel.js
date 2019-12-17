@@ -182,8 +182,10 @@ const getTransaction = async(hash) => {
 const buildTransaction = function(txn) {
     let froms = [];
     let tos = [];
+    let type = enums.transactionType.TRANSFER;
     const symobl = "ZEL";
-    if(txn.isCoinBase) {        
+    if(txn.isCoinBase) {
+        type = enums.transactionType.MINING;
         const from = {
             addresses: ["coinbase"]
         }
@@ -202,7 +204,7 @@ const buildTransaction = function(txn) {
     const toData = helperSvc.cleanIO(tos);
 
     let transaction = {
-        type: enums.transactionType.TRANSFER,
+        type: type,
         hash: txn.txid,
         block: txn.blockheight,
         confirmations: txn.confirmations,

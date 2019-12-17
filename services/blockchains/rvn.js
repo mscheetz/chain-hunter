@@ -196,9 +196,11 @@ const buildTransaction = function(txn) {
         let froms = [];
         let tos = [];
         const symbol = "RVN";
+        let type = enums.transactionType.TRANSFER;
         txn.vin.forEach(vin => {
             let fromAddress = "";
             if(typeof vin.coinbase !== 'undefined') {
+                type = enums.transactionType.MINING;
                 fromAddress = "coinbase";
             } else {
                 fromAddress = vin.addr;
@@ -217,7 +219,7 @@ const buildTransaction = function(txn) {
         const toData = helperSvc.cleanIO(tos);
 
         let transaction = {
-            type: enums.transactionType.TRANSFER,
+            type: type,
             hash: txn.txid,
             block: txn.blockheight,
             confirmations: txn.confirmations,

@@ -80,7 +80,7 @@ const getBlock = async(blockNumber) => {
                         let txnValues = txn.out.map(o => o.value);
                         values = _.concat(values, txnValues);
                     }
-                    if(i < 10) {
+                    if(i < 100) {
                         let transaction = buildTransaction(txn, latestblock);
                         transaction.confirmations = confirmations;
                         transaction.block = blockNumber;
@@ -188,9 +188,11 @@ const getLatestBlock = async() => {
 const buildTransaction = function(txn, latestblock) {
     let froms = [];
     let tos = [];
+    let type = enums.transactionType.TRANSFER;
     txn.inputs.forEach(input => {
         let from = null;
         if(typeof input.prev_out === "undefined") {
+            type = enums.transactionType.MINING;
             from = {
                 addresses: ["coinbase"]
             }
@@ -210,7 +212,7 @@ const buildTransaction = function(txn, latestblock) {
     const confirmations = latestblock > 0 ? latestblock - txn.block_height : null;
     
     const transaction = {
-        type: enums.transactionType.TRANSFER,
+        type: type,
         hash: txn.hash,
         block: txn.block_height,
         confirmations: confirmations,

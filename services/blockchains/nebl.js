@@ -119,13 +119,12 @@ const getBlock = async(blockNumber) => {
         let transactions = [];
         if(datas.tx.length > 0) {
             let values = [];
-            for(let tx of datas.tx) {
-                
+            for(let tx of datas.tx) {                
                 const transaction = await getTransaction(tx);
                 if(transaction.tos.length > 0) {
                     const tos = transaction.tos.filter(t => t.symbol === 'NEBL');
                     if(tos.length > 0) {
-                        let txnValues = tos.map(t => +t.quantity.replace(',',''));
+                        let txnValues = tos.map(t => +t.quantity.replace(/,/g, ""));
                         values = _.concat(values, txnValues);
                     }
                 }
@@ -352,10 +351,18 @@ const buildTransaction = async(txn) => {
         }
 
         for(let i =0; i < txn.vin.length; i++) {
-            const from = await getTransactionSource(txn.vin[i].txid, txn.vin[i].vout, tos);        
-            from.forEach(fr => {
-                froms.push(fr);
-            })
+            if(typeof txn.vin[i].coinbase !== 'undefined') {
+                type = enums.transactionType.MINING;
+                const from = {
+                    addresses: ["coinbase"]
+                }
+                froms.push(from);
+            } else {
+                const from = await getTransactionSource(txn.vin[i].txid, txn.vin[i].vout, tos);        
+                from.forEach(fr => {
+                    froms.push(fr);
+                })
+            }
         }
     }
 

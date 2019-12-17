@@ -179,12 +179,14 @@ const buildTransaction = function(txn) {
     let froms = [];
     let tos = [];
     const symbol = "DASH";
+    let type = enums.transactionType.TRANSFER;
     txn.vin.forEach(input => {
         let fromAddress = "";
         if(typeof input.addr !== 'undefined'){
             fromAddress = input.addr
         }
         if(fromAddress === "" && typeof input.coinbase !== 'undefined') {
+            type = enums.transactionType.MINING;
             fromAddress = "coinbase";
         }
         const from = helperSvc.getSimpleIO(symbol, fromAddress, input.value);
@@ -198,6 +200,7 @@ const buildTransaction = function(txn) {
     const toData = helperSvc.cleanIO(tos);
 
     const transaction = {
+        type: type,
         hash: txn.txid,
         block: txn.blockheight,
         confirmations: txn.confirmations,

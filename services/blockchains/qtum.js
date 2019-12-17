@@ -1,6 +1,6 @@
 const axios = require('axios');
 const helperSvc = require('../helper.service.js');
-const base = "https://qtum.info/api/";
+const base = "https://qtum.info/api";
 const enums = require('../../classes/enums');
 const divisor = 100000000;
 const _ = require('lodash');
@@ -147,7 +147,7 @@ const getBlock = async(blockNumber) => {
                 if(txn.tos.length > 0) {
                     const tos = txn.tos.filter(t => t.symbol === 'QTUM');
                     if(tos.length > 0) {
-                        let txnValues = tos.map(t => +t.quantity.replace(',',''));
+                        let txnValues = tos.map(t => +t.quantity.replace(/,/g, ""));
                         values = _.concat(values, txnValues);
                     }
                 }
@@ -269,6 +269,13 @@ const buildTransaction = function(txn) {
         })
     }
     txn.inputs.forEach(input => {
+        if(typeof input.coinbase !== 'undefined') {
+            type = enums.transactionType.MINING;
+            const from = {
+                addresses: ["coinbase"]
+            }
+            froms.push(from);
+        }
         if(typeof input.value !== 'undefined'){
             const value = parseFloat(input.value)/divisor;
             const from = helperSvc.getSimpleIO(symbol, input.address, value);

@@ -92,11 +92,8 @@ const getBlock = async(blockNumber) => {
         let ts = datas.timestamp/1000;
         let block = {
             blockNumber: blockNumber,
-            //validator: datas.minedBy,
             transactionCount: datas.txCount,
             date: helperSvc.unixToUTC(ts),
-            //size: `${helperSvc.commaBigNumber(datas.size.toString())} bytes`,
-            //hash: hash,
             hasTransactions: false
         };
 

@@ -16,7 +16,7 @@
         {{blockchain.symbol}} Block: <span>{{blockchain.block.blockNumber}}</span>
     </h3>
 </div>
-<div class="m-bottom-1 wrap-long">Hash: {{blockchain.block.hash}}</div>
+<div class="m-bottom-1 wrap-long" *ngIf="blockchain.block.hash">Hash: {{blockchain.block.hash}}</div>
 <div class="m-bottom-1">Date: {{blockchain.block.date}}</div>
 <div class="m-bottom-1" *ngIf="blockchain.block.size">Size: {{blockchain.block.size}}</div>
 <div class="m-bottom-1" *ngIf="blockchain.block.validator">Miner/Validator: {{blockchain.block.validator}}</div>

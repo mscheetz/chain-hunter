@@ -18,6 +18,7 @@ const getEmptyBlockchain = async() => {
 const getBlockchain = async(chain, toFind, type) => {
     //const chain = await getEmptyBlockchain(blockchain);
     let address = null;
+    let block = null;
     let transaction = null;
 
     const searchType = type === enums.searchType.nothing 
@@ -27,14 +28,18 @@ const getBlockchain = async(chain, toFind, type) => {
     if(searchType & enums.searchType.address) {
         address = await getAddress(toFind);
     }
+    if(searchType & enums.searchType.block) {
+        block = await getBlock(toFind);
+    }
     if(searchType & enums.searchType.transaction) {
         transaction = await getTransaction(toFind);
     }
     
     chain.address = address;
+    chain.block = block;
     chain.transaction = transaction;
 
-    if(chain.address || chain.transaction) {
+    if(chain.address || chain.block || chain.transaction) {
         chain.icon = "color/"+ chain.symbol.toLowerCase()  +".png";
     }
 
@@ -62,8 +67,62 @@ const getAddress = async(addressToFind) => {
     }
 }
 
+const getBlockHash = async(blockNumber) => {    
+    let endpoint = `/block-index/${blockNumber}`;
+    let url = base + endpoint;
+
+    try{
+        const response = await axios.get(url, { timeout: 5000 });
+        const datas = response.data;
+
+        return datas.blockHash;
+    } catch (err) {
+        return null;
+    }
+}
+
+const getBlock = async(blockNumber) => {
+    const hash = await getBlockHash(blockNumber);
+    if(hash === null) {
+        return null;
+    }
+    
+    let endpoint = "/block/" + hash;
+    let url = base + endpoint;
+
+    try{
+        const response = await axios.get(url, { timeout: 5000 });
+        const datas = response.data;
+        const validator = typeof datas.poolInfo !== 'undefined' && typeof datas.poolInfo.poolName !== 'undefined' 
+            ? datas.poolInfo.poolName 
+            : null;
+            
+        let block = {
+            blockNumber: blockNumber,
+            validator: validator,
+            transactionCount: datas.tx.length,
+            date: helperSvc.unixToUTC(datas.time),
+            size: `${helperSvc.commaBigNumber(datas.size.toString())} bytes`,
+            hash: hash,
+            hasTransactions: true
+        };
+
+        return block;
+    } catch (err) {
+        return null;
+    }
+}
+
 const getTransactions = async(address) => {
-    let endpoint = "/txs?address=" + address + "&pageNum=0";
+    let method = "";
+    let isBlock = false;
+    if(helperSvc.hasLetters(address)) {
+        method = "address";
+    } else { 
+        method = "block";
+        isBlock = true;
+    }
+    let endpoint = `/txs?${method}=${address}&pageNum=0`;
     let url = base + endpoint;
 
     try{
@@ -76,7 +135,9 @@ const getTransactions = async(address) => {
         datas.forEach(data => {
             let transaction = buildTransaction(data);
 
-            transaction = helperSvc.inoutCalculation(address, transaction);
+            if(!isBlock) {
+                transaction = helperSvc.inoutCalculation(address, transaction);
+            }
 
             transactions.push(transaction);
         })

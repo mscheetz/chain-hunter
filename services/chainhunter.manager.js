@@ -22,6 +22,7 @@ const ltc = require('./blockchains/ltc.js');
 const nano = require('./blockchains/nano.js');
 const neo = require('./blockchains/neo.js');
 const nebl = require('./blockchains/nebl.js');
+const nuls = require('./blockchains/nuls.js');
 const ont = require('./blockchains/ont.js');
 const qtum = require('./blockchains/qtum.js');
 const rvn = require('./blockchains/rvn.js');
@@ -108,7 +109,9 @@ const getChains = function() {
  */
 const getActiveChains = async() => {    
     let chains = await blockchainRepo.getActive();
-
+    // let future = await blockchainRepo.getFuture();
+    // let nuls = future.find(f => f.symbol === "NULS");
+    // chains.push(nuls);
     return chains;
 }
 
@@ -157,70 +160,74 @@ const getBlockchains = async(toFind) => {
     for(var i = 0; i < chains.length; i++) {
         let blockchain = chains.find(c => c.symbol === chains[i].symbol);
         blockchain.icon = "white/"+ blockchain.symbol.toLowerCase()  +".png";
-        if(chains[i].symbol === 'BTC') {
-            blockchains["BTC"] = await btc.getBlockchain(blockchain, toFind);
+
+        if(chains[i].symbol === 'ADA') {
+            blockchains["ADA"] = await ada.getBlockchain(blockchain, toFind);
+        } else if(chains[i].symbol === 'AE') {
+            blockchains["AE"] = await ae.getBlockchain(blockchain, toFind);
+        } else if(chains[i].symbol === 'AION') {
+            blockchains["AION"] = await aion.getBlockchain(blockchain, toFind);
+        } else if(chains[i].symbol === 'ATOM') {
+            blockchains["ATOM"] = await atom.getBlockchain(blockchain, toFind);
         } else if(chains[i].symbol === 'BCH') {
             blockchains["BCH"] = await bch.getBlockchain(blockchain, toFind);
+        } else if(chains[i].symbol === 'BNB') {
+            blockchains["BNB"] = await bnb.getBlockchain(blockchain, toFind);
+        } else if(chains[i].symbol === 'BTC') {
+            blockchains["BTC"] = await btc.getBlockchain(blockchain, toFind);
+        } else if(chains[i].symbol === 'DASH') {
+            blockchains["DASH"] = await dash.getBlockchain(blockchain, toFind);
+        // } else if(chains[i].symbol === 'EOS') {
+        //     blockchains["EOS"] = await eos.getBlockchain(blockchain, toFind);
         } else if(chains[i].symbol === 'ETC') {
             blockchains["ETC"] = await etc.getBlockchain(blockchain, toFind);
         } else if(chains[i].symbol === 'ETH') {
             blockchains["ETH"] = await eth.getBlockchain(blockchain, toFind);
-        } else if(chains[i].symbol === 'LTC') {
-           blockchains["LTC"] = await ltc.getBlockchain(blockchain, toFind);
-        } else if(chains[i].symbol === 'XRP') {
-            blockchains["XRP"] = await xrp.getBlockchain(blockchain, toFind);
-        } else if(chains[i].symbol === 'NEO') {
-            blockchains["NEO"] = await neo.getBlockchain(blockchain, toFind);
-        } else if(chains[i].symbol === 'RVN') {
-            blockchains["RVN"] = await rvn.getBlockchain(blockchain, toFind);
-        } else if(chains[i].symbol === 'BNB') {
-            blockchains["BNB"] = await bnb.getBlockchain(blockchain, toFind);
-        } else if(chains[i].symbol === 'AION') {
-            blockchains["AION"] = await aion.getBlockchain(blockchain, toFind);
-        } else if(chains[i].symbol === 'EOS') {
-            blockchains["EOS"] = await eos.getBlockchain(blockchain, toFind);
-        } else if(chains[i].symbol === 'TRX') {
-            blockchains["TRX"] = await trx.getBlockchain(blockchain, toFind);
-        } else if(chains[i].symbol === 'ONT') {
-            blockchains["ONT"] = await ont.getBlockchain(blockchain, toFind);
-        } else if(chains[i].symbol === 'USDT') {
-            blockchains["USDT"] = await usdt.getBlockchain(blockchain, toFind);
-        } else if(chains[i].symbol === 'IOST') {
-            blockchains["IOST"] = await iost.getBlockchain(blockchain, toFind);
         } else if(chains[i].symbol === 'ICX') {
             blockchains["ICX"] = await icx.getBlockchain(blockchain, toFind);
-        } else if(chains[i].symbol === 'NANO') {
-            blockchains["NANO"] = await nano.getBlockchain(blockchain, toFind);
-        } else if(chains[i].symbol === 'DASH') {
-            blockchains["DASH"] = await dash.getBlockchain(blockchain, toFind);
-        } else if(chains[i].symbol === 'AE') {
-            blockchains["AE"] = await ae.getBlockchain(blockchain, toFind);
-        } else if(chains[i].symbol === 'ADA') {
-            blockchains["ADA"] = await ada.getBlockchain(blockchain, toFind);
-        } else if(chains[i].symbol === 'ZEL') {
-            blockchains["ZEL"] = await zel.getBlockchain(blockchain, toFind);
-        } else if(chains[i].symbol === 'ATOM') {
-            blockchains["ATOM"] = await atom.getBlockchain(blockchain, toFind);
-        } else if(chains[i].symbol === 'VET') {
-            blockchains["VET"] = await vet.getBlockchain(blockchain, toFind);
-        } else if(chains[i].symbol === 'QTUM') {
-            blockchains["QTUM"] = await qtum.getBlockchain(blockchain, toFind);
-        } else if(chains[i].symbol === 'NEBL') {
-            blockchains["NEBL"] = await nebl.getBlockchain(blockchain, toFind);
-        } else if(chains[i].symbol === 'XLM') {
-            blockchains["XLM"] = await xlm.getBlockchain(blockchain, toFind);
-        } else if(chains[i].symbol === 'XTZ') {
-            blockchains["XTZ"] = await xtz.getBlockchain(blockchain, toFind);
+        } else if(chains[i].symbol === 'IOST') {
+            blockchains["IOST"] = await iost.getBlockchain(blockchain, toFind);
         } else if(chains[i].symbol === 'LSK') {
             blockchains["LSK"] = await lsk.getBlockchain(blockchain, toFind);
+        } else if(chains[i].symbol === 'LTC') {
+           blockchains["LTC"] = await ltc.getBlockchain(blockchain, toFind);
+        } else if(chains[i].symbol === 'NANO') {
+            blockchains["NANO"] = await nano.getBlockchain(blockchain, toFind);
+        } else if(chains[i].symbol === 'NEBL') {
+            blockchains["NEBL"] = await nebl.getBlockchain(blockchain, toFind);
+        } else if(chains[i].symbol === 'NEO') {
+            blockchains["NEO"] = await neo.getBlockchain(blockchain, toFind);
+        } else if(chains[i].symbol === 'NULS') {
+            blockchains["NULS"] = await nuls.getBlockchain(blockchain, toFind);
+            console.log('nuls',blockchains["NULS"])
+        } else if(chains[i].symbol === 'ONT') {
+            blockchains["ONT"] = await ont.getBlockchain(blockchain, toFind);
+        } else if(chains[i].symbol === 'QTUM') {
+            blockchains["QTUM"] = await qtum.getBlockchain(blockchain, toFind);
+        } else if(chains[i].symbol === 'RVN') {
+            blockchains["RVN"] = await rvn.getBlockchain(blockchain, toFind);
         } else if(chains[i].symbol === 'TOMO') {
             blockchains["TOMO"] = await tomo.getBlockchain(blockchain, toFind);
+        } else if(chains[i].symbol === 'TRX') {
+            blockchains["TRX"] = await trx.getBlockchain(blockchain, toFind);
+        } else if(chains[i].symbol === 'USDT') {
+            blockchains["USDT"] = await usdt.getBlockchain(blockchain, toFind);
+        } else if(chains[i].symbol === 'VET') {
+            blockchains["VET"] = await vet.getBlockchain(blockchain, toFind);
+        } else if(chains[i].symbol === 'VSYS') {
+            blockchains["VSYS"] = await vsys.getBlockchain(blockchain, toFind);
+        } else if(chains[i].symbol === 'XLM') {
+            blockchains["XLM"] = await xlm.getBlockchain(blockchain, toFind);
+        } else if(chains[i].symbol === 'XRP') {
+            blockchains["XRP"] = await xrp.getBlockchain(blockchain, toFind);
+        } else if(chains[i].symbol === 'XTZ') {
+            blockchains["XTZ"] = await xtz.getBlockchain(blockchain, toFind);
+        } else if(chains[i].symbol === 'ZEL') {
+            blockchains["ZEL"] = await zel.getBlockchain(blockchain, toFind);
         } else if(chains[i].symbol === 'ZEN') {
             blockchains["ZEN"] = await zen.getBlockchain(blockchain, toFind);
         } else if(chains[i].symbol === 'ZIL') {
             blockchains["ZIL"] = await zil.getBlockchain(blockchain, toFind);
-        } else if(chains[i].symbol === 'VSYS') {
-            blockchains["VSYS"] = await vsys.getBlockchain(blockchain, toFind);
         // } else if(chains[i].symbol === 'DCR') {
         //     blockchains["DCR"] = await dcr.getBlockchain(toFind);
         }
@@ -279,6 +286,8 @@ const getBlockchain = async(chain, toFind, ip, ipInfo, type = enums.searchType.n
         result = await nebl.getBlockchain(blockchain, toFind, type);
     } else if (chain === "neo") {
         result = await neo.getBlockchain(blockchain, toFind, type);
+    } else if (chain === "nuls") {
+        result = await nuls.getBlockchain(blockchain, toFind, type);
     } else if (chain === "ont") {
         result = await ont.getBlockchain(blockchain, toFind, type);
     } else if (chain === "qtum") {
@@ -344,24 +353,26 @@ const getBlockchain = async(chain, toFind, ip, ipInfo, type = enums.searchType.n
  */
 const getTokens = async(chain, address, ip, ipInfo) => {
     let tokens = [];
-    if(chain === "eth") {
-        tokens = await eth.getTokens(address);
-    } else if (chain === "aion") {
+    if (chain === "aion") {
         tokens = await aion.getTokens(address);
     } else if (chain === "etc") {
         tokens = await etc.getTokens(address);
+    } else if(chain === "eth") {
+        tokens = await eth.getTokens(address);
+    } else if (chain === "iost") {
+        tokens = await iost.getTokens(address);
+    } else if (chain === "nuls") {
+        tokens = await nuls.getTokens(address);
+    } else if (chain === "ont") {
+        tokens = await ont.getTokens(address);
+    } else if (chain === "qtum") {
+        tokens = await qtum.getTokens(address);
+    } else if (chain === "tomo") {
+        tokens = await tomo.getTokens(address);
     } else if (chain === "trx") {
         tokens = await trx.getTokens(address);
     } else if (chain === "vet") {
         tokens = await vet.getTokens(address);
-    } else if (chain === "qtum") {
-        tokens = await qtum.getTokens(address);
-    } else if (chain === "ont") {
-        tokens = await ont.getTokens(address);
-    } else if (chain === "iost") {
-        tokens = await iost.getTokens(address);
-    } else if (chain === "tomo") {
-        tokens = await tomo.getTokens(address);
     } else if (chain === "vsys") {
         tokens = await vsys.getTokens(address);
     }
@@ -418,6 +429,8 @@ const getTransactions = async(chain, address, ip, ipInfo) => {
         transactions = await nebl.getTransactions(address);
     } else if (chain === "neo") {
         transactions = await neo.getTransactions(address);
+    } else if (chain === "nuls") {
+        transactions = await nuls.getTransactions(address);
     } else if (chain === "ont") {
         transactions = await ont.getTransactions(address);
     } else if (chain === "qtum") {
@@ -489,6 +502,8 @@ const getBlockTransactions = async(chain, blockNumber, ip, ipInfo) => {
         transactions = await ltc.getTransactions(blockNumber);
     } else if (chain === "neo") {
         transactions = await neo.getBlockTransactions(blockNumber);
+    } else if (chain === "nuls") {
+        transactions = await nuls.getTransactions(blockNumber);
     } else if (chain === "rvn") {
         transactions = await rvn.getBlockTransactions(blockNumber);
     } else if (chain === "tomo") {

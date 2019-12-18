@@ -109,7 +109,9 @@ const getChains = function() {
  */
 const getActiveChains = async() => {    
     let chains = await blockchainRepo.getActive();
-
+    // let future = await blockchainRepo.getFuture();
+    // let nuls = future.find(f => f.symbol === "NULS");
+    // chains.push(nuls);
     return chains;
 }
 
@@ -197,6 +199,7 @@ const getBlockchains = async(toFind) => {
             blockchains["NEO"] = await neo.getBlockchain(blockchain, toFind);
         } else if(chains[i].symbol === 'NULS') {
             blockchains["NULS"] = await nuls.getBlockchain(blockchain, toFind);
+            console.log('nuls',blockchains["NULS"])
         } else if(chains[i].symbol === 'ONT') {
             blockchains["ONT"] = await ont.getBlockchain(blockchain, toFind);
         } else if(chains[i].symbol === 'QTUM') {

@@ -802,6 +802,13 @@ const searchType = function(chain, toFind) {
             return enums.searchType.address;
         }
     }
+    if(toFind.substr(0, 7) === "NULSd6H" && toFind.length === 37) {
+        if(chain === "nuls") {
+            return enums.searchType.address | enums.searchType.contract;
+        } else {
+            return enums.searchType.nothing;
+        }
+    }
     if(chain === "btc" || chain === "bch" || chain === "usdt"){
         if((toFind.substr(0, 1) === "1" || toFind.substr(0, 1) === "3" || toFind.substr(0, 3) === "bc1")
             && (toFind.length >= 27 && toFind.length <= 34)) {
@@ -841,6 +848,15 @@ const searchType = function(chain, toFind) {
             return enums.searchType.address;
         } else {
             return enums.searchType.transaction;
+        }
+    }
+    if(chain === "nuls") {
+        if(toFind.substr(0, 7) === "NULSd6H" && toFind.length === 37) {
+            return enums.searchType.address | enums.searchType.contract;
+        } else if(toFind.length === 64) {
+            return enums.searchType.transaction;
+        } else {
+            return enums.searchType.nothing;
         }
     }
     if(chain === "bnb") {

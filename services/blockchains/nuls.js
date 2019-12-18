@@ -27,7 +27,7 @@ const getBlockchain = async(chain, toFind, type) => {
     const searchType = type === enums.searchType.nothing 
             ? helperSvc.searchType(chain.symbol.toLowerCase(), toFind)
             : type;
-
+            
     if(searchType & enums.searchType.address) {
         address = await getAddress(toFind);
     }
@@ -49,7 +49,7 @@ const getBlockchain = async(chain, toFind, type) => {
     if(chain.address || chain.block || chain.contract || chain.transaction) {
         chain.icon = "color/"+ chain.symbol.toLowerCase()  +".png";
     }
-
+    
     return chain;
 }
 
@@ -65,7 +65,8 @@ const getAddress = async(addressToFind) => {
 
     try{
         const response = await axios.post(base, data);
-        if(response.data !== null && typeof response.data.error !== 'undefined') {
+
+        if(response.data !== null && typeof response.data.error === 'undefined') {
             const datas = response.data.result;
             const quantity = datas.totalBalance/100000000;
             const total = helperSvc.commaBigNumber(quantity.toString());
@@ -85,22 +86,6 @@ const getAddress = async(addressToFind) => {
     }
 }
 
-const getBlockHash = async(blockNumber) => {
-    let endpoint = "/block-index/" + blockNumber;
-    let url = base + endpoint;
-
-    try{
-        const response = await axios.get(url, { timeout: 5000 });
-        if(response.data === null) {
-            return null;
-        }
-
-        return response.data.blockHash;
-    } catch (err) {
-        return null;
-    }
-}
-
 const getBlock = async(blockNumber) => {
     let data = {
         jsonrpc: '2.0',
@@ -113,7 +98,7 @@ const getBlock = async(blockNumber) => {
 
     try{
         const response = await axios.post(base, data);
-        if(response.data !== null && typeof response.data.error !== 'undefined') {
+        if(response.data !== null && typeof response.data.error === 'undefined') {
             const datas = response.data.result;
 
             let block = {
@@ -125,7 +110,7 @@ const getBlock = async(blockNumber) => {
                 hash: datas.hash,
                 hasTransactions: true
             };
-
+            
             return block;
         } else {
             return null;
@@ -147,18 +132,22 @@ const getContract = async(address) => {
 
     try{
         const response = await axios.post(base, data);
-        if(response.data !== null && typeof response.data.error !== 'undefined') {
-            const datas = response.data.result;
+
+        if(response.data !== null && typeof response.data.error === 'undefined') {
+            const datas = response.data.result;            
+            const quantity = datas.totalSupply !== null 
+                    ? helperSvc.commaBigNumber(datas.totalSupply)
+                    : null;
 
             let contract = {
                 address: datas.contractAddress,
-                quantity: datas.totalSupply,
+                quantity: quantity,
                 symbol: datas.symbol,
                 contractName: datas.alias,
                 creator: datas.creater
             };
 
-            if(symbol !== "TOMO") {
+            if(contract.symbol !== null && contract.symbol !== "NULS") {
                 const icon = 'color/' + contract.symbol.toLowerCase() + '.png';
                 const iconStatus = helperSvc.iconExists(icon);
                 contract.hasIcon = iconStatus;
@@ -187,19 +176,21 @@ const getTokens = async(address) => {
 
     try{
         const response = await axios.post(base, data);
+        
         let assets = [];
-        if(response.data !== null && typeof response.data.error !== 'undefined' && response.data.result.list.length > 0) {
+        if(response.data !== null && typeof response.data.error === 'undefined' && response.data.result.list.length > 0) {
             const datas = response.data.result.list;
             for(let data of datas) {
-                let quantity = helperSvc.bigNumberToDecimal(data.balance, data.decimals);
-                quantity = helperSvc.commaBigNumber(quantity);
+                let quantity = data.balance/Math.pow(10,data.decimals);
+                quantity = helperSvc.commaBigNumber(quantity.toString());
                 
                 let asset = {
                     quantity: quantity,
-                    symbol: datas.tokenSymbol,
+                    symbol: data.tokenSymbol,
                     name: data.tokenName,
                     address: data.contractAddress
                 };
+                
                 const icon = 'color/' + asset.symbol.toLowerCase() + '.png';
                 const iconStatus = helperSvc.iconExists(icon);
                 asset.hasIcon = iconStatus;
@@ -228,7 +219,7 @@ const getTransactions = async(address) => {
         transactions = await getBlockTransactions(address, latestBlock);
     }
 
-    return _.orderBy(transactions, "ts");
+    return _.orderBy(transactions, "ts", "desc");
 }
 
 const getAccountTransactions = async(address, latestBlock = 0) => {
@@ -249,18 +240,16 @@ const getAccountTransactions = async(address, latestBlock = 0) => {
     try{
         const response = await axios.post(base, data);
         let transactions = [];
-        if(response.data !== null && typeof response.data.error !== 'undefined' && response.data.result.list.length > 0) {
+        if(response.data !== null && typeof response.data.error === 'undefined' && response.data.result.list.length > 0) {
             const datas = response.data.result.list;
             latestBlock = latestBlock === 0 ? await getLatestBlock() : latestBlock;
-            let transactions = [];
-            for(let txn of datas) {                
+            for(let txn of datas) {
                 let transaction = await getTransaction(txn.txHash, latestBlock);
 
                 transaction = helperSvc.inoutCalculation(address, transaction);
 
                 transactions.push(transaction);
             }
-
         }
         return transactions;
     } catch(error) {
@@ -284,10 +273,9 @@ const getTokenTransactions = async(address, latestBlock = 0) => {
     try{
         const response = await axios.post(base, data);
         let transactions = [];
-        if(response.data !== null && typeof response.data.error !== 'undefined' && response.data.result.list.length > 0) {
+        if(response.data !== null && typeof response.data.error === 'undefined' && response.data.result.list.length > 0) {
             const datas = response.data.result.list;
             latestBlock = latestBlock === 0 ? await getLatestBlock() : latestBlock;
-            let transactions = [];
             for(let txn of datas) {                
                 let transaction = buildTokenTransaction(txn, latestBlock);
 
@@ -316,7 +304,8 @@ const getBlockTransactions = async(blockNumber, latestBlock = 0) => {
     try{
         const response = await axios.post(base, data);
         let transactions = [];
-        if(response.data !== null && typeof response.data.error !== 'undefined' && response.data.result.txHashList.length > 0) {            
+        
+        if(response.data !== null && typeof response.data.error === 'undefined' && response.data.result.txHashList.length > 0) {            
             const datas = response.data.result.txHashList;
             latestBlock = latestBlock === 0 ? await getLatestBlock() : latestBlock;
             
@@ -343,7 +332,7 @@ const getLatestBlock = async() => {
 
     try{
         const response = await axios.post(base, data);
-        if(response.data !== null && typeof response.data.error !== 'undefined') {
+        if(response.data !== null && typeof response.data.error === 'undefined') {
             const datas = response.data.result;
             
             return datas.height;
@@ -367,10 +356,9 @@ const getTransaction = async(hash, latestBlock = 0) => {
 
     try{
         const response = await axios.post(base, data);
-        if(response.data !== null && typeof response.data.error !== 'undefined') {
+        if(response.data !== null && typeof response.data.error === 'undefined') {
             const datas = response.data.result;
             latestBlock = latestBlock === 0 ? await getLatestBlock() : latestBlock;
-
             const transaction = buildTransaction(datas, latestBlock);
 
             return transaction;
@@ -385,26 +373,26 @@ const getTransaction = async(hash, latestBlock = 0) => {
 const buildTransaction = function(txn, latestBlock) {
     let froms = [];
     let tos = [];
-    let type = enums.transactionType.TRANSFER;
-
-    if(txn.coinsFroms.length > 0) {
-        for(let tx of txn.coinsFroms) {
+    let type = getType(txn.type);
+    
+    if(txn.coinFroms.length > 0) {
+        for(let tx of txn.coinFroms) {
             let quantity = tx.amount/100000000;
             const from = helperSvc.getSimpleIO(tx.symbol, tx.address, quantity);
             froms.push(from);
         }
     }
-    if(txn.coinsTos.length > 0) {
-        for(let tx of txn.coinsTos) {
+    if(txn.coinTos.length > 0) {
+        for(let tx of txn.coinTos) {
             let quantity = tx.amount/100000000;
-            const from = helperSvc.getSimpleIO(tx.symbol, tx.address, quantity);
-            froms.push(from);
+            const to = helperSvc.getSimpleIO(tx.symbol, tx.address, quantity);
+            tos.push(to);
         }
     }
 
-    if(txn.txData !== null && typeof txn.txData.tokenTransfers !== 'undefined' && txn.txData.tokenTransfers.length > 0) {
-        for(let tfr of txn.txData.tokenTransfers) {
-            let quantity = helperSvc.bigNumberToDecimal(tfr.value, tfr.decimals);
+    if(txn.txData !== null && typeof txn.txData.resultInfo !== 'undefined' && typeof txn.txData.resultInfo.tokenTransfers !== 'undefined' && txn.txData.resultInfo.tokenTransfers.length > 0) {
+        for(let tfr of txn.txData.resultInfo.tokenTransfers) {
+            let quantity = tfr.value/Math.pow(10,tfr.decimals);
             const symbol = tfr.symbol;
             const from = helperSvc.getSimpleIO(symbol, tfr.fromAddress, quantity);
             froms.push(from);
@@ -434,7 +422,7 @@ const buildTransaction = function(txn, latestBlock) {
 const buildTokenTransaction = function(txn, latestBlock) {
     let froms = [];
     let tos = [];
-    let type = enums.transactionType.TRANSFER;
+    let type = getType(txn.type);
 
     let quantity = helperSvc.bigNumberToDecimal(txn.value, txn.decimals);
     const symbol = txn.symbol;
@@ -459,6 +447,61 @@ const buildTokenTransaction = function(txn, latestBlock) {
     };
 
     return transaction;
+}
+
+const getType = function(id) {
+    if(id === 1) {
+        return enums.transactionType.REWARD
+    } else if (id === 2) {
+        return enums.transactionType.TRANSFER;
+    } else if (id === 3) {
+        return enums.transactionType.ALIASED;
+    } else if (id === 4) {
+        return enums.transactionType.REGISTER_NODE;
+    } else if (id === 5) {
+        return enums.transactionType.STAKING;
+    } else if (id === 6) {
+        return enums.transactionType.CANCEL_CONSENSUS;
+    } else if (id === 7) {
+        return enums.transactionType.YELLOW_CARD;
+    } else if (id === 8) {
+        return enums.transactionType.RED_CARD;
+    } else if (id === 9) {
+        return enums.transactionType.UNREGISTER_NODE;
+    } else if (id === 10) {
+        return enums.transactionType.CROSS_TRADING;
+    } else if (id === 11) {
+        return enums.transactionType.CROSS_REGISTER;
+    } else if (id === 12) {
+        return enums.transactionType.CROSS_CANCELLATION;
+    } else if (id === 13) {
+        return enums.transactionType.ADD_CROSS_ASSETS;
+    } else if (id === 14) {
+        return enums.transactionType.CANCEL_CROSS_ASSETS;
+    } else if (id === 15) {
+        return enums.transactionType.CONTRACT_CREATION;
+    } else if (id === 16) {
+        return enums.transactionType.CONTRACT;
+    } else if (id === 17) {
+        return enums.transactionType.DELETE_CONTRACT;
+    } else if (id === 18) {
+        return enums.transactionType.CONTRACT_TRANSFER;
+    } else if (id === 19) {
+        return enums.transactionType.CONTRACT_RETURN;
+    } else if (id === 20) {
+        return enums.transactionType.CONTRACT_CREATION_NODE;
+    } else if (id === 21) {
+        return enums.transactionType.CONTRACT_STAKE;
+    } else if (id === 22) {
+        return enums.transactionType.CONTRACT_CONSENSUS;
+    } else if (id === 23) {
+        return enums.transactionType.CONTRACT_CANCELLATION_NODE;
+    } else if (id === 24) {
+        return enums.transactionType.VERIFIER_CHANGE;
+    } else if (id === 25) {
+        return enums.transactionType.VERIFIER_INITIALIZATION;
+    }
+    return enums.transactionType.TRANSFER;
 }
 
 module.exports = {

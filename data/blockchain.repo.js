@@ -45,7 +45,7 @@ const get = async(symbol) => {
  * Get active blockchains
  */
 const getActive = async() => {
-    let sql = 'SELECT * FROM public.blockchain WHERE status = 1';
+    let sql = `SELECT * FROM public.blockchain WHERE status = 1 ORDER BY case when symbol = 'BTC' then 0 else 1 end, name`;
 
     try {
         const res = await pool.query(sql);
@@ -60,7 +60,7 @@ const getActive = async() => {
  * Get Future blockchains
  */
 const getFuture = async() => {
-    let sql = 'SELECT * FROM public.blockchain WHERE status = 0';
+    let sql = `SELECT * FROM public.blockchain WHERE status = 0 ORDER BY case when symbol = 'BTC' then 0 else 1 end, name`;
 
     try {
         const res = await pool.query(sql);

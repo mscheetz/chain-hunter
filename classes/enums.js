@@ -66,7 +66,28 @@ const transactionType = {
     INVOCATION: 'Invocation',
     OFFERCREATE: 'Offer Create',
     OFFERCANCEL: 'Offer Cancel',
-    NAMEPRECLAIM: 'Name Preclaim'
+    NAME_PRECLAIM: 'Name Preclaim',
+    CONTRACT_CREATION: 'Contract Creation',
+    ALIASED: 'Aliased',
+    REGISTER_NODE: 'Register Node',
+    CANCEL_CONSENSUS: 'Cancel Consensus',
+    YELLOW_CARD: 'Yellow Card',
+    RED_CARD: 'Red Card',
+    UNREGISTER_NODE: 'Unregister Node',
+    DELETE_CONTRACT: 'Delete Contract',
+    CONTRACT_TRANSFER: 'Contract Transfer',
+    CONTRACT_RETURN: 'Contract Return',
+    CONTRACT_STAKE: 'Contract Stake',
+    CONTRACT_CONSENSUS: 'Contract Consensus',
+    CROSS_TRADING: 'Cross Trading',
+    CROSS_REGISTER: 'Cross Register',
+    CROSS_CANCELLATION: 'Cross Cancellation',
+    ADD_CROSS_ASSETS: 'Add Cross Asset',
+    CANCEL_CROSS_ASSETS: 'Cancel Cross Asset',
+    CONTRACT_CREATION_NODE: 'Contract Creation Node',
+    CONTRACT_CANCELLATION_NODE: 'Contract Cancellation Node',
+    VERIFIER_CHANGE: 'Verifier Change',
+    VERIFIER_INITIALIZATION: 'Verifier Initialization'
 }
 
 /**

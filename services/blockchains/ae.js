@@ -221,7 +221,7 @@ const buildTransaction = function(txn, hash, latestBlock, blockTime, source = en
     let type = enums.transactionType.TRANSFER;
 
     if(txn.tx.type === "NamePreclaimTx") {
-        type = enums.transactionType.NAMEPRECLAIM;
+        type = enums.transactionType.NAME_PRECLAIM;
         const from = { 
             addresses: [ txn.tx.account_id ]
         };

@@ -348,7 +348,11 @@ const buildTransactionBTC = function(txn) {
                     validatedAddresses.push(addr);
                 }
             } else {
-                validatedAddresses.push(input.prev_type);
+                if(input.prev_tx_hash === "0000000000000000000000000000000000000000000000000000000000000000") {
+                    validatedAddresses.push('coinbase');                    
+                } else {
+                    validatedAddresses.push(input.prev_type);
+                }
             }
             const quantity = input.prev_value/100000000;
             from = helperSvc.getSimpleIOAddresses(symbol, validatedAddresses, quantity);

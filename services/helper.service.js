@@ -758,7 +758,7 @@ const searchType = function(chain, toFind) {
             return enums.searchType.nothing;
         }
     }
-    if((toFind.substr(0, 1) === "1" || toFind.substr(0, 1) === "3" || toFind.substr(0, 3) === "bc1")
+    if((toFind.substr(0, 1) === "1" || toFind.substr(0, 1) === "3")
                 && (toFind.length >= 27 && toFind.length <= 34)) {
         if(chain === "btc" || chain === "bch" || chain === "usdt" || chain == "ltc") {
             return enums.searchType.address;
@@ -766,6 +766,13 @@ const searchType = function(chain, toFind) {
             return enums.searchType.transaction;
         } else {
             return enums.searchType.nothing;
+        }
+    }
+    if(toFind.substr(0, 3) === 'bc1' && toFind.length === 42) {
+        if(chain === 'btc') {
+            return enums.searchType.address;
+        } else {
+            return enums.searchType.transaction;
         }
     }
     if((toFind.substr(0, 1) === "3" || toFind.substr(0, 1) === "L" || toFind.substr(0, 1) === "M")

@@ -22,7 +22,9 @@
 <p *ngIf="blockchain.contract.quantity">
     Balance: {{blockchain.contract.quantity}} {{blockchain.contract.symbol}}
 </p>
-<p *ngIf="blockchain.contract.creator">Creator Address: <span class="wrap-long">{{blockchain.contract.creator}}</span></p>
+<p *ngIf="blockchain.contract.creator">Creator Address: 
+    <span class="wrap-long link-like" (click)="getAddress(blockchain.contract.creator)">{{blockchain.contract.creator}}</span>
+</p>
 <div *ngIf="blockchain.source !== undefined">
     <p>
         For more info: <a href="{{blockchain.source}}" target="_blank">{{blockchain.source}}</a>

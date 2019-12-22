@@ -9,7 +9,9 @@ import { CookieData } from 'src/app/classes/ChainHunter/cookie-data.class';
 import { CookieService } from 'ngx-cookie-service';
 import { CookieRequest } from 'src/app/classes/ChainHunter/cookie-request.class';
 import { Asset } from 'src/app/classes/ChainHunter/asset.class';
-import { Interval } from '../../classes/Enums';
+import { Interval, ResultType } from '../../classes/Enums';
+import { SearchService } from 'src/app/services/search.service';
+import { SearchSpec } from 'src/app/classes/ChainHunter/search-spec.class';
 
 @Component({
     selector: 'chain-hunter',
@@ -47,14 +49,24 @@ export class ChainHunterComponent implements OnInit {
     unlimited: boolean = false;
     windowWidth: number = 0;
     @Output() tokenContent: string;
+    searchSpec: SearchSpec = null;    
 
     constructor(private titleService: Title,
                 private helperService: HelperService,
                 private apiSvc: ApiService,
                 private domSanitizer: DomSanitizer,
                 private cookieSvc: CookieService,
-                private messageSvc: MessageService) {
-        this.titleService.setTitle("The Chain Hunter : Multi Blockchain Search | BTC, ETH, LTC, BCH, XRP, and more!");}
+                private messageSvc: MessageService,
+                private searchSvc: SearchService) {
+        this.titleService.setTitle("The Chain Hunter : Multi Blockchain Search | BTC, ETH, LTC, BCH, XRP, and more!");
+        this.searchSvc.newSearch.subscribe(val => {
+            this.searchSpec = val;
+            if(this.searchSpec !== null) {
+                this.addyTxn = this.searchSpec.searchString;
+                this.chainHunt();
+            }
+        })
+    }
 
     ngOnInit() {
         this.windowWidth = window.innerWidth;
@@ -119,8 +131,8 @@ export class ChainHunterComponent implements OnInit {
                     sticky: true
                 });
             return;
-        }
-        this.addyTxn = this.addyTxn.trim();        
+        }        
+        this.addyTxn = this.addyTxn.toString().trim();        
         if(!this.devMode && (this.previousSearch === this.addyTxn || this.addyTxn === "")) {
             return;
         }
@@ -181,18 +193,125 @@ export class ChainHunterComponent implements OnInit {
         this.requestedChains = this.map.size;
         if(this.map.size > 0) {
             this.map.forEach((value: Blockchain, key: string) => {
-                this.apiSvc.getBlockchain(key, this.addyTxn)
-                    .subscribe(chain => {
-                        this.requestedChains--;
-                        this.setMap(chain);
-                        if(chain.block || chain.address || chain.transaction || chain.contract) {
-                            this.resultsFound.push(chain.name);
-                        }
-                        this.updateMenuItems();
-                        this.checkCompleted();
-                    })
+                if(this.searchSpec === null) {
+                    this.generalSearch(key, this.addyTxn);
+                } else {
+                    this.targetedSearch(key);
+                }
+                    // this.apiSvc.getBlockchain(key, this.addyTxn)
+                    //     .subscribe(chain => {
+                    //         this.requestedChains--;
+                    //         this.setMap(chain);
+                    //         if(chain.block || chain.address || chain.transaction || chain.contract) {
+                    //             this.resultsFound.push(chain.name);
+                    //         }
+                    //         this.updateMenuItems();
+                    //         this.checkCompleted();
+                    //     })
             });
         }
+    }
+
+    /**
+     * Targeted blockchain search
+     * 
+     * @param symbol blockchain symbol
+     */
+    targetedSearch(symbol: string){
+        if(this.searchSpec) {
+            if(this.searchSpec.chain === symbol) {
+                //this.addyTxn = this.searchSpec.searchString;
+                this.requestedChains = 1;
+                if(this.searchSpec.type === ResultType.address) {
+                    this.addressSearch(this.searchSpec.chain, this.searchSpec.searchString);
+                } else if(this.searchSpec.type === ResultType.block) {
+                    this.blockSearch(this.searchSpec.chain, this.searchSpec.searchString);
+                } else if(this.searchSpec.type === ResultType.contract) {
+                    this.addressSearch(this.searchSpec.chain, this.searchSpec.searchString);
+                } else if(this.searchSpec.type === ResultType.transaction) {
+                    this.transactionSearch(this.searchSpec.chain, this.searchSpec.searchString);
+                }
+            }
+        }
+    }
+
+    /**
+     * Search for an address
+     * 
+     * @param symbol symbol of blockchain
+     * @param address search string 
+     */
+    addressSearch(symbol: string, address: string) {
+        this.apiSvc.getAddress(symbol, address)
+            .subscribe(chain => {
+                this.searchSpec = null;
+                this.processSearchResult(chain);
+            });
+    }
+
+    /**
+     * Search for a block
+     * 
+     * @param symbol symbol of blockchain
+     * @param blockNumber search string 
+     */
+    blockSearch(symbol: string, blockNumber: string) {
+        this.apiSvc.getBlock(symbol, blockNumber)
+            .subscribe(chain => {
+                this.searchSpec = null;
+                this.processSearchResult(chain);
+            });
+    }
+
+    /**
+     * Search for a contract
+     * 
+     * @param symbol symbol of blockchain
+     * @param address search string 
+     */
+    contractSearch(symbol: string, address: string) {
+        this.apiSvc.getContract(symbol, address)
+            .subscribe(chain => {
+                this.searchSpec = null;
+                this.processSearchResult(chain);
+            });
+    }
+
+    /**
+     * Search for a transaction
+     * 
+     * @param symbol symbol of blockchain
+     * @param hash search string 
+     */
+    transactionSearch(symbol: string, hash: string) {
+        this.apiSvc.getTransaction(symbol, hash)
+            .subscribe(chain => {
+                this.searchSpec = null;
+                this.processSearchResult(chain);
+            });
+    }
+
+    /**
+     * General search of a blockchain
+     * 
+     * @param symbol symbol of blockchain
+     * @param toSearch search string
+     */
+    generalSearch(symbol: string, toSearch: string) {
+        this.apiSvc.getBlockchain(symbol, toSearch)
+            .subscribe(chain => {
+                this.processSearchResult(chain);
+            });
+    }
+
+    processSearchResult(chain: Blockchain) {
+        this.requestedChains--;
+        this.setMap(chain);
+        if(chain.block || chain.address || chain.transaction || chain.contract) {
+            this.resultsFound.push(chain.name);
+        }
+        this.updateMenuItems();
+        this.checkCompleted();
     }
 
     /**

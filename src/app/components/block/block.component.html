@@ -38,6 +38,7 @@
         <ul>
             <li class="address-txn" *ngFor="let txn of blockchain.block.transactions">
                 <transaction [transaction]="txn" 
+                             [blockchain]="blockchain"
                              [address]=""
                              [showHash]="true"></transaction>
             </li>

@@ -69,6 +69,7 @@ import { EmailSubscriptionComponent } from './components/email-subscription/emai
 import { EmailUnsubscribeComponent } from './components/email-unsubscribe/email-unsubscribe.component';
 import { AdminComponent } from './components/admin/admin.component';
 import { BlockComponent } from './components/block/block.component';
+import { SearchService } from './services/search.service';
 
 const appRoutes: Routes = [
   { path: '', component: ChainHunterComponent },
@@ -157,6 +158,7 @@ const appRoutes: Routes = [
     CookieService,
     MessageService,
     LoginService,
+    SearchService,
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }
   ],
   bootstrap: [ AppComponent ]

@@ -1,4 +1,7 @@
-<div *ngIf="showHash">Transaction Hash: {{transaction.hash}}</div>
+<div *ngIf="showHash">Transaction Hash:
+  <span class="link-like" (click)="getTransaction(transaction.hash)">{{transaction.hash}}</span>
+  <!-- {{transaction.hash}} -->
+</div>
 <div *ngIf="transaction.type">
   <div>Transaction Type: {{transaction.type}}</div>
   <div *ngIf="transaction.inout">Direction: {{transaction.inout}}</div>
@@ -13,7 +16,9 @@
   Date: {{ transaction.date }}
 </div>
 <div *ngIf="transaction.block > 0">
-  Block: {{ transaction.block }}
+  Block: 
+  <span class="link-like" (click)="getBlock(transaction.block)">{{transaction.block}}</span>
+  <!-- {{ transaction.block }} -->
 </div>
 <div *ngIf="transaction.success && transaction.success === 'success'">
   Status: <span class="success">Success</span>
@@ -24,8 +29,14 @@
 <div *ngIf="transaction.confirmations > -1">
   Confirmations: {{ transaction.confirmations }}
 </div>
-<div *ngIf="transaction.from">From: {{ transaction.from }}</div>
-<div *ngIf="transaction.to">To: {{ transaction.to }}</div>
+<div *ngIf="transaction.from">From: 
+  <span class="word-break link-like" (click)="getAddress(transaction.from)">{{transaction.from}}</span>
+  <!-- {{ transaction.from }} -->
+</div>
+<div *ngIf="transaction.to">To: 
+  <span class="word-break link-like" (click)="getAddress(transaction.to)">{{transaction.to}}</span>
+  <!-- {{ transaction.to }} -->
+</div>
 <div *ngIf="transaction.froms && transaction.tos && (transaction.froms.length > 0 || transaction.tos.length > 0)" 
   class="p-grid">
   <div class="p-sm-6">
@@ -38,7 +49,13 @@
       <ng-template pTemplate="body" let-from>
         <tr>
           <td>
-            <div class="word-break">{{from.addresses.join(",")}}</div>
+            <div *ngFor="let fromAddress of from.addresses; let i = index">
+              <!-- <div class="word-break link-like" (click)="getAddress(from.addresses[i])">{{from.addresses[i]}}</div> -->
+              <div class="word-break link-like" (click)="getAddress(fromAddress)">{{fromAddress}}</div>
+              <!-- <div class="word-break link-like" (click)="getAddress(from.addresses)">{{from.addresses}}</div> -->
+              <span *ngIf="(i + 1) < from.addresses.length">,</span>
+            </div>
+            <!-- <div class="word-break">{{from.addresses.join(",")}}</div> -->
             <div *ngIf="from.type">{{from.type}}</div>
             <div *ngIf="from.symbol !== null">{{from.quantity}} {{from.symbol}}</div>
           </td>
@@ -56,7 +73,13 @@
       <ng-template pTemplate="body" let-to>
         <tr>
           <td>
-            <div class="word-break">{{to.addresses.join(",")}}</div>
+            <div *ngFor="let toAddress of to.addresses; let i = index">
+              <!-- <div class="word-break link-like" (click)="getAddress(to.addresses[i])">{{to.addresses[i]}}</div> -->
+              <div class="word-break link-like" (click)="getAddress(toAddress)">{{toAddress}}</div>
+              <!-- <div class="word-break link-like" (click)="getAddress(to.addresses)">{{to.addresses}}</div> -->
+              <span *ngIf="(i + 1) < to.addresses.length">,</span>
+            </div>
+            <!-- <div class="word-break">{{to.addresses.join(",")}}</div> -->
             <div *ngIf="to.type">{{to.type}}</div>
             <div *ngIf="to.symbol !== null">{{to.quantity}} {{to.symbol}}</div>
           </td>
@@ -76,8 +99,15 @@
       <ng-template pTemplate="body" let-io>
         <tr>
           <td>
-            {{io.addresses.join(",")}}<br>
-            {{io.quantity}} {{io.symbol}}
+            <div ng-repeat="address in io.addresses; let i = index">
+              <div class="word-break link-like" (click)="getAddress(address)">{{address}}</div>
+              <span *ngIf="(i + 1) < io.addresses.length">,</span>
+            </div>
+            <!-- <div class="word-break">{{io.addresses.join(",")}}</div> -->
+            <div *ngIf="io.type">{{io.type}}</div>
+            <div *ngIf="io.symbol !== null">{{io.quantity}} {{io.symbol}}</div>
+            <!-- {{io.addresses.join(",")}}<br>
+            {{io.quantity}} {{io.symbol}} -->
           </td>
         </tr>
       </ng-template>

@@ -2,6 +2,8 @@ import { Component, OnInit, Input } from '@angular/core';
 import { Transaction } from 'src/app/classes/ChainHunter/transaction.class';
 import { OverlayPanel } from 'primeng/overlaypanel';
 import { Blockchain } from 'src/app/classes/ChainHunter/blockchain.class';
+import { SearchService } from 'src/app/services/search.service';
+import { ResultType } from 'src/app/classes/Enums';
 
 @Component({
   selector: 'transaction',
@@ -15,7 +17,7 @@ export class TransactionComponent implements OnInit {
   @Input() showHash: boolean;
   saveThisMessage: string;
 
-  constructor() { }
+  constructor(private searchSvc: SearchService) { }
 
   ngOnInit() {
   }
@@ -26,4 +28,15 @@ export class TransactionComponent implements OnInit {
     overlayPanel.toggle(event);
   }
 
+  getAddress(address: string) {
+    this.searchSvc.setSearchSpec(this.blockchain.symbol, ResultType.address, address);
+  }
+
+  getBlock(blockNumber: string) {
+    this.searchSvc.setSearchSpec(this.blockchain.symbol, ResultType.block, blockNumber);
+  }
+
+  getTransaction(hash: string) {
+    this.searchSvc.setSearchSpec(this.blockchain.symbol, ResultType.transaction, hash);
+  }
 }

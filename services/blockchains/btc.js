@@ -4,8 +4,8 @@ const base = "https://blockchain.info";
 const baseBTC = "https://chain.api.btc.com"
 const enums = require('../../classes/enums');
 const _  = require('lodash');
-const bitcore = require('bitcore-lib');
-const bech32 = require('bech32');// require('bech32-buffer');
+// const bitcore = require('bitcore-lib');
+// const bech32 = require('bech32');// require('bech32-buffer');
 
 const getEmptyBlockchain = async() => {
     const chain = {};

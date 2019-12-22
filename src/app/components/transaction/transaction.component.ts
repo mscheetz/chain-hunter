@@ -32,8 +32,8 @@ export class TransactionComponent implements OnInit {
     this.searchSvc.setSearchSpec(this.blockchain.symbol, ResultType.address, address);
   }
 
-  getBlock(blockNumber: string) {
-    this.searchSvc.setSearchSpec(this.blockchain.symbol, ResultType.block, blockNumber);
+  getBlock(blockNumber: number) {
+    this.searchSvc.setSearchSpec(this.blockchain.symbol, ResultType.block, blockNumber.toString());
   }
 
   getTransaction(hash: string) {

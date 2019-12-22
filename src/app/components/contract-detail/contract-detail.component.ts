@@ -6,6 +6,7 @@ import { ApiService } from 'src/app/services/api.service';
 import { MessageService } from 'primeng/api';
 import { AuthenticationService } from 'src/app/services/authentication.service';
 import { LoginService } from 'src/app/services/login.service';
+import { SearchService } from 'src/app/services/search.service';
 
 @Component({
   selector: 'app-contract-detail',
@@ -22,7 +23,8 @@ export class ContractDetailComponent implements OnInit {
   constructor(private apiSvc: ApiService, 
               private messageSvc: MessageService, 
               private authSvc: AuthenticationService, 
-              private loginSvc: LoginService) { 
+              private loginSvc: LoginService,
+              private searchSvc: SearchService) { 
     this.authSvc.isLoggedIn.subscribe(val => this.loggedIn = val);
   }
 
@@ -102,5 +104,9 @@ export class ContractDetailComponent implements OnInit {
               detail: message,
               life: life
           });
+  }
+
+  getAddress(address: string) {
+      this.searchSvc.setSearchSpec(this.blockchain.symbol, ResultType.address, address);
   }
 }

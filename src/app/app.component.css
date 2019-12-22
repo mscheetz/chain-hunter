@@ -1,3 +1,9 @@
 .invalid-input {
     border: 1px solid #dd0031 !important;
 }
+
+:host ::ng-deep .link-like {
+    color: blue;
+    text-decoration: underline;
+    cursor: pointer;
+}

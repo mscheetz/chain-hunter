@@ -26,6 +26,7 @@
         </h3>
         <transaction [transaction]="blockchain.transaction"
                      [address]=""
+                     [blockchain]="blockchain"
                      [showHash]="false"></transaction>
         <div *ngIf="blockchain.source !== undefined">
             <p>

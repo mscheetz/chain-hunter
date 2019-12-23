@@ -5,13 +5,13 @@
     <div *ngIf="!offLine">
         <div *ngIf="notRunning">
             <div class="h1-like">Start your hunt!</div>
-            <div class="h4-like">Enter an Address, Contract, or Transaction Hash:</div>
+            <div class="h4-like">Enter an Address, Block #, Contract, or Transaction Hash:</div>
             <p-toast key="search-toast"></p-toast>
             <div class="search-bar">
                 <span class="ui-float-label">
                     <input [(ngModel)]="addyTxn" id="addy-txn" type="text" class="search-width"
                         (keyup.enter)="chainHunt()" pInputText>
-                    <label for="addy-txn">Address/Contract/Hash</label>
+                    <label for="addy-txn">Address/Block/Contract/Hash</label>
                     <button pButton type="button" (click)="chainHunt()" label="Go!" class="ui-button-success"></button>
                 </span>
             </div>

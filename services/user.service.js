@@ -475,7 +475,7 @@ const addUserData = async(userId, hash, chain, type) => {
 
     if(exists.length === 0) {
         const created = helperSvc.getUnixTS();
-        const userData = {
+        let userData = {
             id: uuid,
             userId: userId,
             hash: hash,

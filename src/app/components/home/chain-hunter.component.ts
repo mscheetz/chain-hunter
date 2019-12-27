@@ -12,6 +12,7 @@ import { Asset } from 'src/app/classes/ChainHunter/asset.class';
 import { Interval, ResultType } from '../../classes/Enums';
 import { SearchService } from 'src/app/services/search.service';
 import { SearchSpec } from 'src/app/classes/ChainHunter/search-spec.class';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
     selector: 'chain-hunter',
@@ -57,15 +58,40 @@ export class ChainHunterComponent implements OnInit {
                 private domSanitizer: DomSanitizer,
                 private cookieSvc: CookieService,
                 private messageSvc: MessageService,
-                private searchSvc: SearchService) {
+                private searchSvc: SearchService,
+                private route: ActivatedRoute) {
+        let symbol = this.route.snapshot.paramMap.get('symbol');
+        let type = this.route.snapshot.paramMap.get('type');
+        let toFind = this.route.snapshot.paramMap.get('toFind');
+
+        if(typeof symbol !== 'undefined' && symbol !== null && symbol !== "" 
+            && typeof type !== 'undefined' && type !== null && type !== ""
+            && typeof toFind !== 'undefined' && toFind !== null && toFind !== "") {
+                let searchType = type === "a" ? ResultType.address 
+                               : type === "b" ? ResultType.block
+                               : type === "c" ? ResultType.contract
+                               : type === "t" ? ResultType.transaction
+                               : ResultType.none;
+
+                this.searchSvc.setSearchSpec(symbol, searchType, toFind);
+                this.searchSpec = new SearchSpec();
+                this.searchSpec.chain = symbol;
+                this.searchSpec.searchString = toFind;
+                this.searchSpec.type = searchType;
+                this.startSearch();
+            }
         this.titleService.setTitle("The Chain Hunter : Multi Blockchain Search | BTC, ETH, LTC, BCH, XRP, and more!");
         this.searchSvc.newSearch.subscribe(val => {
             this.searchSpec = val;
             if(this.searchSpec !== null) {
-                this.addyTxn = this.searchSpec.searchString;
-                this.chainHunt();
+                this.startSearch();
             }
         })
+    }
+
+    startSearch() {
+        this.addyTxn = this.searchSpec.searchString;
+        this.chainHunt();
     }
 
     ngOnInit() {
@@ -219,7 +245,7 @@ export class ChainHunterComponent implements OnInit {
      */
     targetedSearch(symbol: string){
         if(this.searchSpec) {
-            if(this.searchSpec.chain === symbol) {
+            if(this.searchSpec.chain.toLowerCase() === symbol.toLowerCase()) {
                 //this.addyTxn = this.searchSpec.searchString;
                 this.requestedChains = 1;
                 if(this.searchSpec.type === ResultType.address) {

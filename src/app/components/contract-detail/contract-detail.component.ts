@@ -7,6 +7,7 @@ import { MessageService } from 'primeng/api';
 import { AuthenticationService } from 'src/app/services/authentication.service';
 import { LoginService } from 'src/app/services/login.service';
 import { SearchService } from 'src/app/services/search.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-contract-detail',
@@ -24,7 +25,8 @@ export class ContractDetailComponent implements OnInit {
               private messageSvc: MessageService, 
               private authSvc: AuthenticationService, 
               private loginSvc: LoginService,
-              private searchSvc: SearchService) { 
+              private searchSvc: SearchService,
+              private router: Router) { 
     this.authSvc.isLoggedIn.subscribe(val => this.loggedIn = val);
   }
 
@@ -107,6 +109,10 @@ export class ContractDetailComponent implements OnInit {
   }
 
   getAddress(address: string) {
-      this.searchSvc.setSearchSpec(this.blockchain.symbol, ResultType.address, address);
+    if(this.router.url === "/hunts") {
+      let itemType = 'a' ;
+      this.router.navigate([`/search/${this.blockchain.symbol.toLowerCase()}/${itemType}/${address}`]);
+    }
+    this.searchSvc.setSearchSpec(this.blockchain.symbol, ResultType.address, address);
   }
 }

@@ -72,6 +72,7 @@ import { BlockComponent } from './components/block/block.component';
 import { SearchService } from './services/search.service';
 import { SearchMapComponent } from './components/search-map/search-map.component';
 import { TransactionDetailComponent } from './components/transaction-detail/transaction-detail.component';
+import { CopyClipboardModule } from './services/copy-clipboard.module';
 
 const appRoutes: Routes = [
   { path: '', component: ChainHunterComponent },
@@ -139,6 +140,7 @@ const appRoutes: Routes = [
     CalendarModule,
     CardModule,
     CheckboxModule,
+    CopyClipboardModule,
     DialogModule,
     DropdownModule,
     FormsModule,

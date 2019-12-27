@@ -15,8 +15,6 @@ import { LoginService } from 'src/app/services/login.service';
 })
 export class AddressDetailComponent implements OnInit {
   @Input() blockchain: Blockchain;
-  // @Input() address: string;
-  // @Input() showHash: boolean;
   transactionsComplete: boolean = true;
   tokensComplete: boolean = true;
   tokenContent: string;
@@ -24,6 +22,7 @@ export class AddressDetailComponent implements OnInit {
   loggedIn: boolean = false;
   @Input() saveId: string;
   @Input() addressSaved: boolean = false;
+  searchUrl: string;
 
   constructor(private apiSvc: ApiService, 
               private messageSvc: MessageService, 
@@ -35,6 +34,7 @@ export class AddressDetailComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.searchUrl = `${location.origin}/search/${this.blockchain.symbol.toLowerCase()}/a/${this.blockchain.address.address}`;
   }
 
   saveHover(event, type: string, overlayPanel: OverlayPanel) {
@@ -119,6 +119,16 @@ export class AddressDetailComponent implements OnInit {
               detail: message,
               life: life
           });
+  }
+
+  copySuccess(event) {
+      const message = `This ${this.blockchain.symbol} Address has been copied to the clipboard!`;
+      this.addToast('notification-toast', Severity.success, 'Copied', message);
+  }
+
+  linkCopySuccess(event) {
+      const message = `Direct search URL for this ${this.blockchain.symbol} Address has been copied to the clipboard!`;
+      this.addToast('notification-toast', Severity.success, 'Copied', message);
   }
 
   onTxnsOpen(e: any) {

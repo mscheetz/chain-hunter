@@ -16,18 +16,7 @@
     </p-panel>
     <!-- Transaction Results -->
     <p-panel header="{{blockchain.symbol}} Transaction" *ngIf="blockchain.transaction">
-        <h3 class="word-break">
-            <i (mouseover)="saveHover($event, 'Transaction', saveThisTxn)" 
-                (mouseleave)="saveHover($event, 'Transaction', saveThisTxn)" 
-                (click)="saveResult($event, 'transaction')" 
-                class="fa fa-star-o" 
-                style="color: deeppink; cursor: pointer;"></i>
-            {{blockchain.symbol}} Transaction Hash: {{blockchain.transaction.hash}}
-        </h3>
-        <transaction [transaction]="blockchain.transaction"
-                     [address]=""
-                     [blockchain]="blockchain"
-                     [showHash]="false"></transaction>
+        <transaction [transactionSaved]="false" [saveId]="" [blockchain]="blockchain" ></transaction>
         <div *ngIf="blockchain.source !== undefined">
             <p>
                 For more info: <a href="{{blockchain.source}}" target="_blank">{{blockchain.source}}</a>

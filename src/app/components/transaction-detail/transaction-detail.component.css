@@ -1,0 +1,15 @@
+div, .word-break {
+    word-break: break-word;
+}
+
+.success {
+    color: green;
+}
+
+.failure {
+    color: red;
+}
+
+.success, .failure {
+    font-weight: 600;
+}

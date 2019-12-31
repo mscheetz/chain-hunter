@@ -1,7 +1,8 @@
 const axios = require('axios');
 const helperSvc = require('../helper.service.js');
 const base = "https://blockchain.info";
-const baseBTC = "https://chain.api.btc.com"
+const baseBTC = "https://chain.api.btc.com";
+const baseTx = "https://api.smartbit.com.au";
 const enums = require('../../classes/enums');
 const _  = require('lodash');
 // const bitcore = require('bitcore-lib');
@@ -52,6 +53,50 @@ const getBlockchain = async(chain, toFind, type) => {
 }
 
 const getAddress = async(addressToFind) => {
+    let endpoint = `/v1/blockchain/address/${addressToFind}?limit=50`;
+    let url = baseTx + endpoint;
+
+    try{
+        const response = await axios.get(url);
+        
+        if(response.data !== null && response.data.success === true) {
+            const datas = response.data.address;
+            const quantity = datas.total.balance;
+            const total = helperSvc.commaBigNumber(quantity.toString());
+
+            let address = {
+                address: addressToFind,
+                quantity: total,
+                transactionCount: datas.total.transaction_count,
+                hasTransactions: true
+            };
+
+            address.transactions = await getTransactions(datas.transactions, addressToFind);
+            
+            return address;
+        } else {
+            return null;
+        }
+    } catch(error) {
+        return null;
+    }
+}
+
+const getTransactions = async(txns, address) => {
+    let transactions = [];
+
+    for(let txn of txns) {
+        let transaction = await buildTransactionTx(txn);
+
+        transaction = helperSvc.inoutCalculation(address, transaction);
+
+        transactions.push(transaction);
+    }
+
+    return transactions;
+}
+
+const getAddressBTC = async(addressToFind) => {
     let endpoint = "/v3/address/" + addressToFind;
     let url = baseBTC + endpoint;
 
@@ -66,6 +111,7 @@ const getAddress = async(addressToFind) => {
             let address = {
                 address: addressToFind,
                 quantity: total,
+                transactionCount: datas.tx_count,
                 hasTransactions: true
             };
             
@@ -93,6 +139,7 @@ const getAddressBlockchain = async(addressToFind) => {
             let address = {
                 address: datas.address,
                 quantity: total,
+                transactionCount: datas.tx_count,
                 hasTransactions: true
             };
             const latestblock = await getLatestBlock();
@@ -118,19 +165,7 @@ const getBlock = async(blockNumber) => {
         if(response.data !== null && response.data.err_no === 0) {
             const datas = response.data.data;
             
-            let validator = (typeof datas.extras !== 'undefined' && typeof datas.extras.pool_name !== 'undefined')
-                ? datas.extras.pool_name
-                : null;
-
-            let block = {
-                blockNumber: blockNumber,
-                validator: validator,
-                transactionCount: datas.tx_count,
-                date: helperSvc.unixToUTC(datas.timestamp),
-                size: `${helperSvc.commaBigNumber(datas.size.toString())} bytes`,
-                hash: datas.hash,
-                hasTransactions: true
-            };
+            const block = buildBlock(datas);
 
             return block;
         } else {
@@ -139,6 +174,49 @@ const getBlock = async(blockNumber) => {
     } catch(error) {
         return null;
     }
+}
+
+const getBlocks = async() => {
+    let today = new Date();
+    let blockDate = `${today.getFullYear()}${(today.getMonth() + 1)}${today.getDate()}`;
+    let endpoint = `/v3/block/date/${blockDate}`;
+    let url = baseBTC + endpoint;
+
+    try{
+        const response = await axios.get(url);
+
+        let blocks = [];
+        if(response.data !== null && response.data.err_no === 0 && response.data.data.length > 0) {
+            const datas = response.data.data;
+            
+            for(let data of datas) {
+                const block = buildBlock(data);
+
+                blocks.push(block);
+            }
+        }
+        return blocks;
+    } catch(error) {
+        return null;
+    }
+}
+
+const buildBlock = function(datas) {            
+    let validator = (typeof datas.extras !== 'undefined' && typeof datas.extras.pool_name !== 'undefined')
+        ? datas.extras.pool_name
+        : null;
+
+    let block = {
+        blockNumber: datas.height,
+        validator: validator,
+        transactionCount: datas.tx_count,
+        date: helperSvc.unixToUTC(datas.timestamp),
+        size: `${helperSvc.commaBigNumber(datas.size.toString())} bytes`,
+        hash: datas.hash,
+        hasTransactions: true
+    };
+
+    return block;
 }
 
 const getBlockBlockchain = async(blockNumber) => {
@@ -198,7 +276,7 @@ const getBlockBlockchain = async(blockNumber) => {
     }
 }
 
-const getTransactions = async(address) => {
+const getTransactionsBTC = async(address) => {
     let method = "";
     let isBlock = false;
     if(helperSvc.hasLetters(address)) {
@@ -217,7 +295,7 @@ const getTransactions = async(address) => {
             const datas = response.data.data.list;
 
             for(let data of datas) {
-                let transaction = buildTransactionBTC(data);
+                let transaction = await buildTransactionBTC(data);
 
                 if(!isBlock) {
                     transaction = helperSvc.inoutCalculation(address, transaction);
@@ -265,16 +343,20 @@ const getTransactionBTC = async(hash) => {
 }
 
 const getTransaction = async(hash) => {
-    let endpoint = "/v3/tx/" + hash;
-    let url = baseBTC + endpoint;
+    // let endpoint = "/v3/tx/" + hash;
+    // let url = baseBTC + endpoint;
+    let endpoint = `/v1/blockchain/tx/${hash}`;
+    let url = baseTx + endpoint;
 
     try{
         const response = await axios.get(url, { timeout: 5000 });
-        if(response.data !== null && response.data.err_no === 0) {
-            const data = response.data.data;
+        
+        //if(response.data !== null && response.data.err_no === 0) {
+        if(response.data !== null && response.data.success === true) {
+            const data = response.data.transaction;
 
-            const transaction = buildTransactionBTC(data);
-            
+            const transaction = await buildTransactionTx(data);
+            //console.log('transaction',transaction);
             return transaction;
         } else {
             return null;
@@ -323,8 +405,7 @@ const getLatestBlock = async() => {
     }
 }
 
-const buildTransactionBTC = function(txn) {
-    try{
+const buildTransactionBTC = async(txn) =>{
     let froms = [];
     let tos = [];
     let type = enums.transactionType.TRANSFER;
@@ -342,7 +423,8 @@ const buildTransactionBTC = function(txn) {
                         validAddress = true;
                     }
                     if(!validAddress) {
-                        addr = `Unknown ${input.prev_type} {${i}}`;
+                        //addr = `Unknown ${input.prev_type} {${i}}`;
+                        addr = await getAddressFromKey(addr);
                         i++;
                     }
                     validatedAddresses.push(addr);
@@ -374,8 +456,9 @@ const buildTransactionBTC = function(txn) {
                     if(addr.substr(0, 1) === "1" || addr.substr(0, 1) === "3" || addr.substr(0, 3) === 'bc1'){
                         validAddress = true;
                     }
-                    if(!validAddress) {
-                        addr = `Unknown ${output.type} {${i}}`;
+                    if(!validAddress) {                        
+                        addr = await getAddressFromKey(addr);
+                        //addr = `Unknown ${output.type} {${i}}`;
                         i++;
                     }
                     validatedAddresses.push(addr);
@@ -403,7 +486,122 @@ const buildTransactionBTC = function(txn) {
     };
 
     return transaction;
-}catch(err) {console.log(err)}
+}
+
+const buildTransactionTx = async(txn) =>{
+    let froms = [];
+    let tos = [];
+    let type = enums.transactionType.TRANSFER;
+    const symbol = "BTC";
+    let i = 0;
+    if(typeof txn.inputs === 'undefined' || txn.coinbase === true) {
+        type = enums.transactionType.MINING;
+        from = {
+            addresses: ["coinbase"]
+        }
+        froms.push(from);
+    } else {
+        for(let input of txn.inputs) {
+            let from;
+            if(typeof input.addresses !== 'undefined') {
+                let addresses = input.addresses;
+                let validatedAddresses = [];
+                if(addresses.length > 0) {
+                    for(let addr of addresses) {
+                        let validAddress = false;
+                        if(addr.substr(0, 1) === "1" || addr.substr(0, 1) === "3" || addr.substr(0, 3) === 'bc1'){
+                            validAddress = true;
+                        }
+                        if(!validAddress) {
+                            //addr = `Unknown ${input.prev_type} {${i}}`;
+                            addr = await getAddressFromKey(addr);
+                            i++;
+                        }
+                        validatedAddresses.push(addr);
+                    }
+                } else {
+                    if(input.prev_tx_hash === "0000000000000000000000000000000000000000000000000000000000000000") {
+                        validatedAddresses.push('coinbase');                    
+                    } else {
+                        validatedAddresses.push(input.prev_type);
+                    }
+                }
+                const quantity = input.value;
+                from = helperSvc.getSimpleIOAddresses(symbol, validatedAddresses, quantity);
+            } else {
+                type = enums.transactionType.MINING;
+                from = {
+                    addresses: ["coinbase"]
+                }
+            }
+            froms.push(from);
+        }
+    }
+    for(let output of txn.outputs) {
+        if(typeof output.addresses !== 'undefined') {
+            let addresses = output.addresses;
+            let validatedAddresses = [];
+            if(addresses.length > 0) {
+                for(let addr of addresses) {
+                    let validAddress = false;
+                    if(addr.substr(0, 1) === "1" || addr.substr(0, 1) === "3" || addr.substr(0, 3) === 'bc1'){
+                        validAddress = true;
+                    }
+                    if(!validAddress) {                        
+                        addr = await getAddressFromKey(addr);
+                        //addr = `Unknown ${output.type} {${i}}`;
+                        i++;
+                    }
+                    validatedAddresses.push(addr);
+                }
+            } else {
+                validatedAddresses.push(output.type);
+            }
+            const quantity = output.value;
+            const to = helperSvc.getSimpleIOAddresses(symbol, validatedAddresses, quantity);
+            tos.push(to);
+        }
+    }
+
+    const fromDatas = helperSvc.cleanIO(froms);
+    const toDatas = helperSvc.cleanIO(tos);
+        
+    const transaction = {
+        type: type,
+        hash: txn.hash,
+        block: txn.block,
+        confirmations: txn.confirmations,
+        date: helperSvc.unixToUTC(txn.time),
+        froms: fromDatas,
+        tos: toDatas
+    };
+
+    return transaction;
+}
+
+const generateAddress = async(publicKey) => {
+    return publicKey;
+    // let value = Buffer.from(publicKey);
+    // let hash = bitcore.crypto.Hash.sha256(value);
+    // let bn = bitcore.crypto.BN.fromBuffer(hash);
+    // let address = new bitcore.PrivateKey(bn).toAddress();
+    // // console.log(`address: '${address}'`);
+    // if(typeof address === 'string') {
+    //     return address;
+    // } else {
+    //     return address.Address;
+    // }
+}
+
+const getAddressFromKey = async(publicKey) => {    
+    let generated = await generateAddress(publicKey);
+    // console.log('publicKey', publicKey)
+    // console.log('generated', generated)
+    if(typeof generated === 'undefined' || generated.substr(0, 3) !== 'bc1'){
+        generated = await generateAddress(publicKey);
+    }
+
+    return generated;
 }
 
 const buildTransaction = function(txn, latestblock) {
@@ -422,18 +620,12 @@ const buildTransaction = function(txn, latestblock) {
             if(typeof input.prev_out.addr !== 'undefined') {
                 from = helperSvc.getIO("BTC", input, true);
             } else {
-                try {
-                    const quantity = input.prev_out.value/100000000;
+                const quantity = input.prev_out.value/100000000;
 
-                    const address = getBtcAddress(input.prev_out.script);
+                const address = getBtcAddress(input.prev_out.script);
 
-                    from = helperSvc.getSimpleIO("BTC", address, quantity);
-                    console.log(`input address: ${address}`);
-                } catch(err) {console.log(err)}
-                // try {
-                // let fromAddress = bech32.decode(input.prev_out.script);
-                // console.log(fromAddress);
-                // } catch(err) {console.log(err)}
+                from = helperSvc.getSimpleIO("BTC", address, quantity);
+                //console.log(`input address: ${address}`);
             }
         }
         froms.push(from);
@@ -448,7 +640,7 @@ const buildTransaction = function(txn, latestblock) {
             const address = getBtcAddress(output.script);
 
             to = helperSvc.getSimpleIO("BTC", address, quantity);
-            console.log(`output address: ${address}`);
+            // console.log(`output address: ${address}`);
         }
         tos.push(to);
     });
@@ -471,7 +663,7 @@ const buildTransaction = function(txn, latestblock) {
     return transaction;
 }
 
-const getBtcAddress = function(script) {    
+const getBtcAddress = function(script) {
     // const value = Buffer.from(script);
     // const hash = bitcore.crypto.Hash.sha256(value);
     // const bn = bitcore.crypto.BN.fromBuffer(hash);
@@ -500,87 +692,10 @@ const getBtcAddress = function(script) {
     // address += addressNext;
 
     const encoded = bech32.encode('bc', script.substr(4));
-console.log(script, encoded);
-const address = "";
+//console.log(script, encoded);
+    const address = "";
     return address;
 }
-
-const stringToBinary = function(input){
-    var characters = input.split('');
-  
-    return characters.map(function(char) {
-      const binary = char.charCodeAt(0).toString(2)
-      const pad = Math.max(8 - binary.length, 0);
-      // Just to make sure it is 8 bits long.
-      return '0'.repeat(pad) + binary;
-    }).join('');
-}
-
-const binaryToArray = function(binary) {
-    let array = [];
-    while(binary.length > 0) {
-        let bin = binary.substr(0,5).toString();
-        array.push(bin);
-        binary = binary.substr(5);
-    }
-
-    return array;
-}
-
-const binaryMapped = function(binary) {
-    let letters = "";
-    while(binary.length > 0) {
-        let bin = binary.substr(0,5);
-        //console.log(`bin ${bin}`)
-        // console.log('binaryMap',binaryMap);
-        const map = binaryMap.filter(b => b.b.toString() === bin);
-        // console.log('map',map);
-        if(map.length > 0){
-        letters += map[0].c;
-        binary = binary.substr(5);
-        } else {
-            binary = "";
-        }
-    }
-
-    return letters;
-}
-
-const binaryMap = [
-    {id: 0, b: '00000', c: 'q'},
-    {id: 1, b: '00001', c: 'p'},
-    {id: 2, b: '00010', c: 'z'},
-    {id: 3, b: '00011', c: 'r'},
-    {id: 4, b: '00100', c: 'y'},
-    {id: 5, b: '00101', c: '9'},
-    {id: 6, b: '00110', c: 'x'},
-    {id: 7, b: '00111', c: '8'},
-    {id: 8, b: '01000', c: 'g'},
-    {id: 9, b: '01001', c: 'f'},
-    {id: 10, b: '01010', c: '2'},
-    {id: 11, b: '01011', c: 't'},
-    {id: 12, b: '01100', c: 'v'},
-    {id: 13, b: '01101', c: 'd'},
-    {id: 14, b: '01110', c: 'w'},
-    {id: 15, b: '01111', c: '0'},
-    {id: 16, b: '10000', c: 's'},
-    {id: 17, b: '10001', c: '3'},
-    {id: 18, b: '10010', c: 'j'},
-    {id: 19, b: '10011', c: 'n'},
-    {id: 20, b: '10100', c: '5'},
-    {id: 21, b: '10101', c: '4'},
-    {id: 22, b: '10110', c: 'k'},
-    {id: 23, b: '10111', c: 'h'},
-    {id: 24, b: '11000', c: 'c'},
-    {id: 25, b: '11001', c: 'e'},
-    {id: 26, b: '11010', c: '6'},
-    {id: 27, b: '11011', c: 'm'},
-    {id: 28, b: '11100', c: 'u'},
-    {id: 29, b: '11101', c: 'a'},
-    {id: 30, b: '11110', c: '7'},
-    {id: 31, b: '11111', c: 'l'}
-]
-
 
 module.exports = {
     getEmptyBlockchain,

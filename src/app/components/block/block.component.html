@@ -37,10 +37,10 @@
         </div>
         <ul>
             <li class="address-txn" *ngFor="let txn of blockchain.block.transactions">
-                <transaction [transaction]="txn" 
+                <transaction-detail [transaction]="txn" 
                              [blockchain]="blockchain"
                              [address]=""
-                             [showHash]="true"></transaction>
+                             [showHash]="true"></transaction-detail>
             </li>
         </ul>
     </p-accordionTab>

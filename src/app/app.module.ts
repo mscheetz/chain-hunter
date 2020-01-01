@@ -70,6 +70,9 @@ import { EmailUnsubscribeComponent } from './components/email-unsubscribe/email-
 import { AdminComponent } from './components/admin/admin.component';
 import { BlockComponent } from './components/block/block.component';
 import { SearchService } from './services/search.service';
+import { SearchMapComponent } from './components/search-map/search-map.component';
+import { TransactionDetailComponent } from './components/transaction-detail/transaction-detail.component';
+import { CopyClipboardModule } from './services/copy-clipboard.module';
 
 const appRoutes: Routes = [
   { path: '', component: ChainHunterComponent },
@@ -85,7 +88,8 @@ const appRoutes: Routes = [
   { path: 'cc-checkout/:order', component: CreditCardCheckoutComponent, canActivate: [AuthGuard] },
   { path: 'subscribe', component: EmailSubscriptionComponent },
   { path: 'emailunsubscribe', component: EmailUnsubscribeComponent },
-  { path: 'admin-page', component: AdminComponent, canActivate: [AuthGuard] }
+  { path: 'admin-page', component: AdminComponent, canActivate: [AuthGuard] },
+  { path: 'search/:symbol/:type/:toFind', component: ChainHunterComponent }
 ]
 
 @NgModule({
@@ -123,7 +127,9 @@ const appRoutes: Routes = [
     EmailSubscriptionComponent,
     EmailUnsubscribeComponent,
     AdminComponent,
-    BlockComponent
+    BlockComponent,
+    SearchMapComponent,
+    TransactionDetailComponent
   ],
   imports: [
     AccordionModule,
@@ -134,6 +140,7 @@ const appRoutes: Routes = [
     CalendarModule,
     CardModule,
     CheckboxModule,
+    CopyClipboardModule,
     DialogModule,
     DropdownModule,
     FormsModule,

@@ -7,6 +7,7 @@ import { MessageService } from 'primeng/api';
 import { AuthenticationService } from 'src/app/services/authentication.service';
 import { LoginService } from 'src/app/services/login.service';
 import { SearchService } from 'src/app/services/search.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-contract-detail',
@@ -19,16 +20,19 @@ export class ContractDetailComponent implements OnInit {
   @Input() saveId: string;
   saveThisMessage: string;
   loggedIn: boolean;
+  searchUrl: string;
 
   constructor(private apiSvc: ApiService, 
               private messageSvc: MessageService, 
               private authSvc: AuthenticationService, 
               private loginSvc: LoginService,
-              private searchSvc: SearchService) { 
+              private searchSvc: SearchService,
+              private router: Router) { 
     this.authSvc.isLoggedIn.subscribe(val => this.loggedIn = val);
   }
 
   ngOnInit() {
+    this.searchUrl = `${location.origin}/search/${this.blockchain.symbol.toLowerCase()}/c/${this.blockchain.contract.address}`;
   }
 
   saveHover(event, type: string, overlayPanel: OverlayPanel) {
@@ -107,6 +111,20 @@ export class ContractDetailComponent implements OnInit {
   }
 
   getAddress(address: string) {
-      this.searchSvc.setSearchSpec(this.blockchain.symbol, ResultType.address, address);
+    if(this.router.url === "/hunts") {
+      let itemType = 'a' ;
+      this.router.navigate([`/search/${this.blockchain.symbol.toLowerCase()}/${itemType}/${address}`]);
+    }
+    this.searchSvc.setSearchSpec(this.blockchain.symbol, ResultType.address, address);
+  }
+
+  copySuccess(event) {
+      const message = `This ${this.blockchain.symbol} Contract has been copied to the clipboard!`;
+      this.addToast('notification-toast', Severity.success, 'Copied', message);
+  }
+
+  linkCopySuccess(event) {
+      const message = `Direct search URL for this ${this.blockchain.symbol} Contract has been copied to the clipboard!`;
+      this.addToast('notification-toast', Severity.success, 'Copied', message);
   }
 }

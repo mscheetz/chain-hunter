@@ -1,103 +1,23 @@
-<div *ngIf="showHash">Transaction Hash:
-  <span class="link-like" (click)="getTransaction(transaction.hash)">{{transaction.hash}}</span>
-</div>
-<div *ngIf="transaction.type">
-  <div>Transaction Type: {{transaction.type}}</div>
-  <div *ngIf="transaction.inout">Direction: {{transaction.inout}}</div>
-</div>
-<div *ngIf="!transaction.type && transaction.inout">Transaction Type: {{transaction.inout}}</div>
-<div *ngIf="!transaction.type && !transaction.inout && transaction.from">Transaction Type: {{transaction.from.includes(address) ? 'Sender' : 'Receiver'}}</div>
-<div *ngIf="transaction.quantity && transaction.symbol">
-  Quantity: {{ transaction.quantity }}
-  {{ transaction.symbol }}
-</div>
-<div *ngIf="transaction.date">
-  Date: {{ transaction.date }}
-</div>
-<div *ngIf="transaction.block > 0">
-  Block: 
-  <span class="link-like" (click)="getBlock(transaction.block)">{{transaction.block}}</span>
-</div>
-<div *ngIf="transaction.success && transaction.success === 'success'">
-  Status: <span class="success">Success</span>
-</div>
-<div *ngIf="transaction.success && transaction.success === 'fail'">
-  Status: <span class="failure">Failure</span>
-</div>
-<div *ngIf="transaction.confirmations > -1">
-  Confirmations: {{ transaction.confirmations }}
-</div>
-<div *ngIf="transaction.from">From: 
-  <span class="word-break link-like" (click)="getAddress(transaction.from)">{{transaction.from}}</span>
-</div>
-<div *ngIf="transaction.to">To: 
-  <span class="word-break link-like" (click)="getAddress(transaction.to)">{{transaction.to}}</span>
-</div>
-<div *ngIf="transaction.froms && transaction.tos && (transaction.froms.length > 0 || transaction.tos.length > 0)" 
-  class="p-grid">
-  <div class="p-sm-6">
-    <p-table *ngIf="transaction.froms.length > 0" [value]="transaction.froms">
-      <ng-template pTemplate="header">
-        <tr>
-          <th>IN</th>
-        </tr>
-      </ng-template>
-      <ng-template pTemplate="body" let-from>
-        <tr>
-          <td>
-            <div *ngFor="let fromAddress of from.addresses; let i = index">
-              <div class="word-break link-like" (click)="getAddress(fromAddress)">{{fromAddress}}</div>
-              <span *ngIf="(i + 1) < from.addresses.length">,</span>
-            </div>
-            <div *ngIf="from.type">{{from.type}}</div>
-            <div *ngIf="from.symbol !== null">{{from.quantity}} {{from.symbol}}</div>
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
-  </div>
-  <div class="p-sm-6">
-    <p-table *ngIf="transaction.tos.length > 0" [value]="transaction.tos">
-      <ng-template pTemplate="header">
-        <tr>
-          <th>OUT</th>
-        </tr>
-      </ng-template>
-      <ng-template pTemplate="body" let-to>
-        <tr>
-          <td>
-            <div *ngFor="let toAddress of to.addresses; let i = index">
-              <div class="word-break link-like" (click)="getAddress(toAddress)">{{toAddress}}</div>
-              <span *ngIf="(i + 1) < to.addresses.length">,</span>
-            </div>
-            <div *ngIf="to.type">{{to.type}}</div>
-            <div *ngIf="to.symbol !== null">{{to.quantity}} {{to.symbol}}</div>
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
-  </div>
-</div>
-<div *ngIf="transaction.ios && transaction.ios.length > 0" class="p-grid">
-  <div class="p-sm-6">
-    <p-table [value]="transaction.ios">
-      <ng-template pTemplate="header">
-        <tr>
-          <th>{{transaction.inout === "Receiver" ? "FROM" : "TO"}}</th>
-        </tr>
-      </ng-template>
-      <ng-template pTemplate="body" let-io>
-        <tr>
-          <td>
-            <div *ngFor="let address of io.addresses; let i = index">
-              <div class="word-break link-like" (click)="getAddress(address)">{{address}}</div>
-              <span *ngIf="(i + 1) < io.addresses.length">,</span>
-            </div>
-            <div *ngIf="io.type">{{io.type}}</div>
-            <div *ngIf="io.symbol !== null">{{io.quantity}} {{io.symbol}}</div>
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
-  </div>
-</div>
+<h3 class="word-break">      
+  <i *ngIf="transactionSaved" (mouseover)="unSaveHover($event, 'Transaction', saveThisTxn)" 
+      (mouseleave)="unSaveHover($event, 'Transaction', saveThisTxn)"
+      (click)="unSaveResult($event, 'transaction')" 
+      class="fa fa-star" 
+      style="color: deeppink; cursor: pointer;"></i>
+  <i *ngIf="!transactionSaved" (mouseover)="saveHover($event, 'Transaction', saveThisTxn)" 
+      (mouseleave)="saveHover($event, 'Transaction', saveThisTxn)"
+      (click)="saveResult($event, 'transaction')" 
+      class="fa fa-star-o" 
+      style="color: deeppink; cursor: pointer;"></i>
+  {{blockchain.symbol}} Transaction Hash: {{blockchain.transaction.hash}}
+  <i class="fa fa-clipboard copy-icon" title="Copy this {{blockchain.symbol}} Transaction" 
+      [copy-clipboard]="blockchain.transaction.hash" (copied)="copySuccess($event)"></i>
+  <i class="fa fa-link copy-icon" title="Copy direct search url for this {{blockchain.symbol}} Transaction" 
+      [copy-clipboard]="searchUrl" (copied)="linkCopySuccess($event)"></i>
+</h3>
+<transaction-detail
+          [blockchain]="blockchain"
+          [transaction]="blockchain.transaction"
+          [address]=""
+          [showHash]="false">
+</transaction-detail>

@@ -54,48 +54,42 @@ const getBlockchain = async(chain, toFind, type) => {
     return chain;
 }
 
-const getBlock = async(blockNumber) => {
-    blockNumber = +blockNumber;
-    const searchNumber = blockNumber - 1;
-    let endpoint = `/v1/blocks?limit=1&afterBlock=${searchNumber}`;
+const getAddress = async(addressToFind) => {
+    let endpoint = "/v1/account/balance/" + addressToFind;
     let url = addressBase + endpoint;
 
     try{
         const response = await axios.get(url);
-        if(typeof response.data.error_code === 'undefined' && response.data !== null && response.data.length > 0 && response.data[0].height === blockNumber) {
-            const datas = response.data[0];
 
-            let block = {
-                blockNumber: blockNumber,
-                validator: datas.operator_address,
-                transactionCount: datas.num_txs,
-                date: datas.time,
-                hash: datas.block_hash,
-                hasTransactions: true
-            };
-            if(datas.tx_data !== null && datas.tx_data.txs !== null && datas.tx_data.txs.length > 0) {
-                try {
-                let transactions = [];
-                let volume = 0;
-                for(let i = 0; i < datas.tx_data.txs.length; i++) {
-                    const transaction = await getTransaction(datas.tx_data.txs[i]);
-                    if(transaction !== null) {
-                        transaction.tos.forEach(to => {
-                            if(to.symbol === "ATOM") {
-                                volume+= +to.quantity;
-                            }
-                        });
-                        transactions.push(transaction);
-                    }
+        if(typeof response.data.error_code === "undefined") {
+            const datas = response.data;
+
+            let balance = 0;
+            
+            datas.forEach(bal => {
+                if(bal.denom === "uatom") {
+                    balance += parseFloat(bal.amount)/1000000;
                 }
-                block.volume = volume;
-                block.transactions = transactions;
-            } catch(err) {
-                console.log(err);
-            }
-            }
+            });
+            
+            let delations = await getAddressDelegations(addressToFind);
+            balance += delations;
+            
+            let unbonding = await getAddressUnbondings(addressToFind);
+            balance += unbonding;
+            
+            const total = helperSvc.commaBigNumber(balance.toString());
 
-            return block;
+            const txnCount = await getAddressTxnCount(addressToFind);
+
+            let address = {
+                address: addressToFind,
+                quantity: total,
+                hasTransactions: true,
+                transactionCount: txnCount
+            };
+
+            return address;
         } else {
             return null;
         }
@@ -104,12 +98,106 @@ const getBlock = async(blockNumber) => {
     }
 }
 
-const getAddress = async(addressToFind) => {
-    let endpoint = "/v1/account/" + addressToFind;
+const getAddressRewards = async(address) => {
+    let endpoint = "/v1/account/delegations/rewards/" + address;
     let url = addressBase + endpoint;
 
     try{
         const response = await axios.get(url);
+
+        let balance = 0;
+        if(typeof response.data.error_code === "undefined") {
+            const datas = response.data;
+            
+            for(let del of datas) {
+                del.reward.forEach(reward => {
+                    if(reward.denom === "uatom") {
+                        balance += parseFloat(reward.amount)/1000000;
+                    }
+                })
+            }
+        }
+        return balance;
+    } catch(error) {
+        return 0;
+    }
+}
+
+const getAddressDelegations = async(address) => {
+    let endpoint = "/v1/account/delegations/" + address;
+    let url = addressBase + endpoint;
+
+    try{
+        const response = await axios.get(url);
+
+        let balance = 0;
+        if(typeof response.data.error_code === "undefined") {
+            const datas = response.data;
+            
+            for(let del of datas) {
+                balance += parseFloat(del.amount)/1000000;
+                del.delegator_rewards.forEach(reward => {
+                    if(reward.denom === "uatom") {
+                        balance += parseFloat(reward.amount)/1000000;
+                    }
+                })
+            }
+        }
+        return balance;
+    } catch(error) {
+        return 0;
+    }
+}
+
+const getAddressUnbondings = async(address) => {
+    let endpoint = "/v1/account/unbonding-delegations/" + address;
+    let url = addressBase + endpoint;
+
+    try{
+        const response = await axios.get(url);
+
+        let balance = 0;
+        if(typeof response.data.error_code === "undefined") {
+            const datas = response.data;
+            
+            for(let del of datas) {
+                del.entries.forEach(entry => {
+                    balance += parseFloat(entry.balance)/1000000;
+                })
+            }
+        }
+        return balance;
+    } catch(error) {
+        return 0;
+    }
+}
+
+const getAddressTxnCount = async(address) => {
+    let data = buildPostData(address);
+
+    try {
+        const response = await axios.post(txnsBase, data);
+        
+        let count = 0;
+        if(typeof response.data.error_code === "undefined") {
+            const datas = response.data;
+            
+            count = helperSvc.commaBigNumber(datas.hits.total.toString());
+        }
+
+        return count;
+    } catch(error) {
+        return 0;
+    }
+}
+
+const getAddressOG = async(addressToFind) => {
+    let endpoint = "/v1/account/balance/" + addressToFind;
+    let url = addressBase + endpoint;
+
+    try{
+        const response = await axios.get(url);
+        
         if(typeof response.data.error_code === "undefined") {
             const datas = response.data;
 
@@ -156,6 +244,106 @@ const getAddress = async(addressToFind) => {
     }
 }
 
+const getBlock = async(blockNumber) => {
+    blockNumber = +blockNumber;
+    const searchNumber = blockNumber - 1;
+    let endpoint = `/v1/blocks?limit=1&afterBlock=${searchNumber}`;
+    let url = addressBase + endpoint;
+
+    try{
+        const response = await axios.get(url);
+        if(typeof response.data.error_code === 'undefined' && response.data !== null && response.data.length > 0 && response.data[0].height === blockNumber) {
+            const datas = response.data[0];
+            const latestBlock = await getLatestBlock();
+
+            const block = await buildBlock(datas, latestBlock);
+
+            return block;
+        } else {
+            return null;
+        }
+    } catch(error) {
+        return null;
+    }
+}
+
+const getBlocks = async() => {
+    let endpoint = `/v1/blocks?limit=20`;
+    let url = addressBase + endpoint;
+
+    try{
+        const response = await axios.get(url);
+        let blocks = [];
+        if(typeof response.data.error_code === 'undefined' && response.data !== null && response.data.length > 0) {
+            const datas = response.data;
+            const latestBlock = datas[0].height;
+
+            for(let data of datas) {
+                const block = await buildBlock(data, latestBlock);
+                
+                blocks.push(block);
+            }
+
+        } 
+
+        return blocks;
+    } catch(error) {
+        return null;
+    }
+}
+
+const getLatestBlock = async() => {
+    let endpoint = `/v1/blocks?limit=1`;
+    let url = addressBase + endpoint;
+
+    try{
+        const response = await axios.get(url);
+        let latestBlock = 0;
+        if(typeof response.data.error_code === 'undefined' && response.data !== null && response.data.length > 0) {
+            const datas = response.data[0];
+
+            latestBlock = datas.height;
+        } 
+
+        return latestBlock;
+    } catch(error) {
+        return 0;
+    }
+}
+
+const buildBlock = async(datas, latestBlock) => {
+    let confirmations = latestBlock > 0 ? latestBlock - datas.height : -1;
+
+    let block = {
+        blockNumber: datas.height,
+        validator: datas.operator_address,
+        transactionCount: datas.num_txs,
+        confirmations: confirmations,
+        date: datas.time,
+        hash: datas.block_hash,
+        hasTransactions: true
+    };
+    if(datas.tx_data !== null && datas.tx_data.txs !== null && datas.tx_data.txs.length > 0) {
+        let transactions = [];
+        let volume = 0;
+        for(let i = 0; i < datas.tx_data.txs.length; i++) {
+            const transaction = await getTransaction(datas.tx_data.txs[i]);
+            if(transaction !== null) {
+                transaction.tos.forEach(to => {
+                    if(to.symbol === "ATOM") {
+                        volume+= +to.quantity;
+                    }
+                });
+                transactions.push(transaction);
+            }
+        }
+        block.volume = volume;
+        block.transactions = transactions;
+    }
+
+    return block;
+}
+
 const getContract = async(address) => {
     let endpoint = "/v1/staking/validator/" + address;
     let url = addressBase + endpoint;
@@ -188,74 +376,17 @@ const getContract = async(address) => {
 
 const getTransactions = async(address) => {
     let url = txnsBase;
-    let data = {
-        from: 0, 
-        size: 10,
-        query: {
-                bool: {
-                    should:[
-                        {
-                            multi_match: {
-                                query: address ,
-                                fields:[
-                                    "tx.value.msg.value.delegator_address",
-                                    "tx.value.msg.value.from_address",
-                                    "tx.value.msg.value.to_address",
-                                    "tx.value.msg.value.depositor",
-                                    "tx.value.msg.value.voter",
-                                    "tx.value.msg.value.inputs.address",
-                                    "tx.value.msg.value.outputs.address",
-                                    "tx.value.msg.value.proposer",
-                                    "tx.value.msg.value.address"
-                                ]
-                            }
-                        },
-                        {
-                            multi_match: {
-                                query: address,
-                                fields:[
-                                    "tx.value.msg.value.address"
-                                ]
-                            }
-                        },
-                        {
-                            bool: {
-                                must: [
-                                    {
-                                        match: {
-                                            "tx.value.msg.value.address": address,
-                                        }
-                                    },
-                                    {
-                                        match: {
-                                            "tx.value.msg.type":"cosmos-sdk/MsgWithdrawValidatorCommission"
-                                        }
-                                    }
-                                ]
-                            }
-                        }
-                    ]
-                }
-            },
-            sort:[
-                {
-                    height:
-                    {
-                        order: "desc"
-                    }
-                }
-            ]
-        };
-    let dataz = '{"from":0,"size":10,"query":{"bool":{"should":[{"multi_match":{"query":"'+ address +'","fields":["tx.value.msg.value.delegator_address","tx.value.msg.value.from_address","tx.value.msg.value.to_address","tx.value.msg.value.depositor","tx.value.msg.value.voter","tx.value.msg.value.inputs.address","tx.value.msg.value.outputs.address","tx.value.msg.value.proposer","tx.value.msg.value.address"]}},{"multi_match":{"query":"cosmosvaloper10a7evyydck42nhta93tnmv7yu4haqzt9sjsfcx","fields":["tx.value.msg.value.address"]}},{"bool":{"must":[{"match":{"tx.value.msg.value.address":"cosmosvaloper10a7evyydck42nhta93tnmv7yu4haqzt9sjsfcx"}},{"match":{"tx.value.msg.type":"cosmos-sdk/MsgWithdrawValidatorCommission"}}]}}]}},"sort":[{"height":{"order":"desc"}}]}';
-
+    let data = buildPostData(address);
 
     try{
         const response = await axios.post(url, JSON.stringify(data));
         if(response.data !== null && response.data.hits.total > 0) {
-            const datas = response.data.hits.hits;            
+            const datas = response.data.hits.hits;
+            const latestBlock = await getLatestBlock();
+
             let transactions = [];
             datas.forEach(txn =>{ 
-                let transaction = buildTransaction(txn._source, address);
+                let transaction = buildTransactionNew(txn._source, latestBlock, address);
                 
                 if(transaction !== null) {
                     transaction = helperSvc.inoutCalculation(address, transaction);
@@ -282,8 +413,9 @@ const getTransaction = async(hash) => {
 
         if(typeof response.data.error === "undefined") {
             const datas = response.data;
+            const latestBlock = await getLatestBlock();
 
-            const transaction = buildTransaction(datas);
+            const transaction = buildTransactionNew(datas, latestBlock);
 
             return transaction;
         } else {
@@ -294,7 +426,7 @@ const getTransaction = async(hash) => {
     }
 }
 
-const buildSendTransaction = function(txn, address = null) {
+const buildSendTransaction = function(txn, latestBlock, address = null) {
     let froms = [];
     let tos = [];
     const symbol = "ATOM";
@@ -327,11 +459,13 @@ const buildSendTransaction = function(txn, address = null) {
     }
     const fromData = helperSvc.cleanIO(froms);
     const toData = helperSvc.cleanIO(tos);
+    let confirmations = latestBlock > 0 ? latestBlock - txn.height : -1;
 
     let transaction = {
         type: enums.transactionType.TRANSFER,
         hash: hash,
         block: txn.height,
+        confirmations: confirmations,
         date: time,
         froms: fromData,
         tos: toData,
@@ -395,33 +529,6 @@ const buildRewardTransaction = function(txn, address = null) {
                 tos.push(to);
             }
         }
-        // let addIt = false;
-        // if(tag.key === "delegator") {
-        //     if(address !== null) {
-        //         if(tag.value === address || tags[i+1].value === address) {
-        //             addIt = true;
-        //         }
-        //     } else {
-        //         addIt = true;
-        //     }
-        //     if(addIt) {
-        //         const to = helperSvc.getSimpleIO(symbol, tag.value, quantity);
-        //         tos.push(to);
-        //     }
-        // }
-        // if(tag.key === "source-validator") {
-        //     if(address !== null) {
-        //         if(tag.value === address || tags[i-1].value === address) {
-        //             addIt = true;
-        //         }
-        //     } else {
-        //         addIt = true;
-        //     }
-        //     if(addIt) {
-        //         const from = helperSvc.getSimpleIO(symbol, tag.value, quantity);
-        //         froms.push(from);
-        //     }
-        // }
     }
     
     for(let [key, value] of Object.entries(txn.tx.value.msg)) {
@@ -519,6 +626,254 @@ const buildTransaction = function(txn, address = null) {
     } else {
         return null;
     }
+}
+
+const buildTransactionNew = function(txn, address = null) {
+    let txnType = "";
+
+    for(let msg of txn.tx.value.msg) {
+        if (msg.type.indexOf("MsgWithdrawDelegationReward") > 0 || msg.type.indexOf("MsgDelegate") > 0) {
+            txnType = "MsgWithdrawDelegationReward";
+        } else if (msg.type.indexOf("MsgUndelegate") > 0) {
+            txnType = "MsgUndelegate";
+        } else if (msg.type.indexOf("MsgSend") > 0) {
+            txnType = "MsgSend";
+        }
+    }
+        
+    if(txnType === "MsgSend") {
+        return buildSendTransactionNew(txn, address);
+    } else if (txnType === "MsgWithdrawDelegationReward") {
+        return buildRewardTransactionNew(txn, address);
+    } else if(txnType === "MsgUndelegate") {
+        return buildUnbondingTransactionNew(txn, address);
+    } else {
+        return null;
+    }
+}
+
+const buildRewardTransactionNew = function(txn, address = null) {
+    let froms = [];
+    let tos = [];
+    const symbol = "ATOM";
+    const block = txn.height;
+    const hash = (typeof txn.txhash !== 'undefined') ? txn.txhash : txn.hash;
+    let success = true;
+    
+    for(let i = 0; i < txn.logs.length; i++) {
+        let log = txn.logs[i];
+        let msg = txn.tx.value.msg[i];
+        let quantity = 0;
+        let type = enums.transactionType.REWARD;
+        if(!log.success) {
+            success = false;
+        }
+
+        if(msg.type.indexOf('MsgDelegate') >= 0) {
+            quantity = +msg.value.amount.amount/1000000;
+            type = enums.transactionType.DELEGATION;
+        }
+        else if (msg.type.indexOf('MsgWithdrawDelegationReward') >= 0) {
+            quantity = 0;
+            for(let event of log.events) {
+                for(let attr of event.attributes) {
+                    if (attr.key === "amount" && attr.value.indexOf("uatom") >= 0) {
+                        let amount = attr.value.replace("uatom","");
+                        amount = parseFloat(amount)/1000000;
+                        quantity += amount;
+                    }
+                }
+            }
+        }
+
+        let from = helperSvc.getSimpleIO(symbol, msg.value.validator_address, quantity);
+        from.type = type;
+        froms.push(from);
+
+        let to = helperSvc.getSimpleIO(symbol, msg.value.delegator_address, quantity);
+        to.type = type;
+        tos.push(to);
+    }
+    
+    const fromData = helperSvc.cleanIOTypes(froms);
+    const toData = helperSvc.cleanIOTypes(tos);
+
+    let transaction = {
+        type: enums.transactionType.REWARD,
+        hash: hash,
+        block: block,
+        date: reformatTime(txn.timestamp),
+        froms: fromData,
+        tos: toData,
+        success: success ? 'success' : 'fail'
+    };
+    
+    return transaction;
+}
+
+const buildUnbondingTransactionNew = function(txn, address = null) {
+    let froms = [];
+    let tos = [];
+    let quantity = 0;
+    const symbol = "ATOM";
+    const block = txn.height;
+    const hash = (typeof txn.txhash !== 'undefined') ? txn.txhash : txn.hash;
+    const success = true;
+
+    for(let log of txn.logs) {
+        if(!log.success) {
+            success = false;
+        }
+    }
+    
+    for(let msg of txn.tx.value.msg) {
+        if(msg.type.indexOf('MsgUndelegate') >= 0) {
+            quantity = +msg.value.amount.amount/1000000;
+            let from = helperSvc.getSimpleIO(symbol, msg.value.validator_address, quantity);
+            from.type = enums.transactionType.UNDELEGATE;
+            froms.push(from);
+            let to = helperSvc.getSimpleIO(symbol, msg.value.delegator_address, quantity);
+            to.type = enums.transactionType.UNDELEGATE;
+            tos.push(to);
+        }
+    }
+
+    const fromData = helperSvc.cleanIOTypes(froms);
+    const toData = helperSvc.cleanIOTypes(tos);
+
+    let transaction = {
+        type: enums.transactionType.UNDELEGATE,
+        hash: hash,
+        block: block,
+        date: reformatTime(txn.timestamp),
+        froms: fromData,
+        tos: toData,
+        success: success ? 'success' : 'fail'
+    };
+    
+    return transaction;
+}
+
+const buildSendTransactionNew = function(txn, latestBlock, address = null) {
+    let froms = [];
+    let tos = [];
+    const symbol = "ATOM";
+    const hash = (typeof txn.txhash !== 'undefined') ? txn.txhash : txn.hash;
+    const success = true;
+
+    for(let log of txn.logs) {
+        if(!log.success) {
+            success = false;
+        }
+    }
+    
+    for(let msg of txn.tx.value.msg) {
+        let quantity = 0;
+        let fromAddy = msg.value.from_address;
+        let toAddy = msg.value.to_address;
+        msg.value.amount.forEach(amt => {
+            if(amt.denom === "uatom") {
+                let amount = +amt.amount/1000000;
+                quantity += amount;
+            }
+        })
+        const from = helperSvc.getSimpleIO(symbol, fromAddy, quantity);
+        froms.push(from);
+        const to = helperSvc.getSimpleIO(symbol, toAddy, quantity);
+        tos.push(to);
+    }
+    
+    const fromData = helperSvc.cleanIO(froms);
+    const toData = helperSvc.cleanIO(tos);
+    let confirmations = latestBlock > 0 ? latestBlock - txn.height : -1;
+
+    let transaction = {
+        type: enums.transactionType.TRANSFER,
+        hash: hash,
+        block: txn.height,
+        confirmations: confirmations,
+        date: reformatTime(txn.timestamp),
+        froms: fromData,
+        tos: toData,
+        success: success ? 'success' : 'fail'
+    };
+
+    return transaction;
+}
+
+const reformatTime = function(ts) {
+    let yr = ts.substr(0,4);
+    let mo = ts.substr(5,2);
+    let day = ts.substr(8,2);
+    let time = ts.substr(11,5);
+    mo = helperSvc.getMonth(mo);
+    
+    const reformatted = `${day}-${mo}-${yr} ${time}`;
+
+    return reformatted;
+}
+
+const buildPostData = function(address) {    
+    let data = {
+        from: 0, 
+        size: 10,
+        query: {
+                bool: {
+                    should:[
+                        {
+                            multi_match: {
+                                query: address ,
+                                fields:[
+                                    "tx.value.msg.value.delegator_address",
+                                    "tx.value.msg.value.from_address",
+                                    "tx.value.msg.value.to_address",
+                                    "tx.value.msg.value.depositor",
+                                    "tx.value.msg.value.voter",
+                                    "tx.value.msg.value.inputs.address",
+                                    "tx.value.msg.value.outputs.address",
+                                    "tx.value.msg.value.proposer",
+                                    "tx.value.msg.value.address"
+                                ]
+                            }
+                        },
+                        {
+                            multi_match: {
+                                query: address,
+                                fields:[
+                                    "tx.value.msg.value.address"
+                                ]
+                            }
+                        },
+                        {
+                            bool: {
+                                must: [
+                                    {
+                                        match: {
+                                            "tx.value.msg.value.address": address,
+                                        }
+                                    },
+                                    {
+                                        match: {
+                                            "tx.value.msg.type":"cosmos-sdk/MsgWithdrawValidatorCommission"
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            },
+            sort:[
+                {
+                    height:
+                    {
+                        order: "desc"
+                    }
+                }
+            ]
+        };
+    
+    return data;
 }
 
 module.exports = {

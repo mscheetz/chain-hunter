@@ -33,6 +33,12 @@ export class TransactionComponent implements OnInit {
     this.searchUrl = `${location.origin}/search/${this.blockchain.symbol.toLowerCase()}/t/${this.blockchain.transaction.hash}`;
   }
 
+  saveHover(event, type: string, overlayPanel: OverlayPanel) {
+    this.saveThisMessage = "Save this " + this.blockchain.symbol + " " + type;
+  
+    overlayPanel.toggle(event);
+  }
+
   unSaveHover(event, type: string, overlayPanel: OverlayPanel) {
     this.saveThisMessage = "Un-save this " + this.blockchain.symbol + " " + type;
   

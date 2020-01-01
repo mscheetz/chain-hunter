@@ -5,4 +5,5 @@ export class Asset {
     symbol: string;
     quantity: string;
     hasIcon: boolean;
+    address: string;
 } 

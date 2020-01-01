@@ -13,6 +13,10 @@
        class="fa fa-star-o" 
        style="color: deeppink; cursor: pointer;"></i>
     {{blockchain.symbol}} {{blockchain.symbol === 'ATOM' ? 'Validator' : 'Contract'}} Address: <span class="wrap-long">{{blockchain.contract.address}}</span>
+    <i class="fa fa-clipboard copy-icon" title="Copy this {{blockchain.symbol}} Contract" 
+        [copy-clipboard]="blockchain.contract.address" (copied)="copySuccess($event)"></i>
+    <i class="fa fa-link copy-icon" title="Copy direct search url for this {{blockchain.symbol}} Contract" 
+        [copy-clipboard]="searchUrl" (copied)="linkCopySuccess($event)"></i>
 </h3>
 <p *ngIf="blockchain.contract.contractName">
     Name: {{blockchain.contract.contractName}}

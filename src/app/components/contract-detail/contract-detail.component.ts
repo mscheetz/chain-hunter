@@ -20,6 +20,7 @@ export class ContractDetailComponent implements OnInit {
   @Input() saveId: string;
   saveThisMessage: string;
   loggedIn: boolean;
+  searchUrl: string;
 
   constructor(private apiSvc: ApiService, 
               private messageSvc: MessageService, 
@@ -31,6 +32,7 @@ export class ContractDetailComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.searchUrl = `${location.origin}/search/${this.blockchain.symbol.toLowerCase()}/c/${this.blockchain.contract.address}`;
   }
 
   saveHover(event, type: string, overlayPanel: OverlayPanel) {
@@ -114,5 +116,15 @@ export class ContractDetailComponent implements OnInit {
       this.router.navigate([`/search/${this.blockchain.symbol.toLowerCase()}/${itemType}/${address}`]);
     }
     this.searchSvc.setSearchSpec(this.blockchain.symbol, ResultType.address, address);
+  }
+
+  copySuccess(event) {
+      const message = `This ${this.blockchain.symbol} Contract has been copied to the clipboard!`;
+      this.addToast('notification-toast', Severity.success, 'Copied', message);
+  }
+
+  linkCopySuccess(event) {
+      const message = `Direct search URL for this ${this.blockchain.symbol} Contract has been copied to the clipboard!`;
+      this.addToast('notification-toast', Severity.success, 'Copied', message);
   }
 }

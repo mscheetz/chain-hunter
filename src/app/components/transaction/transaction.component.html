@@ -1,4 +1,7 @@
-<h3 class="word-break">      
+<p-overlayPanel #saveThisTxn>
+    {{saveThisMessage}}
+</p-overlayPanel>
+<h3 class="word-break">
   <i *ngIf="transactionSaved" (mouseover)="unSaveHover($event, 'Transaction', saveThisTxn)" 
       (mouseleave)="unSaveHover($event, 'Transaction', saveThisTxn)"
       (click)="unSaveResult($event, 'transaction')" 

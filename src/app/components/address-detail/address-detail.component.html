@@ -14,9 +14,9 @@
             class="fa fa-star-o" 
             style="color: deeppink; cursor: pointer;"></i>
         {{blockchain.symbol}} Address: <span class="wrap-long">{{blockchain.address.address}} </span>
-        <i class="fa fa-clipboard copy-icon" title="Copy this {{blockchain.symbol}} address" 
+        <i class="fa fa-clipboard copy-icon" title="Copy this {{blockchain.symbol}} Address" 
             [copy-clipboard]="blockchain.address.address" (copied)="copySuccess($event)"></i>
-        <i class="fa fa-link copy-icon" title="Copy direct search url for this {{blockchain.symbol}} address" 
+        <i class="fa fa-link copy-icon" title="Copy direct search url for this {{blockchain.symbol}} Address" 
             [copy-clipboard]="searchUrl" (copied)="linkCopySuccess($event)"></i>
     </h3>
 </div>

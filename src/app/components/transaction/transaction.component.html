@@ -10,9 +10,9 @@
       class="fa fa-star-o" 
       style="color: deeppink; cursor: pointer;"></i>
   {{blockchain.symbol}} Transaction Hash: {{blockchain.transaction.hash}}
-  <i class="fa fa-clipboard copy-icon" title="Copy this {{blockchain.symbol}} transaction" 
+  <i class="fa fa-clipboard copy-icon" title="Copy this {{blockchain.symbol}} Transaction" 
       [copy-clipboard]="blockchain.transaction.hash" (copied)="copySuccess($event)"></i>
-  <i class="fa fa-link copy-icon" title="Copy direct search url for this {{blockchain.symbol}} transaction" 
+  <i class="fa fa-link copy-icon" title="Copy direct search url for this {{blockchain.symbol}} Transaction" 
       [copy-clipboard]="searchUrl" (copied)="linkCopySuccess($event)"></i>
 </h3>
 <transaction-detail

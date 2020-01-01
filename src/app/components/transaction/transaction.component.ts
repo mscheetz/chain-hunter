@@ -18,6 +18,7 @@ export class TransactionComponent implements OnInit {
   @Input() saveId: string;
   saveThisMessage: string;
   loggedIn: boolean = false;
+  searchUrl: string;
 
   constructor(private apiSvc: ApiService, 
               private messageSvc: MessageService, 
@@ -29,6 +30,7 @@ export class TransactionComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.searchUrl = `${location.origin}/search/${this.blockchain.symbol.toLowerCase()}/t/${this.blockchain.transaction.hash}`;
   }
 
   unSaveHover(event, type: string, overlayPanel: OverlayPanel) {
@@ -107,5 +109,15 @@ export class TransactionComponent implements OnInit {
               detail: message,
               life: life
           });
+  }
+
+  copySuccess(event) {
+      const message = `This ${this.blockchain.symbol} Transaction Hash has been copied to the clipboard!`;
+      this.addToast('notification-toast', Severity.success, 'Copied', message);
+  }
+
+  linkCopySuccess(event) {
+      const message = `Direct search URL for this ${this.blockchain.symbol} Transaction has been copied to the clipboard!`;
+      this.addToast('notification-toast', Severity.success, 'Copied', message);
   }
 }

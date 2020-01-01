@@ -23,6 +23,7 @@ export class BlockComponent implements OnInit {
   loggedIn: boolean = false;
   @Input() saveId: string;
   @Input() blockSaved: boolean = false;
+  searchUrl: string;
 
   constructor(private apiSvc: ApiService, 
               private messageSvc: MessageService, 
@@ -34,6 +35,7 @@ export class BlockComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.searchUrl = `${location.origin}/search/${this.blockchain.symbol.toLowerCase()}/b/${this.blockchain.block.blockNumber}`;
   }
 
   saveHover(event, type: string, overlayPanel: OverlayPanel) {
@@ -165,5 +167,10 @@ export class BlockComponent implements OnInit {
         }
       });
     this.blockchain.block.volume = volume;
+  }
+
+  linkCopySuccess(event) {
+      const message = `Direct search URL for this ${this.blockchain.symbol} Block has been copied to the clipboard!`;
+      this.addToast('notification-toast', Severity.success, 'Copied', message);
   }
 }

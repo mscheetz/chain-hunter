@@ -22,6 +22,8 @@
 <div class="m-bottom-1">Date: {{blockchain.block.date}}</div>
 <div class="m-bottom-1" *ngIf="blockchain.block.size">Size: {{blockchain.block.size}}</div>
 <div class="m-bottom-1" *ngIf="blockchain.block.validator">Miner/Validator: {{blockchain.block.validator}}</div>
+<div class="m-bottom-1" *ngIf="blockchain.block.confirmations > 0">Confirmations: {{blockchain.block.confirmations}}</div>
+<div class="m-bottom-1" *ngIf="blockchain.block.confirmations === -1">Confirmations: Pending</div>
 <div class="m-bottom-1" *ngIf="blockchain.block.transactionCount > -1">Transaction Count: {{blockchain.block.transactionCount}}</div>
 <div class="m-bottom-1" *ngIf="blockchain.block.volume">Block Total Volume: {{blockchain.block.volume | number}} {{blockchain.symbol}}</div>
 <p-accordion 

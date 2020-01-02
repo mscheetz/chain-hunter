@@ -210,6 +210,7 @@ const buildBlock = function(datas) {
         blockNumber: datas.height,
         validator: validator,
         transactionCount: datas.tx_count,
+        confirmations: datas.confirmations,
         date: helperSvc.unixToUTC(datas.timestamp),
         size: `${helperSvc.commaBigNumber(datas.size.toString())} bytes`,
         hash: datas.hash,
@@ -513,7 +514,6 @@ const buildTransactionTx = async(txn) =>{
                             validAddress = true;
                         }
                         if(!validAddress) {
-                            //addr = `Unknown ${input.prev_type} {${i}}`;
                             addr = await getAddressFromKey(addr);
                             i++;
                         }
@@ -549,13 +549,16 @@ const buildTransactionTx = async(txn) =>{
                     }
                     if(!validAddress) {                        
                         addr = await getAddressFromKey(addr);
-                        //addr = `Unknown ${output.type} {${i}}`;
                         i++;
                     }
                     validatedAddresses.push(addr);
                 }
             } else {
-                validatedAddresses.push(output.type);
+                if(output.type === "nulldata" && output.script_pub_key.asm.indexOf("OP_RETURN") >= 0) {
+                    validatedAddresses.push("OP_RETURN");
+                } else {
+                    validatedAddresses.push(output.type);
+                }
             }
             const quantity = output.value;
             const to = helperSvc.getSimpleIOAddresses(symbol, validatedAddresses, quantity);
@@ -565,13 +568,14 @@ const buildTransactionTx = async(txn) =>{
 
     const fromDatas = helperSvc.cleanIO(froms);
     const toDatas = helperSvc.cleanIO(tos);
-        
+    const time = txn.time === null ? txn.first_seen : txn.time;
+    
     const transaction = {
         type: type,
         hash: txn.hash,
         block: txn.block,
-        confirmations: txn.confirmations,
-        date: helperSvc.unixToUTC(txn.time),
+        confirmations: txn.confirmations === 0 ? -1 : txn.confirmations,
+        date: helperSvc.unixToUTC(time),
         froms: fromDatas,
         tos: toDatas
     };

@@ -110,6 +110,7 @@ const getBlock = async(blockNumber) => {
         let block = {
             blockNumber: blockNumber,
             transactionCount: datas.tx.length,
+            confirmations: datas.confirmations,
             date: helperSvc.unixToUTC(datas.time),
             size: `${helperSvc.commaBigNumber(datas.size.toString())} bytes`,
             hash: hash,
@@ -144,6 +145,34 @@ const getBlock = async(blockNumber) => {
         return block;
     } catch (err) {
         return null;
+    }
+}
+
+const getBlocks = async() => {
+    const latestBlock = await getLatestBlock();
+
+    let blocks = [];
+    for(let i = 0; i < 10; i++) {
+        const blockNumber = latestBlock - i;
+
+        const block = await getBlock(blockNumber);
+
+        blocks.push(block);
+    }
+
+    return blocks;
+}
+
+const getLatestBlock = async() => {
+    let endpoint = "/getblockcount";
+    let url = base + endpoint;
+
+    try{
+        const response = await axios.get(url);
+
+        return response.data;
+    } catch(err) {
+        return 0;
     }
 }
 
@@ -389,5 +418,6 @@ module.exports = {
     getBlockchain,
     getAddress,
     getTransactions,
-    getTransaction
+    getTransaction,
+    getBlocks
 }

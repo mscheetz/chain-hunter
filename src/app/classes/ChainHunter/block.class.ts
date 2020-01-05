@@ -12,4 +12,5 @@ export class Block {
     validator: string;
     volume: number;
     hasTransactions: boolean = true;
+    confirmations: number;
 }

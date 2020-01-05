@@ -6,6 +6,8 @@ const ethplorerApiBase = "https://ethplorer.io/service/service.php?data=";
 const etherscanBase = "https://api.etherscan.io/api"
 const enums = require('../../classes/enums');
 const config = require('../../config');
+const etherscanKey = config.ETHERSCAN_API_KEY;
+const ethplorerKey = config.ETHPLORER_API_KEY;
 const delay = time => new Promise(res=>setTimeout(res,time));
 
 const getEmptyBlockchain = async() => {
@@ -24,27 +26,25 @@ const getEmptyBlockchain = async() => {
 const getBlockchain = async(chain, toFind, type) => {
     //const chain = await getEmptyBlockchain(blockchain);
 
-    //if(toFind.substr(0,2) === "0x") {
-        chain.address = null;
-        chain.block = null;
-        chain.transaction = null;
-        chain.contract = null;
+    chain.address = null;
+    chain.block = null;
+    chain.transaction = null;
+    chain.contract = null;
 
-        const searchType = type === enums.searchType.nothing 
-        ? helperSvc.searchType(chain.symbol.toLowerCase(), toFind)
-        : type;
-        
-        if(searchType & enums.searchType.nothing) {
-        } else if (searchType & enums.searchType.block) {
-            chain.block = await getBlock(toFind);
-        } else {
-            chain = await ethCheck(chain, toFind);
-        }
+    const searchType = type === enums.searchType.nothing 
+    ? helperSvc.searchType(chain.symbol.toLowerCase(), toFind)
+    : type;
+    
+    if(searchType & enums.searchType.nothing) {
+    } else if (searchType & enums.searchType.block) {
+        chain.block = await getBlock(toFind);
+    } else {
+        chain = await ethCheck(chain, toFind);
+    }
 
-        if(chain.address || chain.block || chain.transaction || chain.contract) {
-            chain.icon = "color/"+ chain.symbol.toLowerCase()  +".png";
-        }
-    //}
+    if(chain.address || chain.block || chain.transaction || chain.contract) {
+        chain.icon = "color/"+ chain.symbol.toLowerCase()  +".png";
+    }
     
     return chain;
 }
@@ -65,8 +65,9 @@ const ethCheck = async(chain, addressToFind) => {
                 let address = {
                     address: addressToFind,
                     quantity: quantity,
-                    hasTransactions: true
-                }
+                    hasTransactions: true,
+                    transactionCount: datas.transfers.length
+                };
                 
                 address.tokens = createTokens(datas);
                 address.transactions = await createTransactions(datas, addressToFind);
@@ -112,6 +113,7 @@ const createTokens = function(datas) {
     
     for(const [key, value] of Object.entries(datas.tokens)){
         let token = {
+            address: value.address,
             name: value.name,
             symbol: value.symbol,
             hasIcon: false,
@@ -283,7 +285,7 @@ const getLatestBlock = async(hash) => {
     }
 }
 
-const getBlock = async(blockNumber) => {
+const getBlock = async(blockNumber, lastestBlock = 0) => {
     const blockHex = helperSvc.numberToHex(blockNumber);
     
     let endpoint = `?module=proxy&action=eth_getBlockByNumber&tag=${blockHex}&boolean=true&apikey=${config.ETHERSCAN_API_KEY}`;
@@ -311,7 +313,7 @@ const getBlock = async(blockNumber) => {
             let transactions = [];
             if(datas.transactions.length > 0) {
                 let values = [];
-                const lastestBlock = await getLatestBlock();
+                lastestBlock = lastestBlock === 0 ? await getLatestBlock() : lastestBlock;
                 datas.transactions.forEach(tx => {
                     const transaction = buildTransaction(tx, ts, blockNumber, lastestBlock);
 
@@ -341,6 +343,19 @@ const getBlock = async(blockNumber) => {
     } catch (error) {
         return null;
     }
+}
+
+const getBlocks = async(blockNumber) => {
+    const lastestBlock = await getLatestBlock();
+    let blocks = [];    
+    for (let i = 0; i < 5; i++) {
+        let blockNumber = lastestBlock - i;
+        let block = await getBlock(blockNumber);
+
+        blocks.push(block);
+    }
+
+    return blocks;
 }
 
 const buildTransaction = function(tx, ts, block, lastestBlock) {
@@ -375,5 +390,6 @@ const buildTransaction = function(tx, ts, block, lastestBlock) {
 module.exports = {
     getEmptyBlockchain,
     getBlockchain,
-    ethCheck
+    ethCheck,
+    getBlocks
 }

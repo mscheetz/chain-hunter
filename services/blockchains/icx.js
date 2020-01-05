@@ -66,8 +66,10 @@ const getAddress = async(addressToFind) => {
             const address = {
                 address: datas.address,
                 quantity: total,
+                transactionCount: datas.txCount,
                 tokens: await tokenConvert(datas.tokenList),
-                hasTransactions: true
+                hasTransactions: true,
+                transactionCount: datas.txCount
             };
 
             return address;
@@ -87,24 +89,7 @@ const getBlock = async(blockNumber) => {
         if(typeof response.data !== 'undefined') {
             const datas = response.data.data;
 
-            let ts = datas.createDate;
-            let yr = ts.substr(0,4);
-            let mo = ts.substr(5,2);
-            let day = ts.substr(8,2);
-            let time = ts.substr(11,8);
-            mo = helperSvc.getMonth(mo);
-            ts = `${day}-${mo}-${yr} ${time}`;
-
-            let block = {
-                blockNumber: blockNumber,
-                validator: datas.peerId,
-                transactionCount: datas.txCount,
-                date: ts,
-                size: `${helperSvc.commaBigNumber(datas.blockSize.toString())} bytes`,
-                hash: datas.hash,
-                hasTransactions: true,
-                volume: helperSvc.commaBigNumber(datas.amount)
-            };
+            const block = buildBlock(datas);
 
             return block;
         } else {
@@ -113,6 +98,47 @@ const getBlock = async(blockNumber) => {
     } catch (error) {
         return null;
     }
+}
+
+const getBlocks = async() => {    
+    let endpoint = `/block/list?page=1&count=25`;
+    let url = base + endpoint;
+
+    try {
+        const response = await axios.get(url);
+
+        let blocks = [];
+        if(typeof response.data !== 'undefined') {
+            const datas = response.data.data;
+
+            for(const [key, value] of Object.entries(datas)){
+                const block = buildBlock(value);
+
+                blocks.push(block);
+            }
+        }
+        return blocks;
+    } catch (error) {
+        return [];
+    }
+}
+
+const buildBlock = function(data) {
+    let size = (typeof data.blockSize !== 'undefined') 
+        ? `${helperSvc.commaBigNumber(data.blockSize.toString())} bytes` 
+        : null;
+    let block = {
+        blockNumber: data.height,
+        validator: data.peerId,
+        transactionCount: data.txCount,
+        date: formatDate(data.createDate),
+        size: size,
+        hash: data.hash,
+        hasTransactions: true,
+        volume: helperSvc.commaBigNumber(data.amount)
+    };
+
+    return block;
 }
 
 const getBlockTransactions = async(blockNumber) => {
@@ -409,13 +435,26 @@ const buildTransactionII = function(txn) {
         hash: txn.txHash,
         block: txn.height,
         confirmations: txn.confirmation,
-        date: txn.createDate,
+        date: formatDate(txn.createDate),
         froms: fromData,
         tos: toData,
         success: txn.status === "Success" ? "success" : "fail"
     };
 
     return transaction;
+}
+
+const formatDate = function(timestamp) {
+    let ts = timestamp;
+    let yr = ts.substr(0,4);
+    let mo = ts.substr(5,2);
+    let day = ts.substr(8,2);
+    let time = ts.substr(11,8);
+    mo = helperSvc.getMonth(mo);
+
+    ts = `${day}-${mo}-${yr} ${time}`;
+
+    return ts;
 }
 
 module.exports = {
@@ -426,5 +465,6 @@ module.exports = {
     getTransaction,
     getAddressTransactions,
     getTokenTransactions,
-    getBlockTransactions
+    getBlockTransactions,
+    getBlocks
 }

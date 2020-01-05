@@ -57,9 +57,12 @@ const getAddress = async(addressToFind) => {
             const datas = response.data;
             const quantity = parseInt(datas.balance)/1000000000;
             const balance = helperSvc.commaBigNumber(quantity.toString());
+            let txnCount = +datas.incoming_cnt + +datas.outgoing_cnt;
+
             let address = {
                 address: datas.address,
                 quantity: balance,
+                transactionCount: txnCount,
                 hasTransactions: true
             };
 
@@ -109,6 +112,7 @@ const getBlock = async(blockNumber) => {
 
         if(response.data.success) {
             const datas = response.data.block;
+            const latestBlock = await getLatestBlock();
             
             let amount = +datas.totalAmount/100000000;
             
@@ -117,6 +121,7 @@ const getBlock = async(blockNumber) => {
                 validator: datas.generatorId,
                 transactionCount: datas.numberOfTransactions,
                 date: getTime(datas.timestamp),
+                confirmations: latestBlock - blockNumber,
                 //size: `${helperSvc.commaBigNumber(datas.blockSize.toString())} bytes`,
                 hash: blockId,
                 hasTransactions: true,
@@ -136,6 +141,68 @@ const getBlock = async(blockNumber) => {
         }
     } catch(error) {
         return null;
+    }
+}
+
+const getBlocks = async() => {
+    let endpoint = "/getLastBlocks?n=0";
+    let url = base + endpoint;
+    
+    try{
+        const response = await axios.get(url);
+
+        if(response.data.success) {
+            const datas = response.data.blocks;
+            const latestBlock = datas[0].height;
+            
+            for(let data of datas) {
+                let amount = +data.totalAmount/100000000;
+            
+                let block = {
+                    blockNumber: data.height,
+                    validator: datas.generator,
+                    transactionCount: datas.transactionsCount,
+                    date: getTime(datas.timestamp),
+                    confirmations: latestBlock - data.height,
+                    hash: data.id,
+                    hasTransactions: true,
+                    volume: amount
+                };
+
+                blocks.push(block);
+            }
+
+            let transactions = [];
+            if(block.transactionCount > 0) {
+                transactions = await getBlockTransactions(blockId);
+            }
+
+            block.transactions = transactions;
+
+            return block;
+        } else {
+            return null;
+        }
+    } catch(error) {
+        return null;
+    }
+}
+
+const getLatestBlock = async() => {
+    let endpoint = "/getLastBlocks?n=0";
+    let url = base + endpoint;
+    
+    try{
+        const response = await axios.get(url);
+        let block = 0;
+
+        if(response.data.success) {
+            block = response.data.blocks[0].height;
+        }
+
+        return block;
+    } catch(err) {
+        return 0;
     }
 }
 
@@ -223,9 +290,11 @@ const buildTransaction = function(txn) {
 
     const fromData = helperSvc.cleanIO(froms);
     const toData = helperSvc.cleanIO(tos);
-
+    
     let transaction = {
         type: enums.transactionType.TRANSFER,
+        block: txn.height,
+        confirmations: txn.confirmations,
         hash: txn.id,
         date: getTime(txn.timestamp),
         froms: fromData,
@@ -244,5 +313,6 @@ module.exports = {
     getBlockchain,
     getAddress,
     getTransactions,
-    getTransaction
+    getTransaction,
+    getBlocks
 }

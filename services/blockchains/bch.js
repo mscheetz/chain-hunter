@@ -66,36 +66,6 @@ const addressConvert = async(address) => {
     }
 }
 
-const getBlock = async(blockNumber) => {
-    let endpoint = `/block/${blockNumber}`;
-    let url = base + endpoint;
-
-    try{
-        const response = await axios.get(url);
-
-        if(typeof response.data.data !== 'undefined' && response.data.data !== null && response.data.err_no === 0) {
-            const datas = response.data.data;
-            
-            let block = {
-                blockNumber: blockNumber,
-                confirmations: datas.confirmations,
-                date: helperSvc.unixToUTC(datas.timestamp),
-                hash: datas.hash,
-                hasTransactions: true,
-                size: `${helperSvc.commaBigNumber(datas.size.toString())} bytes`,
-                transactionCount: datas.tx_count,
-                //validator: datas.Generator,
-            };
-
-            return block;
-        } else {
-            return null;
-        }
-    } catch(error) {
-        return null;
-    }
-}
-
 const getAddress = async(addressToFind) => {
     let endpoint = "/address/" + addressToFind;
     let url = base + endpoint;
@@ -110,6 +80,7 @@ const getAddress = async(addressToFind) => {
             const address = {
                 address: datas.address,
                 quantity: total,
+                transactionCount: datas.tx_count,
                 hasTransactions: true
             };
 
@@ -120,6 +91,72 @@ const getAddress = async(addressToFind) => {
     } catch(error) {
         return null;
     }
+}
+
+const getBlock = async(blockNumber) => {
+    let endpoint = `/block/${blockNumber}`;
+    let url = base + endpoint;
+
+    try{
+        const response = await axios.get(url);
+
+        if(typeof response.data.data !== 'undefined' && response.data.data !== null && response.data.err_no === 0) {
+            const datas = response.data.data;
+            
+            let block = buildBlock(datas);
+
+            return block;
+        } else {
+            return null;
+        }
+    } catch(error) {
+        return null;
+    }
+}
+
+const getBlocks = async() => {
+    let today = new Date();
+    let blockDate = `${today.getFullYear()}${(today.getMonth() + 1)}${today.getDate()}`;
+    let endpoint = `/v3/block/date/${blockDate}`;
+    let url = baseBTC + endpoint;
+
+    try{
+        const response = await axios.get(url);
+
+        let blocks = [];
+        if(response.data !== null && response.data.err_no === 0 && response.data.data.length > 0) {
+            const datas = response.data.data;
+            
+            for(let data of datas) {
+                const block = buildBlock(data);
+
+                blocks.push(block);
+            }
+        }
+
+        return blocks;
+    } catch(error) {
+        return null;
+    }
+}
+
+const buildBlock = function(datas) {
+    let validator = (typeof datas.extras !== 'undefined' && typeof datas.extras.pool_name !== 'undefined')
+        ? datas.extras.pool_name
+        : null;
+
+    let block = {
+        blockNumber: datas.height,
+        confirmations: datas.confirmations,
+        date: helperSvc.unixToUTC(datas.timestamp),
+        hash: datas.hash,
+        hasTransactions: true,
+        size: `${helperSvc.commaBigNumber(datas.size.toString())} bytes`,
+        transactionCount: datas.tx_count,
+        validator: validator
+    };
+
+    return block;
 }
 
 const getTransactions = async(address) => {
@@ -209,7 +246,7 @@ const buildTransaction = function(txn) {
         type: type,
         hash: txn.hash,
         block: txn.block_height,
-        confirmations: txn.confirmations,
+        confirmations: txn.confirmations === 0 ? -1 : txn.confirmations,
         date: helperSvc.unixToUTC(txn.created_at),
         froms: fromDatas,
         tos: toDatas
@@ -223,5 +260,6 @@ module.exports = {
     getBlockchain,
     getAddress,
     getTransactions,
-    getTransaction
+    getTransaction,
+    getBlocks
 }

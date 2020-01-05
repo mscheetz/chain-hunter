@@ -17,99 +17,33 @@ const getEmptyBlockchain = async() => {
 
 const getBlockchain = async(chain, toFind, type) => {
     //const chain = await getEmptyBlockchain(blockchain);
-    let block = null;
     let address = null;
+    let block = null;
     let transaction = null;
 
     const searchType = type === enums.searchType.nothing 
             ? helperSvc.searchType(chain.symbol.toLowerCase(), toFind)
             : type;
             
-    if(searchType & enums.searchType.block) {
-        block = await getBlock(toFind);
-    }
     if(searchType & enums.searchType.address) {
         address = await getAddress(toFind);
+    }
+    if(searchType & enums.searchType.block) {
+        block = await getBlock(toFind);
     }
     if(searchType & enums.searchType.transaction) {
         transaction = await getTransaction(toFind);
     }
     
-    chain.block = block;
     chain.address = address;
+    chain.block = block;
     chain.transaction = transaction;
     
-    if(chain.block || chain.address || chain.transaction) {
+    if(chain.address || chain.block || chain.transaction) {
         chain.icon = "color/"+ chain.symbol.toLowerCase()  +".png";
     }
 
     return chain;
-}
-
-const getBlock = async(blockNumber) => {
-    let endpoint = `/middleware/generations/${blockNumber}/${blockNumber}`;
-    let url = base + endpoint;
-
-    try{
-        const response = await axios.get(url);
-        if(typeof response.data !== "undefined" && response.data !== null && response.data.data !== null && response.data.total_micro_blocks > 0) {
-            const datas = response.data.data[blockNumber.toString()];
-            const txnCount = response.data.total_transactions;
-            let ts = datas.time.toString().substr(0,10);
-
-            let block = {
-                blockNumber: blockNumber,
-                validator: datas.miner,
-                transactionCount: txnCount,
-                date: helperSvc.unixToUTC(ts),
-                hash: datas.hash,
-                hasTransactions: true
-            };
-
-            if(datas.micro_blocks) {
-                const latestblock = await getLatestBlock();
-                let values = [];
-                let i = 0;
-                let transactions = [];
-
-                for(const [key, value] of Object.entries(datas.micro_blocks)) {
-                    for(const [txnKey, txnValue] of Object.entries(value.transactions)) {
-                        if(typeof txnValue.tx.amount !== 'undefined') {
-                            let value = 0;
-                            if(txnValue.tx.amount.toString().indexOf('e')>=0){
-                                value = helperSvc.exponentialToNumber(txnValue.tx.amount);
-                            } else {
-                                value = txnValue.tx.amount;
-                            }
-                            values.push(helperSvc.bigNumberToDecimal(value.toString(), 18));
-                        }
-                        const transaction = buildTransaction(txnValue, "", latestblock, ts, enums.searchType.block);
-                        
-                        transactions.push(transaction);
-                        i++;
-                    }
-                }
-                let summed = 0;
-                if(values.length > 0) {
-                    summed = values.reduce((a, b) => a + b, 0);
-                    if(summed.toString().indexOf('e')>=0){
-                        summed = helperSvc.exponentialToNumber(summed);
-                        summed = helperSvc.bigNumberToDecimal(summed.toString(), 18);
-                    }
-                    if(summed.substr(0, 3) === '00.'){
-                        summed = summed.replace('00.', '0.');
-                    }
-                }
-                block.volume = summed;
-                block.transactions = transactions;
-            }
-            return block;
-        } else {
-            return null;
-        }
-    } catch(error) {
-        return null;
-    }
 }
 
 const getAddress = async(addressToFind) => {
@@ -131,6 +65,111 @@ const getAddress = async(addressToFind) => {
     } catch(error) {
         return null;
     }
+}
+
+const getBlock = async(blockNumber) => {
+    let endpoint = `/middleware/generations/${blockNumber}/${blockNumber}`;
+    let url = base + endpoint;
+
+    try{
+        const response = await axios.get(url);
+        if(typeof response.data !== "undefined" && response.data !== null && response.data.data !== null && response.data.total_micro_blocks > 0) {
+            const datas = response.data.data[blockNumber.toString()];
+
+            const block = await buildBlock(datas, blockNumber);
+
+            return block;
+        } else {
+            return null;
+        }
+    } catch(error) {
+        return null;
+    }
+}
+
+const getBlocks = async() => {
+    const latestBlock = await getLatestBlock();
+    if(latestBlock === 0) {
+        return [];
+    }
+    const start = latestBlock - 20;
+    let endpoint = `/middleware/generations/${start}/${latestBlock}`;
+    let url = base + endpoint;
+
+    try{
+        const response = await axios.get(url);
+        let blocks = [];
+        if(typeof response.data !== "undefined" && response.data !== null && response.data.data !== null && response.data.total_micro_blocks > 0) {
+            const datas = response.data.data;
+
+            for(let [key, value] of Object.entries(datas)){
+                const block = await buildBlock(datas[key.toString()], key, latestBlock);
+
+                blocks.push(block);
+            }
+
+        }
+        return blocks;
+    } catch(error) {
+        return [];
+    }
+}
+
+const buildBlock = async(datas, blockNumber, latestBlock = 0) => {
+    let txnCount = 0;
+    let ts = datas.time.toString().substr(0,10);
+    let confirmations = latestBlock > 0 ? latestBlock - blockNumber : -1;
+
+    let block = {
+        blockNumber: blockNumber,
+        validator: datas.miner,
+        confirmations: confirmations,
+        date: helperSvc.unixToUTC(ts),
+        hash: datas.hash,
+        hasTransactions: true
+    };
+
+    if(datas.micro_blocks) {
+        const latestblock = await getLatestBlock();
+        let values = [];
+        let i = 0;
+        let transactions = [];
+
+        for(const [key, value] of Object.entries(datas.micro_blocks)) {
+            for(const [txnKey, txnValue] of Object.entries(value.transactions)) {
+                if(typeof txnValue.tx.amount !== 'undefined') {
+                    let value = 0;
+                    if(txnValue.tx.amount.toString().indexOf('e')>=0){
+                        value = helperSvc.exponentialToNumber(txnValue.tx.amount);
+                    } else {
+                        value = txnValue.tx.amount;
+                    }
+                    values.push(helperSvc.bigNumberToDecimal(value.toString(), 18));
+                }
+                const transaction = buildTransaction(txnValue, "", latestblock, ts, enums.searchType.block);
+                
+                transactions.push(transaction);
+                i++;
+            }
+        }
+        let summed = 0;
+        if(values.length > 0) {
+            summed = values.reduce((a, b) => a + b, 0);
+            if(summed.toString().indexOf('e')>=0){
+                summed = helperSvc.exponentialToNumber(summed);
+                summed = helperSvc.bigNumberToDecimal(summed.toString(), 18);
+            }
+            if(summed.substr(0, 3) === '00.'){
+                summed = summed.replace('00.', '0.');
+            }
+        }
+        block.volume = summed;
+        block.transactions = transactions;
+        txnCount = transactions.length;
+    }
+    block.transactionCount = txnCount;
+
+    return block;
 }
 
 const getLatestBlock = async() => {
@@ -269,5 +308,6 @@ module.exports = {
     getBlockchain,
     getAddress,
     getTransactions,
-    getTransaction
+    getTransaction,
+    getBlocks
 }

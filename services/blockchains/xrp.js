@@ -79,18 +79,61 @@ const getBlock = async(blockNumber) => {
     try{
         const response = await axios.get(url, { timeout: 5000 });
         const datas = response.data;
+        const latestBlock = await getLatestBlock();
 
-        let block = {
-            blockNumber: blockNumber,
-            transactionCount: datas.tx_count,
-            date: helperSvc.unixToUTC(datas.close_time),
-            hash: datas.ledger_hash,
-            hasTransactions: true
-        };
+        let block = buildBlock(datas, latestBlock);
 
         return block;
     } catch (err) {
         return null;
+    }
+}
+
+const getBlocks = async() => {
+    let endpoint = "/v1/ledger/" + blockNumber;
+    let url = base + endpoint;
+
+    try{
+        const response = await axios.get(url, { timeout: 5000 });
+        const datas = response.data.ledgers;
+        const latestBlock = datas[0].ledger_index;
+        let blocks = [];
+
+        for(let data of datas) {
+            let block = buildBlock(datas, latestBlock);
+
+            blocks.push(block);
+        }
+
+        return blocks;
+    } catch (err) {
+        return [];
+    }
+}
+
+const buildBlock = function(data, latestBlock) {    
+    let block = {
+        blockNumber: data.ledger_index,
+        transactionCount: data.tx_count,
+        confirmations: latestBlock - data.ledger_index,
+        date: helperSvc.unixToUTC(data.close_time),
+        hash: data.ledger_hash,
+        hasTransactions: true
+    };
+
+    return block;
+}
+
+const getLatestBlock = async() => {
+    let endpoint = "/v1/ledgers";
+    let url = base + endpoint;
+
+    try{
+        const response = await axios.get(url, { timeout: 5000 });
+
+        return response.data.ledgers[0].ledger_index;
+    } catch (err) {
+        return 0;
     }
 }
 
@@ -188,14 +231,8 @@ const buildTransaction = function(txn) {
     const toData = helperSvc.cleanIO(tos);
 
     let ts = typeof txn.date !== 'undefined' ? txn.date : txn.executed_time;
-    let yr = ts.substr(0,4);
-    let mo = ts.substr(5,2);
-    let day = ts.substr(8,2);
-    let time = ts.substr(11,8);
-    mo = helperSvc.getMonth(mo);
-    
-    ts = `${day}-${mo}-${yr} ${time}`;
-    
+    ts = formatDate(ts);
+
     let transaction = {
         type: type,
         hash: hash,
@@ -262,15 +299,8 @@ const buildTransactionII = function(txn) {
     const fromData = helperSvc.cleanIO(froms);
     const toData = helperSvc.cleanIO(tos);
     
-    let ts = txn.date;
-    let yr = ts.substr(0,4);
-    let mo = ts.substr(5,2);
-    let day = ts.substr(8,2);
-    let time = ts.substr(11,8);
-    mo = helperSvc.getMonth(mo);
+    let ts = formatDate(txn.date);
     
-    ts = `${day}-${mo}-${yr} ${time}`;
-
     let transaction = {
         type: type,
         hash: txn.hash,
@@ -283,11 +313,25 @@ const buildTransactionII = function(txn) {
     return transaction;
 }
 
+const formatDate = function(timestamp) {    
+    let ts = timestamp;
+    let yr = ts.substr(0,4);
+    let mo = ts.substr(5,2);
+    let day = ts.substr(8,2);
+    let time = ts.substr(11,8);
+    mo = helperSvc.getMonth(mo);
+    
+    ts = `${day}-${mo}-${yr} ${time}`;
+
+    return ts;
+}
+
 module.exports = {
     getEmptyBlockchain,
     getBlockchain,
     getAddress,
     getBlockTransactions,
     getTransactions,
-    getTransaction
+    getTransaction,
+    getBlocks
 }

@@ -85,16 +85,9 @@ const getBlock = async(blockNumber) => {
         const response = await axios.get(url);
         if(response.data !== null) {
             const datas = response.data;
+            const latestBlock = await getLatestBlock();
 
-            let block = {
-                blockNumber: blockNumber,
-                validator: datas.signer,
-                transactionCount: datas.transactions.length,
-                date: helperSvc.unixToUTC(datas.timestamp),
-                size: `${helperSvc.commaBigNumber(datas.size.toString())} bytes`,
-                hash: datas.id,
-                hasTransactions: true
-            };
+            const block = buildBlock(datas, latestBlock);
 
             return block;
         } else {
@@ -103,6 +96,42 @@ const getBlock = async(blockNumber) => {
     } catch(error) {
         return null;
     }
+}
+
+const getBlocks = async() => {
+    let endpoint = "/blocks/best";
+    let url = base + endpoint;
+    
+    try{
+        const response = await axios.get(url);
+        let blocks = [];
+        if(response.data !== null) {
+            const datas = response.data;
+            const latestBlock = datas.number;
+
+            const block = buildBlock(datas, latestBlock);
+            blocks.push(block);
+
+        }
+        return blocks;
+    } catch(error) {
+        return [];
+    }
+}
+
+const buildBlock = function(data, latestBlock) {    
+    let block = {
+        blockNumber: data.number,
+        validator: data.signer,
+        transactionCount: data.transactions.length,
+        confirmations: latestBlock - data.number,
+        date: helperSvc.unixToUTC(data.timestamp),
+        size: `${helperSvc.commaBigNumber(data.size.toString())} bytes`,
+        hash: data.id,
+        hasTransactions: true
+    };
+
+    return block;
 }
 
 const getBlockTransactions = async(blockNumber) => {
@@ -527,5 +556,6 @@ module.exports = {
     getTokens,
     getBlockTransactions,
     getTransactions,
-    getTransaction
+    getTransaction,
+    getBlocks
 }

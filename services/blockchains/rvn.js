@@ -53,13 +53,15 @@ const getAddress = async(addressToFind) => {
 
     try{
         const response = await axios.get(url);
-        const quantity = response.data.balance;
-        const total = helperSvc.commaBigNumber(quantity.toString());
-
         if(response.data) {
+            const datas = response.data;
+            const quantity = datas.balance;
+            const total = helperSvc.commaBigNumber(quantity.toString());
+
             const address = {
-                address: response.data.addrStr,
+                address: datas.addrStr,
                 quantity: total,
+                transactionCount: datas.txApperances,
                 hasTransactions: true
             };
 
@@ -102,20 +104,48 @@ const getBlock = async(blockNumber) => {
         const response = await axios.get(url);
         const datas = response.data;
 
-        let block = {
-            blockNumber: blockNumber,
-            validator: datas.minedBy,
-            transactionCount: datas.tx.length,
-            date: helperSvc.unixToUTC(datas.time),
-            size: `${helperSvc.commaBigNumber(datas.size.toString())} bytes`,
-            hash: hash,
-            hasTransactions: true
-        };
+        const block = buildBlock(datas);
 
         return block;
     } catch(error) {
         return null;
     }
+}
+
+const getBlocks = async() => {
+    let endpoint = "/blocks";
+    let url = base + endpoint;
+
+    try{
+        const response = await axios.get(url);
+        const datas = response.data;
+
+        let blocks = [];
+        for(let data of datas) {
+            const block = buildBlock(data);
+
+            blocks.push(block);
+        }
+
+        return blocks;
+    } catch(error) {
+        return [];
+    }
+}
+
+const buildBlock = function(data) {    
+    let block = {
+        blockNumber: data.height,
+        validator: datas.minedBy,
+        transactionCount: datas.tx.length,
+        confirmations: datas.confirmations,
+        date: helperSvc.unixToUTC(datas.time),
+        size: `${helperSvc.commaBigNumber(datas.size.toString())} bytes`,
+        hash: data.hash,
+        hasTransactions: true
+    };
+
+    return block;
 }
 
 const getBlockTransactions = async(blockNumber) => {
@@ -222,7 +252,7 @@ const buildTransaction = function(txn) {
             type: type,
             hash: txn.txid,
             block: txn.blockheight,
-            confirmations: txn.confirmations,
+            confirmations: txn.confirmations === 0 ? -1 : txn.confirmations,
             date: helperSvc.unixToUTC(txn.blocktime),
             froms: fromData,
             tos: toData
@@ -239,5 +269,6 @@ module.exports = {
     getAddress,
     getBlockTransactions,
     getTransactions,
-    getTransaction
+    getTransaction,
+    getBlocks
 }

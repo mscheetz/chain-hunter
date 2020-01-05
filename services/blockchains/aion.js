@@ -18,20 +18,20 @@ const getEmptyBlockchain = async() => {
 const getBlockchain = async(chain, toFind, type) => {
     //const chain = await getEmptyBlockchain(blockchain);
 
-    let block = null;
     let address = null;
-    let transaction = null;
+    let block = null;
     let contract = null;
+    let transaction = null;
     
     const searchType = type === enums.searchType.nothing 
             ? helperSvc.searchType(chain.symbol.toLowerCase(), toFind)
             : type;
 
-    if(searchType & enums.searchType.block) {
-        block = await getBlock(toFind);
-    }
     if(searchType & enums.searchType.address) {
         address = await getAddress(toFind);
+    }
+    if(searchType & enums.searchType.block) {
+        block = await getBlock(toFind);
     }
     if((searchType & enums.searchType.transaction) && address === null) {
         transaction = await getTransaction(toFind);
@@ -39,46 +39,16 @@ const getBlockchain = async(chain, toFind, type) => {
     if((searchType & enums.searchType.contract) && transaction === null) {
         contract = await getContract(toFind);
     }
-    chain.block = block
     chain.address = address;
-    chain.transaction = transaction;
+    chain.block = block
     chain.contract = contract;
+    chain.transaction = transaction;
     
-    if(chain.block || chain.address || chain.transaction || chain.contract) {
+    if(chain.address || chain.block || chain.contract || chain.transaction) {
         chain.icon = "color/"+ chain.symbol.toLowerCase()  +".png";
     }
 
     return chain;
-}
-
-const getBlock = async(blockNumber) => {
-    let endpoint = `/block?blockNumber=${blockNumber}`;
-    let url = base.replace("dashboard", "v2/dashboard") + endpoint;
-
-    try{
-        const response = await axios.get(url);
-        
-        if(typeof response.data !== "undefined" && response.data !== null && response.data.content !== null && response.data.content.length > 0) {
-            const datas = response.data.content[0];
-            let ts = datas.blockTimestamp;
-
-            let block = {
-                blockNumber: blockNumber,
-                validator: hashCleanup(datas.minerAddress),
-                transactionCount: datas.numTransactions,
-                date: helperSvc.unixToUTC(ts),
-                size: `${helperSvc.commaBigNumber(datas.size.toString())} bytes`,
-                hash: hashCleanup(datas.blockHash),
-                hasTransactions: true
-            };
-
-            return block;
-        } else {
-            return null;
-        }
-    } catch(error) {
-        return null;
-    }
 }
 
 const getAddress = async(addressToFind) => {
@@ -104,6 +74,71 @@ const getAddress = async(addressToFind) => {
     } catch(error) {
         return null;
     }
+}
+
+const getBlock = async(blockNumber) => {
+    let endpoint = `/block?blockNumber=${blockNumber}`;
+    let url = base.replace("dashboard", "v2/dashboard") + endpoint;
+
+    try{
+        const response = await axios.get(url);
+        
+        if(typeof response.data !== "undefined" && response.data !== null && response.data.content !== null && response.data.content.length > 0) {
+            const datas = response.data.content[0];
+
+            let latestBlock = await getLatestBlock();
+
+            let block = buildBlock(datas, latestBlock);
+
+            return block;
+        } else {
+            return null;
+        }
+    } catch(error) {
+        return null;
+    }
+}
+
+const getBlocks = async() => {
+    let endpoint = `/blocks?page=0&size=25`;
+    let url = base.replace("dashboard", "v2/dashboard") + endpoint;
+
+    try{
+        const response = await axios.get(url);
+        
+        let blocks = [];
+        if(typeof response.data !== "undefined" && response.data !== null && response.data.content !== null && response.data.content.length > 0) {
+            const datas = response.data.content;
+
+            let latestBlock = await getLatestBlock();
+
+            for(let data of datas) {
+                let block = buildBlock(data, latestBlock);
+                blocks.push(block);
+            }
+        }
+        return blocks;
+    } catch(error) {
+        return null;
+    }
+}
+
+const buildBlock = function(datas, latestBlock) {
+    let ts = datas.blockTimestamp;
+    let confirmations = latestBlock > 0 ? latestBlock - datas.blockNumber : -1;
+
+    let block = {
+        blockNumber: datas.blockNumber,
+        validator: hashCleanup(datas.minerAddress),
+        transactionCount: datas.numTransactions,
+        confirmations: confirmations,
+        date: helperSvc.unixToUTC(ts),
+        size: `${helperSvc.commaBigNumber(datas.size.toString())} bytes`,
+        hash: hashCleanup(datas.blockHash),
+        hasTransactions: true
+    };
+
+    return block;
 }
 
 const getContract = async(address) => {
@@ -250,6 +285,7 @@ const getToken = async(address, contract) => {
         const total = helperSvc.commaBigNumber(qty.toString());
         const cleanedTotal = helperSvc.decimalCleanup(total);
         let asset = {
+            address: contract,
             quantity: cleanedTotal,
             symbol: datas.tokenSymbol,
             name: datas.tokenName
@@ -337,5 +373,6 @@ module.exports = {
     getAddress,
     getTokens,
     getTransactions,
-    getTransaction
+    getTransaction,
+    getBlocks
 }

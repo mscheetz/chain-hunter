@@ -58,6 +58,7 @@ const getAddress = async(addressToFind) => {
         let address = {
             address: datas.addrStr,
             quantity: balance,
+            transactionCount: datas.txApperances,
             hasTransactions: true
         };
 
@@ -81,6 +82,18 @@ const getBlockHash = async(blockNumber) => {
     }
 }
 
+const getLatestBlock = async() => {
+    let endpoint = "/blocks" + hash;
+    let url = base + endpoint;
+
+    try{
+        const response = await axios.get(url, { timeout: 5000 });
+        return response.data.blocks[0].height;
+    } catch (err) {
+        return 0;
+    }
+}
+
 const getBlock = async(blockNumber) => {
     const hash = await getBlockHash(blockNumber);
     if(hash === null) {
@@ -93,24 +106,53 @@ const getBlock = async(blockNumber) => {
     try{
         const response = await axios.get(url, { timeout: 5000 });
         const datas = response.data;
-        const validator = typeof datas.poolInfo !== 'undefined' && typeof datas.poolInfo.poolName !== 'undefined' 
-            ? datas.poolInfo.poolName 
-            : null;
+        const latestBlock = await getLatestBlock();
             
-        let block = {
-            blockNumber: blockNumber,
-            validator: validator,
-            transactionCount: datas.tx.length,
-            date: helperSvc.unixToUTC(datas.time),
-            size: `${helperSvc.commaBigNumber(datas.size.toString())} bytes`,
-            hash: hash,
-            hasTransactions: true
-        };
+        let block = buildBlock(datas, latestBlock);
 
         return block;
     } catch (err) {
         return null;
     }
+}
+
+const getBlocks = async() => {
+    let endpoint = "/blocks";
+    let url = base + endpoint;
+
+    try{
+        const response = await axios.get(url, { timeout: 5000 });
+        const datas = response.data.blocks;
+        const latestBlock = datas[0].height;
+
+        let blocks = [];
+        for(let data of datas) {
+            let block = buildBlock(datas, latestBlock);
+            blocks.push(block);
+        }
+
+        return blocks;
+    } catch (err) {
+        return [];
+    }
+}
+
+const buildBlock = function(data, latestBlock) {    
+    const validator = typeof data.poolInfo !== 'undefined' && typeof data.poolInfo.poolName !== 'undefined' 
+        ? data.poolInfo.poolName 
+        : null;
+
+    let block = {
+        blockNumber: data.height,
+        validator: validator,
+        transactionCount: data.tx.length,
+        date: helperSvc.unixToUTC(data.time),
+        size: `${helperSvc.commaBigNumber(data.size.toString())} bytes`,
+        hash: data.hash,
+        hasTransactions: true
+    };
+
+    return block;
 }
 
 const getTransactions = async(address) => {
@@ -199,7 +241,7 @@ const buildTransaction = function(txn) {
         type: type,
         hash: txn.txid,
         block: txn.blockheight,
-        confirmations: txn.confirmations,
+        confirmations: txn.confirmations === 0 ? -1 : txn.confirmations,
         date: helperSvc.unixToUTC(txn.time),
         froms: fromData,
         tos: toData
@@ -213,5 +255,6 @@ module.exports = {
     getBlockchain,
     getAddress,
     getTransactions,
-    getTransaction
+    getTransaction,
+    getBlocks
 }

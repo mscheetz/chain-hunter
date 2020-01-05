@@ -100,23 +100,24 @@ const getBlock = async(blockNumber) => {
         const response = await axios.get(url);
         if(response.data.code === 0){
             const datas = response.data.result;
+            const latestBlock = await getLatestBlock();
 
             let block = {
                 blockNumber: blockNumber,
                 //validator: datas.nextconsensus,
                 transactionCount: datas.tx_count,
+                confirmations: latestBlock - blockNumber,
                 date: helperSvc.unixToUTC(datas.block_time),
                 size: `${helperSvc.commaBigNumber(datas.block_size.toString())} bytes`,
                 hash: datas.block_hash,
                 hasTransactions: true
             };
-
             let transactions = [];
             if(datas.txs.length > 0){
                 let values = [];
                 for(let txn of datas.txs) {
                     const transaction = await getTransaction(txn.tx_hash);
-
+                    
                     if(transaction.tos.length > 0) {
                         const tos = transaction.tos.filter(t => t.symbol === 'ONT');
                         if(tos.length > 0) {
@@ -143,6 +144,37 @@ const getBlock = async(blockNumber) => {
         }
     } catch(error) {
         return null;
+    }
+}
+
+const getBlocks = async() => {
+    let endpoint = "/blocks/?page_size=20&page_number=1";
+    let url = base + endpoint;
+
+    try{
+        const response = await axios.get(url);
+        let blocks = [];
+        if(response.data.code === 0){
+            const datas = response.data.result.records;
+            const latestBlock = datas[0].block_height;
+
+            for(let data of datas) {                
+                let block = {
+                    blockNumber: data.block_height,
+                    transactionCount: datas.tx_count,
+                    confirmations: latestBlock - data.block_height,
+                    date: helperSvc.unixToUTC(datas.block_time),
+                    size: `${helperSvc.commaBigNumber(datas.block_size.toString())} bytes`,
+                    hash: datas.block_hash,
+                    hasTransactions: true
+                };
+
+                blocks.push(block);
+            }
+        }
+        return blocks;
+    } catch(error) {
+        return [];
     }
 }
 
@@ -265,6 +297,7 @@ const getTransaction = async(hash) => {
 
     try{
         const response = await axios.get(url);
+        
         if(response.data.code === 0) {
             let transaction = null;
             if(response.data.Action === "getsmartcodeeventbyhash") {
@@ -314,29 +347,41 @@ const getLatestBlock = async() => {
 
 const buildTransaction = function(txn, latestBlock) {
     const ts = txn.tx_time.toString().substr(0, 10);
+    let type = enums.transactionType.TRANSFER;
 
     let froms = [];
     let tos = [];
+    let fromData = [];
+    let toData = [];
     const fee = txn.fee;
-    txn.transfers.forEach(xfer => {
-        let valid = false;
-        if(xfer.asset_name === "ong" && xfer.amount !== fee){
-            valid = true;
-        } else if (xfer.asset_name !== "ong") {
-            valid = true;
-        }
-        if(valid) {
-            const from = helperSvc.getSimpleIO(xfer.asset_name.toUpperCase(), xfer.from_address, xfer.amount);
-            froms.push(from);
-            const to = helperSvc.getSimpleIO(xfer.asset_name.toUpperCase(), xfer.to_address, xfer.amount);
-            tos.push(to);
-        }
-    });
+    if(typeof txn.transfers !== 'undefined') {
+        txn.transfers.forEach(xfer => {
+            let valid = false;
+            if(xfer.asset_name === "ong" && xfer.amount !== fee){
+                valid = true;
+            } else if (xfer.asset_name !== "ong") {
+                valid = true;
+            }
+            if(valid) {
+                const from = helperSvc.getSimpleIO(xfer.asset_name.toUpperCase(), xfer.from_address, xfer.amount);
+                froms.push(from);
+                const to = helperSvc.getSimpleIO(xfer.asset_name.toUpperCase(), xfer.to_address, xfer.amount);
+                tos.push(to);
+            }
+        });
     
-    const fromData = helperSvc.cleanIO(froms);
-    const toData = helperSvc.cleanIO(tos);
+        fromData = helperSvc.cleanIO(froms);
+        toData = helperSvc.cleanIO(tos);
+    } else {
+        if(txn.tx_type === 208) {
+            type = enums.transactionType.CONTRACT_CREATION;
+        } else if(txn.tx_type === 209) {
+            type = enums.transactionType.CONTRACT;
+        }
+    }
 
     const transaction = {
+        type: type,
         hash: txn.tx_hash,
         block: txn.block_height,
         latestBlock: latestBlock,
@@ -350,21 +395,33 @@ const buildTransaction = function(txn, latestBlock) {
 }
 
 const buildTransactionII = function(txn, latestBlock) {
+    let type = enums.transactionType.TRANSFER;
     const ts = txn.tx_time.toString().substr(0, 10);
 
     let froms = [];
     let tos = [];
-    txn.detail.transfers.forEach(xfer => {
-        const from = helperSvc.getSimpleIO(xfer.asset_name.toUpperCase(), xfer.from_address, xfer.amount);
-        froms.push(from);
-        const to = helperSvc.getSimpleIO(xfer.asset_name.toUpperCase(), xfer.to_address, xfer.amount);
-        tos.push(to);
-    });
-    
-    const fromData = helperSvc.cleanIO(froms);
-    const toData = helperSvc.cleanIO(tos);
+    let fromData = [];
+    let toData = [];
+    if(typeof txn.transfers !== 'undefined') {
+        txn.detail.transfers.forEach(xfer => {
+            const from = helperSvc.getSimpleIO(xfer.asset_name.toUpperCase(), xfer.from_address, xfer.amount);
+            froms.push(from);
+            const to = helperSvc.getSimpleIO(xfer.asset_name.toUpperCase(), xfer.to_address, xfer.amount);
+            tos.push(to);
+        });
+        
+        fromData = helperSvc.cleanIO(froms);
+        toData = helperSvc.cleanIO(tos);
+    } else {
+        if(txn.tx_type === 208) {
+            type = enums.transactionType.CONTRACT_CREATION;
+        } else if(txn.tx_type === 209) {
+            type = enums.transactionType.CONTRACT;
+        }
+    }
 
     const transaction = {
+        type: type,
         hash: txn.tx_hash,
         block: txn.block_height,
         latestBlock: latestBlock,
@@ -383,5 +440,6 @@ module.exports = {
     getAddress,
     getTokens,
     getTransactions,
-    getTransaction
+    getTransaction,
+    getBlocks
 }

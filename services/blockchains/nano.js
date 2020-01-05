@@ -57,6 +57,7 @@ const getAddress = async(addressToFind) => {
             const address = {
                 address: addressToFind,
                 quantity: cleanedTotal,
+                transactionCount: datas.block_count,
                 hasTransactions: true
             };
 
@@ -136,7 +137,7 @@ const buildTransaction = function(txn, account) {
         type: enums.transactionType.TRANSFER,
         hash: txn.hash,
         block: 0,
-        confirmations: -1,
+        confirmations: 0,
         date: helperSvc.unixToUTC(txn.timestamp.substring(0, 10)),
         froms: fromData,
         tos: toData
@@ -163,7 +164,7 @@ const buildTransactionII = function(txn) {
         type: enums.transactionType.TRANSFER,
         hash: txn.hash,
         block: 0,
-        confirmations: -1,
+        confirmations: 0,
         date: helperSvc.unixToUTC(txn.timestamp.substring(0, 10)),
         froms: fromData,
         tos: toData,

@@ -86,26 +86,10 @@ const getBlock = async(blockNumber) => {
     try{
         const response = await axios.get(url);
         if(response.data !== null) {
-            const datas = response.data;
+            const datas = response.data;    
+            const latestBlock = await getLatestBlock();
 
-            let ts = datas.closed_at;
-            let yr = ts.substr(0,4);
-            let mo = ts.substr(5,2);
-            let day = ts.substr(8,2);
-            let time = ts.substr(11,8);
-            mo = helperSvc.getMonth(mo);
-            
-            ts = `${day}-${mo}-${yr} ${time}`;
-    
-            let block = {
-                blockNumber: blockNumber,
-                //validator: datas.signer,
-                transactionCount: datas.successful_transaction_count + datas.failed_transaction_count,
-                date: ts,
-                //size: `${helperSvc.commaBigNumber(datas.size.toString())} bytes`,
-                hash: datas.hash,
-                hasTransactions: true
-            };
+            const block = buildBlock(datas, latestBlock);
 
             return block;
         } else {
@@ -114,6 +98,43 @@ const getBlock = async(blockNumber) => {
     } catch(error) {
         return null;
     }
+}
+
+const getBlocks = async() => {
+    let endpoint = "/ledgers?limit=20&order=desc";
+    let url = base + endpoint;
+
+    try{
+        const response = await axios.get(url);
+        const datas = response.data._embedded.records;
+        const latestBlock = datas[0].sequence;
+
+        let blocks = [];
+        for(let data of datas) {
+            const block = buildBlock(data, latestBlock);
+
+            blocks.push(block);
+        }
+
+        return blocks;
+    } catch(error) {
+        return [];
+    }
+}
+
+const buildBlock = function(data, latestBlock) {    
+    let block = {
+        blockNumber: data.sequence,
+        //validator: datas.signer,
+        transactionCount: data.successful_transaction_count + data.failed_transaction_count,
+        confirmations: latestBlock - data.sequence,
+        date: formatDate(data.closed_at),
+        //size: `${helperSvc.commaBigNumber(datas.size.toString())} bytes`,
+        hash: data.hash,
+        hasTransactions: true
+    };
+
+    return block;
 }
 
 const buildToken = function(token) {
@@ -322,7 +343,7 @@ const buildTransaction = async(txn, latestBlock, address = null) => {
         hash: txn.hash,
         block: txn.ledger,
         confirmations: confirmations,
-        date: txn.created_at,
+        date: formatDate(txn.created_at),
         froms: froms,
         tos: tos
     };
@@ -330,10 +351,24 @@ const buildTransaction = async(txn, latestBlock, address = null) => {
     return transaction;
 }
 
+const formatDate = function(timestamp) {    
+    let ts = timestamp;
+    let yr = ts.substr(0,4);
+    let mo = ts.substr(5,2);
+    let day = ts.substr(8,2);
+    let time = ts.substr(11,8);
+    mo = helperSvc.getMonth(mo);
+    
+    ts = `${day}-${mo}-${yr} ${time}`;
+
+    return ts;
+}
+
 module.exports = {
     getEmptyBlockchain,
     getBlockchain,
     getAddress,
     getTransactions,
-    getTransaction
+    getTransaction,
+    getBlocks
 }

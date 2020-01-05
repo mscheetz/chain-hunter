@@ -74,6 +74,7 @@ const getAddress = async(addressToFind) => {
             let address = {
                 address: datas.address,
                 quantity: total,
+                transactionCount: datas.txCount,
                 hasTransactions: true
             };
 
@@ -100,11 +101,13 @@ const getBlock = async(blockNumber) => {
         const response = await axios.post(base, data);
         if(response.data !== null && typeof response.data.error === 'undefined') {
             const datas = response.data.result;
+            const latestBlock = await getLatestBlock();
 
             let block = {
                 blockNumber: blockNumber,
                 validator: datas.packingAddress,
                 transactionCount: datas.txHashList.length,
+                confirmations: latestBlock - blockNumber,
                 date: helperSvc.unixToUTC(datas.createTime),
                 size: `${helperSvc.commaBigNumber(datas.size.toString())} bytes`,
                 hash: datas.hash,
@@ -117,6 +120,45 @@ const getBlock = async(blockNumber) => {
         }
     } catch (err) {
         return null;
+    }
+}
+
+const getBlocks = async() => {
+    let data = {
+        jsonrpc: '2.0',
+        method: 'getBlockHeaderList',
+        params: [
+            1,
+            1,
+            20,
+            false,
+            ""
+        ]
+    }
+
+    try{
+        const response = await axios.post(base, data);
+        let blocks = [];
+        if(response.data !== null && typeof response.data.error === 'undefined') {
+            const datas = response.data.result.list;
+            const latestBlock = datas[0].height;
+
+            for(let data of datas) {
+                let block = {
+                    blockNumber: data.height,
+                    transactionCount: data.txCount,
+                    confirmations: latestBlock - data.height,
+                    date: helperSvc.unixToUTC(data.createTime),
+                    size: `${helperSvc.commaBigNumber(data.size.toString())} bytes`,
+                    hasTransactions: true
+                };
+
+                blocks.push(block);
+            }
+        }
+        return blocks;
+    } catch (err) {
+        return [];
     }
 }
 
@@ -510,5 +552,6 @@ module.exports = {
     getAddress,
     getTokens,
     getTransactions,
-    getTransaction
+    getTransaction,
+    getBlocks
 }

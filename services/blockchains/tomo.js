@@ -71,7 +71,7 @@ const getAddressOrContract = async(addressToFind) => {
             isAddress = true;
         } else {
             data = buildContract(datas);
-            isAddress = false;           
+            isAddress = false;
         }
 
         return { isAddress: isAddress, data: data };
@@ -87,6 +87,7 @@ const buildAddress = function(data) {
     let address = {
         address: data.hash,
         quantity: cleanedTotal,
+        transactionCount: data.totalTxCount,
         hasTransactions: true
     };
 
@@ -255,37 +256,73 @@ const tokenCleanup = function(tokens) {
     return assets;
 }
 
+const getLatestBlock = async() => {
+    let endpoint = "/blocks?page=1&limit=1";
+    let url = base + endpoint;
+
+    try{
+        const response = await axios.get(url, { timeout: 5000 });
+
+        return response.data.items[0].number;
+    } catch (err) {
+        return 0;
+    }
+}
+
 const getBlock = async(blockNumber) => {
     let endpoint = "/blocks/" + blockNumber;
     let url = base + endpoint;
 
     try{
         const response = await axios.get(url, { timeout: 5000 });
+        const latestBlock = await getLatestBlock();
         const datas = response.data;
 
-        let ts = datas.timestamp;
-        let yr = ts.substr(0,4);
-        let mo = ts.substr(5,2);
-        let day = ts.substr(8,2);
-        let time = ts.substr(11,8);
-        mo = helperSvc.getMonth(mo);
-        
-        ts = `${day}-${mo}-${yr} ${time}`;
-
-        let block = {
-            blockNumber: blockNumber,
-            validator: datas.m2,
-            transactionCount: datas.e_tx,
-            date: ts,
-            size: `${helperSvc.commaBigNumber(datas.size.toString())} bytes`,
-            hash: datas.hash,
-            hasTransactions: true
-        };
+        let block = buildBlock(datas, latestBlock);
 
         return block;
     } catch (err) {
         return null;
     }
+}
+
+const getBlocks = async() => {
+    let endpoint = "/blocks/";
+    let url = base + endpoint;
+
+    try{
+        const response = await axios.get(url, { timeout: 5000 });
+        const datas = response.data.items;
+        const latestBlock = datas[0].number;
+
+        let blocks = [];
+        for(let data of datas) {
+            let block = buildBlock(datas, latestBlock);
+
+            blocks.push(block);
+        }
+
+        return blocks;
+    } catch (err) {
+        return [];
+    }
+}
+
+const buildBlock = function(data, latestBlock) {
+    const ts = dateFormat(data.timestamp);
+
+    let block = {
+        blockNumber: data.number,
+        validator: data.m2,
+        transactionCount: data.e_tx,
+        confirmations: latestBlock - data.number,
+        date: ts,
+        size: `${helperSvc.commaBigNumber(data.size.toString())} bytes`,
+        hash: data.hash,
+        hasTransactions: true
+    };
+
+    return block;
 }
 
 const getTransactions = async(address) => {
@@ -338,6 +375,19 @@ const getTransaction = async(hash, rawData = false) => {
     } catch(error) {
         return null;
     }
+}
+
+const dateFormat = function(timestamp) {
+    let ts = timestamp;
+    let yr = ts.substr(0,4);
+    let mo = ts.substr(5,2);
+    let day = ts.substr(8,2);
+    let time = ts.substr(11,8);
+    mo = helperSvc.getMonth(mo);
+    
+    ts = `${day}-${mo}-${yr} ${time}`;
+
+    return ts;
 }
 
 const buildTransaction = async(txn, canExpand = false) => {    
@@ -424,7 +474,7 @@ const buildTransaction = async(txn, canExpand = false) => {
         hash: txn.hash,
         block: txn.blockNumber,
         confirmations: confirmations,
-        date: txn.createdAt,
+        date: dateFormat(txn.createdAt),
         froms: fromData,
         tos: toData
     };
@@ -441,5 +491,6 @@ module.exports = {
     getAddressOrContract,
     getTokens,
     getTransactions,
-    getTransaction
+    getTransaction,
+    getBlocks
 }

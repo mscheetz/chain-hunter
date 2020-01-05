@@ -19,8 +19,8 @@ const getEmptyBlockchain = async() => {
 
 const getBlockchain = async(chain, toFind, type) => {
     //const chain = await getEmptyBlockchain(blockchain);
-    let block = null;
     let address = null;
+    let block = null;
     let contract = null;
     let transaction = null;
 
@@ -28,11 +28,11 @@ const getBlockchain = async(chain, toFind, type) => {
             ? helperSvc.searchType(chain.symbol.toLowerCase(), toFind)
             : type;
 
-    if(searchType & enums.searchType.block) {
-        block = await getBlock(toFind);
-    }
     if(searchType & enums.searchType.address) {
         address = await getAddress(toFind);
+    }
+    if(searchType & enums.searchType.block) {
+        block = await getBlock(toFind);
     }
     if(searchType & enums.searchType.contract) {
         contract = await getContract(toFind);
@@ -41,69 +41,16 @@ const getBlockchain = async(chain, toFind, type) => {
         transaction = await getTransaction(toFind);
     }
     
-    chain.block = block;
     chain.address = address;
+    chain.block = block;
     chain.contract = contract;
     chain.transaction = transaction;
 
-    if(chain.block || chain.address || chain.contract || chain.transaction) {
+    if(chain.address || chain.block || chain.contract || chain.transaction) {
         chain.icon = "color/"+ chain.symbol.toLowerCase()  +".png";
     }
 
     return chain;
-}
-
-const getBlock = async(blockNumber) => {
-    let endpoint = "/blocks/" + blockNumber;
-    let url = base + endpoint;
-
-    try{
-        const response = await axios.get(url);
-        if(typeof response.data.data !== "undefined" && response.data.data !== null && response.data.data.Height > 0) {
-            const datas = response.data.data;
-            
-            let ts = datas.TimeStamp.toString().substr(0,10);
-            let size = datas.Size.replace("B","");
-            let block = {
-                blockNumber: blockNumber,
-                validator: datas.Generator,
-                transactionCount: datas.Txs,
-                date: helperSvc.unixToUTC(ts),
-                size: `${helperSvc.commaBigNumber(size)} bytes`,
-                hash: datas.Signature,
-                hasTransactions: true
-            };
-            
-            if(datas.list.length > 0) {
-                const latestBlock = await getLatestBlock();
-                let values = [];
-                let transactions = [];
-                for(let i = 0; i < datas.list.length; i++){
-                    const txn = datas.list[i];
-                    if(txn.Amount.indexOf("VSYS") > 0) {
-                        const quantityString = txn.Amount.substr(0, txn.Amount.indexOf(' ')).trim();
-                        const quantity = parseFloat(quantityString);
-                        values.push(quantity);
-                    }
-                    const transaction = await buildTransaction(datas.list[i], latestBlock);
-                    transactions.push(transaction);
-                }
-                let summed = 0;
-                if(values.length > 0) {
-                    summed = values.reduce((a, b) => a + b, 0);
-
-                }
-                block.volume = summed;
-                block.transactions = transactions;
-            }
-            
-            return block;
-        } else {
-            return null;
-        }
-    } catch(error) {
-        return null;
-    }
 }
 
 const getAddress = async(addressToFind) => {
@@ -166,6 +113,96 @@ const buildToken = function(data) {
     asset.hasIcon = iconStatus;
 
     return asset;
+}
+
+const getBlock = async(blockNumber) => {
+    let endpoint = "/blocks/" + blockNumber;
+    let url = base + endpoint;
+
+    try{
+        const response = await axios.get(url);
+        if(typeof response.data.data !== "undefined" && response.data.data !== null && response.data.data.Height > 0) {
+            const datas = response.data.data;
+            const latestBlock = await getLatestBlock();
+            
+            let block = buildBlock(datas, latestBlock);
+
+            if(datas.list.length > 0) {
+                const latestBlock = await getLatestBlock();
+                let values = [];
+                let transactions = [];
+                for(let i = 0; i < datas.list.length; i++){
+                    const txn = datas.list[i];
+                    if(txn.Amount.indexOf("VSYS") > 0) {
+                        const quantityString = txn.Amount.substr(0, txn.Amount.indexOf(' ')).trim();
+                        const quantity = parseFloat(quantityString);
+                        values.push(quantity);
+                    }
+                    const transaction = await buildTransaction(datas.list[i], latestBlock);
+                    transactions.push(transaction);
+                }
+                let summed = 0;
+                if(values.length > 0) {
+                    summed = values.reduce((a, b) => a + b, 0);
+
+                }
+                block.volume = summed;
+                block.transactions = transactions;
+            }
+            
+            return block;
+        } else {
+            return null;
+        }
+    } catch(error) {
+        return null;
+    }
+}
+
+const getBlocks = async() => {
+    let endpoint = "/blocks";
+    let url = base + endpoint;
+    let data = {
+        pageNumber: 1,
+        pageSize: 20
+    };
+
+    try{
+        const response = await axios.post(url, data);
+        let blocks = [];
+        if(typeof response.data.data !== "undefined" && response.data.data !== null && response.data.data.Height > 0) {
+            const datas = response.data.data.list;
+            const latestBlock = datas[0].Height;
+            
+            for(let data of datas) {
+                const block = buildBlock(data, latestBlock);
+
+                blocks.push(block);
+            }
+            
+        }
+        return block;
+    } catch(error) {
+        return [];
+    }
+}
+
+const buildBlock = function(data, latestBlock) {                
+    let ts = data.TimeStamp.toString().substr(0,10);
+    let size = data.Size.replace("B","");
+
+    let block = {
+        blockNumber: data.Height,
+        validator: data.Generator,
+        transactionCount: data.Txs,
+        confirmations: latestBlock - data.Height,
+        date: helperSvc.unixToUTC(ts),
+        size: `${helperSvc.commaBigNumber(size)} bytes`,
+        hash: data.Signature,
+        hasTransactions: true
+    };
+
+    return block;
 }
 
 const getContract = async(address) => {
@@ -409,5 +446,6 @@ module.exports = {
     getTransaction,
     getContract,
     getTokens,
-    getBlock
+    getBlock,
+    getBlocks
 }

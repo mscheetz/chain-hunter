@@ -54,7 +54,8 @@ const getAddress = async(addressToFind) => {
             let address = {
                 address: datas.caAddress,
                 quantity: balance,
-                hasTransactions: true
+                hasTransactions: true,
+                transactionCount: datas.caTxNum
             };
             const txns = datas.caTxList.slice(0, 10);
             address.transactions = getTransactions(address.address, txns);

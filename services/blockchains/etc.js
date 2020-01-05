@@ -2,6 +2,7 @@ const axios = require('axios');
 const helperSvc = require('../helper.service.js');
 const base = "https://blockscout.com/etc/mainnet/api";
 const blockBase = "https://blockexplorer.one/ajax/etc/mainnet";
+const blocksBase = "https://etcblockexplorer.com/data";
 const enums = require('../../classes/enums');
 const _ = require('lodash');
 const delay = time => new Promise(res=>setTimeout(res,time));
@@ -101,7 +102,7 @@ const getBlock = async(blockNumber) => {
                 blockNumber: blockNumber,
                 //validator: datas.Generator,
                 transactionCount: datas.transactions,
-                date: ts,
+                date: formatDate(datas.time),
                 size: `${helperSvc.commaBigNumber(datas.size.toString())} bytes`,
                 hash: datas.hash,
                 hasTransactions: true
@@ -114,6 +115,51 @@ const getBlock = async(blockNumber) => {
     } catch(error) {
         return null;
     }
+}
+
+const getBlocks = async() => {
+    let data = {
+        action: "latest_blocks"
+    };
+
+    try{
+        const response = await axios.post(blocksBase, data);
+
+        let blocks = [];
+        if(response.data !== null && response.data.items.length > 0) {
+            const datas = response.data.blocks;
+
+            for(let data of datas) {
+
+                let block = {
+                    blockNumber: data.number,
+                    validator: data.miner,
+                    transactionCount: data.txn,
+                    date: helperSvc.unixToUTC(data.timestamp),
+                    hasTransactions: true
+                };
+                blocks.push(block);
+            }
+            
+            return blocks;
+        } else {
+            return [];
+        }
+    } catch(error) {
+        return null;
+    }
+}
+
+const formatDate = function(timestamp) {
+    let ts = timestamp;
+    let yr = ts.substr(0,4);
+    let mo = ts.substr(5,2);
+    let day = ts.substr(8,2);
+    let time = ts.substr(11,5);
+    mo = helperSvc.getMonth(mo);
+    ts = `${day}-${mo}-${yr} ${time}`;
+
+    return ts;
 }
 
 const getBlockTransactions = async(blockNumber) => {
@@ -193,6 +239,7 @@ const buildToken = function(data) {
     const total = helperSvc.commaBigNumber(qty.toString());
     const cleanedTotal = helperSvc.decimalCleanup(total);
     let asset = {
+        address: data.contractAddress,
         quantity: cleanedTotal,
         symbol: data.symbol,
         name: data.name
@@ -394,5 +441,6 @@ module.exports = {
     getTokens,
     getBlockTransactions,
     getTransactions,
-    getTransaction
+    getTransaction,
+    getBlocks
 }

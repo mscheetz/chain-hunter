@@ -76,6 +76,23 @@ const getAddress = async(addressToFind) => {
     }
 }
 
+const getLatestBlock = async() => {    
+    let endpoint = "/stats/";
+    let url = base + endpoint;
+
+    try{
+        let options = {
+            headers: {
+                'X-APIKEY': apiKey
+            }
+        }
+        const response = await axios.get(url, options);
+        return response.data.txHeight;
+    } catch (err) {
+        return 0;
+    }
+}
+
 const getBlock = async(blockNumber) => {    
     let endpoint = "/blocks/" + blockNumber;
     let url = base + endpoint;
@@ -88,19 +105,55 @@ const getBlock = async(blockNumber) => {
         }
         const response = await axios.get(url, options);
         const datas = response.data;
+        const latestBlock = await getLatestBlock();
 
-        let ts = datas.timestamp/1000;
-        let block = {
-            blockNumber: blockNumber,
-            transactionCount: datas.txCount,
-            date: helperSvc.unixToUTC(ts),
-            hasTransactions: false
-        };
+        let block = buildBlock(datas, latestBlock);
 
         return block;
     } catch (err) {
         return null;
     }
+}
+
+const getBlocks = async() => {
+    let blockNumber = await getLatestBlock();
+    let endpoint = "/blocks/" + blockNumber;
+    let url = base + endpoint;
+
+    try{
+        let options = {
+            headers: {
+                'X-APIKEY': apiKey
+            }
+        }
+        const response = await axios.get(url, options);
+        const datas = response.data;
+        const latestBlock = blockNumber;
+        let blocks = [];
+
+        let block = buildBlock(datas, latestBlock);
+
+        blocks.push(block);
+
+        return blocks;
+    } catch (err) {
+        return [];
+    }
+
+}
+
+const buildBlock = function(data, latestBlock) {
+    let ts = data.timestamp/1000;
+
+    let block = {
+        blockNumber: data.height,
+        transactionCount: data.txCount,
+        confirmations: latestBlock - data.height,
+        date: helperSvc.unixToUTC(ts),
+        hasTransactions: false
+    };
+
+    return block;    
 }
 
 const getTransactions = async(address) => {
@@ -117,10 +170,11 @@ const getTransactions = async(address) => {
         if(response.data.length === 0) {
             return null;
         }
+        const latestBlock = await getLatestBlock();
         const datas = response.data.slice(0, 10);
         let transactions = [];
         datas.forEach(data => {
-            let transaction = buildTransaction(data);
+            let transaction = buildTransaction(data, latestBlock);
 
             transaction = helperSvc.inoutCalculation(address, transaction);
 
@@ -145,8 +199,9 @@ const getTransaction = async(hash) => {
         }
         const response = await axios.get(url, options);
         const datas = response.data;
+        const latestBlock = await getLatestBlock();
         
-        const transaction = buildTransaction(datas);
+        const transaction = buildTransaction(datas, latestBlock);
 
         return transaction;
     } catch(error) {
@@ -154,7 +209,7 @@ const getTransaction = async(hash) => {
     }
 }
 
-const buildTransaction = function(txn) {
+const buildTransaction = function(txn, latestBlock) {
     let froms = [];
     let tos = [];
     const symbol = "ZIL";
@@ -176,7 +231,7 @@ const buildTransaction = function(txn) {
         type: type,
         hash: txn.hash,
         block: txn.blockHeight,
-        confirmations: -1,
+        confirmations: latestBlock - txn.blockHeight,
         date: helperSvc.unixToUTC(txn.timestamp),
         froms: fromData,
         tos: toData
@@ -190,5 +245,6 @@ module.exports = {
     getBlockchain,
     getAddress,
     getTransactions,
-    getTransaction
+    getTransaction,
+    getBlocks
 }

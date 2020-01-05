@@ -60,6 +60,7 @@ const getAddress = async(addressToFind) => {
             const address = {
                 address: datas.addrStr,
                 quantity: total,
+                transactionCount: datas.txApperances,
                 hasTransactions: true
             };
 
@@ -99,7 +100,7 @@ const getBlock = async(blockNumber) => {
         const datas = response.data;
         
         let validator = null;
-        if(typeof datas.poolInfo !== 'undefined') {
+        if(typeof datas.poolInfo !== 'undefined' && typeof datas.poolInfo.poolName !== 'undefined') {
             validator = datas.poolInfo.poolName;
         }
 
@@ -108,6 +109,7 @@ const getBlock = async(blockNumber) => {
             validator: validator,
             transactionCount: datas.tx.length,
             date: helperSvc.unixToUTC(datas.time),
+            confirmations: datas.confirmations,
             size: `${helperSvc.commaBigNumber(datas.size.toString())} bytes`,
             hash: hash,
             hasTransactions: true
@@ -116,6 +118,44 @@ const getBlock = async(blockNumber) => {
         return block;
     } catch (err) {
         return null;
+    }
+}
+
+const getBlocks = async() => {
+    let endpoint = `/blocks`;
+    let url = base + endpoint;
+
+    try{
+        const response = await axios.get(url);
+        const datas = response.data.blocks;
+        const latestBlock = datas[0].height;
+        let blocks = [];
+
+        for(let i = 0; i < 25; i++) {
+            let validator = null;
+            if(typeof datas.poolInfo !== 'undefined' && typeof datas.poolInfo.poolName !== 'undefined') {
+                validator = datas.poolInfo.poolName;
+            }
+
+            const confirmations = latestBlock - datas[i].height;
+
+            let block = {
+                blockNumber: datas[i].height,
+                validator: validator,
+                transactionCount: datas[i].txlength,
+                date: helperSvc.unixToUTC(datas[i].time),
+                confirmations: confirmations,
+                size: `${helperSvc.commaBigNumber(datas[i].size.toString())} bytes`,
+                hash: datas[i].hash,
+                hasTransactions: true
+            };
+
+            blocks.push(block);
+        }
+
+        return blocks;
+    } catch (err) {
+        return [];
     }
 }
 
@@ -204,7 +244,7 @@ const buildTransaction = function(txn) {
             type: type,
             hash: txn.txid,
             block: txn.blockheight,
-            confirmations: txn.confirmations,
+            confirmations: txn.confirmations === 0 ? -1 : txn.confirmations,
             date: helperSvc.unixToUTC(txn.time),
             froms: fromData,
             tos: toData
@@ -221,5 +261,6 @@ module.exports = {
     getBlockchain,
     getAddress,
     getTransactions,
-    getTransaction
+    getTransaction,
+    getBlocks
 }

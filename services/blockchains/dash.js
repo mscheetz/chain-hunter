@@ -60,6 +60,7 @@ const getAddress = async(addressToFind) => {
             const address = {
                 address: datas.addrStr,
                 quantity: total,
+                transactionCount: datas.txAppearances,
                 hasTransactions: true
             };
 
@@ -99,41 +100,8 @@ const getBlock = async(blockNumber) => {
 
         if(typeof response.data !== 'undefined' && response.data !== null) {
             const datas = response.data;
-            const pool = (typeof datas.poolInfo.poolName !== 'undefined') ? datas.poolInfo.poolName : null;
 
-            let block = {
-                blockNumber: blockNumber,
-                confirmations: datas.confirmations,
-                date: helperSvc.unixToUTC(datas.time),
-                hash: hash,
-                hasTransactions: true,
-                size: `${helperSvc.commaBigNumber(datas.size.toString())} bytes`,
-                transactionCount: datas.tx.length,
-                validator: pool,
-            };
-            
-            if(datas.tx.length > 0) {
-                let values = [];
-                let i = 0;
-                let transactions = []
-                
-                for(let tx of datas.tx) {
-                    const txn = await getTransaction(tx);
-                    if(txn.tos.length > 0) {
-                        let txnValues = txn.tos.map(t => +t.quantity);
-                        values = _.concat(values, txnValues);
-                    }
-                    transactions.push(txn);
-                }
-                if(block.transactionCount === transactions.length) {
-                    let quantity = 0;
-                    if(values.length > 0) {
-                        quantity = values.reduce((a, b) => a + b, 0);
-                    }
-                    block.volume = quantity;
-                }
-                block.transactions = transactions;
-            }
+            let block = await buildBlock(datas);
             
             return block;
         } else {
@@ -144,6 +112,70 @@ const getBlock = async(blockNumber) => {
     }
 }
 
+const getBlocks = async() => {
+    let endpoint = `/blocks`;
+    let url = base + endpoint;
+
+    try{
+        const response = await axios.get(url);
+
+        let blocks = [];
+        if(typeof response.data !== 'undefined' && response.data !== null && response.data.blocks.length > 0) {
+            let datas = response.data.blocks;
+
+            datas = datas.slice(0, 20);
+            for(let data of datas) {
+                let block = await buildBlock(data);
+                
+                blocks.push(block);
+            }
+            
+        }
+        return blocks;
+    } catch(error) {
+        return [];
+    }
+}
+
+const buildBlock = async(datas) => {
+    const pool = (typeof datas.poolInfo.poolName !== 'undefined') ? datas.poolInfo.poolName : null;
+
+    let block = {
+        blockNumber: datas.height,
+        confirmations: datas.confirmations,
+        date: helperSvc.unixToUTC(datas.time),
+        hash: hash,
+        hasTransactions: true,
+        size: `${helperSvc.commaBigNumber(datas.size.toString())} bytes`,
+        transactionCount: datas.tx.length,
+        validator: pool,
+    };
+    
+    if(datas.tx.length > 0) {
+        let values = [];
+        let i = 0;
+        let transactions = []
+        
+        for(let tx of datas.tx) {
+            const txn = await getTransaction(tx);
+            if(txn.tos.length > 0) {
+                let txnValues = txn.tos.map(t => +t.quantity);
+                values = _.concat(values, txnValues);
+            }
+            transactions.push(txn);
+        }
+        if(block.transactionCount === transactions.length) {
+            let quantity = 0;
+            if(values.length > 0) {
+                quantity = values.reduce((a, b) => a + b, 0);
+            }
+            block.volume = quantity;
+        }
+        block.transactions = transactions;
+    }
+    
+    return block;
+}
 
 const getTransactions = async(address) => {
     let endpoint = "/txs?address="+ address +"&pageNum=0";
@@ -220,7 +252,7 @@ const buildTransaction = function(txn) {
         type: type,
         hash: txn.txid,
         block: txn.blockheight,
-        confirmations: txn.confirmations,
+        confirmations: txn.confirmations === 0 ? -1 : txn.confirmations,
         date: helperSvc.unixToUTC(txn.time),
         froms: fromData,
         tos: toData
@@ -234,5 +266,6 @@ module.exports = {
     getBlockchain,
     getAddress,
     getTransactions,
-    getTransaction
+    getTransaction,
+    getBlocks
 }

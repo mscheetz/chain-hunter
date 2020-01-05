@@ -105,32 +105,59 @@ const getBlock = async(blockNumber) => {
     try{
         const response = await axios.get(url, { timeout: 5000 });
         const datas = response.data;
+        const latestBlock = await getLatestBlock();
 
-        let ts = datas.timestamp;
-        let yr = ts.substr(0,4);
-        let mo = ts.substr(5,2);
-        let day = ts.substr(8,2);
-        let time = ts.substr(11,8);
-        mo = helperSvc.getMonth(mo);
-        
-        ts = `${day}-${mo}-${yr} ${time}`;
-
-        const volume = getTz(datas.volume);
-
-        let block = {
-            blockNumber: blockNumber,
-            validator: datas.baker.tz,
-            transactionCount: datas.nb_operations,
-            date: ts,
-            hash: hash,
-            volume: volume,
-            hasTransactions: true
-        };
+        let block = buildBlock(datas, latestBlock);
 
         return block;
     } catch (err) {
         return null;
     }
+}
+
+const getBlocks = async() => {
+    const hash = await getBlockHash(blockNumber);
+    if(hash === null) { 
+        return null;
+    }
+    let endpoint = "/v1/blocks?number=8";
+    let url = base + endpoint;
+
+    try{
+        const response = await axios.get(url, { timeout: 5000 });
+        const datas = response.data;
+        const latestBlock = datas[0].level;
+
+        let blocks = [];
+        for(let data of datas) {
+            let block = buildBlock(data, latestBlock);
+
+            blocks.push(block);
+        }
+        
+        return blocks;
+    } catch (err) {
+        return [];
+    }
+}
+
+const buildBlock = function(data, latestBlock) {
+    let ts = formatDate(data.timestamp);
+
+    const volume = getTz(data.volume);
+
+    let block = {
+        blockNumber: data.level,
+        validator: data.baker.tz,
+        transactionCount: data.nb_operations,
+        confirmations: latestBlock - data.level,
+        date: ts,
+        hash: data.hash,
+        volume: volume,
+        hasTransactions: true
+    };
+
+    return block;
 }
 
 const getTransactions = async(hash) => {
@@ -421,14 +448,8 @@ const buildTransaction = function(txn, latestBlock) {
                 : kind === "transaction"
                 ? enums.transactionType.TRANSFER
                 : enums.transactionType.ACTIVATION;
-        ts = txn.type.operations[0].timestamp;
-        let yr = ts.substr(0,4);
-        let mo = ts.substr(5,2);
-        let day = ts.substr(8,2);
-        let time = ts.substr(11,8);
-        mo = helperSvc.getMonth(mo);
         
-        ts = `${day}-${mo}-${yr} ${time}`;
+        ts = formatDate(txn.type.operations[0].timestamp);
 
         for(let op of txn.type.operations){
             from = op.src.tz;
@@ -462,7 +483,7 @@ const buildTransaction = function(txn, latestBlock) {
         type = enums.transactionType.ENDORSEMENT;
         from = txn.type.endorser.tz;
         block = parseInt(txn.type.op_level);
-        ts = txn.type.timestamp;
+        ts = formatDate(txn.type.timestamp);
     }
     
     const confirmations = latestBlock > 0 ? parseInt(latestBlock) - block : -1;
@@ -492,10 +513,24 @@ const buildTransaction = function(txn, latestBlock) {
     return transaction;
 }
 
+const formatDate = function(timestamp) {    
+    let ts = timestamp;
+    let yr = ts.substr(0,4);
+    let mo = ts.substr(5,2);
+    let day = ts.substr(8,2);
+    let time = ts.substr(11,8);
+    mo = helperSvc.getMonth(mo);
+    
+    ts = `${day}-${mo}-${yr} ${time}`;
+
+    return ts;
+}
+
 module.exports = {
     getEmptyBlockchain,
     getBlockchain,
     getAddress,
     getTransactions,
-    getTransaction
+    getTransaction,
+    getBlocks
 }

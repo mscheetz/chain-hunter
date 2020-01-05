@@ -4,6 +4,7 @@ const enums = require('../../classes/enums');
 const config = require('../../config');
 const apiKey = config.IOSTABC_API_KEY;
 const base = "https://api.iostabc.com/api/?apikey=" + apiKey;
+const baseII = "https://www.iostabc.com/api";
 const delay = time => new Promise(res=>setTimeout(res,time));
 
 const getEmptyBlockchain = async() => {
@@ -82,20 +83,10 @@ const getBlock = async(blockNumber) => {
     try{
         const response = await axios.get(url);
         if(response.data.code === 0) {
-            const datas = response.data.data.block;
+            const datas = response.data.data;
+            const latestBlock = await getLatestBlock();
             
-            const ts = datas.time/1000000000;
-
-            let block = {
-                blockNumber: blockNumber,
-                validator: datas.witness,
-                transactionCount: datas.tx_count,
-                date: helperSvc.unixToUTC(ts),
-                //size: `${helperSvc.commaBigNumber(datas.blockSize.toString())} bytes`,
-                hash: datas.hash,
-                hasTransactions: true,
-                //volume: helperSvc.commaBigNumber(datas.amount)
-            };
+            const block = await buildBlock(datas, latestBlock);
 
             return block;
         }
@@ -103,6 +94,49 @@ const getBlock = async(blockNumber) => {
     } catch(error) {
         return null;
     }
+}
+
+const getBlocks = async() => {
+    let endpoint = "/blocks?page=1&size=25";
+    let url = baseII + endpoint;
+
+    try{
+        const response = await axios.get(url);
+        let blocks = [];
+
+        if(response.data.code === 0) {
+            const datas = response.data.blocks;
+            const latestBlock = datas[0].block.number;
+
+            for(let data of datas) {
+                const block = await buildBlock(data, latestBlock);
+
+                blocks.push(block);
+            }
+        }
+        return blocks;
+    } catch(error) {
+        return [];
+    }
+}
+
+const buildBlock = async(data, latestBlock = 0) => {
+    const ts = data.block.time/1000000000;
+    const confirmations = data.status === "PENDING" 
+                        ? -1 
+                        : latestBlock - data.block.number;
+
+    let block = {
+        blockNumber: data.block.number,
+        validator: data.block.witness,
+        transactionCount: data.block.tx_count,
+        date: helperSvc.unixToUTC(ts),
+        confirmations: confirmations,
+        hash: data.block.hash,
+        hasTransactions: true
+    };
+
+    return block;
 }
 
 const getBlockTransactions = async(blockNumber) => {
@@ -130,13 +164,22 @@ const getBlockTransactions = async(blockNumber) => {
 }
 
 const getContract = async(address) => {
+    let contract = await getContractDetail(address);
+    if(contract === null) {
+        contract = await getTokenContract(address);
+    }
+
+    return contract;
+}
+
+const getContractDetail = async(address) => {
     let endpoint = "&module=contract&action=get-contract-detail&contract=" + address;
     let url = base + endpoint;
 
     try{
         const response = await axios.get(url, { timeout: 5000 });
         const datas = response.data.data;
-        if(Object.entries(datas).length === 0 && datas.constructor === Object) {
+        if(Object.entries(datas).length === 0 && datas.constructor === Object) {            
             return null;
         } else {
             let contract = {
@@ -149,7 +192,31 @@ const getContract = async(address) => {
             return contract;
         }
     } catch(error) {
-        console.log(error);
+        return null;
+    }
+}
+
+const getTokenContract = async(symbol) => {
+    let endpoint = "&module=token&action=get-token-detail&token=" + symbol;
+    let url = base + endpoint;
+
+    try{
+        const response = await axios.get(url, { timeout: 5000 });
+        const datas = response.data.data;
+        if(Object.entries(datas).length === 0 && datas.constructor === Object) {
+            return null;
+        } else {
+            let token = {
+                address: datas.issuer,
+                creator: datas.tx_hash,
+                quantity: datas.current_supply,
+                symbol: datas.symbol,
+                name: datas.full_name
+            };
+
+            return token;
+        }
+    } catch(error) {
         return null;
     }
 }
@@ -215,11 +282,14 @@ const getTokens = async(address, contract) => {
 
         for(let i = 0; i < datas.tokens.length; i++) {
             const qty = helperSvc.commaBigNumber(datas.tokens[i].balance.toString());
+            const symbol = datas.tokens[i].symbol;
+            const detail = await getTokenContract(symbol);
 
             let asset = {
                 quantity: qty,
-                symbol: datas.tokens[i].symbol.toUpperCase(),
-                name: datas.tokens[i].symbol
+                symbol: symbol.toUpperCase(),
+                name: detail.name,
+                address: symbol
             };
             const icon = 'color/' + asset.symbol.toLowerCase() + '.png';
             const iconStatus = helperSvc.iconExists(icon);
@@ -362,5 +432,6 @@ module.exports = {
     getTransactions,
     getBlockTransactions,
     getTransaction,
-    getContract
+    getContract,
+    getBlocks
 }

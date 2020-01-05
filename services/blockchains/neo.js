@@ -81,10 +81,12 @@ const getAddress = async(addressToFind) => {
                 }
             })
             const total = helperSvc.commaBigNumber(qty.toString());
+            const txnCount = await getTxnCount(addressToFind);
 
             let address = {
                 address: datas.address,
                 quantity: total,
+                transactionCount: txnCount,
                 hasTransactions: true
             };
             
@@ -95,8 +97,20 @@ const getAddress = async(addressToFind) => {
             return null;
         }
     } catch(error) {
-        //console.log(error);
         return null;
+    }
+}
+
+const getTxnCount = async(address) => {
+    let endpoint = `/v1/get_address_abstracts/${address}/1`;
+    let url = base + endpoint;
+
+    try{
+        const response = await axios.get(url);
+
+        return response.data.total_entries;
+    } catch(error) {
+        return 0;
     }
 }
 
@@ -118,6 +132,7 @@ const getBlock = async(blockNumber) => {
         const response = await axios.post(url, JSON.stringify(data), options);
         
         if(typeof response.data.error === 'undefined') {
+            const latestBlock = await getLatestBlock();
             const datas = response.data.result[0];
             let hash = datas.hash;
             if(hash.substr(0,2) === "0x") {
@@ -128,6 +143,7 @@ const getBlock = async(blockNumber) => {
                 blockNumber: blockNumber,
                 validator: datas.nextconsensus,
                 transactionCount: datas.tx.length,
+                confirmations: latestBlock - blockNumber,
                 date: helperSvc.unixToUTC(datas.time),
                 size: `${helperSvc.commaBigNumber(datas.size.toString())} bytes`,
                 hash: hash,
@@ -140,6 +156,46 @@ const getBlock = async(blockNumber) => {
         }
     } catch(error) {
         return null;
+    }
+}
+
+const getBlocks = async(blockNumber) => {    
+    let data = {
+        jsonrpc: "2.0",
+        method: "getblocks",
+        params: [ 25, 1 ],
+        id: 1
+    };
+    let options = {
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    }
+    let url = tokenTxnBase;
+    
+    try{
+        const response = await axios.post(url, JSON.stringify(data), options);
+        
+        let blocks = [];
+        if(typeof response.data.error === 'undefined') {
+            const datas = response.data.result;
+            const latestBlock = datas[0].index;
+            for(let data of datas) {
+                let block = {
+                    blockNumber: data.index,
+                    transactionCount: data.txcount,
+                    confirmations: latestBlock - data.index,
+                    date: helperSvc.unixToUTC(data.time),
+                    size: `${helperSvc.commaBigNumber(data.size.toString())} bytes`,
+                    hasTransactions: true
+                };
+
+                blocks.push(block);
+            }
+        }
+        return blocks;
+    } catch(error) {
+        return [];
     }
 }
 
@@ -162,8 +218,18 @@ const getBlockTransactions = async(blockNumber) => {
     } catch(err) {
         return [];
     }
+}
 
+const getLatestBlock = async() => {
+    let endpoint = "/v1/get_height";
+    let url = base + endpoint;
 
+    try{
+        const response = await axios.get(url);
+        return response.data.height;
+    } catch(err) {
+        return 0;
+    }
 }
 
 const getContract = async(addressToFind) => {
@@ -476,5 +542,6 @@ module.exports = {
     getAddress,
     getBlockTransactions,
     getTransactions,
-    getTransaction
+    getTransaction,
+    getBlocks
 }

@@ -21,7 +21,7 @@
     </h3>
 </div>
 <div class="m-bottom-1">Balance: {{blockchain.address.quantity}} {{blockchain.symbol}}</div>
-<div class="m-bottom-1" *ngIf="blockchain.address.transactionCount">Transaction Count: {{blockchain.address.transactionCount}}</div>
+<div class="m-bottom-1" *ngIf="blockchain.address.transactionCount">Transaction Count: {{blockchain.address.transactionCount | number}}</div>
 <p-accordion 
         *ngIf="blockchain.address.hasTransactions || blockchain.hasTokens" 
         (onOpen)="onTxnsOpen($event)">

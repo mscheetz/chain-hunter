@@ -15,6 +15,8 @@ export class AuthenticationService {
     user: User;
     unlimitedCookie: string = "tch-cookie-unlimited";
     searchLimitCookie: string = "tch-cookie-search";
+    loginCookie: string = "tch-cookie-login";
+    userDetailCookie: string = "tch-cookie-user";
 
     constructor(private apiSvc: ApiService, private helperSvc: HelperService, private cookieSvc: CookieService) {
         this.currentUserSubject = new BehaviorSubject<User>(JSON.parse(localStorage.getItem('currentUser')));
@@ -23,6 +25,7 @@ export class AuthenticationService {
         this.adminSubject = new BehaviorSubject<boolean>(this.adminState);
         this.isLoggedIn = this.loggedInSubject.asObservable();
         this.isAdmin = this.adminSubject.asObservable();
+        this.checkLoggedIn();
         this.validateTokenDate();
     }
     loggedInState: boolean = false;
@@ -32,6 +35,25 @@ export class AuthenticationService {
 
     private loggedInSubject: BehaviorSubject<boolean>;
     private adminSubject: BehaviorSubject<boolean>;
+
+    private checkLoggedIn() {
+        const cookies = this.cookieSvc.getAll();
+        const loggedInCookie = this.cookieSvc.get(this.loginCookie);
+        if(typeof loggedInCookie !== "undefined" && loggedInCookie !== null && loggedInCookie !== "") {
+            const userCookie = this.cookieSvc.get(this.userDetailCookie);
+            if(typeof userCookie !== "undefined" && userCookie !== null && userCookie !== "") {
+                const user = JSON.parse(userCookie);
+                this.updateUserDetails(user);
+                this.setLoginSubject(true);
+            } else {
+                this.setLoginSubject(false);
+                this.setAdminSubject(false);
+            }
+        } else {
+            this.setLoginSubject(false);
+            this.setAdminSubject(false);
+        }
+    }
 
     public get currentUserValue(): User {
         return this.currentUserSubject.value;
@@ -59,46 +81,32 @@ export class AuthenticationService {
         .pipe(map(res => {
                 const jwt = res.token;
                 this.updateUserDetails(res);
-                // let user = new User();
-                // user.accountType = res.accountType;
-                // user.accountTypeId = res.accountTypeId;
-                // user.created = res.created;
-                // user.email = res.email;
-                // user.expirationDate = res.expirationDate;
-                // user.message = res.message;
-                // user.savedHunts = res.savedHunts;
-                // user.saveLimit = res.saveLimit;
-                // user.searchLimit = res.searchLimit;
-                // user.userId = res.userId;
-                // user.username = res.username;
-                // user.validated = res.validated;
-                // if(res.searchLimit === null) {
-                //   this.cookieSvc.set(this.unlimitedCookie, 'unlimited', 1);
-                // } else {
-                //   this.cookieSvc.set(this.searchLimitCookie, JSON.stringify(res.searchLimit), 1);
-                // }
+                
+                this.addLogin(jwt);
 
-                // this.user = user;
-                this.addLogin(jwt, this.user);
-                this.loggedInState = true;
-                //this.currentUserSubject.next(this.user);
-                this.loggedInSubject.next(true);
-                let adminStatus = +this.user.accountTypeId === 4;
-                this.adminState = adminStatus;
-                this.adminSubject.next(adminStatus);
+                this.setLoginSubject(true);
                 return res;
             }));
     }
 
+    private setLoginSubject(state: boolean) {
+        this.loggedInState = state;
+        this.loggedInSubject.next(state);
+    }
+
+    private setAdminSubject(status: boolean) {
+        this.adminState = status;
+        this.adminSubject.next(status);
+    }
+
     logout() {
         this.removeLogin();
+        this.removeUser();
         this.cookieSvc.delete(this.unlimitedCookie);
         this.cookieSvc.delete(this.searchLimitCookie);
-        this.loggedInState = false;
-        this.adminState = false;
+        this.setLoginSubject(false);
+        this.setAdminSubject(false);
         this.currentUserSubject.next(null);
-        this.loggedInSubject.next(false);
-        this.adminSubject.next(false);
     }
 
     async userRefresh() {
@@ -135,8 +143,9 @@ export class AuthenticationService {
 
         this.user = user;
         this.currentUserSubject.next(user);
-        localStorage.removeItem(environment.currentUserName);
-        localStorage.setItem(environment.currentUserName, JSON.stringify(this.user));
+        this.addUser(user);
+        let adminStatus = +user.accountTypeId === 4;
+        this.setAdminSubject(adminStatus);
     }
 
     private validateTokenDate() {
@@ -150,16 +159,36 @@ export class AuthenticationService {
         }
     }
 
-    private addLogin(jwt: string, user: User) {
+    private dataSetter(user: User, jwt?: string) {
+        if(jwt) {
+            this.addLogin(jwt);
+        }
+        this.addUser(user);
+    }
+
+    private addLogin(jwt: string) {
         this.removeLogin();
+        this.cookieSvc.set(this.loginCookie, jwt, 2, "/");
+        const cookies = this.cookieSvc.getAll();
         localStorage.setItem(environment.jwtTsName, this.helperSvc.getFutureUnixTimestamp(1, Interval.Day).toString());
         localStorage.setItem(environment.jwtName, jwt);
+    }
+
+    private addUser(user: User) {
+        this.removeUser();
+        this.cookieSvc.set(this.userDetailCookie, JSON.stringify(user), 2, "/");
+        const cookies = this.cookieSvc.getAll();
         localStorage.setItem(environment.currentUserName, JSON.stringify(user));
     }
 
     private removeLogin() {
+        this.cookieSvc.delete(this.loginCookie, "/");
         localStorage.removeItem(environment.jwtTsName);
         localStorage.removeItem(environment.jwtName);
+    }
+
+    private removeUser() {
+        this.cookieSvc.delete(this.userDetailCookie, "/");
         localStorage.removeItem(environment.currentUserName);
     }
 }

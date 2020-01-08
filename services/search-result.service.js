@@ -1,6 +1,8 @@
 const searchRepo = require('../data/search-results.repo');
+const countryRepo = require('../data/country.repo');
 const helperSvc = require('./helper.service.js')
 const responseSvc = require('./response.service');
+const _ = require('lodash');
 
 /**
  * Update search results table in database
@@ -192,6 +194,66 @@ const getLastSearch = async() => {
   return responseSvc.successMessage(searches);
 }
 
+/**
+ * Get top searched chain by country
+ */
+const getTopSearchChainByCountry = async() => {
+  let searches = await searchRepo.getTopSearchChainByCountry();
+  let datas = await matchResults(searches);
+
+  return responseSvc.successMessage(datas);
+}
+
+/**
+ * Get top searched type by country
+ */
+const getTopSearchTypeByCountry = async() => {
+  let searches = await searchRepo.getTopSearchTypeByCountry();
+  let datas = await matchResults(searches);
+
+  return responseSvc.successMessage(datas);
+}
+
+/**
+ * Match search results to contry codes
+ * @param {*} searches search results
+ */
+const matchResults = async(searches) => {
+  const countries = await countryRepo.getAll();
+  const uniques = [...new Set(searches.map(s => s.country))];
+
+  let datas = [];
+  for(let unique of uniques) {
+    let country = unique;
+    if(country === "GB") {
+      country = "UK";
+    }
+    let countryCodes = countries.filter(c => c.code === country);
+    
+    if(countryCodes.length > 0) {
+      let results = searches.filter(s => s.country === unique);
+      results = _.orderBy(results, "value");
+      let value = "";
+      for(let i = 0; i < results.length; i++){
+        if(i > 0) {
+          value +=" | ";
+        }
+        value+=results[i].value.toUpperCase();
+      }
+
+      let data = {
+        id: countryCodes[0].code,
+        name: countryCodes[0].name,
+        chain: value,
+        //value: 100
+      };
+      datas.push(data);
+    }
+  }
+
+  return datas;
+}
+
 module.exports = {
     updateSearchResult,
     getResultsByCountry,
@@ -199,5 +261,7 @@ module.exports = {
     getResultsByCity,
     getResultsByTimezone,
     getResultsByBlockchain,
+    getTopSearchChainByCountry,
+    getTopSearchTypeByCountry,
     getLastSearch
 }

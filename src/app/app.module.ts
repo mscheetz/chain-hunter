@@ -89,7 +89,8 @@ const appRoutes: Routes = [
   { path: 'subscribe', component: EmailSubscriptionComponent },
   { path: 'emailunsubscribe', component: EmailUnsubscribeComponent },
   { path: 'admin-page', component: AdminComponent, canActivate: [AuthGuard] },
-  { path: 'search/:symbol/:type/:toFind', component: ChainHunterComponent }
+  { path: 'search/:symbol/:type/:toFind', component: ChainHunterComponent },
+  { path: 'map', component: SearchMapComponent }
 ]
 
 @NgModule({

@@ -41,6 +41,49 @@ const getLastSearch = async() => {
     }
 }
 
+const getTopSearchChainByCountry = async() => {
+    let sql = `SELECT country, chain as value, count
+    FROM (
+       SELECT country, chain, count,
+              RANK() OVER (PARTITION BY country 
+                           ORDER BY count DESC) AS rn
+       FROM (
+          SELECT country, chain, COUNT(chain) AS count
+          FROM public."searchResults"
+          GROUP BY country, chain ) t
+    ) s
+    WHERE s.rn = 1`;
+
+    try {
+        const res = await pool.query(sql);
+
+        return res.rows;
+    } catch(err) {
+        console.log(err);
+    }
+}
+const getTopSearchTypeByCountry = async() => {
+    let sql = `SELECT country, "searchType" as value, count
+    FROM (
+       SELECT country, "searchType", count,
+              RANK() OVER (PARTITION BY country 
+                           ORDER BY count DESC) AS rn
+       FROM (
+          SELECT country, "searchType", COUNT("searchType") AS count
+          FROM public."searchResults"
+          GROUP BY country, "searchType" ) t
+    ) s
+    WHERE s.rn = 1`;
+
+    try {
+        const res = await pool.query(sql);
+
+        return res.rows;
+    } catch(err) {
+        console.log(err);
+    }
+}
+
 /**
  * Add search result
  * @param {object} searchResult search result object
@@ -72,5 +115,7 @@ const add = async(searchResult) => {
 module.exports = {
     getAll,
     getLastSearch,
+    getTopSearchChainByCountry,
+    getTopSearchTypeByCountry,
     add
 }

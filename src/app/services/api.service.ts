@@ -19,6 +19,7 @@ import { Order } from '../classes/order.class';
 import { DiscountCode } from '../classes/discount-code.class';
 import { UserCounts } from 'src/app/classes/user-counts.class';
 import { SearchResult } from '../classes/search-result.class';
+import { TopSearchResult } from '../classes/top-search-result.class';
 
 @Injectable({providedIn: 'root'})
 export class ApiService{
@@ -635,6 +636,24 @@ export class ApiService{
         let url: string = this.baseUrl + endpoint;
 
         let result = this.onGet<SearchResult[]>(url);
+
+        return result;
+    }
+    
+    getTopChainByCountry(): Observable<TopSearchResult[]> {
+        let endpoint: string = `/api/results/country/top/chain`;
+        let url: string = this.baseUrl + endpoint;
+
+        let result = this.onGet<TopSearchResult[]>(url);
+
+        return result;
+    }
+    
+    getTopTypeByCountry(): Observable<TopSearchResult[]> {
+        let endpoint: string = `/api/results/country/top/type`;
+        let url: string = this.baseUrl + endpoint;
+
+        let result = this.onGet<TopSearchResult[]>(url);
 
         return result;
     }

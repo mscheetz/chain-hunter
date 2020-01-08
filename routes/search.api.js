@@ -9,6 +9,18 @@ router.get("/api/results/country", apiHelp.bootlegMiddleware, async(req,res,next
   res.status(result.code).json(result.data);
 });
 
+router.get("/api/results/country/top/chain", apiHelp.bootlegMiddleware, async(req,res,next) => {  
+  const result = await searchSvc.getTopSearchChainByCountry();
+  
+  res.status(result.code).json(result.data);
+});
+
+router.get("/api/results/country/top/type", apiHelp.bootlegMiddleware, async(req,res,next) => {  
+  const result = await searchSvc.getTopSearchTypeByCountry();
+
+  res.status(result.code).json(result.data);
+});
+
 router.get("/api/results/country/:country/region", apiHelp.bootlegMiddleware, async(req,res,next) => {  
   const country = req.params.country;
   const result = await searchSvc.getResultsByRegion(country);

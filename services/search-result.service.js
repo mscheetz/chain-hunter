@@ -225,9 +225,7 @@ const matchResults = async(searches) => {
   let datas = [];
   for(let unique of uniques) {
     let country = unique;
-    if(country === "GB") {
-      country = "UK";
-    }
+    
     let countryCodes = countries.filter(c => c.code === country);
     
     if(countryCodes.length > 0) {
@@ -244,8 +242,7 @@ const matchResults = async(searches) => {
       let data = {
         id: countryCodes[0].code,
         name: countryCodes[0].name,
-        chain: value,
-        //value: 100
+        chain: value
       };
       datas.push(data);
     }

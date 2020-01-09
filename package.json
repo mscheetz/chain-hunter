@@ -11,7 +11,7 @@
     "ng": "ng",
     "config": "node ./scripts/set-env.js",
     "start": "node server.js",
-    "build": "npm run config -- --environment=prod && ng build --aot --prod --output-hashing=all",
+    "build": "npm run config -- --environment=prod && ng build --aot --prod --output-hashing=all --build-optimizer=false",
     "devbuild": "npm run config -- --environment=dev && ng build --output-hashing=all && node server.js",
     "test": "ng test",
     "lint": "ng lint",

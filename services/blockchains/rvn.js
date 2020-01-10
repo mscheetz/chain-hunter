@@ -118,9 +118,11 @@ const getBlocks = async() => {
 
     try{
         const response = await axios.get(url);
-        const datas = response.data;
-
+        
+        let datas = response.data.blocks;
+        
         let blocks = [];
+        
         for(let data of datas) {
             const block = buildBlock(data);
 
@@ -133,14 +135,17 @@ const getBlocks = async() => {
     }
 }
 
-const buildBlock = function(data) {    
+const buildBlock = function(data) {
+    let txCount = typeof data.txlength !== 'undefined'
+                    ? data.txlength
+                    : data.tx.length;
     let block = {
         blockNumber: data.height,
-        validator: datas.minedBy,
-        transactionCount: datas.tx.length,
-        confirmations: datas.confirmations,
-        date: helperSvc.unixToUTC(datas.time),
-        size: `${helperSvc.commaBigNumber(datas.size.toString())} bytes`,
+        validator: data.minedBy,
+        transactionCount: txCount,
+        confirmations: data.confirmations,
+        date: helperSvc.unixToUTC(data.time),
+        size: `${helperSvc.commaBigNumber(data.size.toString())} bytes`,
         hash: data.hash,
         hasTransactions: true
     };

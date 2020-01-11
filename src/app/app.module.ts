@@ -73,6 +73,7 @@ import { SearchService } from './services/search.service';
 import { SearchMapComponent } from './components/search-map/search-map.component';
 import { TransactionDetailComponent } from './components/transaction-detail/transaction-detail.component';
 import { CopyClipboardModule } from './services/copy-clipboard.module';
+import { BlocksComponent } from './components/blocks/blocks.component';
 
 const appRoutes: Routes = [
   { path: '', component: ChainHunterComponent },
@@ -130,7 +131,8 @@ const appRoutes: Routes = [
     AdminComponent,
     BlockComponent,
     SearchMapComponent,
-    TransactionDetailComponent
+    TransactionDetailComponent,
+    BlocksComponent
   ],
   imports: [
     AccordionModule,

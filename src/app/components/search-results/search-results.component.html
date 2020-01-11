@@ -8,7 +8,11 @@
     </p-panel>
     <!-- Block Results -->
     <p-panel header="{{blockchain.symbol}} Block" *ngIf="blockchain.block">
-        <app-block [blockSaved]="false" [saveId]="" [blockchain]="blockchain"></app-block>
+        <app-block [blockSaved]="false" [saveId]="" [blockchain]="blockchain" [block]="blockchain.block"></app-block>
+    </p-panel>
+    <!-- Blocks Results -->
+    <p-panel header="{{blockchain.symbol}} Latest Blocks" *ngIf="blockchain.blocks">
+        <app-blocks [blockchain]="blockchain"></app-blocks>
     </p-panel>
     <!-- Contract Results -->
     <p-panel header="{{blockchain.symbol}} {{blockchain.symbol === 'ATOM' ? 'Validator' : 'Contract'}}" *ngIf="blockchain.hasContracts && blockchain.contract">

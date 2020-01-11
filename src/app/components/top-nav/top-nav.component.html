@@ -11,6 +11,7 @@
     <a routerLink="/accounts" routerLinkActive="active" (click)="hideNav()">Upgrade</a>
     <a routerLink="/info" routerLinkActive="active" (click)="hideNav()">Supported Blockchains</a>
     <a routerLink="/map" routerLinkActive="active" (click)="hideNav()">Search Map</a>
+    <a routerLink="/map" routerLinkActive="active" (click)="latestBlocks()">Latest Blocks</a>
     <a routerLink="/about" routerLinkActive="active" (click)="hideNav()">About</a>
     <a *ngIf="loggedIn" routerLink="" (click)="logout($event)">Logout</a>
 </div>

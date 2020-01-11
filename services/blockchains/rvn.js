@@ -120,6 +120,7 @@ const getBlocks = async() => {
         const response = await axios.get(url);
         
         let datas = response.data.blocks;
+        datas = datas.splice(0, 25);
         
         let blocks = [];
         

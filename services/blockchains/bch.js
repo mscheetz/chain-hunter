@@ -116,9 +116,13 @@ const getBlock = async(blockNumber) => {
 
 const getBlocks = async() => {
     let today = new Date();
-    let blockDate = `${today.getFullYear()}${(today.getMonth() + 1)}${today.getDate()}`;
-    let endpoint = `/v3/block/date/${blockDate}`;
-    let url = baseBTC + endpoint;
+    let day = today.getDate().toString();
+    let month = (today.getMonth() + 1).toString();
+    day = day.length < 2 ? `0${day}` : day;
+    month = month.length < 2 ? `0${month}` : month;
+    let blockDate = `${today.getFullYear()}${month}${day}`;
+    let endpoint = `/block/date/${blockDate}`;
+    let url = base + endpoint;
 
     try{
         const response = await axios.get(url);
@@ -127,7 +131,12 @@ const getBlocks = async() => {
         if(response.data !== null && response.data.err_no === 0 && response.data.data.length > 0) {
             const datas = response.data.data;
             
+            let i = 0;
             for(let data of datas) {
+                i++;
+                if(i === 20){
+                    break;
+                }
                 const block = buildBlock(data);
 
                 blocks.push(block);
@@ -136,6 +145,7 @@ const getBlocks = async() => {
 
         return blocks;
     } catch(error) {
+        console.log(error);
         return null;
     }
 }

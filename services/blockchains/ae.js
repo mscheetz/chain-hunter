@@ -109,11 +109,13 @@ const getBlocks = async() => {
 
                 blocks.push(block);
             }
-
+            
+            return _.orderBy(blocks, "blockNumber", "desc");
+        } else {
+            return null;
         }
-        return _.orderBy(blocks, "blockNumber", "desc");
     } catch(error) {
-        return [];
+        return null;
     }
 }
 

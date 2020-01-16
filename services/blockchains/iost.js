@@ -102,21 +102,23 @@ const getBlocks = async() => {
 
     try{
         const response = await axios.get(url);
-        let blocks = [];
 
-        if(response.data.code === 0) {
+        if(response.data.blocks.length > 0) {
             const datas = response.data.blocks;
             const latestBlock = datas[0].block.number;
 
+            let blocks = [];
             for(let data of datas) {
                 const block = await buildBlock(data, latestBlock);
 
                 blocks.push(block);
             }
+            return blocks;
+        } else {
+            return null;
         }
-        return blocks;
     } catch(error) {
-        return [];
+        return null;
     }
 }
 
@@ -129,6 +131,7 @@ const buildBlock = async(data, latestBlock = 0) => {
     let block = {
         blockNumber: data.block.number,
         validator: data.block.witness,
+        validatorIsAddress: false,
         transactionCount: data.block.tx_count,
         date: helperSvc.unixToUTC(ts),
         confirmations: confirmations,

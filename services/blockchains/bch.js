@@ -127,10 +127,10 @@ const getBlocks = async() => {
     try{
         const response = await axios.get(url);
 
-        let blocks = [];
         if(response.data !== null && response.data.err_no === 0 && response.data.data.length > 0) {
             const datas = response.data.data;
             
+            let blocks = [];
             let i = 0;
             for(let data of datas) {
                 i++;
@@ -141,9 +141,11 @@ const getBlocks = async() => {
 
                 blocks.push(block);
             }
+            return blocks;
+        } else {
+            return null;
         }
 
-        return blocks;
     } catch(error) {
         return null;
     }
@@ -162,7 +164,8 @@ const buildBlock = function(datas) {
         hasTransactions: true,
         size: `${helperSvc.commaBigNumber(datas.size.toString())} bytes`,
         transactionCount: datas.tx_count,
-        validator: validator
+        validator: validator,
+        validatorIsAddress: false
     };
 
     return block;

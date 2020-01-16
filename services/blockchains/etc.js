@@ -22,7 +22,7 @@ const getEmptyBlockchain = async() => {
 const getBlockchain = async(chain, toFind, type) => {
     //const chain = await getEmptyBlockchain(blockchain);
     let address = null;
-    let block = null;
+    //let block = null;
     let contract = null;
     let transaction = null;
 
@@ -33,9 +33,9 @@ const getBlockchain = async(chain, toFind, type) => {
     if(searchType & enums.searchType.address) {
         address = await getAddress(toFind);
     }
-    if(searchType & enums.searchType.block) {
-        block = await getBlock(toFind);
-    }
+    // if(searchType & enums.searchType.block) {
+    //     block = await getBlock(toFind);
+    // }
     if(searchType & enums.searchType.contract) {
         contract = await getContract(toFind);
     }
@@ -44,11 +44,11 @@ const getBlockchain = async(chain, toFind, type) => {
     }
     
     chain.address = address;
-    chain.block = block;
+    //chain.block = block;
     chain.contract = contract;
     chain.transaction = transaction;
 
-    if(chain.address || chain.block || chain.contract || chain.transaction) {
+    if(chain.address || chain.contract || chain.transaction) {
         chain.icon = "color/"+ chain.symbol.toLowerCase()  +".png";
     }
 
@@ -86,9 +86,10 @@ const getBlock = async(blockNumber) => {
 
     try{
         const response = await axios.get(url);
+        console.log(response.data);
         if(typeof response.data.message === "undefined") {
             const datas = response.data;
-
+console.log(datas)
             let ts = datas.time;
             let day = ts.substr(0,2);
             let mo = ts.substr(3,2);
@@ -113,6 +114,7 @@ const getBlock = async(blockNumber) => {
             return null;
         }
     } catch(error) {
+        console.log(error)
         return null;
     }
 }
@@ -126,7 +128,7 @@ const getBlocks = async() => {
         const response = await axios.post(blocksBase, data);
 
         let blocks = [];
-        if(response.data !== null && response.data.items.length > 0) {
+        if(response.data !== null && response.data.blocks.length > 0) {
             const datas = response.data.blocks;
 
             for(let data of datas) {
@@ -165,10 +167,11 @@ const formatDate = function(timestamp) {
 const getBlockTransactions = async(blockNumber) => {
     let endpoint = `/block-transactions/${blockNumber}?page=0`;
     let url = blockBase + endpoint;
-
+console.log(url);
     try{
         const response = await axios.get(url);
-        let transactions = [];        
+        let transactions = [];
+        console.log(response.data);
         if(typeof response.data.message === "undefined" && response.data.data.length > 0) {
             const datas = response.data.data;
             
@@ -181,6 +184,7 @@ const getBlockTransactions = async(blockNumber) => {
 
         return transactions;
     } catch(err) {
+        console.log(err)
         return [];
     }
 }

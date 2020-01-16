@@ -119,6 +119,7 @@ const getBlock = async(blockNumber) => {
             let block = {
                 blockNumber: blockNumber,
                 validator: datas.generatorId,
+                validatorIsAddress: true,
                 transactionCount: datas.numberOfTransactions,
                 date: getTime(datas.timestamp),
                 confirmations: latestBlock - blockNumber,
@@ -150,36 +151,38 @@ const getBlocks = async() => {
     
     try{
         const response = await axios.get(url);
-
+        
         if(response.data.success) {
             const datas = response.data.blocks;
-            const latestBlock = datas[0].height;
+            const latestBlock = datas[0].height;            
+            let blocks = [];
             
             for(let data of datas) {
                 let amount = +data.totalAmount/100000000;
             
                 let block = {
                     blockNumber: data.height,
-                    validator: datas.generator,
-                    transactionCount: datas.transactionsCount,
-                    date: getTime(datas.timestamp),
+                    validator: data.generator,
+                    validatorIsAddress: true,
+                    transactionCount: data.transactionsCount,
+                    date: getTime(data.timestamp),
                     confirmations: latestBlock - data.height,
                     hash: data.id,
                     hasTransactions: true,
                     volume: amount
                 };
 
+                let transactions = [];
+                if(block.transactionCount > 0) {
+                    transactions = await getBlockTransactions(data.id);
+                }
+
+                block.transactions = transactions;
+
                 blocks.push(block);
             }
 
-            let transactions = [];
-            if(block.transactionCount > 0) {
-                transactions = await getBlockTransactions(blockId);
-            }
-
-            block.transactions = transactions;
-
-            return block;
+            return blocks;
         } else {
             return null;
         }

@@ -55,55 +55,6 @@ const getChains = function() {
     return chains;
 }
 
-// const getActiveChainsII = async() => {
-//     const chains = getChains().filter(c => c.status === 'Future');
-//     const existingChains = await db.getBlockchains();
-//     let bcs = [];
-
-//     for(let i = 0; i < chains.length; i++) {
-//         let bc = await getEmptyBlockchain(chains[i].symbol.toLowerCase());
-
-//         if(typeof bc.name !== 'undefined') {
-//             const inDb = existingChains.filter(e => e.symbol === bc.symbol).length > 0 ? true : false;
-
-//             if(!inDb) {
-//                 bc.status = chains[i].status === 'Active' ? 1 : 0;
-//                 bc.id = encryptionSvc.getUuid();
-//                 delete bc.address;
-//                 delete bc.contract;
-//                 delete bc.transaction;
-//                 delete bc.icon;
-//                 console.log('bc', bc);
-
-//                 const status = await db.postBlockchain(bc);
-                
-//                 bcs.push(bc);
-//             }
-//         } else {            
-//             const inDb = existingChains.filter(e => e.symbol === chains[i].symbol).length > 0 ? true : false;
-
-//             if(!inDb) {
-//                 let bc = chains[i];                
-//                 bc.status = chains[i].status === 'Active' ? 1 : 0;
-//                 bc.id = encryptionSvc.getUuid();
-//                 bc.hasTokens = false;
-//                 bc.hasContracts = false;
-//                 delete bc.address;
-//                 delete bc.contract;
-//                 delete bc.transaction;
-//                 delete bc.icon;
-//                 console.log('bc to add', bc);
-
-//                 const status = await db.postBlockchain(bc);
-                
-//                 bcs.push(bc);
-//             }
-//         }
-//     }
-
-//     return bcs;
-// }
-
 /**
  * Get active chains
  */
@@ -249,7 +200,7 @@ const getBlockchain = async(chain, toFind, ip, ipInfo, type = enums.searchType.n
     let result;
     
     let blockchain = await blockchainRepo.get(chain);
-
+    
     blockchain.icon = "white/"+ blockchain.symbol.toLowerCase()  +".png";
 
     if (chain === "ada") {
@@ -322,10 +273,12 @@ const getBlockchain = async(chain, toFind, ip, ipInfo, type = enums.searchType.n
     //     return await dcr.getBlockchain(toFind);
     }
     
-    if (result.address || result.contract || result.transaction) {
+    if (result.address || result.block || result.contract || result.transaction) {
         let updateType = "";
         if (result.address) {
           updateType = "address";
+        } else if (result.block) {
+          updateType = "block";
         } else if (result.contract) {
           updateType = "contract";
         } else if (result.transaction) {
@@ -493,7 +446,9 @@ const getBlockTransactions = async(chain, blockNumber, ip, ipInfo) => {
     } else if (chain === "bnb") {
         transactions = await bnb.getTransactions(blockNumber);
     } else if (chain === "btc") {
-        transactions = await btc.getTransactions(blockNumber);
+        transactions = await btc.getBlockTransactions(blockNumber);
+    } else if (chain === "dash") {
+        transactions = await dash.getBlockTransactions(blockNumber);
     } else if (chain === "etc") {
         transactions = await etc.getBlockTransactions(blockNumber);
     } else if (chain === "icx") {
@@ -506,6 +461,10 @@ const getBlockTransactions = async(chain, blockNumber, ip, ipInfo) => {
         transactions = await neo.getBlockTransactions(blockNumber);
     } else if (chain === "nuls") {
         transactions = await nuls.getTransactions(blockNumber);
+    } else if (chain === "ont") {
+        transactions = await ont.getBlockTransactions(blockNumber);
+    } else if (chain === "qtum") {
+        transactions = await qtum.getBlockTransactions(blockNumber);
     } else if (chain === "rvn") {
         transactions = await rvn.getBlockTransactions(blockNumber);
     } else if (chain === "tomo") {
@@ -537,6 +496,112 @@ const getBlockTransactions = async(chain, blockNumber, ip, ipInfo) => {
 }
 
 /**
+ * Get Blockchain's Latest Blocks
+ * 
+ * @param {string} chain chain symbol to hunt
+ * @param {string} ip requestor's ip address
+ * @param {object} ipInfo requestor's ip info
+ */
+const getBlocks = async(chain, ip, ipInfo) => {
+    let result;
+
+    let blockchain = await blockchainRepo.get(chain);
+
+    blockchain.icon = "white/"+ blockchain.symbol.toLowerCase()  +".png";
+
+    let blocks = [];
+
+    if (chain === "ada") {
+    } else if (chain === "ae") {
+        blocks = await ae.getBlocks();
+    } else if (chain === "aion") {
+        blocks = await aion.getBlocks();
+    } else if (chain === "atom") {
+        blocks = await atom.getBlocks();
+    } else if (chain === "bch") {
+        blocks = await bch.getBlocks();
+    } else if (chain === "bnb") {
+        blocks = await bnb.getBlocks();
+    } else if(chain === "btc") {
+        blocks = await btc.getBlocks();
+    } else if (chain === "dash") {
+        blocks = await dash.getBlocks();
+    } else if (chain === "etc") {
+        blocks = await etc.getBlocks();
+    } else if (chain === "eth") {
+        blocks = await eth.getBlocks();
+    } else if (chain === "icx") {
+        blocks = await icx.getBlocks();
+    } else if (chain === "iost") {
+        blocks = await iost.getBlocks();
+    } else if (chain === "lsk") {
+        blocks = await lsk.getBlocks();
+    } else if (chain === "ltc") {
+        blocks = await ltc.getBlocks();
+    } else if (chain === "nebl") {
+        blocks = await nebl.getBlocks();
+    } else if (chain === "neo") {
+        blocks = await neo.getBlocks();
+    } else if (chain === "nuls") {
+        blocks = await nuls.getBlocks();
+    } else if (chain === "ont") {
+        blocks = await ont.getBlocks();
+    } else if (chain === "qtum") {
+        blocks = await qtum.getBlocks();
+    } else if (chain === "rvn") {
+        blocks = await rvn.getBlocks();
+    } else if (chain === "tomo") {
+        blocks = await tomo.getBlocks();
+    } else if (chain === "trx") {
+        blocks = await trx.getBlocks();
+    } else if (chain === "usdt") {
+    } else if (chain === "vet") {
+        blocks = await vet.getBlocks();
+    } else if (chain === "vsys") {
+        blocks = await vsys.getBlocks();
+    } else if (chain === "xlm") {
+        blocks = await xlm.getBlocks();
+    } else if (chain === "xrp") {
+        blocks = await xrp.getBlocks();
+    } else if (chain === "xtz") {
+        blocks = await xtz.getBlocks();
+    } else if (chain === "zel") {
+        blocks = await zel.getBlocks();
+    } else if (chain === "zen") {
+        blocks = await zen.getBlocks();
+    } else if (chain === "zil") {
+        blocks = await zil.getBlocks();
+    // } else if (chain === "eos") {
+    //     return await eos.getBlockchain(blockchain, toFind, type);
+    // } else if (chain === "dcr") {
+    //     return await dcr.getBlockchain(toFind);
+    } else {
+        blocks = null;
+    }
+    //console.log(chain, blocks);
+    
+    blockchain.address = null;
+    blockchain.block = null;
+    blockchain.blocks = blocks;
+    blockchain.contract = null;
+    blockchain.transaction = null;
+
+    if(blockchain.blocks !== null && blockchain.blocks.length > 0){
+        blockchain.icon = "color/"+ blockchain.symbol.toLowerCase()  +".png";
+        let updateType = "blocks";
+
+        await dataSvc.updateSearchResult(
+          ip,
+          ipInfo,
+          chain,
+          updateType
+        );
+    }
+
+    return blockchain;
+}
+
+/**
  * Log an empty search
  * 
  * @param {string} ip requestor's ip address
@@ -562,5 +627,6 @@ module.exports = {
     getTokens,
     getTransactions,
     getBlockTransactions,
+    getBlocks,
     emptySearch
 }

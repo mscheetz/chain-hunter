@@ -291,29 +291,32 @@ const getBlocks = async() => {
     let url = base + endpoint;
 
     try{
-        const response = await axios.get(url, { timeout: 5000 });
+        const response = await axios.get(url, { timeout: 5000 });        
         const datas = response.data.items;
         const latestBlock = datas[0].number;
 
         let blocks = [];
         for(let data of datas) {
-            let block = buildBlock(datas, latestBlock);
+            let block = buildBlock(data, latestBlock);
 
             blocks.push(block);
         }
 
         return blocks;
     } catch (err) {
-        return [];
+        return null;
     }
 }
 
 const buildBlock = function(data, latestBlock) {
-    const ts = dateFormat(data.timestamp);
+    const ts = helperSvc.hasLetters(data.timestamp.toString())
+        ? dateFormat(data.timestamp)
+        : helperSvc.unixToUTC(data.timestamp/1000);
 
     let block = {
         blockNumber: data.number,
         validator: data.m2,
+        validatorIsAddress: true,
         transactionCount: data.e_tx,
         confirmations: latestBlock - data.number,
         date: ts,
@@ -368,8 +371,8 @@ const getTransaction = async(hash, rawData = false) => {
         const response = await axios.get(url, { timeout: 5000 });
 
         const datas = response.data;
-        
-        let transaction = rawData ? datas : buildTransaction(datas);
+
+        let transaction = rawData ? datas : await buildTransaction(datas);
 
         return transaction;
     } catch(error) {
@@ -390,7 +393,7 @@ const dateFormat = function(timestamp) {
     return ts;
 }
 
-const buildTransaction = async(txn, canExpand = false) => {    
+const buildTransaction = async(txn, canExpand = false) => {
     if(canExpand && txn.value === "0" && (typeof txn.trc20Txs === 'undefined')){
         txn = await getTransaction(txn.hash, true);
     }
@@ -431,9 +434,9 @@ const buildTransaction = async(txn, canExpand = false) => {
         if(typeof txn.internals !== 'undefined' && txn.internals !== null && txn.internals.length > 0) {
             txn.internals.forEach(internal => {                
                 const symbol = "TOMO";
-                const total = helperSvc.bigNumberToDecimal(internal.value, 18);
-                const commad = helperSvc.commaBigNumber(total);
-                const cleanedTotal = helperSvc.decimalCleanup(commad);
+                const total = typeof internal.value === 'undefined' ? 0 : helperSvc.bigNumberToDecimal(internal.value, 18);
+                const commad = total === 0 ? 0 : helperSvc.commaBigNumber(total);
+                const cleanedTotal = total === 0 ? 0 : helperSvc.decimalCleanup(commad);
                 const from = helperSvc.getSimpleIO(symbol, internal.from, cleanedTotal);
                 froms.push(from);
                 const to = helperSvc.getSimpleIO(symbol, internal.to, cleanedTotal);

@@ -155,20 +155,22 @@ const getBlocks = async() => {
     try{
         const response = await axios.get(url);
 
-        let blocks = [];
         if(typeof response.data !== 'undefined' && response.data !== null && response.data.blockArray.length > 0) {
             const datas = response.data.blockArray;
             const latestBlock = datas[0].blockHeight;
             
+            let blocks = [];
             for(let data of datas) {
                 let block = buildBlock(data, latestBlock);
 
                 blocks.push(block);
             }
+            return blocks;            
+        } else {
+            return null;
         }
-        return blocks;
     } catch(error) {
-        return [];
+        return null;
     }
 }
 

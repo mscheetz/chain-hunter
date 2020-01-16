@@ -22,7 +22,8 @@
 <div class="m-bottom-1">Date: {{block.date}}</div>
 <div class="m-bottom-1" *ngIf="block.size">Size: {{block.size}}</div>
 <div class="m-bottom-1" *ngIf="block.validator">Miner/Validator: 
-    <span class="word-break link-like" (click)="getAddress(block.validator)">{{block.validator}}</span>
+    <span *ngIf="block.validatorIsAddress" class="word-break link-like" (click)="getAddress(block.validator)">{{block.validator}}</span>
+    <span *ngIf="!block.validatorIsAddress">{{block.validator}}</span>
 </div>
 <div class="m-bottom-1" *ngIf="block.confirmations > 0">Confirmations: {{block.confirmations}}</div>
 <div class="m-bottom-1" *ngIf="block.confirmations === -1">Confirmations: Pending</div>

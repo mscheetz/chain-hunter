@@ -82,6 +82,14 @@ router.get("/api/blockchain/block/:chain/:blockNumber", apiHelp.bootlegMiddlewar
     res.status(200).json(result);
 });
 
+router.get("/api/blockchain/block/:chain/latest/blocks", apiHelp.bootlegMiddleware, async (req, res, next) => {
+    const chain = req.params.chain.toLowerCase();
+    const ip = res.locals.ip;
+    const result = await manager.getBlocks(chain, ip, req.ipInfo, enums.searchType.block);
+
+    res.status(200).json(result);
+});
+
 router.get("/api/blockchain/block/:chain/:blockNumber/txs", apiHelp.bootlegMiddleware, async (req, res, next) => {
     const chain = req.params.chain.toLowerCase();
     const blockNumber = req.params.blockNumber;

@@ -106,18 +106,20 @@ const getBlocks = async() => {
     try{
         const response = await axios.get(url);
         
-        let blocks = [];
         if(typeof response.data !== "undefined" && response.data !== null && response.data.content !== null && response.data.content.length > 0) {
             const datas = response.data.content;
 
             let latestBlock = await getLatestBlock();
 
+            let blocks = [];
             for(let data of datas) {
                 let block = buildBlock(data, latestBlock);
                 blocks.push(block);
             }
+            return blocks;
+        } else {
+            return null;
         }
-        return blocks;
     } catch(error) {
         return null;
     }
@@ -130,6 +132,7 @@ const buildBlock = function(datas, latestBlock) {
     let block = {
         blockNumber: datas.blockNumber,
         validator: hashCleanup(datas.minerAddress),
+        validatorIsAddress: true,
         transactionCount: datas.numTransactions,
         confirmations: confirmations,
         date: helperSvc.unixToUTC(ts),

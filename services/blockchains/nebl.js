@@ -122,14 +122,17 @@ const getBlock = async(blockNumber) => {
             let values = [];
             for(let tx of datas.tx) {                
                 const transaction = await getTransaction(tx);
-                if(transaction.tos.length > 0) {
-                    const tos = transaction.tos.filter(t => t.symbol === 'NEBL');
-                    if(tos.length > 0) {
-                        let txnValues = tos.map(t => +t.quantity.replace(/,/g, ""));
-                        values = _.concat(values, txnValues);
+                
+                if(transaction !== null) {
+                    if(transaction.tos.length > 0) {
+                        const tos = transaction.tos.filter(t => t.symbol === 'NEBL');
+                        if(tos.length > 0) {
+                            let txnValues = tos.map(t => +t.quantity.replace(/,/g, ""));
+                            values = _.concat(values, txnValues);
+                        }
                     }
+                    transactions.push(transaction);
                 }
-                transactions.push(transaction);
             }
             if(block.transactionCount === transactions.length) {
                 let quantity = 0;
@@ -152,7 +155,7 @@ const getBlocks = async() => {
     const latestBlock = await getLatestBlock();
 
     let blocks = [];
-    for(let i = 0; i < 10; i++) {
+    for(let i = 0; i < 3; i++) {
         const blockNumber = latestBlock - i;
 
         const block = await getBlock(blockNumber);
@@ -164,7 +167,7 @@ const getBlocks = async() => {
 }
 
 const getLatestBlock = async() => {
-    let endpoint = "/getblockcount";
+    let endpoint = "/api/getblockcount";
     let url = base + endpoint;
 
     try{
@@ -207,7 +210,7 @@ const getTransaction = async(hash) => {
     try{
         const response = await axios.get(url);
         const datas = response.data;
- 
+        
         const transaction = await buildTransaction(datas);
 
         return transaction;
@@ -368,6 +371,7 @@ const buildTransaction = async(txn) => {
     let type = enums.transactionType.TRANSFER;
     let froms = [];
     let tos = [];
+    
     if(txn.vout.length === 1 && txn.vout[0].scriptPubKey.type === "nonstandard"){
         type = enums.transactionType.NONSTANDARD;
     }

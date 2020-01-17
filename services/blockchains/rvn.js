@@ -120,6 +120,7 @@ const getBlocks = async() => {
         const response = await axios.get(url);
         
         let datas = response.data.blocks;
+        datas = datas.splice(0, 25);
         
         let blocks = [];
         
@@ -131,7 +132,7 @@ const getBlocks = async() => {
 
         return blocks;
     } catch(error) {
-        return [];
+        return null;
     }
 }
 
@@ -142,6 +143,7 @@ const buildBlock = function(data) {
     let block = {
         blockNumber: data.height,
         validator: data.minedBy,
+        validatorIsAddress: true,
         transactionCount: txCount,
         confirmations: data.confirmations,
         date: helperSvc.unixToUTC(data.time),

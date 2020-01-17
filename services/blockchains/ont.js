@@ -153,29 +153,46 @@ const getBlocks = async() => {
 
     try{
         const response = await axios.get(url);
-        let blocks = [];
+        
         if(response.data.code === 0){
-            const datas = response.data.result.records;
+            const datas = response.data.result.records;            
             const latestBlock = datas[0].block_height;
+            let blocks = [];
 
             for(let data of datas) {                
+                let size = typeof data.block_size !== 'undefined' 
+                        ? `${helperSvc.commaBigNumber(data.block_size.toString())} bytes`
+                        : null;
+
                 let block = {
                     blockNumber: data.block_height,
-                    transactionCount: datas.tx_count,
+                    transactionCount: data.tx_count,
                     confirmations: latestBlock - data.block_height,
-                    date: helperSvc.unixToUTC(datas.block_time),
-                    size: `${helperSvc.commaBigNumber(datas.block_size.toString())} bytes`,
-                    hash: datas.block_hash,
+                    date: helperSvc.unixToUTC(data.block_time),
+                    size: size,
+                    hash: data.block_hash,
                     hasTransactions: true
                 };
 
                 blocks.push(block);
             }
+            return blocks;
+        } else {
+            return null;
         }
-        return blocks;
     } catch(error) {
-        return [];
+        return null;
     }
+}
+
+const getBlockTransactions = async(blockNumber) => {
+    let block = await getBlock(blockNumber);
+
+    const transactions = block !== null && typeof block.transactions !== 'undefined' && block.transactions.length > 0 
+        ? block.transactions 
+        : null;
+
+    return transactions;
 }
 
 const getContract = async(address) => {
@@ -439,6 +456,7 @@ module.exports = {
     getBlockchain,
     getAddress,
     getTokens,
+    getBlockTransactions,
     getTransactions,
     getTransaction,
     getBlocks

@@ -2,6 +2,7 @@ const axios = require('axios');
 const helperSvc = require('../helper.service.js');
 const base = "https://roma-net.mdw.aepps.com";
 const enums = require('../../classes/enums');
+const _ = require('lodash');
 
 const getEmptyBlockchain = async() => {
     const chain = {};
@@ -92,12 +93,13 @@ const getBlocks = async() => {
     if(latestBlock === 0) {
         return [];
     }
-    const start = latestBlock - 20;
+    const start = latestBlock - 2;
     let endpoint = `/middleware/generations/${start}/${latestBlock}`;
     let url = base + endpoint;
 
     try{
         const response = await axios.get(url);
+
         let blocks = [];
         if(typeof response.data !== "undefined" && response.data !== null && response.data.data !== null && response.data.total_micro_blocks > 0) {
             const datas = response.data.data;
@@ -107,11 +109,13 @@ const getBlocks = async() => {
 
                 blocks.push(block);
             }
-
+            
+            return _.orderBy(blocks, "blockNumber", "desc");
+        } else {
+            return null;
         }
-        return blocks;
     } catch(error) {
-        return [];
+        return null;
     }
 }
 
@@ -130,40 +134,42 @@ const buildBlock = async(datas, blockNumber, latestBlock = 0) => {
     };
 
     if(datas.micro_blocks) {
-        const latestblock = await getLatestBlock();
+        latestblock = latestBlock === 0 ? await getLatestBlock() : latestBlock;
         let values = [];
         let i = 0;
         let transactions = [];
 
         for(const [key, value] of Object.entries(datas.micro_blocks)) {
             for(const [txnKey, txnValue] of Object.entries(value.transactions)) {
-                if(typeof txnValue.tx.amount !== 'undefined') {
-                    let value = 0;
-                    if(txnValue.tx.amount.toString().indexOf('e')>=0){
-                        value = helperSvc.exponentialToNumber(txnValue.tx.amount);
-                    } else {
-                        value = txnValue.tx.amount;
-                    }
-                    values.push(helperSvc.bigNumberToDecimal(value.toString(), 18));
-                }
+                // if(typeof txnValue.tx.amount !== 'undefined') {
+                //     let value = 0;
+                //     if(txnValue.tx.amount.toString().indexOf('e')>=0){
+                //         value = helperSvc.exponentialToNumber(txnValue.tx.amount);
+                //     } else {
+                //         value = txnValue.tx.amount;
+                //     }
+                //     values.push(+helperSvc.bigNumberToDecimal(value.toString(), 18));
+                // }
                 const transaction = buildTransaction(txnValue, "", latestblock, ts, enums.searchType.block);
                 
                 transactions.push(transaction);
                 i++;
             }
         }
-        let summed = 0;
-        if(values.length > 0) {
-            summed = values.reduce((a, b) => a + b, 0);
-            if(summed.toString().indexOf('e')>=0){
-                summed = helperSvc.exponentialToNumber(summed);
-                summed = helperSvc.bigNumberToDecimal(summed.toString(), 18);
-            }
-            if(summed.substr(0, 3) === '00.'){
-                summed = summed.replace('00.', '0.');
-            }
-        }
-        block.volume = summed;
+        // let summed = 0;
+        // if(values.length > 0) {
+        //     console.log(values);
+        //     summed = values.reduce((a, b) => a + b, 0);
+        //     console.log('summed', summed);
+        //     if(summed.toString().indexOf('e')>=0){
+        //         summed = helperSvc.exponentialToNumber(summed);
+        //         summed = helperSvc.bigNumberToDecimal(summed.toString(), 18);
+        //     }
+        //     if(summed.substr(0, 3) === '00.'){
+        //         summed = summed.replace('00.', '0.');
+        //     }
+        // }
+        //block.volume = summed;
         block.transactions = transactions;
         txnCount = transactions.length;
     }

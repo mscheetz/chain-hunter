@@ -14,6 +14,7 @@ export class Blockchain {
     transaction: Transaction;
     contract: Contract;
     block: Block;
+    blocks: Block[];
     icon: string;
     type: string;
     source: string = null;

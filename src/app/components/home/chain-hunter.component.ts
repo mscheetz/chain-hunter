@@ -50,7 +50,8 @@ export class ChainHunterComponent implements OnInit {
     unlimited: boolean = false;
     windowWidth: number = 0;
     @Output() tokenContent: string;
-    searchSpec: SearchSpec = null;    
+    searchSpec: SearchSpec = null;
+    latestBlocks: boolean = false;
 
     constructor(private titleService: Title,
                 private helperService: HelperService,
@@ -69,6 +70,7 @@ export class ChainHunterComponent implements OnInit {
             && typeof toFind !== 'undefined' && toFind !== null && toFind !== "") {
                 let searchType = type === "a" ? ResultType.address 
                                : type === "b" ? ResultType.block
+                               : type === "bx" ? ResultType.blocks
                                : type === "c" ? ResultType.contract
                                : type === "t" ? ResultType.transaction
                                : ResultType.none;
@@ -216,24 +218,19 @@ export class ChainHunterComponent implements OnInit {
      * Get results for blockchains
      */
     startHunt() {
+        this.latestBlocks = false;
         this.requestedChains = this.map.size;
         if(this.map.size > 0) {
             this.map.forEach((value: Blockchain, key: string) => {
-                if(this.searchSpec === null) {
+                if(this.searchSpec === null && !this.latestBlocks) {
                     this.generalSearch(key, this.addyTxn);
                 } else {
+                    if(this.searchSpec !== null && this.searchSpec.chain.toLowerCase() === "all") {
+                        this.latestBlocks = true;
+                        this.searchSpec = null;
+                    }
                     this.targetedSearch(key);
                 }
-                    // this.apiSvc.getBlockchain(key, this.addyTxn)
-                    //     .subscribe(chain => {
-                    //         this.requestedChains--;
-                    //         this.setMap(chain);
-                    //         if(chain.block || chain.address || chain.transaction || chain.contract) {
-                    //             this.resultsFound.push(chain.name);
-                    //         }
-                    //         this.updateMenuItems();
-                    //         this.checkCompleted();
-                    //     })
             });
         }
     }
@@ -244,7 +241,9 @@ export class ChainHunterComponent implements OnInit {
      * @param symbol blockchain symbol
      */
     targetedSearch(symbol: string){
-        if(this.searchSpec) {
+        if(this.latestBlocks){
+                this.latestBlocksSearch(symbol);
+        } else if(this.searchSpec) {
             if(this.searchSpec.chain.toLowerCase() === symbol.toLowerCase()) {
                 //this.addyTxn = this.searchSpec.searchString;
                 this.requestedChains = 1;
@@ -252,6 +251,8 @@ export class ChainHunterComponent implements OnInit {
                     this.addressSearch(this.searchSpec.chain, this.searchSpec.searchString);
                 } else if(this.searchSpec.type === ResultType.block) {
                     this.blockSearch(this.searchSpec.chain, this.searchSpec.searchString);
+                } else if(this.searchSpec.type === ResultType.blocks) {
+                    this.latestBlocksSearch(this.searchSpec.chain);
                 } else if(this.searchSpec.type === ResultType.contract) {
                     this.addressSearch(this.searchSpec.chain, this.searchSpec.searchString);
                 } else if(this.searchSpec.type === ResultType.transaction) {
@@ -283,6 +284,19 @@ export class ChainHunterComponent implements OnInit {
      */
     blockSearch(symbol: string, blockNumber: string) {
         this.apiSvc.getBlock(symbol, blockNumber)
+            .subscribe(chain => {
+                this.searchSpec = null;
+                this.processSearchResult(chain);
+            });
+    }
+
+    /**
+     * Search for a block
+     * 
+     * @param symbol symbol of blockchain
+     */
+    latestBlocksSearch(symbol: string) {
+        this.apiSvc.getLatestBlocks(symbol)
             .subscribe(chain => {
                 this.searchSpec = null;
                 this.processSearchResult(chain);
@@ -333,7 +347,7 @@ export class ChainHunterComponent implements OnInit {
     processSearchResult(chain: Blockchain) {
         this.requestedChains--;
         this.setMap(chain);
-        if(chain.block || chain.address || chain.transaction || chain.contract) {
+        if(chain.address || chain.block || chain.blocks || chain.transaction || chain.contract) {
             this.resultsFound.push(chain.name);
         }
         this.updateMenuItems();
@@ -403,6 +417,7 @@ export class ChainHunterComponent implements OnInit {
     checkCompleted() {
         if(this.requestedChains === 0) {
             this.notRunning = true;
+            this.latestBlocks = false;
             this.huntStatus = this.resultsFound.length === 0 ? 2 : 3;
             if(this.resultsFound.length === 0) {
                 this.apiSvc.emptySearch()

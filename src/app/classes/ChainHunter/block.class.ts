@@ -10,6 +10,7 @@ export class Block {
     transactionCount: number;
     transactions: Transaction[];
     validator: string;
+    validatorIsAddress: boolean = true;
     volume: number;
     hasTransactions: boolean = true;
     confirmations: number;

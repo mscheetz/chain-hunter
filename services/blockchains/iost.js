@@ -96,27 +96,58 @@ const getBlock = async(blockNumber) => {
     }
 }
 
-const getBlocks = async() => {
+const getBlocksII = async() => {
     let endpoint = "/blocks?page=1&size=25";
     let url = baseII + endpoint;
-
+    let config = {
+        headers: {
+            rejectUnauthorized: false
+        }
+    };
+console.log(url)
     try{
-        const response = await axios.get(url);
-        let blocks = [];
+        const response = await axios.get(url, config);
 
-        if(response.data.code === 0) {
+        if(response.data.blocks.length > 0) {
             const datas = response.data.blocks;
             const latestBlock = datas[0].block.number;
 
+            let blocks = [];
             for(let data of datas) {
                 const block = await buildBlock(data, latestBlock);
 
                 blocks.push(block);
             }
+            return blocks;
+        } else {
+            return null;
         }
+    } catch(error) {
+        console.log(error)
+        return null;
+    }
+}
+
+const getBlocks = async() => {
+    let endpoint = "module=block&action=get-latest-block";
+    let url = base + endpoint;
+    
+console.log(url)
+    try{
+        const response = await axios.get(url);
+
+        const datas = response.data.data;
+
+        let blocks = [];
+        
+        let block = await buildBlock(datas, datas.block.number);
+
+        blocks.push(block);
+
         return blocks;
     } catch(error) {
-        return [];
+        console.log(error)
+        return null;
     }
 }
 
@@ -129,6 +160,7 @@ const buildBlock = async(data, latestBlock = 0) => {
     let block = {
         blockNumber: data.block.number,
         validator: data.block.witness,
+        validatorIsAddress: false,
         transactionCount: data.block.tx_count,
         date: helperSvc.unixToUTC(ts),
         confirmations: confirmations,

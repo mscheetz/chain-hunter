@@ -168,7 +168,7 @@ const getBlocks = async() => {
 
     try{
         const response = await axios.get(url, { timeout: 5000 });
-        const datas = response.data;
+        const datas = response.data;        
         const latestBlock = datas[0].height;
 
         let blocks = [];
@@ -180,15 +180,30 @@ const getBlocks = async() => {
 
         return blocks;
     } catch(error) {
-        return [];
+        return null;
     }
 }
 
-const buildBlock = function(data, latestBlock) {    
+const getBlockTransactions = async(blockNumber) => {
+    let block = await getBlock(blockNumber);
+
+    const transactions = block !== null && typeof block.transactions !== 'undefined' && block.transactions.length > 0 
+        ? block.transactions 
+        : null;
+
+    return transactions;
+}
+
+const buildBlock = function(data, latestBlock) {
+    const txnCount = typeof data.transactions !== 'undefined' 
+        ? data.transactions.length 
+        : data.transactionCount;
+
     let block = {
         blockNumber: data.height,
         validator: data.miner,
-        transactionCount: data.transactions.length,
+        validatorIsAddress: true,
+        transactionCount: txnCount,
         confirmations: latestBlock - data.height,
         date: helperSvc.unixToUTC(data.timestamp),
         size: `${helperSvc.commaBigNumber(data.size.toString())} bytes`,
@@ -360,6 +375,7 @@ module.exports = {
     getEmptyBlockchain,
     getBlockchain,
     getAddress,
+    getBlockTransactions,
     getTransactions,
     getContract,
     getTransaction,

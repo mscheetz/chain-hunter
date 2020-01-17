@@ -1,0 +1,6 @@
+<p-accordion [multiple]="true">
+    <p-accordionTab *ngFor="let block of blockchain.blocks" 
+                    header="{{blockchain.symbol}} Block {{block.blockNumber}}">
+        <app-block [blockSaved]="false" [saveId]="" [blockchain]="blockchain" [block]="block"></app-block>
+    </p-accordionTab>
+</p-accordion> 

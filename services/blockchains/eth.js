@@ -56,6 +56,7 @@ const ethCheck = async(chain, addressToFind) => {
     try {
         const response = await axios.get(url);
         const datas = response.data;
+        
         if(_.has(datas, 'isContract')) {
             if(datas.isContract) {
                 chain.contract = createContract(datas.token);
@@ -267,13 +268,31 @@ const createTransactions = async(datas, address) => {
     return transactions;
 }
 
-const getLatestBlock = async(hash) => {
+const getLatestBlock = async() => {
+    let endpoint = `?module=proxy&action=eth_blocknumber&apikey=${etherscanKey}`;
+    let url = etherscanBase + endpoint;
+
+    try {
+        const response = await axios.get(url);
+        const datas = response.data;
+        
+        let blockHex = datas.result;
+
+        return helperSvc.hexToNumber(blockHex);
+        
+    } catch (error) {
+        return 0;
+    }
+}
+
+const getLatestBlockEthplorer = async(hash) => {
     let endpoint = hash +"&showTx=all";
     let url = ethplorerApiBase + endpoint;
 
     try {
         const response = await axios.get(url);
         const datas = response.data;
+        console.log(datas);
         if(_.has(datas, 'tx')) {
             return datas.tx.blockNumber + datas.txn.confirmations;
         } else {
@@ -303,6 +322,7 @@ const getBlock = async(blockNumber, lastestBlock = 0) => {
             let block = {
                 blockNumber: blockNumber,
                 validator: datas.miner,
+                validatorIsAddress: true,
                 transactionCount: datas.transactions.length,
                 date: helperSvc.unixToUTC(ts),
                 size: `${helperSvc.commaBigNumber(size.toString())} bytes`,
@@ -347,15 +367,16 @@ const getBlock = async(blockNumber, lastestBlock = 0) => {
 
 const getBlocks = async(blockNumber) => {
     const lastestBlock = await getLatestBlock();
-    let blocks = [];    
-    for (let i = 0; i < 5; i++) {
+
+    let blocks = [];
+    for (let i = 0; i < 2; i++) {
         let blockNumber = lastestBlock - i;
         let block = await getBlock(blockNumber);
 
         blocks.push(block);
     }
 
-    return blocks;
+    return blocks.length > 0 ? blocks : null;
 }
 
 const buildTransaction = function(tx, ts, block, lastestBlock) {

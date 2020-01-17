@@ -17,6 +17,7 @@ export enum ResultType {
     none,
     address,
     block,
+    blocks,
     contract,
     transaction
 }

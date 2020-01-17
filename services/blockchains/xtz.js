@@ -116,10 +116,6 @@ const getBlock = async(blockNumber) => {
 }
 
 const getBlocks = async() => {
-    const hash = await getBlockHash(blockNumber);
-    if(hash === null) { 
-        return null;
-    }
     let endpoint = "/v1/blocks?number=8";
     let url = base + endpoint;
 
@@ -137,7 +133,7 @@ const getBlocks = async() => {
         
         return blocks;
     } catch (err) {
-        return [];
+        return null;
     }
 }
 
@@ -149,6 +145,7 @@ const buildBlock = function(data, latestBlock) {
     let block = {
         blockNumber: data.level,
         validator: data.baker.tz,
+        validatorIsAddress: true,
         transactionCount: data.nb_operations,
         confirmations: latestBlock - data.level,
         date: ts,

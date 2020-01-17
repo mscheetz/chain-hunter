@@ -2,7 +2,7 @@ const axios = require('axios');
 const helperSvc = require('../helper.service.js');
 const base = "https://blockchain.info";
 const baseBTC = "https://chain.api.btc.com";
-const baseTx = "https://api.smartbit.com.au";
+const baseSmartBit = "https://api.smartbit.com.au";
 const enums = require('../../classes/enums');
 const _  = require('lodash');
 // const bitcore = require('bitcore-lib');
@@ -54,7 +54,7 @@ const getBlockchain = async(chain, toFind, type) => {
 
 const getAddress = async(addressToFind) => {
     let endpoint = `/v1/blockchain/address/${addressToFind}?limit=50`;
-    let url = baseTx + endpoint;
+    let url = baseSmartBit + endpoint;
 
     try{
         const response = await axios.get(url);
@@ -155,7 +155,7 @@ const getAddressBlockchain = async(addressToFind) => {
     }
 }
 
-const getBlock = async(blockNumber) => {
+const getBlockBTC = async(blockNumber) => {
     let endpoint = `/v3/block/${blockNumber}`;
     let url = baseBTC + endpoint;
 
@@ -176,32 +176,114 @@ const getBlock = async(blockNumber) => {
     }
 }
 
+const getBlock = async(blockNumber) => {
+    let endpoint = `/v1/blockchain/block/${blockNumber}?limit=25`;
+    let url = baseSmartBit + endpoint;
+
+    try{
+        const response = await axios.get(url);
+
+        if(response.data !== null && response.data.success) {
+            const datas = response.data.block;
+            
+            const block = buildBlockSmartBit(datas);
+
+            let transactions = [];
+            if(typeof datas.transactions !== 'undefined' && datas.transactions !== null && datas.transactions.length > 0) {
+                datas.transactions.forEach(txn => {
+                    let transaction = buildTransactionSmartBit(txn);
+
+                    transactions.push(transaction);
+                });
+                block.transactions = transactions;
+            }
+
+            return block;
+        } else {
+            return null;
+        }
+    } catch(error) {
+        return null;
+    }
+}
+
+const getBlockTransactions = async(blockNumber) => {
+    let endpoint = `/v1/blockchain/block/${blockNumber}?limit=25`;
+    let url = baseSmartBit + endpoint;
+
+    try{
+        const response = await axios.get(url);
+
+        let transactions = [];
+        if(response.data !== null && response.data.success) {
+            const datas = response.data.block;
+            
+            if(typeof datas.transactions !== 'undefined' && datas.transactions !== null && datas.transactions.length > 0) {
+                datas.transactions.forEach(txn => {
+                    let transaction = buildTransactionSmartBit(txn);
+
+                    transactions.push(transaction);
+                });
+            }
+        }
+        return transactions;
+    } catch(error) {
+        return [];
+    }
+}
+
 const getBlocks = async() => {
     let today = new Date();
-    let blockDate = `${today.getFullYear()}${(today.getMonth() + 1)}${today.getDate()}`;
+    let day = today.getDate().toString();
+    let month = (today.getMonth() + 1).toString();
+    day = day.length < 2 ? `0${day}` : day;
+    month = month.length < 2 ? `0${month}` : month;
+    let blockDate = `${today.getFullYear()}${month}${day}`;
     let endpoint = `/v3/block/date/${blockDate}`;
     let url = baseBTC + endpoint;
 
     try{
         const response = await axios.get(url);
 
-        let blocks = [];
         if(response.data !== null && response.data.err_no === 0 && response.data.data.length > 0) {
-            const datas = response.data.data;
-            
+            let datas = response.data.data;
+            datas = datas.splice(0, 25);
+
+            let blocks = [];
             for(let data of datas) {
                 const block = buildBlock(data);
 
                 blocks.push(block);
             }
+            return blocks;
+        } else {
+            return null;
         }
-        return blocks;
     } catch(error) {
         return null;
     }
 }
 
-const buildBlock = function(datas) {            
+const buildBlockSmartBit = function(datas) {
+    let validator = (typeof datas.pool !== 'undefined' && datas.pool !== null && typeof datas.name !== 'undefined')
+        ? datas.name
+        : null;
+
+    let block = {
+        blockNumber: datas.height,
+        validator: validator,
+        transactionCount: datas.transaction_count,
+        confirmations: datas.confirmations,
+        date: helperSvc.unixToUTC(datas.time),
+        size: `${helperSvc.commaBigNumber(datas.size.toString())} bytes`,
+        hash: datas.hash,
+        hasTransactions: true
+    };
+
+    return block;
+}
+
+const buildBlock = function(datas) {
     let validator = (typeof datas.extras !== 'undefined' && typeof datas.extras.pool_name !== 'undefined')
         ? datas.extras.pool_name
         : null;
@@ -209,6 +291,7 @@ const buildBlock = function(datas) {
     let block = {
         blockNumber: datas.height,
         validator: validator,
+        validatorIsAddress: false,
         transactionCount: datas.tx_count,
         confirmations: datas.confirmations,
         date: helperSvc.unixToUTC(datas.timestamp),
@@ -347,7 +430,7 @@ const getTransaction = async(hash) => {
     // let endpoint = "/v3/tx/" + hash;
     // let url = baseBTC + endpoint;
     let endpoint = `/v1/blockchain/tx/${hash}`;
-    let url = baseTx + endpoint;
+    let url = baseSmartBit + endpoint;
 
     try{
         const response = await axios.get(url, { timeout: 5000 });
@@ -583,6 +666,63 @@ const buildTransactionTx = async(txn) =>{
     return transaction;
 }
 
+const buildTransactionSmartBit = function(txn) {
+    let froms = [];
+    let tos = [];
+    let type = enums.transactionType.TRANSFER;
+    const symbol = "BTC";
+    if(typeof txn.inputs === 'undefined' || txn.coinbase === true) {
+        type = enums.transactionType.MINING;
+        from = {
+            addresses: ["coinbase"]
+        }
+        froms.push(from);
+    } else {
+        for(let input of txn.inputs) {
+            if(typeof input.addresses !== 'undefined') {
+                let addresses = input.addresses;
+                let quantity = input.value;
+                let from = helperSvc.getSimpleIOAddresses(symbol, addresses, quantity);
+                froms.push(from);
+            }
+        }
+    }
+    for(let output of txn.outputs) {
+        if(typeof output.addresses !== 'undefined') {
+            let quantity = output.value;
+            let addresses = output.addresses;
+            if(addresses.length == 0) {
+                if(output.type === "nulldata" && output.script_pub_key.asm.indexOf("OP_RETURN") >= 0) {
+                    addresses.push("OP_RETURN");
+                } else {
+                    addresses.push(output.type);
+                }
+            }
+            let to = helperSvc.getSimpleIOAddresses(symbol, addresses, quantity);
+            tos.push(to);
+        }
+    }
+
+    const fromDatas = helperSvc.cleanIO(froms);
+    const toDatas = helperSvc.cleanIO(tos);
+    const time = txn.time === null ? txn.first_seen : txn.time;
+    
+    const transaction = {
+        type: type,
+        hash: txn.txid,
+        block: txn.block,
+        symbol: symbol,
+        quantity: txn.ouput_amount,
+        confirmations: txn.confirmations === 0 ? -1 : txn.confirmations,
+        date: helperSvc.unixToUTC(time),
+        froms: fromDatas,
+        tos: toDatas
+    };
+
+    return transaction;
+}
+
+
 const generateAddress = async(publicKey) => {
     return publicKey;
     // let value = Buffer.from(publicKey);
@@ -704,6 +844,7 @@ const getBtcAddress = function(script) {
 module.exports = {
     getEmptyBlockchain,
     getBlockchain,
+    getBlockTransactions,
     getAddress,
     getTransactions,
     getTransaction,

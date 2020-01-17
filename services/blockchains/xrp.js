@@ -90,24 +90,25 @@ const getBlock = async(blockNumber) => {
 }
 
 const getBlocks = async() => {
-    let endpoint = "/v1/ledger/" + blockNumber;
+    let endpoint = "/v1/ledger";
     let url = base + endpoint;
 
     try{
         const response = await axios.get(url, { timeout: 5000 });
+       
         const datas = response.data.ledgers;
         const latestBlock = datas[0].ledger_index;
         let blocks = [];
 
         for(let data of datas) {
-            let block = buildBlock(datas, latestBlock);
+            let block = buildBlock(data, latestBlock);
 
             blocks.push(block);
         }
 
         return blocks;
     } catch (err) {
-        return [];
+        return null;
     }
 }
 

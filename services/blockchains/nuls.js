@@ -138,10 +138,10 @@ const getBlocks = async() => {
 
     try{
         const response = await axios.post(base, data);
-        let blocks = [];
         if(response.data !== null && typeof response.data.error === 'undefined') {
             const datas = response.data.result.list;
             const latestBlock = datas[0].height;
+            let blocks = [];
 
             for(let data of datas) {
                 let block = {
@@ -155,10 +155,12 @@ const getBlocks = async() => {
 
                 blocks.push(block);
             }
+            return blocks;
+        } else {
+            return null;
         }
-        return blocks;
     } catch (err) {
-        return [];
+        return null;
     }
 }
 

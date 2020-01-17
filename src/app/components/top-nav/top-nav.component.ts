@@ -51,4 +51,9 @@ export class TopNavComponent implements OnInit {
     const nav = document.getElementById("topNav");
     nav.className = "top-nav";
   }
+
+  latestBlocks() {
+    this.hideNav();
+    this.router.navigate([`/search/all/b/latest`]);
+  }
 }

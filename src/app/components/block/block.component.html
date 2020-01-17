@@ -13,34 +13,37 @@
             (click)="saveResult($event, 'block')" 
             class="fa fa-star-o" 
             style="color: deeppink; cursor: pointer;"></i>
-        {{blockchain.symbol}} Block: <span>{{blockchain.block.blockNumber}}</span>
+        {{blockchain.symbol}} Block: <span>{{block.blockNumber}}</span>
         <i class="fa fa-link copy-icon" title="Copy direct search url for this {{blockchain.symbol}} Block" 
             [copy-clipboard]="searchUrl" (copied)="linkCopySuccess($event)"></i>
     </h3>
 </div>
-<div class="m-bottom-1 wrap-long" *ngIf="blockchain.block.hash">Hash: {{blockchain.block.hash}}</div>
-<div class="m-bottom-1">Date: {{blockchain.block.date}}</div>
-<div class="m-bottom-1" *ngIf="blockchain.block.size">Size: {{blockchain.block.size}}</div>
-<div class="m-bottom-1" *ngIf="blockchain.block.validator">Miner/Validator: {{blockchain.block.validator}}</div>
-<div class="m-bottom-1" *ngIf="blockchain.block.confirmations > 0">Confirmations: {{blockchain.block.confirmations}}</div>
-<div class="m-bottom-1" *ngIf="blockchain.block.confirmations === -1">Confirmations: Pending</div>
-<div class="m-bottom-1" *ngIf="blockchain.block.transactionCount > -1">Transaction Count: {{blockchain.block.transactionCount}}</div>
-<div class="m-bottom-1" *ngIf="blockchain.block.volume">Block Total Volume: {{blockchain.block.volume | number}} {{blockchain.symbol}}</div>
+<div class="m-bottom-1 wrap-long" *ngIf="block.hash">Hash: {{block.hash}}</div>
+<div class="m-bottom-1">Date: {{block.date}}</div>
+<div class="m-bottom-1" *ngIf="block.size">Size: {{block.size}}</div>
+<div class="m-bottom-1" *ngIf="block.validator">Miner/Validator: 
+    <span *ngIf="block.validatorIsAddress" class="word-break link-like" (click)="getAddress(block.validator)">{{block.validator}}</span>
+    <span *ngIf="!block.validatorIsAddress">{{block.validator}}</span>
+</div>
+<div class="m-bottom-1" *ngIf="block.confirmations > 0">Confirmations: {{block.confirmations}}</div>
+<div class="m-bottom-1" *ngIf="block.confirmations === -1">Confirmations: Pending</div>
+<div class="m-bottom-1" *ngIf="block.transactionCount > -1">Transaction Count: {{block.transactionCount}}</div>
+<div class="m-bottom-1" *ngIf="block.volume">Block Total Volume: {{block.volume | number}} {{blockchain.symbol}}</div>
 <p-accordion 
-        *ngIf="blockchain.block.hasTransactions" 
+        *ngIf="block.hasTransactions" 
         (onOpen)="onTxnsOpen($event)">
     <!-- Block Transactions -->
     <p-accordionTab 
             header="{{blockchain.symbol}} block transactions" 
-            *ngIf="blockchain.block.hasTransactions">
+            *ngIf="block.hasTransactions">
         <div *ngIf="!transactionsComplete">
             Hunting down Transactions <i class="fa fa-cog fa-2x fa-spin" style="color: #464a4e;"></i>
         </div>
-        <div *ngIf="transactionsComplete && (blockchain.block.transactions === undefined || blockchain.block.transactions === null || blockchain.block.transactions.length === 0)">
+        <div *ngIf="transactionsComplete && (block.transactions === undefined || block.transactions === null || block.transactions.length === 0)">
             No transactions found
         </div>
         <ul>
-            <li class="address-txn" *ngFor="let txn of blockchain.block.transactions">
+            <li class="address-txn" *ngFor="let txn of block.transactions">
                 <transaction-detail [transaction]="txn" 
                              [blockchain]="blockchain"
                              [address]=""

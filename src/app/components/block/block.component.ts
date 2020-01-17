@@ -8,6 +8,9 @@ import { ApiService } from 'src/app/services/api.service';
 import { AuthenticationService } from 'src/app/services/authentication.service';
 import { LoginService } from 'src/app/services/login.service';
 import { Blockchain } from 'src/app/classes/ChainHunter/blockchain.class';
+import { Block } from 'src/app/classes/ChainHunter/block.class';
+import { SearchService } from 'src/app/services/search.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-block',
@@ -16,6 +19,7 @@ import { Blockchain } from 'src/app/classes/ChainHunter/blockchain.class';
 })
 export class BlockComponent implements OnInit {
   @Input() blockchain: Blockchain;
+  @Input() block: Block;
   transactionsComplete: boolean = true;
   tokensComplete: boolean = true;
   tokenContent: string;
@@ -28,14 +32,16 @@ export class BlockComponent implements OnInit {
   constructor(private apiSvc: ApiService, 
               private messageSvc: MessageService, 
               private authSvc: AuthenticationService, 
-              private loginSvc: LoginService) { 
+              private loginSvc: LoginService,
+              private searchSvc: SearchService,
+              private router: Router) { 
     this.authSvc.isLoggedIn.subscribe(val => {
       this.loggedIn = val
     });
   }
 
   ngOnInit() {
-    this.searchUrl = `${location.origin}/search/${this.blockchain.symbol.toLowerCase()}/b/${this.blockchain.block.blockNumber}`;
+    this.searchUrl = `${location.origin}/search/${this.blockchain.symbol.toLowerCase()}/b/${this.block.blockNumber}`;
   }
 
   saveHover(event, type: string, overlayPanel: OverlayPanel) {
@@ -63,7 +69,7 @@ export class BlockComponent implements OnInit {
           hash = this.blockchain.address.address;
       } else if (type === ResultType[ResultType.block]) {
           objType = ResultType.block;
-          hash = this.blockchain.block.blockNumber.toString();
+          hash = this.block.blockNumber.toString();
       } else if (type === ResultType[ResultType.contract]) {
           objType = ResultType.contract;
           hash = this.blockchain.contract.address;
@@ -97,7 +103,7 @@ export class BlockComponent implements OnInit {
           hash = this.blockchain.address.address;
       } else if (type === ResultType[ResultType.block]) {
           objType = ResultType.block;
-          hash = this.blockchain.block.blockNumber.toString();
+          hash = this.block.blockNumber.toString();
       } else if (type === ResultType[ResultType.contract]) {
           objType = ResultType.contract;
           hash = this.blockchain.contract.address;
@@ -130,7 +136,7 @@ export class BlockComponent implements OnInit {
 
   onTxnsOpen(e: any) {
       if(e.index === 0) {
-          if(this.blockchain.block.transactions === null || this.blockchain.block.transactions === undefined) {
+          if(this.block.transactions === null || this.block.transactions === undefined) {
             this.getTransactions();
           }
       }
@@ -141,36 +147,53 @@ export class BlockComponent implements OnInit {
    */
   getTransactions(): any {
     this.transactionsComplete = false;
-    this.apiSvc.getBlockTransactions(this.blockchain.symbol, this.blockchain.block.blockNumber)
+    this.apiSvc.getBlockTransactions(this.blockchain.symbol, this.block.blockNumber)
         .subscribe(txns => {
-            this.blockchain.block.transactions = txns;
+            this.block.transactions = txns;
             this.getVolume();
             this.transactionsComplete = true;
         });
   }
 
   getVolume() {            
-    if (this.blockchain.block.transactions === null || this.blockchain.block.transactions.length === 0 || 
-        this.blockchain.block.transactionCount !== this.blockchain.block.transactions.length) {
+    if (this.block.transactions === null || this.block.transactions.length === 0 || 
+        this.block.transactionCount !== this.block.transactions.length) {
         return;
     }
-    if(!this.blockchain.block.transactionCount) {
-        this.blockchain.block.transactionCount = this.blockchain.block.transactions.length;
+    if(!this.block.transactionCount) {
+        this.block.transactionCount = this.block.transactions.length;
     }
     let volume = 0;
-    this.blockchain.block.transactions.forEach(txn => {
-        for(let i = 0; i < txn.tos.length; i++) {
-            if(txn.tos[i].symbol === this.blockchain.symbol) {
-                let quantity = txn.tos[i].quantity.toString().replace(/,/g, "");
-                volume += +quantity;
+    this.block.transactions.forEach(txn => {
+        if(typeof txn.tos !== 'undefined') {
+            for(let i = 0; i < txn.tos.length; i++) {
+                if(txn.tos[i].symbol === this.blockchain.symbol) {
+                    let quantity = txn.tos[i].quantity.toString().replace(/,/g, "");
+                    volume += +quantity;
+                }
             }
         }
       });
-    this.blockchain.block.volume = volume;
+    this.block.volume = volume;
   }
 
   linkCopySuccess(event) {
       const message = `Direct search URL for this ${this.blockchain.symbol} Block has been copied to the clipboard!`;
       this.addToast('notification-toast', Severity.success, 'Copied', message);
+  }
+
+  getAddress(address: string) {
+    this.routeCheck(ResultType.address, address);
+  }
+
+  routeCheck(type: ResultType, searcher: string) {
+    if(this.router.url === "/hunts") {
+      let itemType = type === ResultType.address ? 'a' 
+                   : type === ResultType.block ? 'b'
+                   : type === ResultType.contract ? 'c'
+                   : 't';
+      this.router.navigate([`/search/${this.blockchain.symbol.toLowerCase()}/${itemType}/${searcher}`]);
+    }
+    this.searchSvc.setSearchSpec(this.blockchain.symbol, type, searcher);
   }
 }

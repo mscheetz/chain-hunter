@@ -165,10 +165,12 @@ export class BlockComponent implements OnInit {
     }
     let volume = 0;
     this.block.transactions.forEach(txn => {
-        for(let i = 0; i < txn.tos.length; i++) {
-            if(txn.tos[i].symbol === this.blockchain.symbol) {
-                let quantity = txn.tos[i].quantity.toString().replace(/,/g, "");
-                volume += +quantity;
+        if(typeof txn.tos !== 'undefined') {
+            for(let i = 0; i < txn.tos.length; i++) {
+                if(txn.tos[i].symbol === this.blockchain.symbol) {
+                    let quantity = txn.tos[i].quantity.toString().replace(/,/g, "");
+                    volume += +quantity;
+                }
             }
         }
       });

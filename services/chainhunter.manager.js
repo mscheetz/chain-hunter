@@ -473,6 +473,8 @@ const getBlockTransactions = async(chain, blockNumber, ip, ipInfo) => {
         transactions = await trx.getTransactions(blockNumber);
     } else if (chain === "vet") {
         transactions = await vet.getBlockTransactions(blockNumber);
+    } else if (chain === "vsys") {
+        transactions = await vsys.getBlockTransactions(blockNumber);
     } else if (chain === "xlm") {
         transactions = await xlm.getTransactions(blockNumber);
     } else if (chain === "xrp") {

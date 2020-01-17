@@ -33,9 +33,7 @@ const getBlockchain = async(chain, toFind, type) => {
     if(searchType & enums.searchType.address) {
         address = await getAddress(toFind);
     }
-    // if(searchType & enums.searchType.block) {
-    //     block = await getBlock(toFind);
-    // }
+    
     if(searchType & enums.searchType.contract) {
         contract = await getContract(toFind);
     }
@@ -86,10 +84,10 @@ const getBlock = async(blockNumber) => {
 
     try{
         const response = await axios.get(url);
-        console.log(response.data);
+
         if(typeof response.data.message === "undefined") {
             const datas = response.data;
-console.log(datas)
+
             let ts = datas.time;
             let day = ts.substr(0,2);
             let mo = ts.substr(3,2);
@@ -136,6 +134,7 @@ const getBlocks = async() => {
                 let block = {
                     blockNumber: data.number,
                     validator: data.miner,
+                    validatorIsAddress: true,
                     transactionCount: data.txn,
                     date: helperSvc.unixToUTC(data.timestamp),
                     hasTransactions: true

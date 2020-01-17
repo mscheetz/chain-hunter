@@ -96,12 +96,17 @@ const getBlock = async(blockNumber) => {
     }
 }
 
-const getBlocks = async() => {
+const getBlocksII = async() => {
     let endpoint = "/blocks?page=1&size=25";
     let url = baseII + endpoint;
-
+    let config = {
+        headers: {
+            rejectUnauthorized: false
+        }
+    };
+console.log(url)
     try{
-        const response = await axios.get(url);
+        const response = await axios.get(url, config);
 
         if(response.data.blocks.length > 0) {
             const datas = response.data.blocks;
@@ -118,6 +123,30 @@ const getBlocks = async() => {
             return null;
         }
     } catch(error) {
+        console.log(error)
+        return null;
+    }
+}
+
+const getBlocks = async() => {
+    let endpoint = "module=block&action=get-latest-block";
+    let url = base + endpoint;
+    
+console.log(url)
+    try{
+        const response = await axios.get(url);
+
+        const datas = response.data.data;
+
+        let blocks = [];
+        
+        let block = await buildBlock(datas, datas.block.number);
+
+        blocks.push(block);
+
+        return blocks;
+    } catch(error) {
+        console.log(error)
         return null;
     }
 }

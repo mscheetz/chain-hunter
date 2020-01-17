@@ -134,15 +134,16 @@ const getBlocks = async() => {
         const latestBlock = datas[0].height;
 
         let blocks = [];
-        for(let data of datas) {
-            let block = buildBlock(data, latestBlock);
+        const maxLen = datas.length >= 10 ? 10 : datas.length;
+        for(let i = 0; i < maxLen; i++) {
+            let block = buildBlock(datas[i], latestBlock);
 
             blocks.push(block);
         }
 
         return blocks;
     } catch (err) {
-        return [];
+        return null;
     }
 }
 
@@ -150,7 +151,8 @@ const buildBlock = function(data, latestBlock) {
         let block = {
         blockNumber: data.height,
         validator: data.minedBy,
-        transactionCount: data.tx.length,
+        validatorIsAddress: true,
+        transactionCount: typeof data.tx !== 'undefined' ? data.tx.length : data.txlength,
         confirmations: latestBlock - data.height,
         date: helperSvc.unixToUTC(data.time),
         size: `${helperSvc.commaBigNumber(data.size.toString())} bytes`,

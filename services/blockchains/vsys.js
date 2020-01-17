@@ -169,32 +169,46 @@ const getBlocks = async() => {
 
     try{
         const response = await axios.post(url, data);
-        let blocks = [];
-        if(typeof response.data.data !== "undefined" && response.data.data !== null && response.data.data.Height > 0) {
+        
+        if(typeof response.data.data !== "undefined" && response.data.data !== null && response.data.data.list.length > 0) {
+            let blocks = [];
             const datas = response.data.data.list;
-            const latestBlock = datas[0].Height;
+            const latestBlock = datas[0].BlockId;
             
             for(let data of datas) {
                 const block = buildBlock(data, latestBlock);
 
                 blocks.push(block);
             }
-            
+            return blocks;
+        } else {
+            return null;
         }
-        return block;
     } catch(error) {
+        return null;
+    }
+}
+
+const getBlockTransactions = async(blockNumber) => {
+    const block = await getBlock(blockNumber);
+
+    if(block === null || typeof block.transactions === 'undefined') {
         return [];
+    } else {
+        return block.transactions;
     }
 }
 
 const buildBlock = function(data, latestBlock) {                
     let ts = data.TimeStamp.toString().substr(0,10);
-    let size = data.Size.replace("B","");
+    let size = typeof data.Size !== 'undefined' ? data.Size : data.BlockSize;
+    size = size.replace("B","");
 
     let block = {
-        blockNumber: data.Height,
+        blockNumber: typeof data.Height !== 'undefined' ? data.Height : data.BlockId,
         validator: data.Generator,
-        transactionCount: data.Txs,
+        validatorIsAddress: true,
+        transactionCount: +data.Txs,
         confirmations: latestBlock - data.Height,
         date: helperSvc.unixToUTC(ts),
         size: `${helperSvc.commaBigNumber(size)} bytes`,
@@ -447,5 +461,6 @@ module.exports = {
     getContract,
     getTokens,
     getBlock,
-    getBlocks
+    getBlocks,
+    getBlockTransactions
 }

@@ -123,8 +123,8 @@ const getBlocks = async() => {
 
     try{
         const response = await axios.get(url);
-        let blocks = [];
         if(response.data.data.length > 0) {
+            let blocks = [];
             const datas = response.data.data;
             const latestBlock = datas[0].number;
 
@@ -133,10 +133,12 @@ const getBlocks = async() => {
 
                 blocks.push(block);
             }
+            return blocks;
+        } else {
+            return null;
         }
-        return blocks;
     } catch(error) {
-        return [];
+        return null;
     }
 }
 
@@ -146,6 +148,7 @@ const buildBlock = function(data, latestBlock) {
     let block = {
         blockNumber: data.number,
         validator: data.witnessAddress,
+        validatorIsAddress: true,
         transactionCount: data.nrOfTrx,
         confirmations: !data.confirmed ? -1 : latestBlock - data.number,
         date: helperSvc.unixToUTC(ts),

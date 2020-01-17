@@ -118,7 +118,7 @@ const getBlocks = async() => {
 
         return blocks;
     } catch(error) {
-        return [];
+        return null;
     }
 }
 

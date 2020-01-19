@@ -517,7 +517,7 @@ export class ChainHunterComponent implements OnInit {
        // this.huntStatus = this.addyTxn === undefined ? 0 : this.notRunning ? 2 : 1;
         this.map.forEach((value: Blockchain, key: string) => {
             let visible = this.windowWidth < 768 ? false : true;
-            if (value.address || value.block || value.contract || value.transaction) {
+            if (value.address || value.block || value.blocks || value.contract || value.transaction) {
                 visible = true;
          //       this.huntStatus = 3;
             }

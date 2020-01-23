@@ -6,7 +6,8 @@ const searchType = {
     address: 2,
     transaction: 4,
     contract: 8,
-    block: 16
+    block: 16,
+    blocks: 32
 }
 
 /**

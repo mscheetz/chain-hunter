@@ -14,6 +14,40 @@
                     <label for="addy-txn">Address/Block/Contract/Hash</label>
                     <button pButton type="button" (click)="chainHunt()" label="Go!" class="ui-button-success"></button>
                 </span>
+                <div class="search-options">
+                    <button *ngIf="windowWidth > 768" button pButton type="button" label="Address" class="ui-button-info" 
+                        [ngClass]="!searchAddress ? 'inactive-option' : ''" (click)="optionSet('address')"></button>
+                    <button *ngIf="windowWidth <= 768" button pButton type="button" label="Addy" class="ui-button-info" 
+                        [ngClass]="!searchAddress ? 'inactive-option' : ''" (click)="optionSet('address')"></button>
+                    <button button pButton type="button" label="Block" class="ui-button-info" 
+                        [ngClass]="!searchBlock ? 'inactive-option' : ''" (click)="optionSet('block')"></button>
+                    <button *ngIf="windowWidth > 768" button pButton type="button" label="Contract" class="ui-button-info" 
+                        [ngClass]="!searchContract ? 'inactive-option' : ''" (click)="optionSet('contract')"></button>
+                    <button *ngIf="windowWidth <= 768" button pButton type="button" label="Contr" class="ui-button-info" 
+                        [ngClass]="!searchContract ? 'inactive-option' : ''" (click)="optionSet('contract')"></button>
+                    <button *ngIf="windowWidth > 768" button pButton type="button" label="Transaction" class="ui-button-info" 
+                        [ngClass]="!searchTransaction ? 'inactive-option' : ''" (click)="optionSet('transaction')"></button>
+                    <button *ngIf="windowWidth <= 768" button pButton type="button" label="Txn" class="ui-button-info" 
+                        [ngClass]="!searchTransaction ? 'inactive-option' : ''" (click)="optionSet('transaction')"></button>
+                    <button *ngIf="windowWidth > 768" button pButton type="button" label="Latest Block(s)" class="ui-button-info" 
+                        [ngClass]="!searchBlocks ? 'inactive-option' : ''" (click)="optionSet('blocks')"></button>
+                    <button *ngIf="windowWidth <= 768" button pButton type="button" label="Latest" class="ui-button-info" 
+                        [ngClass]="!searchBlocks ? 'inactive-option' : ''" (click)="optionSet('blocks')"></button>
+                    <p-dropdown [options]="searchChains" [(ngModel)]="searchChain" [style]="{'width':'150px', 'margin-left':'10px'}">
+                        <ng-template let-item pTemplate="selectedItem"> 
+                           <img *ngIf="item.label !== 'All'" src="assets/cryptoicons/color/{{item.label.toLowerCase()}}.png" 
+                                style="width:18px; margin-right: 5px; vertical-align:middle" /> 
+                           <span style="vertical-align:middle">{{item.label}}</span>
+                       </ng-template> 
+                        <ng-template let-chain pTemplate="item">
+                            <div class="ui-helper-clearfix" style="position: relative; height: 25px;">
+                                <img *ngIf="chain.value !== null" src="assets/cryptoicons/color/{{chain.value.toLowerCase()}}.png" 
+                                    style="width:18px;position:absolute;top:1px;left:5px" />
+                                <div style="font-size:14px;float:right;margin-top:4px">{{chain.label.toUpperCase()}}</div>
+                            </div>
+                        </ng-template>
+                    </p-dropdown>
+                </div>
             </div>
         </div>
         <div *ngIf="!notRunning">

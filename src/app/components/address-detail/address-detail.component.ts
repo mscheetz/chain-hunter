@@ -56,7 +56,7 @@ export class AddressDetailComponent implements OnInit {
           return;
       }
       let hash = "";
-      let objType: ResultType = ResultType.none;
+      let objType: ResultType = ResultType.nothing;
       if(type === ResultType[ResultType.address]) {
           objType = ResultType.address;
           hash = this.blockchain.address.address;
@@ -87,7 +87,7 @@ export class AddressDetailComponent implements OnInit {
           return;
       }
       let hash = "";
-      let objType: ResultType = ResultType.none;
+      let objType: ResultType = ResultType.nothing;
       if(type === ResultType[ResultType.address]) {
           objType = ResultType.address;
           hash = this.blockchain.address.address;

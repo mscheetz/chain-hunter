@@ -150,7 +150,6 @@ const getBlockchains = async(toFind) => {
             blockchains["NEO"] = await neo.getBlockchain(blockchain, toFind);
         } else if(chains[i].symbol === 'NULS') {
             blockchains["NULS"] = await nuls.getBlockchain(blockchain, toFind);
-            console.log('nuls',blockchains["NULS"])
         } else if(chains[i].symbol === 'ONT') {
             blockchains["ONT"] = await ont.getBlockchain(blockchain, toFind);
         } else if(chains[i].symbol === 'QTUM') {

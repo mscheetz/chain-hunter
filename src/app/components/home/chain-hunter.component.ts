@@ -1,18 +1,19 @@
 import { OnInit, Component, Output, Input, isDevMode, HostListener } from '@angular/core';
-import { MenuItem, MessageService } from 'primeng/api';
+import { DomSanitizer, Title } from '@angular/platform-browser';
+import { ActivatedRoute } from '@angular/router';
+import { CookieService } from 'ngx-cookie-service';
+import { MenuItem, MessageService, SelectItem } from 'primeng/api';
+import * as _ from 'lodash';
 import { Blockchain } from 'src/app/classes/ChainHunter/blockchain.class';
 import { HelperService } from 'src/app/services/helper.service';
 import { ApiService } from 'src/app/services/api.service';
 import { Chain } from 'src/app/classes/ChainHunter/chain.class';
-import { DomSanitizer, Title } from '@angular/platform-browser';
 import { CookieData } from 'src/app/classes/ChainHunter/cookie-data.class';
-import { CookieService } from 'ngx-cookie-service';
 import { CookieRequest } from 'src/app/classes/ChainHunter/cookie-request.class';
 import { Asset } from 'src/app/classes/ChainHunter/asset.class';
 import { Interval, ResultType } from '../../classes/Enums';
 import { SearchService } from 'src/app/services/search.service';
 import { SearchSpec } from 'src/app/classes/ChainHunter/search-spec.class';
-import { ActivatedRoute } from '@angular/router';
 
 @Component({
     selector: 'chain-hunter',
@@ -22,7 +23,7 @@ import { ActivatedRoute } from '@angular/router';
 
 export class ChainHunterComponent implements OnInit {
     offLine: boolean = false;
-    @Output() addyTxn: string;
+    @Output() addyTxn: string = "";
     @Output() activeChains: Chain[] = [];
     @Output() futureChains: Chain[] = [];
     comingSoon: string = "";
@@ -52,6 +53,14 @@ export class ChainHunterComponent implements OnInit {
     @Output() tokenContent: string;
     searchSpec: SearchSpec = null;
     latestBlocks: boolean = false;
+    searchAddress: boolean = true;
+    searchBlock: boolean = false;
+    searchContract: boolean = true;
+    searchTransaction: boolean = true;
+    searchBlocks: boolean = false;
+    searchChains: SelectItem[] = [];
+    searchChain: string = null;
+    showSearchOptions: boolean = false;
 
     constructor(private titleService: Title,
                 private helperService: HelperService,
@@ -68,17 +77,31 @@ export class ChainHunterComponent implements OnInit {
         if(typeof symbol !== 'undefined' && symbol !== null && symbol !== "" 
             && typeof type !== 'undefined' && type !== null && type !== ""
             && typeof toFind !== 'undefined' && toFind !== null && toFind !== "") {
-                let searchType = type === "a" ? ResultType.address 
-                               : type === "b" ? ResultType.block
-                               : type === "bx" ? ResultType.blocks
-                               : type === "c" ? ResultType.contract
-                               : type === "t" ? ResultType.transaction
-                               : ResultType.none;
-
+                let searchType = ResultType.nothing;
+                this.searchAddress = this.searchBlock = this.searchBlocks = this.searchContract = this.searchTransaction = false;
+                if(type === "a") {
+                    searchType = ResultType.address;
+                    this.searchAddress = true;
+                } else if (type === "b") {
+                    searchType = ResultType.block;
+                    this.searchBlock = true;
+                } else if (type === "bx") {
+                    searchType = ResultType.blocks;
+                    this.searchBlocks = true;
+                } else if (type === "c") {
+                    searchType = ResultType.contract;
+                    this.searchContract = true;
+                } else if (type === "t") {
+                    searchType = ResultType.transaction;
+                    this.searchTransaction = true;
+                }
+                this.searchChain = symbol.toUpperCase();
                 this.searchSvc.setSearchSpec(symbol, searchType, toFind);
                 this.searchSpec = new SearchSpec();
                 this.searchSpec.chain = symbol;
-                this.searchSpec.searchString = toFind;
+                this.searchSpec.searchString = !this.searchBlocks
+                                                ? toFind
+                                                : "";                
                 this.searchSpec.type = searchType;
                 this.startSearch();
             }
@@ -98,6 +121,7 @@ export class ChainHunterComponent implements OnInit {
 
     ngOnInit() {
         this.windowWidth = window.innerWidth;
+        this.setOptionsPanel();
         this.guestAccountSearchLimit();
         this.getChains();
         this.nullOut();
@@ -107,6 +131,15 @@ export class ChainHunterComponent implements OnInit {
     @HostListener('window:resize', ['$event'])
     onResize(event){
         this.windowWidth = window.innerWidth;
+        this.setOptionsPanel();
+    }
+
+    setOptionsPanel() {
+        this.showSearchOptions = this.windowWidth <= 768 ? false : true;
+    }
+
+    toggleOptionsPanel() {
+        this.showSearchOptions = !this.showSearchOptions
     }
 
     guestAccountSearchLimit() {
@@ -127,6 +160,15 @@ export class ChainHunterComponent implements OnInit {
         this.apiSvc.getActiveChains()
             .subscribe(chains => {
                 this.activeChains = chains;
+                this.searchChains = [];
+                this.searchChains.push({ label: "All", value: null });
+                this.searchChains.push({ label: 'BTC', value: 'BTC' });
+                chains = _.orderBy(chains, "symbol");
+                chains.forEach(chain => {
+                    if(chain.symbol !== 'BTC') {
+                        this.searchChains.push({ label: chain.symbol, value: chain.symbol });
+                    }
+                })
             },
             error => {
                 this.offLine = true;
@@ -220,19 +262,55 @@ export class ChainHunterComponent implements OnInit {
     startHunt() {
         this.latestBlocks = false;
         this.requestedChains = this.map.size;
+        let searchType = ResultType.nothing;
+        if(this.searchSpec) {
+            searchType = this.searchSpec.type;
+        } else {
+            if(this.searchAddress) {
+                searchType = searchType | ResultType.address;
+            }
+            if(this.searchBlock) {
+                searchType = searchType | ResultType.block;
+            }
+            if(this.searchBlocks) {
+                searchType = searchType | ResultType.blocks;
+            }
+            if(this.searchContract) {
+                searchType = searchType | ResultType.contract;
+            }
+            if(this.searchTransaction) {
+                searchType = searchType | ResultType.transaction;
+            }
+        }
+        
         if(this.map.size > 0) {
             this.map.forEach((value: Blockchain, key: string) => {
-                if(this.searchSpec === null && !this.latestBlocks) {
-                    this.generalSearch(key, this.addyTxn);
+                if(this.searchSpec === null && !this.latestBlocks && this.searchChain === null) {
+                    this.generalSearch(key, this.addyTxn, searchType);
                 } else {
                     if(this.searchSpec !== null && this.searchSpec.chain.toLowerCase() === "all") {
                         this.latestBlocks = true;
                         this.searchSpec = null;
                     }
-                    this.targetedSearch(key);
+                    this.targetedSearch(key, searchType);
                 }
             });
         }
+    }
+
+    /**
+     * General search of a blockchain
+     * 
+     * @param symbol symbol of blockchain
+     * @param toSearch search string
+     * @param searchType search type
+     */
+    generalSearch(symbol: string, toSearch: string, searchType: ResultType) {
+        //this.apiSvc.getBlockchain(symbol, toSearch)
+        this.apiSvc.getBlockchainByType(symbol, toSearch, searchType)
+            .subscribe(chain => {
+                this.processSearchResult(chain);
+            });
     }
 
     /**
@@ -240,24 +318,32 @@ export class ChainHunterComponent implements OnInit {
      * 
      * @param symbol blockchain symbol
      */
-    targetedSearch(symbol: string){
+    targetedSearch(symbol: string, type: ResultType){
         if(this.latestBlocks){
                 this.latestBlocksSearch(symbol);
-        } else if(this.searchSpec) {
-            if(this.searchSpec.chain.toLowerCase() === symbol.toLowerCase()) {
-                //this.addyTxn = this.searchSpec.searchString;
+        } else {
+            let searchChain = this.searchSpec 
+                        ? this.searchSpec.chain
+                        : this.searchChain;
+            if(searchChain.toLowerCase() === symbol.toLowerCase()) {
                 this.requestedChains = 1;
-                if(this.searchSpec.type === ResultType.address) {
-                    this.addressSearch(this.searchSpec.chain, this.searchSpec.searchString);
-                } else if(this.searchSpec.type === ResultType.block) {
-                    this.blockSearch(this.searchSpec.chain, this.searchSpec.searchString);
-                } else if(this.searchSpec.type === ResultType.blocks) {
-                    this.latestBlocksSearch(this.searchSpec.chain);
-                } else if(this.searchSpec.type === ResultType.contract) {
-                    this.addressSearch(this.searchSpec.chain, this.searchSpec.searchString);
-                } else if(this.searchSpec.type === ResultType.transaction) {
-                    this.transactionSearch(this.searchSpec.chain, this.searchSpec.searchString);
+                if(type & ResultType.blocks) {
+                    this.latestBlocksSearch(symbol);
+                } else {                    
+                    this.generalSearch(symbol, this.addyTxn, type);
                 }
+
+                // if(type === ResultType.address) {
+                //     this.addressSearch(symbol, this.searchSpec.searchString);
+                // } else if(this.searchSpec.type === ResultType.block) {
+                //     this.blockSearch(symbol, this.searchSpec.searchString);
+                // } else if(this.searchSpec.type === ResultType.blocks) {
+                //     this.latestBlocksSearch(symbol);
+                // } else if(this.searchSpec.type === ResultType.contract) {
+                //     this.addressSearch(symbol, this.searchSpec.searchString);
+                // } else if(this.searchSpec.type === ResultType.transaction) {
+                //     this.transactionSearch(symbol, this.searchSpec.searchString);
+                // }
             }
         }
     }
@@ -327,19 +413,6 @@ export class ChainHunterComponent implements OnInit {
         this.apiSvc.getTransaction(symbol, hash)
             .subscribe(chain => {
                 this.searchSpec = null;
-                this.processSearchResult(chain);
-            });
-    }
-
-    /**
-     * General search of a blockchain
-     * 
-     * @param symbol symbol of blockchain
-     * @param toSearch search string
-     */
-    generalSearch(symbol: string, toSearch: string) {
-        this.apiSvc.getBlockchain(symbol, toSearch)
-            .subscribe(chain => {
                 this.processSearchResult(chain);
             });
     }
@@ -514,12 +587,10 @@ export class ChainHunterComponent implements OnInit {
      */
     updateMenuItems() {
         this.menuItems = [];
-       // this.huntStatus = this.addyTxn === undefined ? 0 : this.notRunning ? 2 : 1;
         this.map.forEach((value: Blockchain, key: string) => {
             let visible = this.windowWidth < 768 ? false : true;
             if (value.address || value.block || value.blocks || value.contract || value.transaction) {
                 visible = true;
-         //       this.huntStatus = 3;
             }
             this.menuItems.push({ 
                 label: value.symbol, 
@@ -640,5 +711,26 @@ export class ChainHunterComponent implements OnInit {
             src="//z-na.amazon-adsystem.com/widgets/q?ServiceVersion=20070822&Operation=GetScript&ID=OneJS&WS=1"></script>
         </div>`;
         return this.domSanitizer.bypassSecurityTrustHtml(adContent);
+    }
+
+    optionSet(type: string) {
+        if(type === 'blocks') {
+            this.searchBlocks = !this.searchBlocks;
+            this.searchAddress = !this.searchBlocks;
+            this.searchBlock =  !this.searchBlocks;
+            this.searchContract = !this.searchBlocks;
+            this.searchTransaction = !this.searchBlocks;
+        } else {
+            this.searchBlocks = false;
+            if(type === 'address') {
+                this.searchAddress = !this.searchAddress;
+            } else if(type === 'block') {
+                this.searchBlock = !this.searchBlock;
+            } else if(type === 'contract') {
+                this.searchContract = !this.searchContract;
+            } else if(type === 'transaction') {
+                this.searchTransaction = !this.searchTransaction;
+            }
+        }
     }
 }

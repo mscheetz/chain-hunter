@@ -46,6 +46,17 @@ router.get("/api/blockchain/:chain/:toFind", apiHelp.bootlegMiddleware, async (r
     res.status(200).json(result);
 });
 
+router.get("/api/blockchain/symbol/:chain/type/:type/value/:toFind", apiHelp.bootlegMiddleware, async (req, res, next) => {
+    const chain = req.params.chain.toLowerCase();
+    const type = req.params.type;
+    const toFind = req.params.toFind;
+    const ip = res.locals.ip;
+
+    const result = await manager.getBlockchain(chain, toFind, ip, req.ipInfo, type);
+
+    res.status(200).json(result);
+});
+
 router.get("/api/blockchain/address/:chain/:address", apiHelp.bootlegMiddleware, async (req, res, next) => {
     const chain = req.params.chain.toLowerCase();
     const address = req.params.address;

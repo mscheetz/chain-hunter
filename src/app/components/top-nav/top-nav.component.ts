@@ -54,6 +54,6 @@ export class TopNavComponent implements OnInit {
 
   latestBlocks() {
     this.hideNav();
-    this.router.navigate([`/search/all/b/latest`]);
+    this.router.navigate([`/search/all/bx/latest`]);
   }
 }

@@ -14,12 +14,12 @@ export enum Interval {
 }
 
 export enum ResultType {
-    none,
-    address,
-    block,
-    blocks,
-    contract,
-    transaction
+    nothing = 1,
+    address = 2,
+    transaction = 4,
+    contract = 8,
+    block = 16,
+    blocks = 32
 }
 
 export enum Severity {

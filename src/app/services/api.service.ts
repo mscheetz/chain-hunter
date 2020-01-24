@@ -384,6 +384,22 @@ export class ApiService{
     
         return result;
     }
+
+    /**
+     * Get a Blockchain
+     * 
+     * @param chain Blockchain to query
+     * @param searchString string to query
+     * @param type search type
+     */
+    getBlockchainByType(chain: string, searchString: string, type: ResultType): Observable<Blockchain>{
+        let endpoint: string = `/api/blockchain/symbol/${chain}/type/${type}/value/${searchString}`;
+        let url: string = this.baseUrl + endpoint;
+
+        let result = this.onGet<Blockchain>(url);
+    
+        return result;
+    }
     
     /**
      * Get all Blockchains

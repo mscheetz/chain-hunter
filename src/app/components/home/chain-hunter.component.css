@@ -1,31 +1,29 @@
-/*body{
-    font-family: "Open Sans","Helvetica Neue",sans-serif;
+.search-options {
+    padding-top: 10px;
 }
 
-h2 {
-    font-family: "Open Sans","Helvetica Neue",sans-serif;
-    font-weight: 400;
-    font-size: 30px;
-    margin-bottom: 20px;
-    display: block;
+@media(max-width: 768px){
+    .option-group {
+        padding-top: 10px;
+        display: block;
+    }
 }
 
-div {
-    font-family: "Open Sans","Helvetica Neue",sans-serif;
+.inactive-option {
+    opacity: 0.5;
+    background-color: lightgray !important;
+    border: 1px solid lightgray !important;
+    color: #303336 !important;
 }
 
-.not-found-bg {
-    background-color: dimgrey;
+.ui-button-ch {
+    background-color: #00AEEF;
+    border: 1px solid #00AEEF;
 }
 
-.found-bg {
-    background-color: ghostwhite;
+.ui-button-ch:hover{
+    background-color: #009DD6;
 }
-
-.float-input {
-    font-family: "Open Sans","Helvetica Neue",sans-serif;
-}
-*/
 
 .ui-button {
     margin-left: 10px;

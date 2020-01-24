@@ -60,7 +60,7 @@ export class ChainHunterComponent implements OnInit {
     searchBlocks: boolean = false;
     searchChains: SelectItem[] = [];
     searchChain: string = null;
-    searchButtonLabels: string[] = [];
+    showSearchOptions: boolean = false;
 
     constructor(private titleService: Title,
                 private helperService: HelperService,
@@ -121,6 +121,7 @@ export class ChainHunterComponent implements OnInit {
 
     ngOnInit() {
         this.windowWidth = window.innerWidth;
+        this.setOptionsPanel();
         this.guestAccountSearchLimit();
         this.getChains();
         this.nullOut();
@@ -130,22 +131,15 @@ export class ChainHunterComponent implements OnInit {
     @HostListener('window:resize', ['$event'])
     onResize(event){
         this.windowWidth = window.innerWidth;
+        this.setOptionsPanel();
     }
 
-    getLabels() {
-        if(this.windowWidth <= 768) {
-            this.shortSearchLabels();
-        } else {
-            this.longSearchLabels();
-        }
+    setOptionsPanel() {
+        this.showSearchOptions = this.windowWidth <= 768 ? false : true;
     }
 
-    longSearchLabels() {
-        this.searchButtonLabels = ["Address", "Block", "Contract", "Transaction", "Latest Block(s)"];
-    }
-
-    shortSearchLabels() {
-        this.searchButtonLabels = ["Addy", "Block", "K", "Txn", "Blocks"];
+    toggleOptionsPanel() {
+        this.showSearchOptions = !this.showSearchOptions
     }
 
     guestAccountSearchLimit() {

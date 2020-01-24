@@ -2,8 +2,27 @@
     padding-top: 10px;
 }
 
+@media(max-width: 768px){
+    .option-group {
+        padding-top: 10px;
+        display: block;
+    }
+}
+
 .inactive-option {
     opacity: 0.5;
+    background-color: lightgray !important;
+    border: 1px solid lightgray !important;
+    color: #303336 !important;
+}
+
+.ui-button-ch {
+    background-color: #00AEEF;
+    border: 1px solid #00AEEF;
+}
+
+.ui-button-ch:hover{
+    background-color: #009DD6;
 }
 
 .ui-button {

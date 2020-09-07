@@ -32,7 +32,9 @@ const forceSSL = function() {
   }
 }
 
-app.use(forceSSL());
+if(config.ENV !== 'DEV'){
+  app.use(forceSSL());
+}
 
 app.use(expressip().getIpInfoMiddleware);
 

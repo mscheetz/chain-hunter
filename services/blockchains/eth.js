@@ -34,8 +34,8 @@ const getBlockchain = async(chain, toFind, type) => {
     const searchType = type === enums.searchType.nothing 
     ? helperSvc.searchType(chain.symbol.toLowerCase(), toFind)
     : type;
-    
-    if(searchType & enums.searchType.nothing) {
+
+    if(searchType === enums.searchType.nothing) {
     } else if (searchType & enums.searchType.block) {
         chain.block = await getBlock(toFind);
     } else {

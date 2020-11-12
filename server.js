@@ -9,6 +9,7 @@ const compression = require('compression');
 const helmet = require('helmet');
 const adminApi = require('./routes/admin.api');
 const blockchainApi = require('./routes/blockchain.api');
+const btcApi = require('./routes/btc.api');
 const paymentApi = require('./routes/payment.api');
 const resultsApi = require('./routes/search.api');
 const userApi = require('./routes/user.api');
@@ -77,6 +78,7 @@ const redirectHome = async(req, res) => {
 
 app.all('/api/admin*', adminApi);
 app.all('/api/blockchain*', blockchainApi);
+app.all('/api/btc*', btcApi);
 app.all('/api/payment*', paymentApi);
 app.all('/api/results*', resultsApi);
 app.all('/api/user*', userApi);

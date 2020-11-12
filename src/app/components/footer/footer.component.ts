@@ -2,6 +2,7 @@ import { Component, OnInit, Output, EventEmitter, Input } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { LoginService } from 'src/app/services/login.service';
 import { AuthenticationService } from 'src/app/services/authentication.service';
+import { ApiService } from 'src/app/services/api.service';
 
 @Component({
     selector: 'footer-component',
@@ -13,13 +14,13 @@ export class FooterComponent implements OnInit {
     showQRCode: boolean = false;
     donateType: string;
     qrType: string = "url";
-    address: string = "36ZZ78NYGtvhQCcSRRG7311MoxZDJkCzob";
+    address: string = "";
     symbol: string = null;
     //@Output() toggleLogin: EventEmitter<any> = new EventEmitter();
     loggedIn: boolean;
     @Output() notification: EventEmitter<any> = new EventEmitter();
     
-    constructor(private loginSvc: LoginService, private authSvc: AuthenticationService) {
+    constructor(private loginSvc: LoginService, private authSvc: AuthenticationService, private apiSvc: ApiService) {
         this.authSvc.isLoggedIn.subscribe(val => this.loggedIn = val);
     }
 
@@ -52,6 +53,18 @@ export class FooterComponent implements OnInit {
         }
         this.donateType = "Donate with " + this.symbol + "!";
         this.showQRCode = true;
+    }
+
+    /**
+     * Get a BTC QR Code
+     */
+    getBtcQrCode() {
+        this.apiSvc.getBtcAddress()
+            .subscribe(res => {
+                this.address = res;
+                this.donateType = "Donate with " + this.symbol + "!";
+                this.showQRCode = true;
+            });
     }
 
     /**

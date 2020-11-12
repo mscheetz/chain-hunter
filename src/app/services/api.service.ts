@@ -687,6 +687,15 @@ export class ApiService{
         return result;
     }
 
+    getBtcAddress(): Observable<string> {
+        let endpoint: string = `/api/btc`;
+        let url: string = this.baseUrl + endpoint;
+
+        let result = this.onGet<string>(url);
+
+        return result;
+    }
+
     onGet<T>(url: string, secure: boolean = false): Observable<T> {
         let headers = this.getHeaders(secure);
         let requestOptions = {

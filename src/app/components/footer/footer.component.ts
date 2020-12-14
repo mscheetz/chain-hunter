@@ -61,6 +61,7 @@ export class FooterComponent implements OnInit {
     getBtcQrCode() {
         this.apiSvc.getBtcAddress()
             .subscribe(res => {
+                this.symbol = "BTC";
                 this.address = res;
                 this.donateType = "Donate with " + this.symbol + "!";
                 this.showQRCode = true;

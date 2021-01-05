@@ -34,7 +34,7 @@
     "@angular/platform-browser": "~8.1.1",
     "@angular/platform-browser-dynamic": "~8.1.1",
     "@angular/router": "~8.1.1",
-    "axios": "^0.19.0",
+    "axios": "^0.21.1",
     "bcrypt": "^5.0.0",
     "body-parser": "^1.19.0",
     "btc-xpub-address": "^0.2.0",

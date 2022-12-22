@@ -50,7 +50,7 @@
     "express-ip": "^1.0.3",
     "font-awesome": "^4.7.0",
     "helmet": "^3.21.2",
-    "jsonwebtoken": "^8.5.1",
+    "jsonwebtoken": "^9.0.0",
     "lodash": "^4.17.20",
     "ngx-cookie-service": "^2.2.0",
     "ngx-qrcode2": "0.0.9",
